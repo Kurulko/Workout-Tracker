@@ -1,0 +1,22 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Collections.Generic;
+using WorkoutTrackerAPI.Data;
+using WorkoutTrackerAPI.Data.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+
+namespace WorkoutTrackerAPI.Repositories;
+
+public class BaseWorkoutRepository<T> : BaseRepository<T>, IBaseWorkoutRepository<T>
+    where T : WorkoutModel
+{
+    public BaseWorkoutRepository(WorkoutDbContext db) : base(db)
+    {
+    }
+
+    public async Task<T?> GetByNameAsync(string name)
+        => await dbSet.SingleOrDefaultAsync(m => m.Name == name); 
+
+    public async Task<bool> ExistsByNameAsync(string name)
+        => await dbSet.AnyAsync(m => m.Name == name);
+}

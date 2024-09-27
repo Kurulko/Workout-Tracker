@@ -1,0 +1,132 @@
+{
+  "Muscles": [
+    {
+      "Name": "Neck",
+      "Children": [
+        { "Name": "Omohyoid" },
+        { "Name": "Sternohyoid" },
+        { "Name": "Sternocleidomastoid" },
+        { "Name": "Trapezius" }
+      ]
+    },
+    {
+      "Name": "Back",
+      "Children": [
+        { "Name": "Latissimus dorsi" },
+        { "Name": "Teres major" },
+        { "Name": "Teres minor" },
+        { "Name": "Infraspinatus" },
+        { "Name": "Rhomboid major" },
+        { "Name": "Erector spinae" }
+      ]
+    },
+    {
+      "Name": "Deltoids",
+      "Children": [
+        { "Name": "Deltoid anterior" },
+        { "Name": "Deltoid middle" },
+        { "Name": "Deltoid posterior" }
+      ]
+    },
+    {
+      "Name": "Arms",
+      "Children": [
+        {
+          "Name": "Biceps",
+          "Children": [
+            { "Name": "Biceps brachii short head" },
+            { "Name": "Biceps brachii long head" },
+            { "Name": "Brachialis" }
+          ]
+        },
+        {
+          "Name": "Triceps",
+          "Children": [
+            { "Name": "Triceps brachii long head" },
+            { "Name": "Triceps brachii lateral head" },
+            { "Name": "Triceps brachii medial head" }
+          ]
+        },
+        {
+          "Name": "Forearms",
+          "Children": [
+            { "Name": "Brachioradialis" },
+            { "Name": "Palmaris longus" },
+            { "Name": "Flexor carpi ulnaris" },
+            { "Name": "Extensor carpi ulnaris" },
+            { "Name": "Extensor digitorum" }
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "Chest",
+      "Children": [
+        { "Name": "Pectoralis major" },
+        { "Name": "Pectoralis minor" }
+      ]
+    },
+    {
+      "Name": "Core",
+      "Children": [
+        {
+          "Name": "Abs",
+          "Children": [
+            { "Name": "Serratus anterior" },
+            { "Name": "External oblique" },
+            { "Name": "Rectus abdominis" }
+          ]
+        },
+        {
+          "Name": "Glutes",
+          "Children": [
+            { "Name": "Gluteus maximus" },
+            { "Name": "Gluteus medius" }
+          ]
+        }
+      ]
+    },
+    
+    {
+      "Name": "Legs",
+      "Children": [
+        {
+          "Name": "Quadriceps",
+          "Children": [
+            { "Name": "Rectus femoris" },
+            { "Name": "Vastus lateralis" },
+            { "Name": "Vastus medialis" }
+          ]
+        },
+        {
+          "Name": "Thighs",
+          "Children": [
+            { "Name": "Tensor fasciae latae" },
+            { "Name": "Sartorius" },
+            { "Name": "Pectineus" },
+            { "Name": "Adductor longus" },
+            { "Name": "Gracilis" }
+          ]
+        },
+        {
+          "Name": "Hamstrings",
+          "Children": [
+            { "Name": "Biceps femoris" },
+            { "Name": "Semitendinosus" },
+            { "Name": "Semimembranosus" }
+          ]
+        },
+        {
+          "Name": "Calves",
+          "Children": [
+            { "Name": "Gastrocnemius" },
+            { "Name": "Soleus" },
+            { "Name": "Tibialis anterior" },
+            { "Name": "Peroneus brevis" },
+            { "Name": "Peroneus longus" }
+          ]
+        }
+      ]
+    }
+  ]
+}
