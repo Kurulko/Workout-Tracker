@@ -11,37 +11,21 @@ namespace WorkoutTrackerAPI.Tests;
 
 public static class IdentityHelper
 {
-    public static RoleManager<Role> GetRoleManager(WorkoutDbContext db)
+    public static RoleManager<IdentityRole> GetRoleManager(WorkoutDbContext db)
     {
-        var roleStore = new RoleStore<Role>(db);
-        //return new RoleManager<Role>(
-        //    roleStore,
-        //    new IRoleValidator<Role>[0],
-        //    new UpperInvariantLookupNormalizer(),
-        //    new Mock<IdentityErrorDescriber>().Object,
-        //    new Mock<ILogger<RoleManager<Role>>>().Object);
-        return new RoleManager<Role>(
+        var roleStore = new RoleStore<IdentityRole>(db);
+        return new RoleManager<IdentityRole>(
                    roleStore,
-                   new IRoleValidator<Role>[0],
+                   new IRoleValidator<IdentityRole>[0],
                    new UpperInvariantLookupNormalizer(),
                    new Mock<IdentityErrorDescriber>().Object,
-                   new Mock<ILogger<RoleManager<Role>>>(
+                   new Mock<ILogger<RoleManager<IdentityRole>>>(
                    ).Object);
     }
 
     public static UserManager<User> GetUserManager(WorkoutDbContext db)
     {
         var userStore = new UserStore<User>(db);
-        //return new UserManager<User>(
-        //    userStore,
-        //    new Mock<IOptions<IdentityOptions>>().Object,
-        //    new Mock<IPasswordHasher<User>>().Object,
-        //    new IUserValidator<User>[0],
-        //    new IPasswordValidator<User>[0],
-        //    new UpperInvariantLookupNormalizer(),
-        //    new Mock<IdentityErrorDescriber>().Object,
-        //    new Mock<IServiceProvider>().Object,
-        //    new Mock<ILogger<UserManager<User>>>().Object);
         return new UserManager<User>(
                     userStore,
                     new Mock<IOptions<IdentityOptions>>().Object,

@@ -5,7 +5,7 @@ using WorkoutTrackerAPI.Repositories;
 
 namespace WorkoutTrackerAPI.Services;
 
-public class BaseService<TModel> where TModel : class, IBaseModel
+public class BaseService<TModel> where TModel : class
 {
     protected readonly ArgumentNullOrEmptyException userIdIsNullOrEmptyException = new ("User ID");
     protected readonly NotFoundException userNotFoundException = new NotFoundException(nameof(User));

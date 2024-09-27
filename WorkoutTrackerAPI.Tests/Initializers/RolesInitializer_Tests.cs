@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Moq;
 using WorkoutTrackerAPI.Data.Models;
@@ -30,12 +31,12 @@ public class RolesInitializer_Tests
         await RolesInitializer.InitializeAsync(roleRepository, userRoleStr, adminRoleStr);
 
         //Assert
-        Role? userRole = await roleRepository.GetRoleByNameAsync(userRoleStr);
+        IdentityRole? userRole = await roleRepository.GetRoleByNameAsync(userRoleStr);
 
         Assert.NotNull(userRole);
         Assert.Equal(userRole?.Name, userRoleStr);
 
-        Role? adminRole = await roleRepository.GetRoleByNameAsync(adminRoleStr);
+        IdentityRole? adminRole = await roleRepository.GetRoleByNameAsync(adminRoleStr);
 
         Assert.NotNull(adminRole);
         Assert.Equal(adminRole?.Name, adminRoleStr);

@@ -6,6 +6,7 @@ namespace WorkoutTrackerAPI.Data.Models.UserModels;
 
 public class BodyWeight : IDbModel
 {
+    [Key]
     public long Id { get; set; }
     public DateOnly Date { get; set; }
     public float Weight { get; set; }

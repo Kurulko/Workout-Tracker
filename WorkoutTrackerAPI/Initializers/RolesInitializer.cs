@@ -1,4 +1,5 @@
-﻿using WorkoutTrackerAPI.Data.Models.UserModels;
+﻿using Microsoft.AspNetCore.Identity;
+using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Services.RoleServices;
 
@@ -10,9 +11,9 @@ public class RolesInitializer
     {
         foreach (string roleStr in rolesStr)
         {
-            Role? role = await roleRepository.GetRoleByNameAsync(roleStr);
+            IdentityRole? role = await roleRepository.GetRoleByNameAsync(roleStr);
             if (role is null)
-                await roleRepository.AddRoleAsync(new Role() { Name = roleStr });
+                await roleRepository.AddRoleAsync(new IdentityRole(roleStr));
         }
     }
 }

@@ -27,13 +27,13 @@ public class RolesController : APIController
     ActionResult RoleNameIsNullOrEmpty()
         => BadRequest($"Role name is null or empty.");
     ActionResult RoleIsNull()
-        => EntryIsNull(nameof(Role));
+        => EntryIsNull("Role");
     ActionResult RoleNotFound()
-        => EntryNotFound(nameof(Role));
+        => EntryNotFound("Role");
 
 
     [HttpGet]
-    public async Task<ActionResult<ApiResult<Role>>> GetRolesAsync(
+    public async Task<ActionResult<ApiResult<IdentityRole>>> GetRolesAsync(
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -51,7 +51,7 @@ public class RolesController : APIController
             if (roles is null)
                 return EntryNotFound("Roles");
 
-            return await ApiResult<Role>.CreateAsync(
+            return await ApiResult<IdentityRole>.CreateAsync(
                 roles,
                 pageIndex,
                 pageSize,
@@ -68,14 +68,14 @@ public class RolesController : APIController
     }
 
     [HttpGet("{roleId}")]
-    public async Task<ActionResult<Role>> GetRoleByIdAsync(string roleId)
+    public async Task<ActionResult<IdentityRole>> GetRoleByIdAsync(string roleId)
     {
         if (string.IsNullOrEmpty(roleId))
             return RoleIDIsNullOrEmpty();
 
         try
         {
-            Role? role = await roleService.GetRoleByIdAsync(roleId);
+            IdentityRole? role = await roleService.GetRoleByIdAsync(roleId);
 
             if (role is null)
                 return RoleNotFound();
@@ -89,14 +89,14 @@ public class RolesController : APIController
     }
 
     [HttpGet("by-name/{name}")]
-    public async Task<ActionResult<Role>> GetRoleByNameAsync(string name)
+    public async Task<ActionResult<IdentityRole>> GetRoleByNameAsync(string name)
     {
         if (string.IsNullOrEmpty(name))
             return RoleNameIsNullOrEmpty();
 
         try
         {
-            Role? role = await roleService.GetRoleByNameAsync(name);
+            IdentityRole? role = await roleService.GetRoleByNameAsync(name);
 
             if (role is null)
                 return RoleNotFound();
@@ -110,13 +110,13 @@ public class RolesController : APIController
     }
 
     [HttpPost]
-    public async Task<ActionResult<Role>> AddRoleAsync(Role role)
+    public async Task<ActionResult<IdentityRole>> AddRoleAsync(IdentityRole role)
     {
         if (role is null)
             return RoleIsNull();
 
         if (!string.IsNullOrEmpty(role.Id))
-            return InvalidEntryIDWhileAdding(nameof(Role), "role");
+            return InvalidEntryIDWhileAdding("Role", "role");
 
         try
         {
@@ -130,7 +130,7 @@ public class RolesController : APIController
     }
 
     [HttpPut("{roleId}")]
-    public async Task<IActionResult> UpdateRoleAsync(string roleId, Role role)
+    public async Task<IActionResult> UpdateRoleAsync(string roleId, IdentityRole role)
     {
         if (string.IsNullOrEmpty(roleId))
             return RoleIDIsNullOrEmpty();
@@ -139,7 +139,7 @@ public class RolesController : APIController
             return RoleIsNull();
 
         if (roleId != role.Id)
-            return EntryIDsNotMatch(nameof(Role));
+            return EntryIDsNotMatch("Role");
 
         var identityResult = await roleService.UpdateRoleAsync(role);
         return HandleIdentityResult(identityResult);

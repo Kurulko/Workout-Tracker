@@ -35,8 +35,8 @@ public class WorkoutContextFactory
     public WorkoutDbContext CreateDatabaseContext()
     {
         var options = new DbContextOptionsBuilder<WorkoutDbContext>()
-               //.UseInMemoryDatabase(Guid.NewGuid().ToString())
-               .UseInMemoryDatabase("Workout")
+               .UseInMemoryDatabase(Guid.NewGuid().ToString())
+               //.UseInMemoryDatabase("Workout")
                .Options;
 
         var db = new WorkoutDbContext(options);

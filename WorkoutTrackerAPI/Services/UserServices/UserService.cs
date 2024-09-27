@@ -305,7 +305,7 @@ public class UserService : BaseService<User>, IUserService
             throw userNameIsNullOrEmptyException;
 
         if (await RoleDoesNotExistByName(roleName))
-            throw new NotFoundException(nameof(Role));
+            throw new NotFoundException("Role");
 
         return await userRepository.GetUsersByRoleAsync(roleName);
     }
@@ -322,7 +322,7 @@ public class UserService : BaseService<User>, IUserService
             return IdentityResultExtentions.Failed(userNameIsNullOrEmptyException);
 
         if (await RoleDoesNotExistByName(roleName))
-            return IdentityResultExtentions.Failed(new NotFoundException(nameof(Role)));
+            return IdentityResultExtentions.Failed(new NotFoundException("Role"));
 
         try
         {
@@ -346,7 +346,7 @@ public class UserService : BaseService<User>, IUserService
             return IdentityResultExtentions.Failed(userNameIsNullOrEmptyException);
 
         if (await RoleDoesNotExistByName(roleName))
-            return IdentityResultExtentions.Failed(new NotFoundException(nameof(Role)));
+            return IdentityResultExtentions.Failed(new NotFoundException("Role"));
 
         try
         {

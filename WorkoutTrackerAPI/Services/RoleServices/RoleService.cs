@@ -17,19 +17,19 @@ public class RoleService : BaseService<User>, IRoleService
     public RoleService(RoleRepository roleRepository)
         => this.roleRepository = roleRepository;
 
-    readonly EntryNullException roleIsNullException = new EntryNullException(nameof(Role));
-    readonly NotFoundException roleNotFoundException = new NotFoundException(nameof(Role));
+    readonly EntryNullException roleIsNullException = new EntryNullException("Role");
+    readonly NotFoundException roleNotFoundException = new NotFoundException("Role");
     readonly ArgumentNullOrEmptyException roleNameIsNullOrEmptyException = new("Role name");
     readonly ArgumentNullOrEmptyException roleIdIsNullOrEmptyException = new("Role ID");
 
 
-    public async Task<Role> AddRoleAsync(Role role)
+    public async Task<IdentityRole> AddRoleAsync(IdentityRole role)
     {
         if (role is null)
             throw roleIsNullException;
 
         if (!string.IsNullOrEmpty(role.Id))
-            throw new ArgumentException(InvalidEntryIDWhileAddingStr(nameof(Role), "role"));
+            throw new ArgumentException(InvalidEntryIDWhileAddingStr("Role", "role"));
 
         if (await RoleDoesNotExist(role.Id))
             throw roleNotFoundException;
@@ -47,7 +47,7 @@ public class RoleService : BaseService<User>, IRoleService
 
         try
         {
-            Role? role = await roleRepository.GetRoleByIdAsync(roleId);
+            IdentityRole? role = await roleRepository.GetRoleByIdAsync(roleId);
 
             if (role is null)
                 return IdentityResultExtentions.Failed(roleNotFoundException);
@@ -60,10 +60,10 @@ public class RoleService : BaseService<User>, IRoleService
         }
     }
 
-    public async Task<IQueryable<Role>> GetRolesAsync()
+    public async Task<IQueryable<IdentityRole>> GetRolesAsync()
         => await roleRepository.GetRolesAsync();
 
-    public async Task<Role?> GetRoleByIdAsync(string roleId)
+    public async Task<IdentityRole?> GetRoleByIdAsync(string roleId)
     {
         if (string.IsNullOrEmpty(roleId))
             throw roleIdIsNullOrEmptyException;
@@ -71,7 +71,7 @@ public class RoleService : BaseService<User>, IRoleService
         return await roleRepository.GetRoleByIdAsync(roleId);
     }
 
-    public async Task<Role?> GetRoleByNameAsync(string name)
+    public async Task<IdentityRole?> GetRoleByNameAsync(string name)
     {
         if (string.IsNullOrEmpty(name))
             throw roleNameIsNullOrEmptyException;
@@ -79,7 +79,7 @@ public class RoleService : BaseService<User>, IRoleService
         return await roleRepository.GetRoleByNameAsync(name);
     }
 
-    public async Task<IdentityResult> UpdateRoleAsync(Role role)
+    public async Task<IdentityResult> UpdateRoleAsync(IdentityRole role)
     {
         if (role is null)
             return IdentityResultExtentions.Failed(roleIsNullException);

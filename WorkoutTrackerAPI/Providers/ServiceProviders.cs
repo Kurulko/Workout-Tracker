@@ -39,7 +39,7 @@ public static class ServiceProviders
 
     public static void AddIdentityModels(this IServiceCollection services)
     {
-        services.AddIdentity<User, Role>()
+        services.AddIdentity<User, IdentityRole>()
             .AddEntityFrameworkStores<WorkoutDbContext>()
             .AddDefaultTokenProviders();
     }

@@ -5,7 +5,7 @@ using WorkoutTrackerAPI.Data.Models.UserModels;
 
 namespace WorkoutTrackerAPI.Data.Models;
 
-public class User : IdentityUser, IBaseModel
+public class User : IdentityUser
 {
     public int CountOfTrainings { get; set; }
     public DateTime Registered { get; set; }
@@ -17,10 +17,4 @@ public class User : IdentityUser, IBaseModel
     public IEnumerable<Workout>? Workouts { get; set; }
     public IEnumerable<ExerciseRecord>? ExerciseRecords { get; set; }
     public IEnumerable<Exercise>? CreatedExercises { get; set; }
-
-    //public override bool Equals(object? obj)
-    //    => obj is User user && UserName == user.UserName;
-
-    //public override int GetHashCode()
-    //    => UserName.GetHashCode();
 }

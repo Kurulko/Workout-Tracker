@@ -17,60 +17,7 @@ namespace WorkoutTrackerAPI.Tests.Repositories.UserRepositories;
 
 public class BodyWeightRepository_Tests
 {
-    //readonly WorkoutContextFactory contextFactory = new WorkoutContextFactory();
-
-    async Task<string> InitializeUser2(WorkoutDbContext db)
-    {
-        // create a IWebHost environment mock instance
-        var mockEnv = Mock.Of<IWebHostEnvironment>();
-
-        // create a IConfiguration mock instance
-        var mockConfiguration = new Mock<IConfiguration>();
-        mockConfiguration.SetupGet(x => x[It.Is<string>(s => s == "DefaultPasswords:RegisteredUser")]).Returns("M0ckP$$word");
-
-
-        // create a RoleManager instance
-        var roleManager = IdentityHelper.GetRoleManager(db);
-
-        // create a UserManager instance
-        var userManager = IdentityHelper.GetUserManager(db);
-
-        // setup the default role names
-        string role_RegisteredUser = "RegisteredUser";
-
-        // create the default roles (if they don't exist yet)
-        if (await roleManager.FindByNameAsync(role_RegisteredUser) ==null)
-            await roleManager.CreateAsync(new Role(){ Name = role_RegisteredUser});
-
-
-        // check if the standard user already exists
-        var email_User = "user@email.com";
-        if (await userManager.FindByNameAsync(email_User) == null)
-        {
-            // create a new standard ApplicationUser account
-            var user_User = new User()
-            {
-                SecurityStamp = Guid.NewGuid().ToString(),
-                UserName = email_User,
-                Email = email_User
-            };
-
-            // insert the standard user into the DB
-            await userManager.CreateAsync(user_User, mockConfiguration.Object["DefaultPasswords:RegisteredUser"]);
-
-            // assign the "RegisteredUser" role
-            await userManager.AddToRoleAsync(user_User,
-             role_RegisteredUser);
-
-            // confirm the e-mail and remove lockout
-            user_User.EmailConfirmed = true;
-            user_User.LockoutEnabled = false;
-
-            return user_User.Id;
-        }
-
-        return string.Empty;
-    }
+    readonly WorkoutContextFactory contextFactory = new WorkoutContextFactory();
 
     async Task<string> InitializeUser(WorkoutDbContext db)
     {
@@ -78,36 +25,16 @@ public class BodyWeightRepository_Tests
         var userRepository = new UserRepository(userManager, db);
 
         string name = "User";
-        string email = "user@email.com";
-        string password = "P@$$w0rd";
-
         var existingUser = await userRepository.GetUserByUsernameAsync(name);
+
         if (existingUser is null)
         {
-            //await WorkoutContextFactory.InitializeRolesAsync(db);
+            string email = "user@email.com";
+            string password = "P@$$w0rd";
 
-            var roleManager = IdentityHelper.GetRoleManager(db);
-            RoleRepository roleRepository = new(roleManager);
-            //await RolesInitializer.InitializeAsync(roleRepository, Roles.UserRole, Roles.AdminRole);
+            await WorkoutContextFactory.InitializeRolesAsync(db);
 
-            await roleRepository.AddRoleAsync(new Role() { Name = Roles.UserRole });
-            await roleRepository.AddRoleAsync(new Role() { Name = Roles.AdminRole });
-
-            //await UsersInitializer.InitializeAsync(userRepository, name, email, password, Roles.UserRole);
-            User user = new()
-            {
-                UserName = name,
-                Email = email,
-                Registered = DateTime.Now
-            };
-
-
-            IdentityResult result = await userManager.CreateAsync(user, password);
-
-            if (result.Succeeded)
-            {
-                var res = await userManager.AddToRoleAsync(user, Roles.UserRole);
-            }
+            await UsersInitializer.InitializeAsync(userRepository, name, email, password, Roles.UserRole);
 
             return (await userRepository.GetUserIdByUsernameAsync(name))!;
         }
@@ -119,12 +46,10 @@ public class BodyWeightRepository_Tests
     public async Task AddAsync_ShouldReturnNewBodyWeight()
     {
         //Arrange
-
-        WorkoutContextFactory contextFactory = new WorkoutContextFactory();
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        string userId = await InitializeUser2(db);
+        string userId = await InitializeUser(db);
         var bodyWeight = new BodyWeight()
         {
             Date = DateOnly.FromDateTime(DateTime.Now),
@@ -144,7 +69,7 @@ public class BodyWeightRepository_Tests
 
         Assert.Equal(newBodyWeight, bodyWeightById);
     }
-    /*
+    
     [Fact]
     public async Task AddAsync_ShouldThrowException()
     {
@@ -155,7 +80,7 @@ public class BodyWeightRepository_Tests
         string userId = await InitializeUser(db);
         var bodyWeight = new BodyWeight()
         {
-            Id = 7,
+            Id = -1,
             Date = DateOnly.FromDateTime(DateTime.Now),
             Weight = 70.0f,
             WeightType = WeightType.Kilogram,
@@ -163,7 +88,9 @@ public class BodyWeightRepository_Tests
         };
 
         //Act & Assert
-        var ex = await Assert.ThrowsAsync<Exception>(async () => await bodyWeightRepository.AddAsync(bodyWeight));
+        var ex = await Assert.ThrowsAsync<DbUpdateException>(async () => await bodyWeightRepository.AddAsync(bodyWeight));
+        //var ex = await Assert.ThrowsAsync<Exception>(async () => await bodyWeightRepository.AddAsync(bodyWeight));
+        Assert.Equal($"ID cannot be negative for entity of type {nameof(BodyWeight)}.", ex.Message);
     }
 
     [Fact]
@@ -510,7 +437,7 @@ public class BodyWeightRepository_Tests
         //Assert
         Assert.Empty(someBodyWeights);
     }
-    */
+    
 
     //[Fact]
     //public async Task ExistsAsync()
