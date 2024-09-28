@@ -1,4 +1,5 @@
-﻿using WorkoutTrackerAPI.Data.Models;
+﻿using System.Security.Cryptography;
+using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Services;
 using WorkoutTrackerAPI.Services.ExerciseServices;
@@ -8,7 +9,7 @@ namespace WorkoutTrackerAPI.Initializers;
 
 public class ExercisesInitializer
 {
-    public static async Task InitializeAsync(ExerciseRepository exerciseRepository, MuscleRepository muscleRepository, string name, ExerciseType exerciseType, params string[] muscleNames)
+    public static async Task<Exercise> InitializeAsync(ExerciseRepository exerciseRepository, MuscleRepository muscleRepository, string name, ExerciseType exerciseType, params string[] muscleNames)
     {
         Exercise exercise = new();
 
@@ -26,5 +27,7 @@ public class ExercisesInitializer
 
         exercise.WorkingMuscles = muscles;
         await exerciseRepository.AddAsync(exercise);
+
+        return exercise;
     }
 }

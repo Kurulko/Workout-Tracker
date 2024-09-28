@@ -1,13 +1,8 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
-using Moq;
+﻿using Microsoft.EntityFrameworkCore;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
+using WorkoutTrackerAPI.Exceptions;
 using WorkoutTrackerAPI.Initializers;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
@@ -15,33 +10,8 @@ using Xunit;
 
 namespace WorkoutTrackerAPI.Tests.Repositories.UserRepositories;
 
-public class BodyWeightRepository_Tests
+public class BodyWeightRepository_Tests : BaseRepository_Tests<BodyWeight>
 {
-    readonly WorkoutContextFactory contextFactory = new WorkoutContextFactory();
-
-    async Task<string> InitializeUser(WorkoutDbContext db)
-    {
-        var userManager = IdentityHelper.GetUserManager(db);
-        var userRepository = new UserRepository(userManager, db);
-
-        string name = "User";
-        var existingUser = await userRepository.GetUserByUsernameAsync(name);
-
-        if (existingUser is null)
-        {
-            string email = "user@email.com";
-            string password = "P@$$w0rd";
-
-            await WorkoutContextFactory.InitializeRolesAsync(db);
-
-            await UsersInitializer.InitializeAsync(userRepository, name, email, password, Roles.UserRole);
-
-            return (await userRepository.GetUserIdByUsernameAsync(name))!;
-        }
-
-        return existingUser.Id;
-    }
-
     [Fact]
     public async Task AddAsync_ShouldReturnNewBodyWeight()
     {
@@ -49,13 +19,13 @@ public class BodyWeightRepository_Tests
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        string userId = await InitializeUser(db);
+        User user = await GetDefaultUser(db);
         var bodyWeight = new BodyWeight()
         {
             Date = DateOnly.FromDateTime(DateTime.Now),
             Weight = 70.0f,
             WeightType = WeightType.Kilogram,
-            UserId = userId
+            UserId = user.Id
         };
 
         //Act
@@ -77,20 +47,19 @@ public class BodyWeightRepository_Tests
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        string userId = await InitializeUser(db);
+        User user = await GetDefaultUser(db);
         var bodyWeight = new BodyWeight()
         {
             Id = -1,
             Date = DateOnly.FromDateTime(DateTime.Now),
             Weight = 70.0f,
             WeightType = WeightType.Kilogram,
-            UserId = userId
+            UserId = user.Id
         };
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<DbUpdateException>(async () => await bodyWeightRepository.AddAsync(bodyWeight));
-        //var ex = await Assert.ThrowsAsync<Exception>(async () => await bodyWeightRepository.AddAsync(bodyWeight));
-        Assert.Equal($"ID cannot be negative for entity of type {nameof(BodyWeight)}.", ex.Message);
+        Assert.Equal($"Entity of type {nameof(BodyWeight)} should not have an ID assigned.", ex.Message);
     }
 
     [Fact]
@@ -100,7 +69,7 @@ public class BodyWeightRepository_Tests
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        string userId = await InitializeUser(db);
+        User user = await GetDefaultUser(db);
         var bodyWeights = new[]
              {
                 new BodyWeight()
@@ -108,14 +77,14 @@ public class BodyWeightRepository_Tests
                     Date = DateOnly.FromDateTime(DateTime.Now),
                     Weight = 70.0f,
                     WeightType = WeightType.Kilogram,
-                    UserId = userId
+                    UserId = user.Id
                 },
                 new BodyWeight()
                 {
                     Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-2)),
                     Weight = 62,
                     WeightType = WeightType.Pound,
-                    UserId = userId
+                    UserId = user.Id
                 }
             };
 
@@ -135,7 +104,7 @@ public class BodyWeightRepository_Tests
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        string userId = await InitializeUser(db);
+        User user = await GetDefaultUser(db);
         var bodyWeights = new[]
              {
                 new BodyWeight()
@@ -144,19 +113,20 @@ public class BodyWeightRepository_Tests
                     Date = DateOnly.FromDateTime(DateTime.Now),
                     Weight = 70.0f,
                     WeightType = WeightType.Kilogram,
-                    UserId = userId
+                    UserId = user.Id
                 },
                 new BodyWeight()
                 {
                     Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-2)),
                     Weight = 62,
                     WeightType = WeightType.Pound,
-                    UserId = userId
+                    UserId = user.Id
                 }
             };
 
         //Act & Assert
-        var ex = await Assert.ThrowsAsync<Exception>(async () => await bodyWeightRepository.AddRangeAsync(bodyWeights));
+        var ex = await Assert.ThrowsAsync<DbUpdateException>(async () => await bodyWeightRepository.AddRangeAsync(bodyWeights));
+        Assert.Equal($"New entities of type {nameof(BodyWeight)} should not have an ID assigned.", ex.Message);
     }
 
     [Fact]
@@ -166,13 +136,13 @@ public class BodyWeightRepository_Tests
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        string userId = await InitializeUser(db);
+        User user = await GetDefaultUser(db);
         var bodyWeight = new BodyWeight()
         {
             Date = DateOnly.FromDateTime(DateTime.Now),
             Weight = 70.0f,
             WeightType = WeightType.Kilogram,
-            UserId = userId
+            UserId = user.Id
         };
         var newBodyWeight = await bodyWeightRepository.AddAsync(bodyWeight);
 
@@ -189,14 +159,27 @@ public class BodyWeightRepository_Tests
     }
 
     [Fact]
-    public async Task RemoveAsync_ShouldThrowException()
+    public async Task RemoveAsync_IncorrectBodyWeightID_ShouldThrowException()
     {
         //Arrange
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         //Act & Assert
-        var ex = await Assert.ThrowsAsync<Exception>(async () => await bodyWeightRepository.RemoveAsync(5));
+        var ex = await Assert.ThrowsAsync<DbUpdateException>(async () => await bodyWeightRepository.RemoveAsync(-1));
+        Assert.Equal($"Entity of type {nameof(BodyWeight)} must have a positive ID to be removed.", ex.Message);
+    }
+
+    [Fact]
+    public async Task RemoveAsync_BodyWeightNotExist_ShouldThrowException()
+    {
+        //Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var bodyWeightRepository = new BodyWeightRepository(db);
+
+        //Act & Assert
+        var ex = await Assert.ThrowsAsync<NotFoundException>(async () => await bodyWeightRepository.RemoveAsync(2));
+        Assert.Equal($"{nameof(BodyWeight)} not found.", ex.Message);
     }
 
     [Fact]
@@ -206,13 +189,13 @@ public class BodyWeightRepository_Tests
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        string userId = await InitializeUser(db);
+        User user = await GetDefaultUser(db);
         var bodyWeight = new BodyWeight()
         {
             Date = DateOnly.FromDateTime(DateTime.Now),
             Weight = 70.0f,
             WeightType = WeightType.Kilogram,
-            UserId = userId
+            UserId = user.Id
         };
         var newBodyWeight1 = await bodyWeightRepository.AddAsync(bodyWeight);
 
@@ -221,7 +204,7 @@ public class BodyWeightRepository_Tests
             Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-5)),
             Weight = 64,
             WeightType = WeightType.Kilogram,
-            UserId = userId
+            UserId = user.Id
         };
         var newBodyWeight2 = await bodyWeightRepository.AddAsync(bodyWeight2);
 
@@ -247,13 +230,13 @@ public class BodyWeightRepository_Tests
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        string userId = await InitializeUser(db);
+        User user = await GetDefaultUser(db);
         var bodyWeight1 = new BodyWeight()
         {
             Date = DateOnly.FromDateTime(DateTime.Now),
             Weight = 70.0f,
             WeightType = WeightType.Kilogram,
-            UserId = userId
+            UserId = user.Id
         };
 
         var bodyWeight2 = new BodyWeight()
@@ -261,12 +244,13 @@ public class BodyWeightRepository_Tests
             Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-5)),
             Weight = 64,
             WeightType = WeightType.Kilogram,
-            UserId = userId
+            UserId = user.Id
         };
 
         //Act & Assert
-        var ex = await Assert.ThrowsAsync<Exception>(async () =>
+        var ex = await Assert.ThrowsAsync<DbUpdateException>(async () =>
             await bodyWeightRepository.RemoveRangeAsync(new[] { bodyWeight1, bodyWeight2 }));
+        Assert.Equal($"Entities of type {nameof(BodyWeight)} must have a positive ID to be removed.", ex.Message);
     }
 
     [Fact]
@@ -275,7 +259,7 @@ public class BodyWeightRepository_Tests
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        string userId = await InitializeUser(db);
+        User user = await GetDefaultUser(db);
         var bodyWeights = new[]
              {
                 new BodyWeight()
@@ -283,14 +267,14 @@ public class BodyWeightRepository_Tests
                     Date = DateOnly.FromDateTime(DateTime.Now),
                     Weight = 70.0f,
                     WeightType = WeightType.Kilogram,
-                    UserId = userId
+                    UserId = user.Id
                 },
                 new BodyWeight()
                 {
                     Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-2)),
                     Weight = 62,
                     WeightType = WeightType.Pound,
-                    UserId = userId
+                    UserId = user.Id
                 }
             };
 
@@ -305,19 +289,33 @@ public class BodyWeightRepository_Tests
     }
 
     [Fact]
+    public async Task GetAllAsync_ShouldReturnEmpty()
+    {
+        using var db = contextFactory.CreateDatabaseContext();
+        var bodyWeightRepository = new BodyWeightRepository(db);
+
+        //Act
+        var addedBodyWeights = await bodyWeightRepository.GetAllAsync();
+
+        //Assert
+        Assert.NotNull(addedBodyWeights);
+        Assert.Empty(addedBodyWeights);
+    }
+
+    [Fact]
     public async Task GetByIdAsync_ShouldReturnBodyWeightById()
     {
         //Arrange
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        string userId = await InitializeUser(db);
+        User user = await GetDefaultUser(db);
         var bodyWeight = new BodyWeight()
         {
             Date = DateOnly.FromDateTime(DateTime.Now),
             Weight = 70.0f,
             WeightType = WeightType.Kilogram,
-            UserId = userId
+            UserId = user.Id
         };
 
         var newBodyWeight = await bodyWeightRepository.AddAsync(bodyWeight);
@@ -331,25 +329,17 @@ public class BodyWeightRepository_Tests
     }
 
     [Fact]
-    public async Task GetByIdAsync_ShouldThrowException()
+    public async Task GetByIdAsync_ShouldReturnNull()
     {
         //Arrange
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        string userId = await InitializeUser(db);
-        var bodyWeight = new BodyWeight()
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now),
-            Weight = 70.0f,
-            WeightType = WeightType.Kilogram,
-            UserId = userId
-        };
+        //Act
+        var bodyWeightById = await bodyWeightRepository.GetByIdAsync(1);
 
-        var newBodyWeight = await bodyWeightRepository.AddAsync(bodyWeight);
-
-        //Act & Assert
-        var ex = await Assert.ThrowsAsync<Exception>(async () => await bodyWeightRepository.GetByIdAsync(-1));
+        //Assert
+        Assert.Null(bodyWeightById);
     }
 
     [Fact]
@@ -358,7 +348,7 @@ public class BodyWeightRepository_Tests
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        string userId = await InitializeUser(db);
+        User user = await GetDefaultUser(db);
         var bodyWeights = new[]
              {
                 new BodyWeight()
@@ -366,21 +356,21 @@ public class BodyWeightRepository_Tests
                     Date = DateOnly.FromDateTime(DateTime.Now),
                     Weight = 70,
                     WeightType = WeightType.Kilogram,
-                    UserId = userId
+                    UserId = user.Id
                 },
                 new BodyWeight()
                 {
                     Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-2)),
                     Weight = 62,
                     WeightType = WeightType.Pound,
-                    UserId = userId
+                    UserId = user.Id
                 },
                 new BodyWeight()
                 {
                     Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)),
                     Weight = 70,
                     WeightType = WeightType.Kilogram,
-                    UserId = userId
+                    UserId = user.Id
                 }
             };
 
@@ -398,12 +388,12 @@ public class BodyWeightRepository_Tests
     }
 
     [Fact]
-    public async Task FindAsync_ShouldFindNoBodyWeights()
+    public async Task FindAsync_ShouldReturnEmpty()
     {
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        string userId = await InitializeUser(db);
+        User user = await GetDefaultUser(db);
         var bodyWeights = new[]
              {
                 new BodyWeight()
@@ -411,21 +401,21 @@ public class BodyWeightRepository_Tests
                     Date = DateOnly.FromDateTime(DateTime.Now),
                     Weight = 70,
                     WeightType = WeightType.Kilogram,
-                    UserId = userId
+                    UserId = user.Id
                 },
                 new BodyWeight()
                 {
                     Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-2)),
                     Weight = 62,
                     WeightType = WeightType.Kilogram,
-                    UserId = userId
+                    UserId = user.Id
                 },
                 new BodyWeight()
                 {
                     Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)),
                     Weight = 70,
                     WeightType = WeightType.Kilogram,
-                    UserId = userId
+                    UserId = user.Id
                 }
             };
 
@@ -437,23 +427,164 @@ public class BodyWeightRepository_Tests
         //Assert
         Assert.Empty(someBodyWeights);
     }
-    
 
-    //[Fact]
-    //public async Task ExistsAsync()
-    //{
 
-    //}
+    [Fact]
+    public async Task ExistsAsync_ShouldReturnTrue()
+    {
+        //Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var bodyWeightRepository = new BodyWeightRepository(db);
 
-    //[Fact]
-    //public async Task UpdateAsync()
-    //{
+        User user = await GetDefaultUser(db);
+        var bodyWeight = new BodyWeight()
+        {
+            Date = DateOnly.FromDateTime(DateTime.Now),
+            Weight = 70.0f,
+            WeightType = WeightType.Kilogram,
+            UserId = user.Id
+        };
 
-    //}
+        var newBodyWeight = await bodyWeightRepository.AddAsync(bodyWeight);
 
-    //[Fact]
-    //public async Task SaveChangesAsync()
-    //{
+        //Act
+        var exists = await bodyWeightRepository.ExistsAsync(newBodyWeight.Id);
 
-    //}
+        //Assert
+        Assert.True(exists);
+    }
+
+    [Fact]
+    public async Task ExistsAsync_ShouldReturnFalse()
+    {
+        //Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var bodyWeightRepository = new BodyWeightRepository(db);
+
+        //Act
+        var exists = await bodyWeightRepository.ExistsAsync(1);
+
+        //Assert
+        Assert.False(exists);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldUpdateSuccessfull()
+    {
+        //Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var bodyWeightRepository = new BodyWeightRepository(db);
+
+        User user = await GetDefaultUser(db);
+        var bodyWeight = new BodyWeight()
+        {
+            Date = DateOnly.FromDateTime(DateTime.Now),
+            Weight = 70.0f,
+            WeightType = WeightType.Kilogram,
+            UserId = user.Id
+        };
+
+        bodyWeight = await bodyWeightRepository.AddAsync(bodyWeight);
+
+        bodyWeight.WeightType = WeightType.Pound;
+        bodyWeight.Weight = 120;
+
+        //Act
+        await bodyWeightRepository.UpdateAsync(bodyWeight);
+
+        //Assert
+        var updatedBodyWeight = await bodyWeightRepository.GetByIdAsync(bodyWeight.Id);
+
+        Assert.NotNull(updatedBodyWeight);
+        Assert.Equal(updatedBodyWeight, bodyWeight);
+        Assert.Equal(updatedBodyWeight.Weight, bodyWeight.Weight);
+        Assert.Equal(updatedBodyWeight.WeightType, bodyWeight.WeightType);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldThrowException()
+    {
+        //Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var bodyWeightRepository = new BodyWeightRepository(db);
+
+        User user = await GetDefaultUser(db);
+        var bodyWeight = new BodyWeight()
+        {
+            Date = DateOnly.FromDateTime(DateTime.Now),
+            Weight = 70.0f,
+            WeightType = WeightType.Kilogram,
+            UserId = user.Id
+        };
+
+        bodyWeight = await bodyWeightRepository.AddAsync(bodyWeight);
+
+        bodyWeight.Id = -1;
+        bodyWeight.Weight = 120;
+
+        //Act & Assert
+        var ex = await Assert.ThrowsAsync<DbUpdateException>(async () => await bodyWeightRepository.UpdateAsync(bodyWeight));
+        Assert.Equal($"Modified entities of type {nameof(BodyWeight)} must have a positive ID.", ex.Message);
+    }
+
+    [Fact]
+    public async Task SaveChangesAsync_SavesEntitySuccessfully()
+    {
+        //Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var bodyWeightRepository = new BodyWeightRepository(db);
+
+        User user = await GetDefaultUser(db);
+        var bodyWeight = new BodyWeight()
+        {
+            Date = DateOnly.FromDateTime(DateTime.Now),
+            Weight = 70.0f,
+            WeightType = WeightType.Kilogram,
+            UserId = user.Id
+        };
+
+        bodyWeight = await bodyWeightRepository.AddAsync(bodyWeight);
+
+        var bodyWeightById = (await bodyWeightRepository.GetByIdAsync(bodyWeight.Id))!;
+
+        bodyWeightById.WeightType = WeightType.Pound;
+        bodyWeightById.Weight = 120;
+
+        //Act
+        await bodyWeightRepository.SaveChangesAsync();
+
+        //Assert
+
+        var updatedBodyWeight = (await bodyWeightRepository.GetByIdAsync(bodyWeight.Id))!;
+        Assert.NotNull(updatedBodyWeight);
+        Assert.Equal(updatedBodyWeight, bodyWeightById);
+        Assert.Equal(updatedBodyWeight.Weight, bodyWeightById.Weight);
+        Assert.Equal(updatedBodyWeight.WeightType, bodyWeightById.WeightType);
+    }
+
+    [Fact]
+    public async Task SaveChangesAsync_ShouldThrowException()
+    {
+        //Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var bodyWeightRepository = new BodyWeightRepository(db);
+
+        User user = await GetDefaultUser(db);
+        var bodyWeight = new BodyWeight()
+        {
+            Date = DateOnly.FromDateTime(DateTime.Now),
+            Weight = 70.0f,
+            WeightType = WeightType.Kilogram,
+            UserId = user.Id
+        };
+
+        bodyWeight = await bodyWeightRepository.AddAsync(bodyWeight);
+
+        var bodyWeightById = (await bodyWeightRepository.GetByIdAsync(bodyWeight.Id))!;
+
+        bodyWeightById.Id = -1;
+
+        //Act & Assert
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(bodyWeightRepository.SaveChangesAsync);
+    }
 }

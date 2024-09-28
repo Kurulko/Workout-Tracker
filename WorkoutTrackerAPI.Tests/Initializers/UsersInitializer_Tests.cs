@@ -28,8 +28,8 @@ public class UsersInitializer_Tests
         var userRepository = new UserRepository(userManager, db);
 
         var mockConfiguration = new Mock<IConfiguration>();
-        mockConfiguration.SetupGet(x => x[It.Is<string>(s => s == "DefaultPasswords:User")]).Returns("P@$$w0rd");
-        mockConfiguration.SetupGet(x => x[It.Is<string>(s => s == "DefaultPasswords:Admin")]).Returns("P@$$w0rd");
+        mockConfiguration.SetupGet(x => x[It.Is<string>(s => s == "DefaultPasswords:User")]).Returns("P@$$w0rd_2024");
+        mockConfiguration.SetupGet(x => x[It.Is<string>(s => s == "DefaultPasswords:Admin")]).Returns("P@$$w0rd_2024");
 
         string name_User = "User";
         string name_Admin = "Admin";
@@ -41,13 +41,10 @@ public class UsersInitializer_Tests
         string password_Admin = mockConfiguration.Object["DefaultPasswords:Admin"]!;
 
         await WorkoutContextFactory.InitializeRolesAsync(db);
-        //var roleManager = IdentityHelper.GetRoleManager(new RoleStore<Role>(db));
-        //IRoleService roleService = new RoleService(roleManager);
-        //await RolesInitializer.InitializeAsync(roleService, Roles.UserRole, Roles.AdminRole);
 
         //Act
         await UsersInitializer.InitializeAsync(userRepository, name_User, email_User, password_User, Roles.UserRole);
-        await UsersInitializer.InitializeAsync(userRepository, name_Admin, email_Admin, password_User, Roles.UserRole, Roles.AdminRole);
+        await UsersInitializer.InitializeAsync(userRepository, name_Admin, email_Admin, password_Admin, Roles.UserRole, Roles.AdminRole);
 
         //Assert
         User? user = await userRepository.GetUserByUsernameAsync(name_User);

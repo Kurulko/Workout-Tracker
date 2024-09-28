@@ -262,16 +262,16 @@ public class UserService : BaseService<User>, IUserService
         }
     }
 
-    public async Task<bool> HasUserPasswordAsync(string userId)
-    {
-        if (string.IsNullOrEmpty(userId))
-            throw userIdIsNullOrEmptyException;
+    //public async Task<bool> HasUserPasswordAsync(string userId)
+    //{
+    //    if (string.IsNullOrEmpty(userId))
+    //        throw userIdIsNullOrEmptyException;
 
-        if (await UserDoesNotExist(userId))
-            throw userNotFoundException;
+    //    if (await UserDoesNotExist(userId))
+    //        throw userNotFoundException;
 
-        return await userRepository.HasUserPasswordAsync(userId);
-    }
+    //    return await userRepository.HasUserPasswordAsync(userId);
+    //}
 
     #endregion
 

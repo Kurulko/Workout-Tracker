@@ -457,22 +457,22 @@ public class UsersController : APIController
 
     #region Password
 
-    [Authorize(Roles = Roles.AdminRole)]
-    [HttpGet("{userId}/has-password")]
-    public async Task<ActionResult<bool>> HasPassword(string userId)
-    {
-        if (string.IsNullOrEmpty(userId))
-            return UserIDIsNullOrEmpty();
+    //[Authorize(Roles = Roles.AdminRole)]
+    //[HttpGet("{userId}/has-password")]
+    //public async Task<ActionResult<bool>> HasPassword(string userId)
+    //{
+    //    if (string.IsNullOrEmpty(userId))
+    //        return UserIDIsNullOrEmpty();
 
-        try
-        {
-            return await userService.HasUserPasswordAsync(userId);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
-    }
+    //    try
+    //    {
+    //        return await userService.HasUserPasswordAsync(userId);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        return HandleException(ex);
+    //    }
+    //}
 
     [HttpPut("password")]
     public async Task<IActionResult> ChangeCurrentUserPasswordAsync(PasswordModel passwordModel)

@@ -6,6 +6,7 @@ using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Exceptions;
 using WorkoutTrackerAPI.Repositories;
+using WorkoutTrackerAPI.Repositories.UserRepositories;
 using WorkoutTrackerAPI.Services.UserServices;
 
 namespace WorkoutTrackerAPI.Services.AccountServices;
@@ -14,14 +15,14 @@ public class AccountService : IAccountService
 {
     readonly UserManager<User> userManager;
     readonly SignInManager<User> signInManager;
-    readonly IUserService userService;
+    readonly UserRepository userRepository;
     readonly IHttpContextAccessor httpContextAccessor;
     readonly JwtHandler jwtHandler;
 
-    public AccountService(SignInManager<User> signInManager, IUserService userService, JwtHandler jwtHandler, IHttpContextAccessor httpContextAccessor, UserManager<User> userManager)
+    public AccountService(SignInManager<User> signInManager, UserRepository userRepository, JwtHandler jwtHandler, IHttpContextAccessor httpContextAccessor, UserManager<User> userManager)
     {
         this.signInManager = signInManager;
-        this.userService = userService;
+        this.userRepository = userRepository;
         this.jwtHandler = jwtHandler;
         this.httpContextAccessor = httpContextAccessor;
         this.userManager = userManager;
@@ -70,7 +71,7 @@ public class AccountService : IAccountService
 
 
         User user = (User)register;
-        IdentityResult result = await userService.CreateUserAsync(user, register.Password);
+        IdentityResult result = await userRepository.CreateUserAsync(user, register.Password);
 
         if (!result.Succeeded)
         {
@@ -84,7 +85,7 @@ public class AccountService : IAccountService
             await signInManager.SignInAsync(user, register.RememberMe);
 
             string userRole = Roles.UserRole;
-            var identityResult = await userService.AddRoleToUserAsync(user.Id, userRole);
+            var identityResult = await userRepository.AddRoleToUserAsync(user.Id, userRole);
             if (!identityResult.Succeeded)
             {
                 string failMessage = IdentityErrorsToString(result.Errors);
@@ -106,7 +107,7 @@ public class AccountService : IAccountService
     public async Task<TokenModel> GetTokenAsync()
     {
         var claims = httpContextAccessor.HttpContext!.User;
-        User user = (await userService.GetUserByClaimsAsync(claims))!;
+        User user = (await userRepository.GetUserByClaimsAsync(claims))!;
         return await jwtHandler.GenerateJwtTokenAsync(user);
     }
 }

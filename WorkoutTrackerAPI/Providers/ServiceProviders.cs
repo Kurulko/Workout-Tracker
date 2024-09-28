@@ -42,6 +42,15 @@ public static class ServiceProviders
         services.AddIdentity<User, IdentityRole>()
             .AddEntityFrameworkStores<WorkoutDbContext>()
             .AddDefaultTokenProviders();
+
+        services.Configure<IdentityOptions>(options =>
+        {
+            options.Password.RequireDigit = true;
+            options.Password.RequiredLength = 6; 
+            options.Password.RequireLowercase = true; 
+            options.Password.RequireUppercase = true; 
+            options.Password.RequireNonAlphanumeric = true; 
+        });
     }
 
 

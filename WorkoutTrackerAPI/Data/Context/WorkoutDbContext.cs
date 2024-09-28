@@ -36,28 +36,4 @@ public class WorkoutDbContext : IdentityDbContext<User>
             .WithMany(e => e.ExerciseRecords)
             .HasForeignKey(er => er.ExerciseId);
     }
-
-    public override int SaveChanges()
-    {
-        ValidateEntities();
-        return base.SaveChanges();
-    }
-
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        ValidateEntities();
-        return await base.SaveChangesAsync(cancellationToken);
-    }
-
-    void ValidateEntities()
-    {
-        foreach (var entry in ChangeTracker.Entries<IDbModel>())
-        {
-            if (entry.State == EntityState.Added && entry.Entity.Id != 0)
-                throw new DbUpdateException($"New entities of type {entry.Entity.GetType().Name} should not have an ID assigned.");
-
-            if (entry.State == EntityState.Modified && entry.Entity.Id <= 0)
-                throw new DbUpdateException($"Modified entities of type {entry.Entity.GetType().Name} must have a positive ID.");
-        }
-    }
 }

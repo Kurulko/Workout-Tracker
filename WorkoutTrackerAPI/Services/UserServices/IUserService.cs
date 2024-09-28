@@ -43,7 +43,7 @@ public interface IUserService
 
     Task<IdentityResult> ChangeUserPasswordAsync(string userId, PasswordModel passwordModel);
     Task<IdentityResult> AddUserPasswordAsync(string userId, string newPassword);
-    Task<bool> HasUserPasswordAsync(string userId);
+    //Task<bool> HasUserPasswordAsync(string userId);
 
     #endregion
 

@@ -35,8 +35,8 @@ public class WorkoutContextFactory
     public WorkoutDbContext CreateDatabaseContext()
     {
         var options = new DbContextOptionsBuilder<WorkoutDbContext>()
-               .UseInMemoryDatabase(Guid.NewGuid().ToString())
-               //.UseInMemoryDatabase("Workout")
+               //.UseInMemoryDatabase(Guid.NewGuid().ToString())
+               .UseInMemoryDatabase("Workout")
                .Options;
 
         var db = new WorkoutDbContext(options);
@@ -45,7 +45,6 @@ public class WorkoutContextFactory
         db.Database.EnsureDeleted();
 
         return db;
-        //return new WorkoutDbContext(options);
     }
 
     static internal async Task InitializeDefaultExercisesAsync(WorkoutDbContext db)
@@ -97,32 +96,5 @@ public class WorkoutContextFactory
 
         var roleRepository = new RoleRepository(roleManager);
         await RolesInitializer.InitializeAsync(roleRepository, Roles.AdminRole, Roles.UserRole);
-    }
-
-    static internal async Task InitializeDefaultUsersAsync(WorkoutDbContext db)
-    {
-        await InitializeRolesAsync(db);
-
-        // create a UserManager instance
-        var userManager = IdentityHelper.GetUserManager(db);
-        var userRepository = new UserRepository(userManager, db);
-
-        // create a IConfiguration mock instance
-        var mockConfiguration = new Mock<IConfiguration>();
-        mockConfiguration.SetupGet(x => x[It.Is<string>(s => s == "DefaultPasswords:User")]).Returns("P@$$w0rd");
-        mockConfiguration.SetupGet(x => x[It.Is<string>(s => s == "DefaultPasswords:Admin")]).Returns("P@$$w0rd");
-
-        // setup the default role names
-        string name_User = "User";
-        string name_Admin = "Admin";
-
-        string email_User = "user@email.com";
-        string email_Admin = "admin@email.com";
-
-        string password_User = mockConfiguration.Object["DefaultPasswords:User"]!;
-        string password_Admin = mockConfiguration.Object["DefaultPasswords:Admin"]!;
-
-        await UsersInitializer.InitializeAsync(userRepository, name_User, email_User, password_User, Roles.UserRole);
-        await UsersInitializer.InitializeAsync(userRepository, name_Admin, email_Admin, password_User, Roles.UserRole, Roles.AdminRole);
     }
 }

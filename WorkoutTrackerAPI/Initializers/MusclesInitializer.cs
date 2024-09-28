@@ -8,7 +8,7 @@ namespace WorkoutTrackerAPI.Initializers;
 
 public class MusclesInitializer
 {
-    public static async Task InitializeAsync(MuscleRepository muscleRepository, MuscleData muscleData, Muscle? parentMuscle)
+    public static async Task<Muscle> InitializeAsync(MuscleRepository muscleRepository, MuscleData muscleData, Muscle? parentMuscle)
     {
         Muscle muscle = new Muscle
         {
@@ -18,13 +18,15 @@ public class MusclesInitializer
 
         await muscleRepository.AddAsync(muscle);
 
-        if (muscleData.Children is null)
-            return;
-
-        foreach (MuscleData child in muscleData.Children)
+        if (muscleData.Children is not null)
         {
-            await InitializeAsync(muscleRepository, child, muscle);
+            foreach (MuscleData child in muscleData.Children)
+            {
+                await InitializeAsync(muscleRepository, child, muscle);
+            }
         }
+
+        return muscle;
     }
 }
 
