@@ -32,11 +32,6 @@ public class ExercisesInitializer_Tests
         var exerciseRepository = new ExerciseRepository(db);
         var muscleRepository = new MuscleRepository(db);
 
-        //IExerciseService exerciseService = new ExerciseService(new ExerciseRepository(db), userRepository);
-        //IMuscleService muscleService = new MuscleService(new MuscleRepository(db), userRepository);
-
-        await WorkoutContextFactory.InitializeMusclesAsync(db);
-
         //Act
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Plank", ExerciseType.Time,
             "Rectus abdominis", "External oblique", "Quadriceps");

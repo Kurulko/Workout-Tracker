@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.Metrics;
 using WorkoutTrackerAPI.Data.Models;
@@ -12,6 +13,9 @@ public class WorkoutDbContext : IdentityDbContext<User>
     public DbSet<Exercise> Exercises => Set<Exercise>();
     public DbSet<Muscle> Muscles => Set<Muscle>();
     public DbSet<Workout> Workouts => Set<Workout>();
+    public DbSet<MuscleSize> MuscleSizes => Set<MuscleSize>();
+    public DbSet<BodyWeight> BodyWeights => Set<BodyWeight>();
+    public DbSet<ExerciseRecord> ExerciseRecords => Set<ExerciseRecord>();
 
     public WorkoutDbContext(DbContextOptions options)
         : base(options) { }

@@ -16,7 +16,7 @@ using System.Linq.Expressions;
 
 namespace WorkoutTrackerAPI.Tests.Repositories;
 
-public class BaseRepository_Tests<T> where T : class, IDbModel
+public class DbModelRepository_Tests<T> where T : class, IDbModel
 {
     protected readonly WorkoutContextFactory contextFactory = new WorkoutContextFactory();
 
@@ -40,7 +40,7 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         return user;
     }
 
-    protected async Task AddModel_ShouldReturnNewModel(BaseRepository<T> baseRepository, T validModel)
+    protected async Task AddModel_ShouldReturnNewModel(DbModelRepository<T> baseRepository, T validModel)
     {
         //Act
         var newModel = await baseRepository.AddAsync(validModel);
@@ -54,16 +54,14 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         Assert.Equal(newModel, modelById);
     }
 
-
-    protected async Task AddModel_ShouldThrowException(BaseRepository<T> baseRepository, T invalidModel)
+    protected async Task AddModel_ShouldThrowException(DbModelRepository<T> baseRepository, T invalidModel)
     {
         //Act & Assert
         var ex = await Assert.ThrowsAsync<DbUpdateException>(async () => await baseRepository.AddAsync(invalidModel));
         Assert.Equal($"Entity of type {typeof(T).Name} should not have an ID assigned.", ex.Message);
     }
 
-
-    protected async Task AddRangeModels_ShouldAddModelsSuccessfully(BaseRepository<T> baseRepository, IEnumerable<T> validModels)
+    protected async Task AddRangeModels_ShouldAddModelsSuccessfully(DbModelRepository<T> baseRepository, IEnumerable<T> validModels)
     {
         //Act
         await baseRepository.AddRangeAsync(validModels);
@@ -77,15 +75,14 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         }
     }
 
-    protected async Task AddRangeModels_ShouldThrowException(BaseRepository<T> baseRepository, IEnumerable<T> validModels)
+    protected async Task AddRangeModels_ShouldThrowException(DbModelRepository<T> baseRepository, IEnumerable<T> validModels)
     {
         //Act & Assert
         var ex = await Assert.ThrowsAsync<DbUpdateException>(async () => await baseRepository.AddRangeAsync(validModels));
         Assert.Equal($"New entities of type {typeof(T).Name} should not have an ID assigned.", ex.Message);
     }
 
-
-    protected async Task RemoveModel_ShouldRemoveModelSuccessfully(BaseRepository<T> baseRepository, long modelId)
+    protected async Task RemoveModel_ShouldRemoveModelSuccessfully(DbModelRepository<T> baseRepository, long modelId)
     {
         //Act
         await baseRepository.RemoveAsync(modelId);
@@ -95,24 +92,21 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         Assert.Null(modelById);
     }
 
-
-    protected async Task RemoveModel_IncorrectModelID_ShouldThrowException(BaseRepository<T> baseRepository)
+    protected async Task RemoveModel_IncorrectModelID_ShouldThrowException(DbModelRepository<T> baseRepository)
     {
         //Act & Assert
         var ex = await Assert.ThrowsAsync<DbUpdateException>(async () => await baseRepository.RemoveAsync(-1));
         Assert.Equal($"Entity of type {typeof(T).Name} must have a positive ID to be removed.", ex.Message);
     }
 
-
-    protected async Task RemoveModels_ModelNotExist_ShouldThrowException(BaseRepository<T> baseRepository, long notFoundId)
+    protected async Task RemoveModels_ModelNotExist_ShouldThrowException(DbModelRepository<T> baseRepository, long notFoundId)
     {
         //Act & Assert
         var ex = await Assert.ThrowsAsync<NotFoundException>(async () => await baseRepository.RemoveAsync(notFoundId));
         Assert.Equal($"{typeof(T).Name} not found.", ex.Message);
     }
 
-
-    protected async Task RemoveRangeModels_ShouldRemoveModelsSuccessfully(BaseRepository<T> baseRepository, IEnumerable<T> validModels)
+    protected async Task RemoveRangeModels_ShouldRemoveModelsSuccessfully(DbModelRepository<T> baseRepository, IEnumerable<T> validModels)
     {
         //Act
         await baseRepository.RemoveRangeAsync(validModels);
@@ -125,8 +119,7 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         }
     }
 
-
-    protected async Task RemoveRangeModels_ShouldThrowException(BaseRepository<T> baseRepository, IEnumerable<T> invalidModels)
+    protected async Task RemoveRangeModels_ShouldThrowException(DbModelRepository<T> baseRepository, IEnumerable<T> invalidModels)
     {
         //Act & Assert
         var ex = await Assert.ThrowsAsync<DbUpdateException>(async () =>
@@ -134,8 +127,7 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         Assert.Equal($"Entities of type {typeof(T).Name} must have a positive ID to be removed.", ex.Message);
     }
 
-
-    protected async Task GetAllModels_ShouldReturnModels(BaseRepository<T> baseRepository, int mustCountOfModels)
+    protected async Task GetAllModels_ShouldReturnModels(DbModelRepository<T> baseRepository, int mustCountOfModels)
     {
         //Act
         var models = await baseRepository.GetAllAsync();
@@ -146,8 +138,7 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         Assert.Equal(mustCountOfModels, models.Count());
     }
 
-
-    protected async Task GetAllModels_ShouldReturnEmpty(BaseRepository<T> baseRepository)
+    protected async Task GetAllModels_ShouldReturnEmpty(DbModelRepository<T> baseRepository)
     {
         //Act
         var addedModels = await baseRepository.GetAllAsync();
@@ -157,8 +148,7 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         Assert.Empty(addedModels);
     }
 
-
-    protected async Task GetModelById_ShouldReturnModelById(BaseRepository<T> baseRepository, long modelId)
+    protected async Task GetModelById_ShouldReturnModelById(DbModelRepository<T> baseRepository, long modelId)
     {
         //Act
         var modelById = await baseRepository.GetByIdAsync(modelId);
@@ -168,8 +158,7 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         Assert.Equal(modelId, modelById.Id);
     }
 
-
-    protected async Task GetModelById_ShouldReturnNull(BaseRepository<T> baseRepository, long notFoundId)
+    protected async Task GetModelById_ShouldReturnNull(DbModelRepository<T> baseRepository, long notFoundId)
     {
         //Act
         var modelById = await baseRepository.GetByIdAsync(notFoundId);
@@ -178,23 +167,20 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         Assert.Null(modelById);
     }
 
-
-    protected async Task FindModels_ShouldFindModels(BaseRepository<T> baseRepository, Expression<Func<T, bool>> validExpression, int mustCountOfModels)
+    protected async Task FindModels_ShouldFindModels(DbModelRepository<T> baseRepository, Expression<Func<T, bool>> validExpression, int mustCountOfModels)
     {
         //Act
         var someModels = await baseRepository.FindAsync(validExpression);
 
         //Assert
         Assert.NotNull(someModels);
-        Assert.NotEmpty(someModels);
         Assert.Equal(mustCountOfModels, someModels.Count());
 
         var result = someModels.All(validExpression);
         Assert.True(result);
     }
 
-
-    protected async Task FindModels_ShouldReturnEmpty(BaseRepository<T> baseRepository, Expression<Func<T, bool>> invalidExpression)
+    protected async Task FindModels_ShouldReturnEmpty(DbModelRepository<T> baseRepository, Expression<Func<T, bool>> invalidExpression)
     {
         //Act
         var someModels = await baseRepository.FindAsync(invalidExpression);
@@ -204,7 +190,7 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         Assert.Empty(someModels);
     }
 
-    protected async Task ModelExists_ShouldReturnTrue(BaseRepository<T> baseRepository, long modelId)
+    protected async Task ModelExists_ShouldReturnTrue(DbModelRepository<T> baseRepository, long modelId)
     {
         //Act
         var exists = await baseRepository.ExistsAsync(modelId);
@@ -213,8 +199,7 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         Assert.True(exists);
     }
 
-
-    protected async Task ModelExists_ShouldReturnFalse(BaseRepository<T> baseRepository, long notFoundId)
+    protected async Task ModelExists_ShouldReturnFalse(DbModelRepository<T> baseRepository, long notFoundId)
     {
         //Act
         var exists = await baseRepository.ExistsAsync(notFoundId);
@@ -223,8 +208,7 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         Assert.False(exists);
     }
 
-
-    protected async Task UpdateAsync_ShouldUpdateSuccessfull(BaseRepository<T> baseRepository, T validModel)
+    protected async Task UpdateModel_ShouldUpdateSuccessfully(DbModelRepository<T> baseRepository, T validModel)
     {
         //Act
         await baseRepository.UpdateAsync(validModel);
@@ -236,16 +220,14 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         Assert.Equal(updatedModel, validModel);
     }
 
-
-    protected async Task UpdateModel_ShouldThrowException(BaseRepository<T> baseRepository, T invalidModel)
+    protected async Task UpdateModel_ShouldThrowException(DbModelRepository<T> baseRepository, T invalidModel)
     {
         //Act & Assert
         var ex = await Assert.ThrowsAsync<DbUpdateException>(async () => await baseRepository.UpdateAsync(invalidModel));
         Assert.Equal($"Modified entities of type {typeof(T).Name} must have a positive ID.", ex.Message);
     }
 
-
-    protected async Task SaveModelChanges_SavesEntitySuccessfully(BaseRepository<T> baseRepository, T validModel)
+    protected async Task SaveModelChanges_SaveEntitySuccessfully(DbModelRepository<T> baseRepository, T validModel)
     {
         //Act
         await baseRepository.SaveChangesAsync();
@@ -256,8 +238,7 @@ public class BaseRepository_Tests<T> where T : class, IDbModel
         Assert.Equal(updatedModel, validModel);
     }
 
-
-    protected async Task SaveModelChanges_ShouldThrowException(BaseRepository<T> baseRepository)
+    protected async Task SaveModelChanges_ShouldThrowException(DbModelRepository<T> baseRepository)
     {
         //Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(baseRepository.SaveChangesAsync);

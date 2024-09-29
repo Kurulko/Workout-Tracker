@@ -3,7 +3,7 @@ using WorkoutTrackerAPI.Data;
 
 namespace WorkoutTrackerAPI.Repositories;
 
-public class MuscleSizeRepository : BaseRepository<MuscleSize>
+public class MuscleSizeRepository : DbModelRepository<MuscleSize>
 {
     public MuscleSizeRepository(WorkoutDbContext db) : base(db)
     {

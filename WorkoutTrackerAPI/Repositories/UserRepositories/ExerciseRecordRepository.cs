@@ -3,7 +3,7 @@ using WorkoutTrackerAPI.Data;
 
 namespace WorkoutTrackerAPI.Repositories;
 
-public class ExerciseRecordRepository : BaseRepository<ExerciseRecord>
+public class ExerciseRecordRepository : DbModelRepository<ExerciseRecord>
 {
     public ExerciseRecordRepository(WorkoutDbContext db) : base(db)
     {

@@ -7,7 +7,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WorkoutTrackerAPI.Repositories;
 
-public class BaseWorkoutRepository<T> : BaseRepository<T>, IBaseWorkoutRepository<T>
+public class BaseWorkoutRepository<T> : DbModelRepository<T>, IBaseWorkoutRepository<T>
     where T : WorkoutModel
 {
     public BaseWorkoutRepository(WorkoutDbContext db) : base(db)

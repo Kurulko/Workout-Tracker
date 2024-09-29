@@ -15,9 +15,9 @@ using Xunit;
 
 namespace WorkoutTrackerAPI.Tests.Repositories.UserRepositories;
 
-public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecord>
+public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRecord>
 {
-    async Task<Exercise> GetPullUpExercise(WorkoutDbContext db)
+    async Task<Exercise> GetPullUpExerciseAsync(WorkoutDbContext db)
     {
         var exerciseRepository = new ExerciseRepository(db);
 
@@ -34,7 +34,7 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         return exercise;
     }
 
-    async Task<Exercise> GetPlankExercise(WorkoutDbContext db)
+    async Task<Exercise> GetPlankExerciseAsync(WorkoutDbContext db)
     {
         var exerciseRepository = new ExerciseRepository(db);
 
@@ -51,16 +51,13 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         return exercise;
     }
 
-    [Fact]
-    public async Task AddAsync_ShouldReturnNewExerciseRecord()
-    {
-        //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
-        var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
+    async Task<ExerciseRecord> GetValidExerciseRecordAsync(WorkoutDbContext db)
+    {
         User user = await GetDefaultUser(db);
-        Exercise exercise = await GetPullUpExercise(db);
-        var exerciseRecord = new ExerciseRecord()
+        Exercise exercise = await GetPullUpExerciseAsync(db);
+
+        var validExerciseRecord = new ExerciseRecord()
         {
             Date = DateOnly.FromDateTime(DateTime.Now),
             Reps = 20,
@@ -70,28 +67,46 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
             ExerciseId = exercise.Id
         };
 
-        //Act
-        var newExerciseRecord = await exerciseRecordRepository.AddAsync(exerciseRecord);
-
-        //Assert
-        Assert.NotNull(newExerciseRecord);
-
-        var exerciseRecordById = await exerciseRecordRepository.GetByIdAsync(newExerciseRecord.Id);
-        Assert.NotNull(exerciseRecordById);
-
-        Assert.Equal(newExerciseRecord, exerciseRecordById);
+        return validExerciseRecord;
     }
 
-    [Fact]
-    public async Task AddAsync_ShouldThrowException()
+    async Task<IEnumerable<ExerciseRecord>> GetValidExerciseRecordsAsync(WorkoutDbContext db)
     {
-        //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
-        var exerciseRecordRepository = new ExerciseRecordRepository(db);
-
         User user = await GetDefaultUser(db);
-        Exercise exercise = await GetPullUpExercise(db);
-        var exerciseRecord = new ExerciseRecord()
+        Exercise exercise1 = await GetPullUpExerciseAsync(db);
+        Exercise exercise2 = await GetPlankExerciseAsync(db);
+
+        var validExerciseRecords = new[]
+             {
+                new ExerciseRecord()
+                {
+                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Reps = 20,
+                    SumOfReps = 20,
+                    CountOfTimes = 1,
+                    UserId = user.Id,
+                    ExerciseId = exercise1.Id
+                },
+                new ExerciseRecord()
+                {
+                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Time = new TimeSpan(0, 1, 0),
+                    SumOfTime= new TimeSpan(0, 1, 0),
+                    CountOfTimes = 1,
+                    UserId = user.Id,
+                    ExerciseId = exercise2.Id
+                }
+            };
+
+        return validExerciseRecords;
+    }
+
+    async Task<ExerciseRecord> GetInvalidExerciseRecordAsync(WorkoutDbContext db)
+    {
+        User user = await GetDefaultUser(db);
+        Exercise exercise = await GetPullUpExerciseAsync(db);
+
+        var invalidExerciseRecord = new ExerciseRecord()
         {
             Id = -1,
             Date = DateOnly.FromDateTime(DateTime.Now),
@@ -102,9 +117,66 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
             ExerciseId = exercise.Id
         };
 
+        return invalidExerciseRecord;
+    }
+
+    async Task<IEnumerable<ExerciseRecord>> GetInvalidExerciseRecordsAsync(WorkoutDbContext db)
+    {
+        User user = await GetDefaultUser(db);
+        Exercise exercise1 = await GetPullUpExerciseAsync(db);
+        Exercise exercise2 = await GetPlankExerciseAsync(db);
+
+        var invalidExerciseRecords = new[]
+             {
+                new ExerciseRecord()
+                {
+                    Id = -1,
+                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Reps = 20,
+                    SumOfReps = 20,
+                    CountOfTimes = 1,
+                    UserId = user.Id,
+                    ExerciseId = exercise1.Id
+                },
+                new ExerciseRecord()
+                {
+                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Time = new TimeSpan(0, 1, 0),
+                    SumOfTime= new TimeSpan(0, 1, 0),
+                    CountOfTimes = 1,
+                    UserId = user.Id,
+                    ExerciseId = exercise2.Id
+                }
+            };
+
+        return invalidExerciseRecords;
+    }
+
+
+    [Fact]
+    public async Task AddAsync_ShouldReturnNewExerciseRecord()
+    {
+        //Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var exerciseRecordRepository = new ExerciseRecordRepository(db);
+
+        var validExerciseRecord = await GetValidExerciseRecordAsync(db);
+
         //Act & Assert
-        var ex = await Assert.ThrowsAsync<DbUpdateException>(async () => await exerciseRecordRepository.AddAsync(exerciseRecord));
-        Assert.Equal($"Entity of type {nameof(ExerciseRecord)} should not have an ID assigned.", ex.Message);
+        await AddModel_ShouldReturnNewModel(exerciseRecordRepository, validExerciseRecord);
+    }
+
+    [Fact]
+    public async Task AddAsync_ShouldThrowException()
+    {
+        //Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var exerciseRecordRepository = new ExerciseRecordRepository(db);
+
+        var invalidExerciseRecord = await GetInvalidExerciseRecordAsync(db);
+
+        //Act & Assert
+        await AddModel_ShouldThrowException(exerciseRecordRepository, invalidExerciseRecord);
     }
 
     [Fact]
@@ -114,38 +186,10 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        User user = await GetDefaultUser(db);
-        Exercise exercise1 = await GetPullUpExercise(db);
-        Exercise exercise2 = await GetPlankExercise(db);
-        var exerciseRecords = new[]
-             {
-                new ExerciseRecord()
-                {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
-                    Reps = 20,
-                    SumOfReps = 20,
-                    CountOfTimes = 1,
-                    UserId = user.Id,
-                    ExerciseId = exercise1.Id
-                },
-                new ExerciseRecord()
-                {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
-                    Time = new TimeSpan(0, 1, 0),
-                    SumOfTime= new TimeSpan(0, 1, 0),
-                    CountOfTimes = 1,
-                    UserId = user.Id,
-                    ExerciseId = exercise2.Id
-                }
-            };
+        var validExerciseRecords = await GetValidExerciseRecordsAsync(db);
 
-        //Act
-        await exerciseRecordRepository.AddRangeAsync(exerciseRecords);
-
-        //Assert
-        var addedExerciseRecords = await exerciseRecordRepository.GetAllAsync();
-        Assert.NotNull(addedExerciseRecords);
-        Assert.Equal(2, addedExerciseRecords.Count());
+        //Act & Assert
+        await AddRangeModels_ShouldAddModelsSuccessfully(exerciseRecordRepository, validExerciseRecords);
     }
 
     [Fact]
@@ -155,35 +199,10 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        User user = await GetDefaultUser(db);
-        Exercise exercise1 = await GetPullUpExercise(db);
-        Exercise exercise2 = await GetPlankExercise(db);
-        var exerciseRecords = new[]
-             {
-                new ExerciseRecord()
-                {
-                    Id = -2,
-                    Date = DateOnly.FromDateTime(DateTime.Now),
-                    Reps = 20,
-                    SumOfReps = 20,
-                    CountOfTimes = 1,
-                    UserId = user.Id,
-                    ExerciseId = exercise1.Id
-                },
-                new ExerciseRecord()
-                {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
-                    Time = new TimeSpan(0, 1, 0),
-                    SumOfTime= new TimeSpan(0, 1, 0),
-                    CountOfTimes = 1,
-                    UserId = user.Id,
-                    ExerciseId = exercise2.Id
-                }
-            };
+        var invalidExerciseRecords = await GetInvalidExerciseRecordsAsync(db);
 
         //Act & Assert
-        var ex = await Assert.ThrowsAsync<DbUpdateException>(async () => await exerciseRecordRepository.AddRangeAsync(exerciseRecords));
-        Assert.Equal($"New entities of type {nameof(ExerciseRecord)} should not have an ID assigned.", ex.Message);
+        await AddRangeModels_ShouldThrowException(exerciseRecordRepository, invalidExerciseRecords);
     }
 
     [Fact]
@@ -193,30 +212,11 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        User user = await GetDefaultUser(db);
-        Exercise exercise = await GetPullUpExercise(db);
-        var exerciseRecord = new ExerciseRecord()
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now),
-            Reps = 20,
-            SumOfReps = 20,
-            CountOfTimes = 1,
-            UserId = user.Id,
-            ExerciseId = exercise.Id
-        };
+        var validExerciseRecord = await GetValidExerciseRecordAsync(db);
+        await exerciseRecordRepository.AddAsync(validExerciseRecord);
 
-        var newExerciseRecord = await exerciseRecordRepository.AddAsync(exerciseRecord);
-
-        //Act
-        await exerciseRecordRepository.RemoveAsync(newExerciseRecord.Id);
-
-        //Assert
-        var exerciseRecordById = await exerciseRecordRepository.GetByIdAsync(newExerciseRecord.Id);
-        Assert.Null(exerciseRecordById);
-
-        var addedExerciseRecords = await exerciseRecordRepository.GetAllAsync();
-        Assert.Empty(addedExerciseRecords);
-        Assert.Equal(0, addedExerciseRecords.Count());
+        //Act & Assert
+        await RemoveModel_ShouldRemoveModelSuccessfully(exerciseRecordRepository, validExerciseRecord.Id);
     }
 
     [Fact]
@@ -227,8 +227,7 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
         //Act & Assert
-        var ex = await Assert.ThrowsAsync<DbUpdateException>(async () => await exerciseRecordRepository.RemoveAsync(-1));
-        Assert.Equal($"Entity of type {nameof(ExerciseRecord)} must have a positive ID to be removed.", ex.Message);
+        await RemoveModel_IncorrectModelID_ShouldThrowException(exerciseRecordRepository);
     }
 
     [Fact]
@@ -239,8 +238,7 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
         //Act & Assert
-        var ex = await Assert.ThrowsAsync<NotFoundException>(async () => await exerciseRecordRepository.RemoveAsync(2));
-        Assert.Equal($"{nameof(ExerciseRecord)} not found.", ex.Message);
+        await RemoveModels_ModelNotExist_ShouldThrowException(exerciseRecordRepository, 1);
     }
 
     [Fact]
@@ -250,47 +248,11 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        User user = await GetDefaultUser(db);
+        var validExerciseRecords = await GetValidExerciseRecordsAsync(db);
+        await exerciseRecordRepository.AddRangeAsync(validExerciseRecords);
 
-        Exercise exercise1 = await GetPullUpExercise(db);
-        var exerciseRecord = new ExerciseRecord()
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now),
-            Reps = 20,
-            SumOfReps = 20,
-            CountOfTimes = 1,
-            UserId = user.Id,
-            ExerciseId = exercise1.Id
-        };
-
-        var newExerciseRecord1 = await exerciseRecordRepository.AddAsync(exerciseRecord);
-
-        Exercise exercise2 = await GetPlankExercise(db);
-        var exerciseRecord2 = new ExerciseRecord()
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now),
-            Time = new TimeSpan(0, 1, 0),
-            SumOfTime = new TimeSpan(0, 1, 0),
-            CountOfTimes = 1,
-            UserId = user.Id,
-            ExerciseId = exercise2.Id
-        };
-
-        var newExerciseRecord2 = await exerciseRecordRepository.AddAsync(exerciseRecord2);
-
-        //Act
-        await exerciseRecordRepository.RemoveRangeAsync(new[] { newExerciseRecord1, newExerciseRecord2 });
-
-        //Assert
-        var exerciseRecordById1 = await exerciseRecordRepository.GetByIdAsync(newExerciseRecord1.Id);
-        Assert.Null(exerciseRecordById1);
-
-        var exerciseRecordById2 = await exerciseRecordRepository.GetByIdAsync(newExerciseRecord1.Id);
-        Assert.Null(exerciseRecordById2);
-
-        var exerciseRecords = await exerciseRecordRepository.GetAllAsync();
-        Assert.Empty(exerciseRecords);
-        Assert.Equal(0, exerciseRecords.Count());
+        //Act & Assert
+        await RemoveRangeModels_ShouldRemoveModelsSuccessfully(exerciseRecordRepository, validExerciseRecords);
     }
 
     [Fact]
@@ -300,90 +262,35 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        User user = await GetDefaultUser(db);
-
-        Exercise exercise1 = await GetPullUpExercise(db);
-        var exerciseRecord = new ExerciseRecord()
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now),
-            Reps = 20,
-            SumOfReps = 20,
-            CountOfTimes = 1,
-            UserId = user.Id,
-            ExerciseId = exercise1.Id
-        };
-
-        Exercise exercise2 = await GetPlankExercise(db);
-        var exerciseRecord2 = new ExerciseRecord()
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now),
-            Time = new TimeSpan(0, 1, 0),
-            SumOfTime = new TimeSpan(0, 1, 0),
-            CountOfTimes = 1,
-            UserId = user.Id,
-            ExerciseId = exercise2.Id
-        };
+        var invalidExerciseRecords = await GetInvalidExerciseRecordsAsync(db);
 
         //Act & Assert
-        var ex = await Assert.ThrowsAsync<DbUpdateException>(async () =>
-            await exerciseRecordRepository.RemoveRangeAsync(new[] { exerciseRecord, exerciseRecord2 }));
-        Assert.Equal($"Entities of type {nameof(ExerciseRecord)} must have a positive ID to be removed.", ex.Message);
+        await RemoveRangeModels_ShouldThrowException(exerciseRecordRepository, invalidExerciseRecords);
     }
 
     [Fact]
     public async Task GetAllAsync_ShouldReturnExerciseRecords()
     {
+        //Arrange
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        User user = await GetDefaultUser(db);
-        Exercise exercise1 = await GetPullUpExercise(db);
-        Exercise exercise2 = await GetPlankExercise(db);
+        var validExerciseRecords = await GetValidExerciseRecordsAsync(db);
+        await exerciseRecordRepository.AddRangeAsync(validExerciseRecords);
 
-        var exerciseRecords = new[]
-             {
-                new ExerciseRecord()
-                {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
-                    Reps = 20,
-                    SumOfReps = 20,
-                    CountOfTimes = 1,
-                    UserId = user.Id,
-                    ExerciseId = exercise1.Id
-                },
-                new ExerciseRecord()
-                {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
-                    Time = new TimeSpan(0, 1, 0),
-                    SumOfTime= new TimeSpan(0, 1, 0),
-                    CountOfTimes = 1,
-                    UserId = user.Id,
-                    ExerciseId = exercise2.Id
-                }
-            };
-
-        await exerciseRecordRepository.AddRangeAsync(exerciseRecords);
-
-        //Act
-        var addedExerciseRecords = await exerciseRecordRepository.GetAllAsync();
-
-        //Assert
-        Assert.NotNull(addedExerciseRecords);
-        Assert.Equal(2, addedExerciseRecords.Count());
+        //Act & Assert
+        await GetAllModels_ShouldReturnModels(exerciseRecordRepository, validExerciseRecords.Count());
     }
 
     [Fact]
     public async Task GetAllAsync_ShouldReturnEmpty()
     {
+        //Arrange
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        //Act
-        var addedExerciseRecords = await exerciseRecordRepository.GetAllAsync();
-
-        //Assert
-        Assert.NotNull(addedExerciseRecords);
-        Assert.Empty(addedExerciseRecords);
+        //Act & Assert
+        await GetAllModels_ShouldReturnEmpty(exerciseRecordRepository);
     }
 
     [Fact]
@@ -393,26 +300,11 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        User user = await GetDefaultUser(db);
-        Exercise exercise = await GetPullUpExercise(db);
-        var exerciseRecord = new ExerciseRecord()
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now),
-            Reps = 20,
-            SumOfReps = 20,
-            CountOfTimes = 1,
-            UserId = user.Id,
-            ExerciseId = exercise.Id
-        };
+        var validExerciseRecord = await GetValidExerciseRecordAsync(db);
+        await exerciseRecordRepository.AddAsync(validExerciseRecord);
 
-        var newExerciseRecord = await exerciseRecordRepository.AddAsync(exerciseRecord);
-
-        //Act
-        var exerciseRecordById = await exerciseRecordRepository.GetByIdAsync(newExerciseRecord.Id);
-
-        //Assert
-        Assert.NotNull(exerciseRecordById);
-        Assert.Equal(newExerciseRecord.Id, exerciseRecordById.Id);
+        //Act & Assert
+        await GetModelById_ShouldReturnModelById(exerciseRecordRepository, validExerciseRecord.Id);
     }
 
     [Fact]
@@ -422,11 +314,8 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        //Act
-        var exerciseRecordById = await exerciseRecordRepository.GetByIdAsync(1);
-
-        //Assert
-        Assert.Null(exerciseRecordById);
+        //Act & Assert
+        await GetModelById_ShouldReturnNull(exerciseRecordRepository, 1);
     }
 
     [Fact]
@@ -436,8 +325,8 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
         User user = await GetDefaultUser(db);
-        Exercise exercise1 = await GetPullUpExercise(db);
-        Exercise exercise2 = await GetPlankExercise(db);
+        Exercise exercise1 = await GetPullUpExerciseAsync(db);
+        Exercise exercise2 = await GetPlankExerciseAsync(db);
 
         var exerciseRecords = new[]
              {
@@ -463,15 +352,8 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
 
         await exerciseRecordRepository.AddRangeAsync(exerciseRecords);
 
-        //Act
-        var someExerciseRecords = await exerciseRecordRepository.FindAsync(bw => bw.ExerciseId == exercise1.Id);
-
-        //Assert
-        Assert.NotNull(someExerciseRecords);
-        Assert.Equal(1, someExerciseRecords.Count());
-
-        var result = someExerciseRecords.All(bw => bw.ExerciseId == exercise1.Id);
-        Assert.True(result);
+        //Act & Assert
+        await FindModels_ShouldFindModels(exerciseRecordRepository, er => er.ExerciseId == exercise2.Id && er.UserId == user.Id, 1);
     }
 
     [Fact]
@@ -481,10 +363,10 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
         User user = await GetDefaultUser(db);
-        Exercise exercise1 = await GetPullUpExercise(db);
-        Exercise exercise2 = await GetPlankExercise(db);
+        Exercise exercise1 = await GetPullUpExerciseAsync(db);
+        Exercise exercise2 = await GetPlankExerciseAsync(db);
 
-        var exerciseRecords = new[]
+        var validExerciseRecords = new[]
              {
                 new ExerciseRecord()
                 {
@@ -506,13 +388,10 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
                 }
             };
 
-        await exerciseRecordRepository.AddRangeAsync(exerciseRecords);
+        await exerciseRecordRepository.AddRangeAsync(validExerciseRecords);
 
-        //Act
-        var someExerciseRecords = await exerciseRecordRepository.FindAsync(bw => bw.ExerciseId != exercise1.Id && bw.ExerciseId != exercise2.Id);
-
-        //Assert
-        Assert.Empty(someExerciseRecords);
+        //Act & Assert
+        await FindModels_ShouldReturnEmpty(exerciseRecordRepository, er => er.ExerciseId == exercise2.Id && er.UserId != user.Id);
     }
 
 
@@ -523,26 +402,11 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        User user = await GetDefaultUser(db);
-        Exercise exercise = await GetPullUpExercise(db);
-        var exerciseRecord = new ExerciseRecord()
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now),
-            Reps = 20,
-            SumOfReps = 20,
-            CountOfTimes = 1,
-            UserId = user.Id,
-            ExerciseId = exercise.Id
-        };
+        var validExerciseRecord = await GetValidExerciseRecordAsync(db);
+        await exerciseRecordRepository.AddAsync(validExerciseRecord);
 
-
-        var newExerciseRecord = await exerciseRecordRepository.AddAsync(exerciseRecord);
-
-        //Act
-        var exists = await exerciseRecordRepository.ExistsAsync(newExerciseRecord.Id);
-
-        //Assert
-        Assert.True(exists);
+        //Act & Assert
+        await ModelExists_ShouldReturnTrue(exerciseRecordRepository, validExerciseRecord.Id);
     }
 
     [Fact]
@@ -552,47 +416,25 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        //Act
-        var exists = await exerciseRecordRepository.ExistsAsync(1);
-
-        //Assert
-        Assert.False(exists);
+        //Act & Assert
+        await ModelExists_ShouldReturnFalse(exerciseRecordRepository, 1);
     }
 
     [Fact]
-    public async Task UpdateAsync_ShouldUpdateSuccessfull()
+    public async Task UpdateAsync_ShouldUpdateSuccessfully()
     {
         //Arrange
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        User user = await GetDefaultUser(db);
-        Exercise exercise = await GetPullUpExercise(db);
-        var exerciseRecord = new ExerciseRecord()
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now),
-            Reps = 20,
-            SumOfReps = 20,
-            CountOfTimes = 1,
-            UserId = user.Id,
-            ExerciseId = exercise.Id
-        };
+        var validExerciseRecord = await GetValidExerciseRecordAsync(db);
+        await exerciseRecordRepository.AddAsync(validExerciseRecord);
 
-        exerciseRecord = await exerciseRecordRepository.AddAsync(exerciseRecord);
+        validExerciseRecord.CountOfTimes++; ;
+        validExerciseRecord.SumOfReps += 10;
 
-        exerciseRecord.CountOfTimes++;;
-        exerciseRecord.SumOfReps += 10;
-
-        //Act
-        await exerciseRecordRepository.UpdateAsync(exerciseRecord);
-
-        //Assert
-        var updatedExerciseRecord = await exerciseRecordRepository.GetByIdAsync(exerciseRecord.Id);
-
-        Assert.NotNull(updatedExerciseRecord);
-        Assert.Equal(updatedExerciseRecord, exerciseRecord);
-        Assert.Equal(updatedExerciseRecord.CountOfTimes, exerciseRecord.CountOfTimes);
-        Assert.Equal(updatedExerciseRecord.SumOfReps, exerciseRecord.SumOfReps);
+        //Act & Assert
+        await UpdateModel_ShouldUpdateSuccessfully(exerciseRecordRepository, validExerciseRecord);
     }
 
     [Fact]
@@ -602,25 +444,13 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        User user = await GetDefaultUser(db);
-        Exercise exercise = await GetPullUpExercise(db);
-        var exerciseRecord = new ExerciseRecord()
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now),
-            Reps = 20,
-            SumOfReps = 20,
-            CountOfTimes = 1,
-            UserId = user.Id,
-            ExerciseId = exercise.Id
-        };
+        var validExerciseRecord = await GetValidExerciseRecordAsync(db);
+        await exerciseRecordRepository.AddAsync(validExerciseRecord);
 
-        exerciseRecord = await exerciseRecordRepository.AddAsync(exerciseRecord);
-
-        exerciseRecord.Id = -1;
+        validExerciseRecord.Id = -1;
 
         //Act & Assert
-        var ex = await Assert.ThrowsAsync<DbUpdateException>(async () => await exerciseRecordRepository.UpdateAsync(exerciseRecord));
-        Assert.Equal($"Modified entities of type {nameof(ExerciseRecord)} must have a positive ID.", ex.Message);
+        await UpdateModel_ShouldThrowException(exerciseRecordRepository, validExerciseRecord);
     }
 
     [Fact]
@@ -630,35 +460,14 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        User user = await GetDefaultUser(db);
-        Exercise exercise = await GetPullUpExercise(db);
-        var exerciseRecord = new ExerciseRecord()
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now),
-            Reps = 20,
-            SumOfReps = 20,
-            CountOfTimes = 1,
-            UserId = user.Id,
-            ExerciseId = exercise.Id
-        };
+        var validExerciseRecord = await GetValidExerciseRecordAsync(db);
+        await exerciseRecordRepository.AddAsync(validExerciseRecord);
 
-        exerciseRecord = await exerciseRecordRepository.AddAsync(exerciseRecord);
+        validExerciseRecord.CountOfTimes++; ;
+        validExerciseRecord.SumOfReps += 10;
 
-        var exerciseRecordById = (await exerciseRecordRepository.GetByIdAsync(exerciseRecord.Id))!;
-
-        exerciseRecord.CountOfTimes++; ;
-        exerciseRecord.SumOfReps += 10;
-
-        //Act
-        await exerciseRecordRepository.SaveChangesAsync();
-
-        //Assert
-
-        var updatedExerciseRecord = (await exerciseRecordRepository.GetByIdAsync(exerciseRecord.Id))!;
-        Assert.NotNull(updatedExerciseRecord);
-        Assert.Equal(updatedExerciseRecord, exerciseRecordById);
-        Assert.Equal(updatedExerciseRecord.CountOfTimes, exerciseRecordById.CountOfTimes);
-        Assert.Equal(updatedExerciseRecord.SumOfReps, exerciseRecordById.SumOfReps);
+        //Act & Assert
+        await SaveModelChanges_SaveEntitySuccessfully(exerciseRecordRepository, validExerciseRecord);
     }
 
     [Fact]
@@ -668,25 +477,12 @@ public class ExerciseRecordRepository_Tests : BaseRepository_Tests<ExerciseRecor
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordRepository = new ExerciseRecordRepository(db);
 
-        User user = await GetDefaultUser(db);
-        Exercise exercise = await GetPullUpExercise(db);
-        var exerciseRecord = new ExerciseRecord()
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now),
-            Reps = 20,
-            SumOfReps = 20,
-            CountOfTimes = 1,
-            UserId = user.Id,
-            ExerciseId = exercise.Id
-        };
+        var validExerciseRecord = await GetValidExerciseRecordAsync(db);
+        await exerciseRecordRepository.AddAsync(validExerciseRecord);
 
-        exerciseRecord = await exerciseRecordRepository.AddAsync(exerciseRecord);
-
-        var exerciseRecordById = (await exerciseRecordRepository.GetByIdAsync(exerciseRecord.Id))!;
-
-        exerciseRecordById.Id = -1;
+        validExerciseRecord.Id = -1;
 
         //Act & Assert
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(exerciseRecordRepository.SaveChangesAsync);
+        await SaveModelChanges_ShouldThrowException(exerciseRecordRepository);
     }
 }

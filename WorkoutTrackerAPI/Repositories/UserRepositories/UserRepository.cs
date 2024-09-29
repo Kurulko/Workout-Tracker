@@ -22,7 +22,7 @@ public class UserRepository
 
     IQueryable<User> users => userManager.Users;
 
-    IdentityResult userNotFoundResult => IdentityResult.Failed(new IdentityError()
+    static IdentityResult userNotFoundResult => IdentityResult.Failed(new IdentityError()
     {
         Description = "User not found!"
     });
@@ -72,12 +72,6 @@ public class UserRepository
 
         return userNotFoundResult;
     }
-
-    public async Task<User?> GetUserByClaimsAsync(ClaimsPrincipal claims)
-        => await GetUserByUsernameAsync(claims.Identity?.Name!);
-
-    public async Task<string?> GetUserIdByUsernameAsync(string userName)
-        => (await GetUserByUsernameAsync(userName))?.Id;
 
     public async Task<User?> GetUserByUsernameAsync(string userName)
         => await users.SingleOrDefaultAsync(u => u.UserName.ToLower() == userName.ToLower());
@@ -184,21 +178,6 @@ public class UserRepository
             return null;
 
         return await userManager.GetRolesAsync(user);
-    }
-
-    public async Task<IEnumerable<User>> GetUsersByRoleAsync(string roleName)
-    {
-        var allUser = await GetUsersAsync();
-
-        List<User> usersByRole = new();
-        foreach (User user in allUser)
-        {
-            var userRoles = (await GetRolesAsync(user.Id))!;
-            if (userRoles.Contains(roleName))
-                usersByRole.Add(user);
-        }
-
-        return usersByRole;
     }
 
     public async Task<IdentityResult> AddRoleToUserAsync(string userId, string roleName)

@@ -46,30 +46,8 @@ public class WorkoutContextFactory
 
         return db;
     }
-
-    static internal async Task InitializeDefaultExercisesAsync(WorkoutDbContext db)
-    {
-        await InitializeMusclesAsync(db);
-
-        var exerciseRepository = new ExerciseRepository(db);
-        var muscleRepository = new MuscleRepository(db);
-
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Plank", ExerciseType.Time,
-            "Rectus abdominis", "External oblique", "Quadriceps");
-
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Pull Up", ExerciseType.Reps,
-            "Latissimus dorsi", "Biceps brachii", "Teres minor");
-
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Push Up", ExerciseType.Reps,
-            "Pectoralis major", "Triceps brachii", "Deltoids");
-
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Bench Press", ExerciseType.WeightAndReps,
-            "Pectoralis major", "Triceps brachii", "Deltoids");
-
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Squat", ExerciseType.WeightAndReps,
-            "Quadriceps", "Gluteus maximus", "Hamstrings");
-    }
-
+    
+    /*
     static internal async Task InitializeMusclesAsync(WorkoutDbContext db)
     {
         var muscleRepository = new MuscleRepository(db);
@@ -88,8 +66,9 @@ public class WorkoutContextFactory
         foreach (var muscle in muscleData)
             await MusclesInitializer.InitializeAsync(muscleRepository, muscle, null);
     }
+    */
 
-    static internal async Task InitializeRolesAsync(WorkoutDbContext db)
+    public static async Task InitializeRolesAsync(WorkoutDbContext db)
     {
         // create a RoleManager instance
         var roleManager = IdentityHelper.GetRoleManager(db);

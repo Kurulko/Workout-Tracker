@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Runtime.Intrinsics.Arm;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Exceptions;
+using WorkoutTrackerAPI.Extentions;
 
 namespace WorkoutTrackerAPI.Repositories;
 
@@ -13,25 +16,30 @@ public class RoleRepository
 
     IQueryable<IdentityRole> roles => roleManager.Roles;
 
-    IdentityResult roleNotFoundResult => IdentityResult.Failed(new IdentityError()
-    {
-        Description = "Role not found!"
-    });
+    static IdentityResult roleNotFoundResult => IdentityResultExtentions.Failed("Role not found!");
 
 
     public async Task<IdentityRole> AddRoleAsync(IdentityRole role)
     {
         IdentityRole? existingRole = await GetRoleByIdAsync(role.Id);
+
         if (existingRole is null)
         {
+            if (await RoleExistsByNameAsync(role.Name))
+                throw new DbUpdateException("Role name must be unique.");
+
             await roleManager.CreateAsync(role);
             return role;
         }
+
         return existingRole;
     }
 
     public async Task<IdentityResult> DeleteRoleAsync(string roleId)
     {
+        if (string.IsNullOrEmpty(roleId))
+            return IdentityResultExtentions.Failed("Role ID cannot not be null or empty.");
+
         IdentityRole? role = await GetRoleByIdAsync(roleId);
 
         if (role is not null)
@@ -51,6 +59,9 @@ public class RoleRepository
 
     public async Task<IdentityResult> UpdateRoleAsync(IdentityRole role)
     {
+        if (string.IsNullOrEmpty(role.Id))
+            return IdentityResultExtentions.Failed("Role ID cannot not be null or empty.");
+
         IdentityRole? existingRole = await GetRoleByIdAsync(role.Id);
 
         if (existingRole is not null)
@@ -58,12 +69,6 @@ public class RoleRepository
 
         return roleNotFoundResult;
     }
-
-    public async Task<string?> GetRoleIdByNameAsync(string name)
-        => (await GetRoleByNameAsync(name))?.Id;
-
-    public async Task<string?> GetRoleNameByIdAsync(string roleId)
-        => (await GetRoleByIdAsync(roleId))?.Name;
 
     public async Task<bool> RoleExistsAsync(string roleId)
         => await roles.AnyAsync(r => r.Id == roleId);

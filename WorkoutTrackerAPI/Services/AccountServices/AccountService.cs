@@ -2,6 +2,7 @@
 using Serilog;
 using System.Linq.Dynamic.Core.Tokenizer;
 using System.Net.Mail;
+using System.Security.Claims;
 using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Exceptions;
@@ -107,7 +108,9 @@ public class AccountService : IAccountService
     public async Task<TokenModel> GetTokenAsync()
     {
         var claims = httpContextAccessor.HttpContext!.User;
-        User user = (await userRepository.GetUserByClaimsAsync(claims))!;
+        string userName = claims.Identity?.Name!;
+        User user = (await userRepository.GetUserByUsernameAsync(userName))!;
+
         return await jwtHandler.GenerateJwtTokenAsync(user);
     }
 }

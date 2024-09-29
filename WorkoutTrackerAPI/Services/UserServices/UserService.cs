@@ -103,7 +103,7 @@ public class UserService : BaseService<User>, IUserService
         if (claims is null)
             throw new EntryNullException("Claims");
 
-        return await userRepository.GetUserByClaimsAsync(claims);
+        return await GetUserByUsernameAsync(claims.Identity?.Name!);
     }
 
     public async Task<string?> GetUserIdByUsernameAsync(string userName)
@@ -111,7 +111,8 @@ public class UserService : BaseService<User>, IUserService
         if (string.IsNullOrEmpty(userName))
             throw userNameIsNullOrEmptyException;
 
-        return await userRepository.GetUserIdByUsernameAsync(userName);
+        var userByUsername = await userRepository.GetUserByUsernameAsync(userName);
+        return userByUsername?.Id;
     }
 
     public async Task<User?> GetUserByUsernameAsync(string userName)
@@ -307,7 +308,17 @@ public class UserService : BaseService<User>, IUserService
         if (await RoleDoesNotExistByName(roleName))
             throw new NotFoundException("Role");
 
-        return await userRepository.GetUsersByRoleAsync(roleName);
+        var allUser = await userRepository.GetUsersAsync();
+
+        List<User> usersByRole = new();
+        foreach (User user in allUser)
+        {
+            var userRoles = (await userRepository.GetRolesAsync(user.Id))!;
+            if (userRoles.Contains(roleName))
+                usersByRole.Add(user);
+        }
+
+        return usersByRole;
     }
 
     public async Task<IdentityResult> AddRoleToUserAsync(string userId, string roleName)

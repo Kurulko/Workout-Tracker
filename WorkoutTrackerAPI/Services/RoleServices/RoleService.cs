@@ -105,7 +105,8 @@ public class RoleService : BaseService<User>, IRoleService
         if (string.IsNullOrEmpty(name))
             throw roleNameIsNullOrEmptyException;
 
-        return await roleRepository.GetRoleIdByNameAsync(name);
+        var roleByName = await roleRepository.GetRoleByNameAsync(name);
+        return roleByName?.Id;
     }
 
     public async Task<string?> GetRoleNameByIdAsync(string roleId)
@@ -113,7 +114,8 @@ public class RoleService : BaseService<User>, IRoleService
         if (string.IsNullOrEmpty(roleId))
             throw roleIdIsNullOrEmptyException;
 
-        return await roleRepository.GetRoleNameByIdAsync(roleId);
+        var roleById = await roleRepository.GetRoleByIdAsync(roleId);
+        return roleById?.Name;
     }
 
     public async Task<bool> RoleExistsAsync(string roleId)

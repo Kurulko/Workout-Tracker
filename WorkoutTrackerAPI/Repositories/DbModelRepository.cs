@@ -9,12 +9,12 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WorkoutTrackerAPI.Repositories;
 
-public class BaseRepository<T> : IDisposable, IBaseRepository<T>
+public class DbModelRepository<T> : IDisposable, IBaseRepository<T>
     where T : class, IDbModel
 {
     protected readonly WorkoutDbContext db;
     protected readonly DbSet<T> dbSet;
-    public BaseRepository(WorkoutDbContext db)
+    public DbModelRepository(WorkoutDbContext db)
     {
         this.db = db;
         dbSet = db.Set<T>();
