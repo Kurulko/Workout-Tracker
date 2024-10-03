@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Data;
 using System.Security.Claims;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Exceptions;
+using WorkoutTrackerAPI.Extentions;
 
 namespace WorkoutTrackerAPI.Repositories.UserRepositories;
 
@@ -22,10 +24,8 @@ public class UserRepository
 
     IQueryable<User> users => userManager.Users;
 
-    static IdentityResult userNotFoundResult => IdentityResult.Failed(new IdentityError()
-    {
-        Description = "User not found!"
-    });
+    static IdentityResult userNotFoundResult => IdentityResultExtentions.Failed("User not found!");
+    static IdentityResult userIDIsNullOrEmptyResult => IdentityResultExtentions.Failed("User ID cannot not be null or empty.");
 
     #region CRUD
 
@@ -35,6 +35,9 @@ public class UserRepository
 
         if (existingUser is null)
         {
+            if (await UserExistsByUsernameAsync(user.UserName))
+                throw new DbUpdateException("User name must be unique.");
+
             await userManager.CreateAsync(user);
             return user;
         }
@@ -47,6 +50,9 @@ public class UserRepository
 
     public async Task<IdentityResult> UpdateUserAsync(User user)
     {
+        if (string.IsNullOrEmpty(user.Id))
+            return userIDIsNullOrEmptyResult;
+
         User? existingUser = await GetUserByIdAsync(user.Id);
 
         if (existingUser is not null)
@@ -65,6 +71,9 @@ public class UserRepository
 
     public async Task<IdentityResult> DeleteUserAsync(string userId)
     {
+        if (string.IsNullOrEmpty(userId))
+            return userIDIsNullOrEmptyResult;
+
         User? user = await GetUserByIdAsync(userId);
 
         if (user is not null)
@@ -126,14 +135,14 @@ public class UserRepository
 
     #region Password
 
-    public async Task<IdentityResult> ChangeUserPasswordAsync(string userId, PasswordModel passwordModel)
+    public async Task<IdentityResult> ChangeUserPasswordAsync(string userId, string oldPassword, string newPassword)
     {
         User? user = await GetUserByIdAsync(userId);
 
         if (user is null)
             return userNotFoundResult;
 
-        return await userManager.ChangePasswordAsync(user, passwordModel.OldPassword!, passwordModel.NewPassword);
+        return await userManager.ChangePasswordAsync(user, oldPassword, newPassword);
     }
 
     public async Task<IdentityResult> AddUserPasswordAsync(string userId, string newPassword)
@@ -143,7 +152,7 @@ public class UserRepository
         if (user is null)
             return userNotFoundResult;
 
-        return await userManager.AddPasswordAsync(user!, newPassword);
+        return await userManager.AddPasswordAsync(user, newPassword);
     }
 
     //public async Task<bool> HasUserPasswordAsync(string userId)
@@ -170,24 +179,14 @@ public class UserRepository
         return await userManager.GetRolesAsync(user);
     }
 
-    public async Task<IEnumerable<string>?> GetRolesAsync(string userId)
-    {
-        User? user = await GetUserByIdAsync(userId);
-
-        if (user is null)
-            return null;
-
-        return await userManager.GetRolesAsync(user);
-    }
-
-    public async Task<IdentityResult> AddRoleToUserAsync(string userId, string roleName)
+    public async Task<IdentityResult> AddRolesToUserAsync(string userId, string[] roles)
     {
         User? user = await GetUserByIdAsync(userId);
 
         if (user is null)
             return userNotFoundResult;
 
-        return await userManager.AddToRoleAsync(user, roleName);
+        return await userManager.AddToRolesAsync(user, roles);
     }
 
     public async Task<IdentityResult> DeleteRoleFromUserAsync(string userId, string roleName)

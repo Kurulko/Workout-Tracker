@@ -34,7 +34,7 @@ public class DbModelRepository_Tests<T> where T : class, IDbModel
         if (user is null)
         {
             await WorkoutContextFactory.InitializeRolesAsync(db);
-            user = await UsersInitializer.InitializeAsync(userRepository, name, email, password, Roles.UserRole);
+            user = await UsersInitializer.InitializeAsync(userRepository, name, email, password, new[] { Roles.UserRole });
         }
 
         return user;

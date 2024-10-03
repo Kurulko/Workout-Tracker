@@ -86,7 +86,7 @@ public class AccountService : IAccountService
             await signInManager.SignInAsync(user, register.RememberMe);
 
             string userRole = Roles.UserRole;
-            var identityResult = await userRepository.AddRoleToUserAsync(user.Id, userRole);
+            var identityResult = await userRepository.AddRolesToUserAsync(user.Id, new[] { userRole });
             if (!identityResult.Succeeded)
             {
                 string failMessage = IdentityErrorsToString(result.Errors);

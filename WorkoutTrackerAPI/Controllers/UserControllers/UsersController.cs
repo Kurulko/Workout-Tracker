@@ -484,7 +484,7 @@ public class UsersController : APIController
             return HandleInvalidModelState();
 
         string currentUserId = httpContextAccessor.GetUserId()!;
-        var identityResult = await userService.ChangeUserPasswordAsync(currentUserId, passwordModel);
+        var identityResult = await userService.ChangeUserPasswordAsync(currentUserId, passwordModel.OldPassword!, passwordModel.NewPassword);
         return HandleIdentityResult(identityResult);
     }
 
@@ -506,24 +506,6 @@ public class UsersController : APIController
 
     #region Roles
 
-    [Authorize(Roles = Roles.AdminRole)]
-    [HttpGet("{userId}/user-roles")]
-    public async Task<ActionResult<IEnumerable<string>>> GetRoles(string userId)
-    {
-        if (string.IsNullOrEmpty(userId))
-            return UserIDIsNullOrEmpty();
-
-        try
-        {
-            IEnumerable<string> roles = (await userService.GetRolesAsync(userId))!;
-            return (ActionResult)roles;
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
-    }
-
     [HttpGet("user-roles")]
     public async Task<ActionResult<IEnumerable<string>>> GetCurrentUserRolesAsync()
     {
@@ -540,15 +522,15 @@ public class UsersController : APIController
 
     [Authorize(Roles = Roles.AdminRole)]
     [HttpPost("{userId}/role")]
-    public async Task<IActionResult> AddRoleToUserAsync(string userId, string roleName)
+    public async Task<IActionResult> AddRolesToUserAsync(string userId, string[] roles)
     {
         if (string.IsNullOrEmpty(userId))
             return UserIDIsNullOrEmpty();
 
-        if (string.IsNullOrEmpty(roleName))
-            return RoleNameIsNullOrEmpty();
+        if (roles.Length == 0)
+            return BadRequest("User cannot have no roles.");
 
-        var identityResult = await userService.AddRoleToUserAsync(userId, roleName);
+        var identityResult = await userService.AddRolesToUserAsync(userId, roles);
         return HandleIdentityResult(identityResult);
     }
 

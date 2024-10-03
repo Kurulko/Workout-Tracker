@@ -22,17 +22,10 @@ public class MusclesInitializer_Tests
         WorkoutContextFactory factory = new();
         using var db = factory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
-        //IMuscleService muscleService = new MuscleService(baseWorkoutRepository);
 
         string json = await File.ReadAllTextAsync("Data/Source/muscles.json");
-
-        // Parse the JSON
         var jsonObject = JObject.Parse(json);
-
-        // Get the "Muscles" property as a JArray
         var musclesArray = (JArray)jsonObject["Muscles"]!;
-
-        // Deserialize the "Muscles" array into a list
         var muscleData = musclesArray.ToObject<List<MuscleData>>()!;
 
         //Act

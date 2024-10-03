@@ -7,7 +7,7 @@ namespace WorkoutTrackerAPI.Initializers;
 
 public class UsersInitializer
 {
-    public static async Task<User> InitializeAsync(UserRepository userRepository, string name, string email, string password, params string[] rolesStr)
+    public static async Task<User> InitializeAsync(UserRepository userRepository, string name, string email, string password, string[] rolesStr)
     {
         User? user = await userRepository.GetUserByUsernameAsync(name);
 
@@ -24,10 +24,7 @@ public class UsersInitializer
 
             if (result.Succeeded)
             {
-                foreach (string roleStr in rolesStr)
-                {
-                    await userRepository.AddRoleToUserAsync(user.Id, roleStr);
-                }
+                await userRepository.AddRolesToUserAsync(user.Id, rolesStr);
             }
         }
 

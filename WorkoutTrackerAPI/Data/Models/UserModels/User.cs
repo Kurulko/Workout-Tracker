@@ -10,7 +10,6 @@ public class User : IdentityUser
     public int CountOfTrainings { get; set; }
     public DateTime Registered { get; set; }
     public DateTime? StartedWorkingOut { get; set; }
-    public string? UsedUserId { get; set; }
 
     public IEnumerable<BodyWeight>? BodyWeights { get; set; }
     public IEnumerable<MuscleSize>? MuscleSizes { get; set; }

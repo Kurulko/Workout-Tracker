@@ -42,7 +42,7 @@ public static class InitializerProvider
         string adminPassword = config.GetValue<string>("Admin:Password")!;
         string adminEmail = config.GetValue<string>("Admin:Email")!;
 
-        await UsersInitializer.InitializeAsync(userRepository, adminName, adminEmail, adminPassword, Roles.AdminRole, Roles.UserRole);
+        await UsersInitializer.InitializeAsync(userRepository, adminName, adminEmail, adminPassword, new[] { Roles.AdminRole, Roles.UserRole });
     }
 
     static async Task InitializeMusclesAsync(MuscleRepository muscleRepository)

@@ -35,45 +35,36 @@ public class WorkoutContextFactory
     public WorkoutDbContext CreateDatabaseContext()
     {
         var options = new DbContextOptionsBuilder<WorkoutDbContext>()
-               //.UseInMemoryDatabase(Guid.NewGuid().ToString())
-               .UseInMemoryDatabase("Workout")
+               .UseInMemoryDatabase(Guid.NewGuid().ToString())
                .Options;
 
-        var db = new WorkoutDbContext(options);
-
-        db.Database.EnsureCreated();
-        db.Database.EnsureDeleted();
-
-        return db;
+        return new WorkoutDbContext(options); ;
     }
-    
-    /*
-    static internal async Task InitializeMusclesAsync(WorkoutDbContext db)
-    {
-        var muscleRepository = new MuscleRepository(db);
-
-        string json = await File.ReadAllTextAsync("Data/Source/muscles.json");
-
-        // Parse the JSON
-        var jsonObject = JObject.Parse(json);
-
-        // Get the "Muscles" property as a JArray
-        var musclesArray = (JArray)jsonObject["Muscles"]!;
-
-        // Deserialize the "Muscles" array into a list
-        var muscleData = musclesArray.ToObject<List<MuscleData>>()!;
-
-        foreach (var muscle in muscleData)
-            await MusclesInitializer.InitializeAsync(muscleRepository, muscle, null);
-    }
-    */
 
     public static async Task InitializeRolesAsync(WorkoutDbContext db)
     {
-        // create a RoleManager instance
         var roleManager = IdentityHelper.GetRoleManager(db);
-
         var roleRepository = new RoleRepository(roleManager);
-        await RolesInitializer.InitializeAsync(roleRepository, Roles.AdminRole, Roles.UserRole);
+
+        var roles = await roleRepository.GetRolesAsync();
+        if (roles.Count() == 0)
+            await RolesInitializer.InitializeAsync(roleRepository, Roles.AdminRole, Roles.UserRole);
+    }
+
+    public static async Task InitializeMusclesAsync(WorkoutDbContext db)
+    {
+        var muscleRepository = new MuscleRepository(db);
+
+        var muscles = await muscleRepository.GetAllAsync();
+        if (muscles.Count() == 0)
+        {
+            string json = await File.ReadAllTextAsync("Data/Source/muscles.json");
+            var jsonObject = JObject.Parse(json);
+            var musclesArray = (JArray)jsonObject["Muscles"]!;
+            var muscleData = musclesArray.ToObject<List<MuscleData>>()!;
+
+            foreach (var muscle in muscleData)
+                await MusclesInitializer.InitializeAsync(muscleRepository, muscle, null);
+        }
     }
 }

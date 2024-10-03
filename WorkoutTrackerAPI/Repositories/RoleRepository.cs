@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.Runtime.Intrinsics.Arm;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Exceptions;
@@ -17,6 +18,7 @@ public class RoleRepository
     IQueryable<IdentityRole> roles => roleManager.Roles;
 
     static IdentityResult roleNotFoundResult => IdentityResultExtentions.Failed("Role not found!");
+    static IdentityResult roleIDIsNullOrEmptyResult => IdentityResultExtentions.Failed("Role ID cannot not be null or empty.");
 
 
     public async Task<IdentityRole> AddRoleAsync(IdentityRole role)
@@ -38,7 +40,7 @@ public class RoleRepository
     public async Task<IdentityResult> DeleteRoleAsync(string roleId)
     {
         if (string.IsNullOrEmpty(roleId))
-            return IdentityResultExtentions.Failed("Role ID cannot not be null or empty.");
+            return roleIDIsNullOrEmptyResult;
 
         IdentityRole? role = await GetRoleByIdAsync(roleId);
 
@@ -60,7 +62,7 @@ public class RoleRepository
     public async Task<IdentityResult> UpdateRoleAsync(IdentityRole role)
     {
         if (string.IsNullOrEmpty(role.Id))
-            return IdentityResultExtentions.Failed("Role ID cannot not be null or empty.");
+            return roleIDIsNullOrEmptyResult;
 
         IdentityRole? existingRole = await GetRoleByIdAsync(role.Id);
 

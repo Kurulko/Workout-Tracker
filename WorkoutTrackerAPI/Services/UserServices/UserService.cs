@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Data.Models;
@@ -216,7 +217,7 @@ public class UserService : BaseService<User>, IUserService
 
     #region Password
 
-    public async Task<IdentityResult> ChangeUserPasswordAsync(string userId, PasswordModel passwordModel)
+    public async Task<IdentityResult> ChangeUserPasswordAsync(string userId, string oldPassword, string newPassword)
     {
         if (string.IsNullOrEmpty(userId))
             return IdentityResultExtentions.Failed(userIdIsNullOrEmptyException);
@@ -224,18 +225,15 @@ public class UserService : BaseService<User>, IUserService
         if (await UserDoesNotExist(userId))
             return IdentityResultExtentions.Failed(userNotFoundException);
 
-        if (passwordModel is null)
-            return IdentityResultExtentions.Failed(new EntryNullException(nameof(PasswordModel)));
+        if (string.IsNullOrEmpty(oldPassword) || string.IsNullOrEmpty(newPassword))
+            return IdentityResultExtentions.Failed(new ArgumentNullOrEmptyException("Old or new password"));
 
-        if (string.IsNullOrEmpty(passwordModel.OldPassword) || string.IsNullOrEmpty(passwordModel.NewPassword) || string.IsNullOrEmpty(passwordModel.ConfirmNewPassword))
-            return IdentityResultExtentions.Failed(new ArgumentNullOrEmptyException("Password"));
-
-        if(passwordModel.OldPassword == passwordModel.NewPassword)
+        if (oldPassword == newPassword)
             return IdentityResultExtentions.Failed(new ArgumentException("The old password cannot be equal to the new one."));
 
         try
         {
-            return await userRepository.ChangeUserPasswordAsync(userId, passwordModel);
+            return await userRepository.ChangeUserPasswordAsync(userId, oldPassword, newPassword);
         }
         catch (Exception ex)
         {
@@ -278,6 +276,8 @@ public class UserService : BaseService<User>, IUserService
 
     #region Roles
 
+    readonly ArgumentNullOrEmptyException roleNameIsNullOrEmptyException = new("Role name");
+
     public async Task<IEnumerable<string>> GetUserRolesAsync(string userId)
     {
         if (string.IsNullOrEmpty(userId))
@@ -287,17 +287,6 @@ public class UserService : BaseService<User>, IUserService
             throw userNotFoundException;
 
         return await userRepository.GetUserRolesAsync(userId);
-    }
-
-    public async Task<IEnumerable<string>?> GetRolesAsync(string userId)
-    {
-        if (string.IsNullOrEmpty(userId))
-            throw userIdIsNullOrEmptyException;
-
-        if (await UserDoesNotExist(userId))
-            throw userNotFoundException;
-
-        return await userRepository.GetRolesAsync(userId);
     }
 
     public async Task<IEnumerable<User>> GetUsersByRoleAsync(string roleName)
@@ -313,7 +302,7 @@ public class UserService : BaseService<User>, IUserService
         List<User> usersByRole = new();
         foreach (User user in allUser)
         {
-            var userRoles = (await userRepository.GetRolesAsync(user.Id))!;
+            var userRoles = (await userRepository.GetUserRolesAsync(user.Id))!;
             if (userRoles.Contains(roleName))
                 usersByRole.Add(user);
         }
@@ -321,7 +310,7 @@ public class UserService : BaseService<User>, IUserService
         return usersByRole;
     }
 
-    public async Task<IdentityResult> AddRoleToUserAsync(string userId, string roleName)
+    public async Task<IdentityResult> AddRolesToUserAsync(string userId, string[] roles)
     {
         if (string.IsNullOrEmpty(userId))
             return IdentityResultExtentions.Failed(userIdIsNullOrEmptyException);
@@ -329,15 +318,18 @@ public class UserService : BaseService<User>, IUserService
         if (await UserDoesNotExist(userId))
             return IdentityResultExtentions.Failed(userNotFoundException);
 
-        if (string.IsNullOrEmpty(roleName))
-            return IdentityResultExtentions.Failed(userNameIsNullOrEmptyException);
+        if (roles.Length == 0)
+            return IdentityResultExtentions.Failed("User cannot have no roles.");
 
-        if (await RoleDoesNotExistByName(roleName))
-            return IdentityResultExtentions.Failed(new NotFoundException("Role"));
+        foreach (var role in roles)
+        {
+            if (await RoleDoesNotExistByName(role))
+                return IdentityResultExtentions.Failed(new NotFoundException($"Role '{role}'"));
+        }
 
         try
         {
-            return await userRepository.AddRoleToUserAsync(userId, roleName);
+            return await userRepository.AddRolesToUserAsync(userId, roles);
         }
         catch (Exception ex)
         {
@@ -354,7 +346,7 @@ public class UserService : BaseService<User>, IUserService
             return IdentityResultExtentions.Failed(userNotFoundException);
 
         if (string.IsNullOrEmpty(roleName))
-            return IdentityResultExtentions.Failed(userNameIsNullOrEmptyException);
+            return IdentityResultExtentions.Failed(roleNameIsNullOrEmptyException);
 
         if (await RoleDoesNotExistByName(roleName))
             return IdentityResultExtentions.Failed(new NotFoundException("Role"));

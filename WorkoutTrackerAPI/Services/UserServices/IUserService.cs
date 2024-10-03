@@ -41,7 +41,7 @@ public interface IUserService
 
     #region Password
 
-    Task<IdentityResult> ChangeUserPasswordAsync(string userId, PasswordModel passwordModel);
+    Task<IdentityResult> ChangeUserPasswordAsync(string userId, string oldPassword, string newPassword);
     Task<IdentityResult> AddUserPasswordAsync(string userId, string newPassword);
     //Task<bool> HasUserPasswordAsync(string userId);
 
@@ -50,9 +50,8 @@ public interface IUserService
     #region Roles
 
     Task<IEnumerable<string>> GetUserRolesAsync(string userId);
-    Task<IEnumerable<string>?> GetRolesAsync(string userId);
     Task<IEnumerable<User>> GetUsersByRoleAsync(string roleName);
-    Task<IdentityResult> AddRoleToUserAsync(string userId, string roleName);
+    Task<IdentityResult> AddRolesToUserAsync(string userId, string[] roles);
     Task<IdentityResult> DeleteRoleFromUserAsync(string userId, string roleName);
 
     #endregion

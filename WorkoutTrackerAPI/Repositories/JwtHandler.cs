@@ -38,7 +38,7 @@ public class JwtHandler
 
         var tokenModel = new TokenModel()
         {
-            Token = tokenHandler.WriteToken(securityToken),
+            TokenStr = tokenHandler.WriteToken(securityToken),
             ExpirationDays = jwtSettings.ExpirationDays,
             Roles = roles.ToArray()
         };
@@ -71,5 +71,4 @@ public class JwtHandler
         var validationParameters = (TokenValidationParameters)jwtSettings;
         return tokenHandler.ValidateToken(token, validationParameters, out var _);
     }
-
 }

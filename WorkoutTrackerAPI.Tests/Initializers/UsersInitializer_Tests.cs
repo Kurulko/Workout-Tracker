@@ -43,8 +43,8 @@ public class UsersInitializer_Tests
         await WorkoutContextFactory.InitializeRolesAsync(db);
 
         //Act
-        await UsersInitializer.InitializeAsync(userRepository, name_User, email_User, password_User, Roles.UserRole);
-        await UsersInitializer.InitializeAsync(userRepository, name_Admin, email_Admin, password_Admin, Roles.UserRole, Roles.AdminRole);
+        await UsersInitializer.InitializeAsync(userRepository, name_User, email_User, password_User, new[] { Roles.UserRole });
+        await UsersInitializer.InitializeAsync(userRepository, name_Admin, email_Admin, password_Admin, new[] { Roles.UserRole, Roles.AdminRole });
 
         //Assert
         User? user = await userRepository.GetUserByUsernameAsync(name_User);
@@ -53,7 +53,7 @@ public class UsersInitializer_Tests
         Assert.Equal(user?.UserName, name_User);
         Assert.Equal(user?.Email, email_User);
 
-        var userRoles = await userRepository.GetRolesAsync(user?.Id!);
+        var userRoles = await userRepository.GetUserRolesAsync(user?.Id!);
         Assert.Contains(Roles.UserRole, userRoles!);
         Assert.Equal(1, userRoles?.Count()!);
 
@@ -66,7 +66,7 @@ public class UsersInitializer_Tests
         Assert.Equal(admin?.UserName, name_Admin);
         Assert.Equal(admin?.Email, email_Admin);
 
-        var adminRoles = await userRepository.GetRolesAsync(admin?.Id!);
+        var adminRoles = await userRepository.GetUserRolesAsync(admin?.Id!);
         Assert.Contains(Roles.UserRole, adminRoles!);
         Assert.Contains(Roles.AdminRole, adminRoles!);
         Assert.Equal(2, adminRoles?.Count()!);

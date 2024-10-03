@@ -5,9 +5,10 @@ namespace WorkoutTrackerAPI.Data.Account;
 public class PasswordModel
 {
     [Display(Name = "Old password")]
+    [Required(ErrorMessage = "Enter old password")]
     [DataType(DataType.Password)]
     [MinLength(8, ErrorMessage = "Password must be at least {1} characters long")]
-    public string? OldPassword { get; set; } = null!;
+    public string OldPassword { get; set; } = null!;
 
     [Display(Name = "New password")]
     [Required(ErrorMessage = "Enter new password")]

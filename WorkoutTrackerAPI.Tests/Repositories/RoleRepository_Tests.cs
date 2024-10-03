@@ -13,6 +13,7 @@ using WorkoutTrackerAPI.Repositories.UserRepositories;
 using WorkoutTrackerAPI.Repositories;
 using Xunit;
 using Microsoft.AspNetCore.Identity;
+using WorkoutTrackerAPI.Extentions;
 
 namespace WorkoutTrackerAPI.Tests.Repositories;
 
@@ -103,7 +104,9 @@ public class RoleRepository_Tests
 
         //Assert
         Assert.False(result.Succeeded);
-        Assert.Equal("Role not found!", result.Errors.FirstOrDefault()?.Description);
+
+        var isRoleNotFound = result.ErrorExists("Role not found!");
+        Assert.True(isRoleNotFound);
     }
 
     [Fact]
@@ -119,7 +122,9 @@ public class RoleRepository_Tests
 
         //Assert
         Assert.False(result.Succeeded);
-        Assert.Equal("Role ID cannot not be null or empty.", result.Errors.FirstOrDefault()?.Description);
+
+        var isRoleIDIsNullOrEmpty = result.ErrorExists("Role ID cannot not be null or empty.");
+        Assert.True(isRoleIDIsNullOrEmpty);
     }
 
     [Fact]
@@ -194,6 +199,40 @@ public class RoleRepository_Tests
     }
 
     [Fact]
+    public async Task GetRoleByName_ShouldReturnRoleByName()
+    {
+        //Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var roleManager = IdentityHelper.GetRoleManager(db);
+        var roleRepository = new RoleRepository(roleManager);
+
+        var validRole = GetValidRole();
+        await roleRepository.AddRoleAsync(validRole);
+
+        //Act
+        var roleByName = await roleRepository.GetRoleByNameAsync(validRole.Name);
+
+        //Assert
+        Assert.NotNull(roleByName);
+        Assert.Equal(validRole, roleByName);
+    }
+
+    [Fact]
+    public async Task GetRoleByName_ShouldReturnNull()
+    {
+        //Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var roleManager = IdentityHelper.GetRoleManager(db);
+        var roleRepository = new RoleRepository(roleManager);
+
+        //Act
+        var roleByName = await roleRepository.GetRoleByNameAsync("Non-existence name");
+
+        //Assert
+        Assert.Null(roleByName);
+    }
+
+    [Fact]
     public async Task RoleExists_ShouldReturnTrue()
     {
         using var db = contextFactory.CreateDatabaseContext();
@@ -223,6 +262,38 @@ public class RoleRepository_Tests
 
         //Assert
         Assert.False(roleExists);
+    }
+
+    [Fact]
+    public async Task RoleExistsByName_ShouldReturnTrue()
+    {
+        using var db = contextFactory.CreateDatabaseContext();
+        var roleManager = IdentityHelper.GetRoleManager(db);
+        var roleRepository = new RoleRepository(roleManager);
+
+        var validRole = GetValidRole();
+        await roleRepository.AddRoleAsync(validRole);
+
+        //Act
+        var roleExistsByName = await roleRepository.RoleExistsByNameAsync(validRole.Name);
+
+        //Assert
+        Assert.True(roleExistsByName);
+    }
+
+    [Fact]
+    public async Task RoleExistsByName_ShouldReturnFalse()
+    {
+        //Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var roleManager = IdentityHelper.GetRoleManager(db);
+        var roleRepository = new RoleRepository(roleManager);
+
+        //Act
+        var roleExistsByName = await roleRepository.RoleExistsByNameAsync("Non-existence name");
+
+        //Assert
+        Assert.False(roleExistsByName);
     }
 
     [Fact]
@@ -264,7 +335,9 @@ public class RoleRepository_Tests
 
         //Assert
         Assert.False(result.Succeeded);
-        Assert.Equal("Role not found!", result.Errors.FirstOrDefault()?.Description);
+
+        var isRoleNotFound = result.ErrorExists("Role not found!");
+        Assert.True(isRoleNotFound);
     }
 
     [Fact]
@@ -284,6 +357,8 @@ public class RoleRepository_Tests
 
         //Assert
         Assert.False(result.Succeeded);
-        Assert.Equal("Role ID cannot not be null or empty.", result.Errors.FirstOrDefault()?.Description);
+
+        var isRoleIDIsNullOrEmpty = result.ErrorExists("Role ID cannot not be null or empty.");
+        Assert.True(isRoleIDIsNullOrEmpty);
     }
 }
