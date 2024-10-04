@@ -39,7 +39,7 @@ public class WorkoutRepository_Tests : BaseWorkoutRepository_Tests<Workout>
 
     async Task<Workout> GetValidWorkoutAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
 
         var plankExercise = await GetPlankExercise(db);
         var legRaiseExercise = await GetLegRaiseExercise(db);
@@ -56,7 +56,7 @@ public class WorkoutRepository_Tests : BaseWorkoutRepository_Tests<Workout>
 
     async Task<IEnumerable<Workout>> GetValidWorkoutsAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
 
         await WorkoutContextFactory.InitializeMusclesAsync(db);
 
@@ -84,7 +84,7 @@ public class WorkoutRepository_Tests : BaseWorkoutRepository_Tests<Workout>
 
     async Task<Workout> GetInvalidWorkoutAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
 
         await WorkoutContextFactory.InitializeMusclesAsync(db);
 
@@ -105,7 +105,7 @@ public class WorkoutRepository_Tests : BaseWorkoutRepository_Tests<Workout>
 
     async Task<IEnumerable<Workout>> GetInvalidWorkoutsAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
 
         await WorkoutContextFactory.InitializeMusclesAsync(db);
 
@@ -346,7 +346,7 @@ public class WorkoutRepository_Tests : BaseWorkoutRepository_Tests<Workout>
         using var db = contextFactory.CreateDatabaseContext();
         var workoutRepository = new WorkoutRepository(db);
 
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
 
         await WorkoutContextFactory.InitializeMusclesAsync(db);
 
@@ -387,7 +387,7 @@ public class WorkoutRepository_Tests : BaseWorkoutRepository_Tests<Workout>
         using var db = contextFactory.CreateDatabaseContext();
         var workoutRepository = new WorkoutRepository(db);
 
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
 
         await WorkoutContextFactory.InitializeMusclesAsync(db);
 

@@ -1,32 +1,8 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
 using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Services.RoleServices;
-using WorkoutTrackerAPI.Services.UserServices;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
-using WorkoutTrackerAPI.Services;
-using Microsoft.AspNetCore.Http;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Providers;
-using WorkoutTrackerAPI.Services.MuscleServices;
 using WorkoutTrackerAPI.Repositories;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using WorkoutTrackerAPI.Services.ExerciseServices;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
 
 namespace WorkoutTrackerAPI.Tests;
 

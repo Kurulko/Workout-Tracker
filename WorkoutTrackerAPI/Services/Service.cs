@@ -7,7 +7,7 @@ namespace WorkoutTrackerAPI.Services;
 public abstract class Service<TModel> : BaseService<TModel>
     where TModel : class, IDbModel
 {
-    protected readonly DbModelRepository<TModel> baseRepository;
-    public Service(DbModelRepository<TModel> baseRepository)
+    protected readonly IBaseRepository<TModel> baseRepository;
+    public Service(IBaseRepository<TModel> baseRepository)
         => this.baseRepository = baseRepository;
 }

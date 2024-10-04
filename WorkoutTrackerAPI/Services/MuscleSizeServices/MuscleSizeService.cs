@@ -160,7 +160,7 @@ public class MuscleSizeService : Service<MuscleSize>, IMuscleSizeService
 
         try
         {
-            var userMuscleSizeByDate = (await baseRepository.FindAsync(bw => bw.Date == date))?.First();
+            var userMuscleSizeByDate = (await baseRepository.FindAsync(m => m.Date == date && m.UserId == userId)).FirstOrDefault();
             return ServiceResult<MuscleSize>.Ok(userMuscleSizeByDate);
         }
         catch (Exception ex)

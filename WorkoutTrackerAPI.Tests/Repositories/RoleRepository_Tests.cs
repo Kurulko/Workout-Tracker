@@ -105,7 +105,7 @@ public class RoleRepository_Tests
         //Assert
         Assert.False(result.Succeeded);
 
-        var isRoleNotFound = result.ErrorExists("Role not found!");
+        var isRoleNotFound = result.ErrorExists("Role not found.");
         Assert.True(isRoleNotFound);
     }
 
@@ -336,7 +336,7 @@ public class RoleRepository_Tests
         //Assert
         Assert.False(result.Succeeded);
 
-        var isRoleNotFound = result.ErrorExists("Role not found!");
+        var isRoleNotFound = result.ErrorExists("Role not found.");
         Assert.True(isRoleNotFound);
     }
 

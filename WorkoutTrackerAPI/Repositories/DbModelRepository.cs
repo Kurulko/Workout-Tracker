@@ -20,7 +20,7 @@ public class DbModelRepository<T> : IDisposable, IBaseRepository<T>
         dbSet = db.Set<T>();
     }
 
-    public async Task<T> AddAsync(T model)
+    public virtual async Task<T> AddAsync(T model)
     {
         if (model.Id != 0)
             throw new DbUpdateException($"Entity of type {typeof(T).Name} should not have an ID assigned.");
@@ -37,7 +37,7 @@ public class DbModelRepository<T> : IDisposable, IBaseRepository<T>
         return existingModel;
     }
 
-    public async Task AddRangeAsync(IEnumerable<T> entities)
+    public virtual async Task AddRangeAsync(IEnumerable<T> entities)
     {
         if (entities.Any(e => e.Id != 0))
             throw new DbUpdateException($"New entities of type {typeof(T).Name} should not have an ID assigned.");
@@ -46,7 +46,7 @@ public class DbModelRepository<T> : IDisposable, IBaseRepository<T>
         await SaveChangesAsync();
     }
 
-    public async Task RemoveAsync(long key)
+    public virtual async Task RemoveAsync(long key)
     {
         if (key <= 0)
             throw new DbUpdateException($"Entity of type {typeof(T).Name} must have a positive ID to be removed.");
@@ -60,7 +60,7 @@ public class DbModelRepository<T> : IDisposable, IBaseRepository<T>
         await SaveChangesAsync();
     }
 
-    public async Task RemoveRangeAsync(IEnumerable<T> entities)
+    public virtual async Task RemoveRangeAsync(IEnumerable<T> entities)
     {
         if (entities.Any(e => e.Id <= 0))
             throw new DbUpdateException($"Entities of type {typeof(T).Name} must have a positive ID to be removed.");
@@ -69,19 +69,19 @@ public class DbModelRepository<T> : IDisposable, IBaseRepository<T>
         await SaveChangesAsync();
     }
 
-    public async Task<IQueryable<T>> GetAllAsync()
+    public virtual async Task<IQueryable<T>> GetAllAsync()
         => await Task.FromResult(dbSet);
 
-    public async Task<T?> GetByIdAsync(long key)
+    public virtual async Task<T?> GetByIdAsync(long key)
         => await dbSet.SingleOrDefaultAsync(m => m.Id == key);
 
-    public async Task<IQueryable<T>> FindAsync(Expression<Func<T, bool>> expression)
+    public virtual async Task<IQueryable<T>> FindAsync(Expression<Func<T, bool>> expression)
         => await Task.FromResult(dbSet.Where(expression));
 
-    public async Task<bool> ExistsAsync(long key)
+    public virtual async Task<bool> ExistsAsync(long key)
         => await dbSet.AnyAsync(m => m.Id == key);
 
-    public async Task UpdateAsync(T model)
+    public virtual async Task UpdateAsync(T model)
     {
         if (model.Id < 0)
             throw new DbUpdateException($"Modified entities of type {typeof(T).Name} must have a positive ID.");
@@ -90,7 +90,7 @@ public class DbModelRepository<T> : IDisposable, IBaseRepository<T>
         await SaveChangesAsync();
     }
 
-    public async Task SaveChangesAsync()
+    public virtual async Task SaveChangesAsync()
         => await db.SaveChangesAsync();
 
     bool disposed = false;

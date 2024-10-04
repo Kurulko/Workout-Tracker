@@ -20,7 +20,7 @@ public class DbModelRepository_Tests<T> where T : class, IDbModel
 {
     protected readonly WorkoutContextFactory contextFactory = new WorkoutContextFactory();
 
-    protected async Task<User> GetDefaultUser(WorkoutDbContext db)
+    protected async Task<User> GetDefaultUserAsync(WorkoutDbContext db)
     {
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);

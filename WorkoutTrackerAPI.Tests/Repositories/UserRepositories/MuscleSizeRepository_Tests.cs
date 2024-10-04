@@ -54,7 +54,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
 
     async Task<MuscleSize> GetValidMuscleSizeAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
         Muscle muscle = await GetBicepsMuscleAsync(db);
 
         var validMuscleSize = new MuscleSize()
@@ -71,7 +71,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
 
     async Task<IEnumerable<MuscleSize>> GetValidMuscleSizesAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
         Muscle bicepsMuscle = await GetBicepsMuscleAsync(db);
         Muscle backMuscle = await GetBackMuscleAsync(db);
 
@@ -100,7 +100,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
 
     async Task<MuscleSize> GetInvalidMuscleSizeAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
         Muscle muscle = await GetBicepsMuscleAsync(db);
 
         var invalidMuscleSize = new MuscleSize()
@@ -118,7 +118,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
 
     async Task<IEnumerable<MuscleSize>> GetInvalidMuscleSizesAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
         Muscle bicepsMuscle = await GetBicepsMuscleAsync(db);
         Muscle backMuscle = await GetBackMuscleAsync(db);
 
@@ -317,7 +317,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
         using var db = contextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
         Muscle bicepsMuscle = await GetBicepsMuscleAsync(db);
         Muscle backMuscle = await GetBackMuscleAsync(db);
 
@@ -361,7 +361,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
         using var db = contextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
         Muscle bicepsMuscle = await GetBicepsMuscleAsync(db);
         Muscle backMuscle = await GetBackMuscleAsync(db);
 

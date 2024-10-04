@@ -17,7 +17,7 @@ public class RoleRepository
 
     IQueryable<IdentityRole> roles => roleManager.Roles;
 
-    static IdentityResult roleNotFoundResult => IdentityResultExtentions.Failed("Role not found!");
+    static IdentityResult roleNotFoundResult => IdentityResultExtentions.Failed("Role not found.");
     static IdentityResult roleIDIsNullOrEmptyResult => IdentityResultExtentions.Failed("Role ID cannot not be null or empty.");
 
 

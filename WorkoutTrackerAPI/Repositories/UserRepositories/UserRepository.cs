@@ -24,7 +24,7 @@ public class UserRepository
 
     IQueryable<User> users => userManager.Users;
 
-    static IdentityResult userNotFoundResult => IdentityResultExtentions.Failed("User not found!");
+    static IdentityResult userNotFoundResult => IdentityResultExtentions.Failed("User not found.");
     static IdentityResult userIDIsNullOrEmptyResult => IdentityResultExtentions.Failed("User ID cannot not be null or empty.");
 
     #region CRUD

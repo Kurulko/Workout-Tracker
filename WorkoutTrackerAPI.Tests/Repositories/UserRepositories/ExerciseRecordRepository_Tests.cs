@@ -54,7 +54,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
 
     async Task<ExerciseRecord> GetValidExerciseRecordAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
         Exercise exercise = await GetPullUpExerciseAsync(db);
 
         var validExerciseRecord = new ExerciseRecord()
@@ -72,7 +72,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
 
     async Task<IEnumerable<ExerciseRecord>> GetValidExerciseRecordsAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
         Exercise exercise1 = await GetPullUpExerciseAsync(db);
         Exercise exercise2 = await GetPlankExerciseAsync(db);
 
@@ -103,7 +103,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
 
     async Task<ExerciseRecord> GetInvalidExerciseRecordAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
         Exercise exercise = await GetPullUpExerciseAsync(db);
 
         var invalidExerciseRecord = new ExerciseRecord()
@@ -122,7 +122,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
 
     async Task<IEnumerable<ExerciseRecord>> GetInvalidExerciseRecordsAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
         Exercise exercise1 = await GetPullUpExerciseAsync(db);
         Exercise exercise2 = await GetPlankExerciseAsync(db);
 
@@ -342,7 +342,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
 
         await WorkoutContextFactory.InitializeMusclesAsync(db);
 
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
         Exercise exercise1 = await GetPullUpExerciseAsync(db);
         Exercise exercise2 = await GetPlankExerciseAsync(db);
 
@@ -382,7 +382,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
 
         await WorkoutContextFactory.InitializeMusclesAsync(db);
 
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
         Exercise exercise1 = await GetPullUpExerciseAsync(db);
         Exercise exercise2 = await GetPlankExerciseAsync(db);
 

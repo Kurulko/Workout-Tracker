@@ -14,12 +14,12 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
 {
     async Task<BodyWeight> GetValidBodyWeightAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
 
         var validBodyWeight = new BodyWeight()
         {
             Date = DateOnly.FromDateTime(DateTime.Now),
-            Weight = 70.0f,
+            Weight = 70,
             WeightType = WeightType.Kilogram,
             UserId = user.Id
         };
@@ -29,14 +29,14 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
 
     async Task<IEnumerable<BodyWeight>> GetValidBodyWeightsAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
 
         var validBodyWeights = new[]
              {
                 new BodyWeight()
                 {
                     Date = DateOnly.FromDateTime(DateTime.Now),
-                    Weight = 70.0f,
+                    Weight = 70,
                     WeightType = WeightType.Kilogram,
                     UserId = user.Id
                 },
@@ -54,13 +54,13 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
 
     async Task<BodyWeight> GetInvalidBodyWeightAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
 
         var invalidBodyWeight = new BodyWeight()
         {
             Id = -1,
             Date = DateOnly.FromDateTime(DateTime.Now),
-            Weight = 70.0f,
+            Weight = 70,
             WeightType = WeightType.Kilogram,
             UserId = user.Id
         };
@@ -70,7 +70,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
 
     async Task<IEnumerable<BodyWeight>> GetInvalidBodyWeightsAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
 
         var invalidBodyWeights = new[]
              {
@@ -265,7 +265,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
         var validBodyWeights = new[]
              {
                 new BodyWeight()
@@ -303,7 +303,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
-        User user = await GetDefaultUser(db);
+        User user = await GetDefaultUserAsync(db);
 
         var validBodyWeights = new[]
              {

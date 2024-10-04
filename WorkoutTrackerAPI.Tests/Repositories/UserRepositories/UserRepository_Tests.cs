@@ -145,7 +145,7 @@ public class UserRepository_Tests
         //Assert
         Assert.False(result.Succeeded);
 
-        var isUserNotFound = result.ErrorExists("User not found!");
+        var isUserNotFound = result.ErrorExists("User not found.");
         Assert.True(isUserNotFound);
     }
 
@@ -377,7 +377,7 @@ public class UserRepository_Tests
         //Assert
         Assert.False(result.Succeeded);
 
-        var isUserNotFound = result.ErrorExists("User not found!");
+        var isUserNotFound = result.ErrorExists("User not found.");
         Assert.True(isUserNotFound);
     }
 
@@ -805,7 +805,7 @@ public class UserRepository_Tests
         Assert.NotNull(result);
         Assert.False(result.Succeeded);
 
-        var isUserNotFound = result.ErrorExists("User not found!");
+        var isUserNotFound = result.ErrorExists("User not found.");
         Assert.True(isUserNotFound);
     }
 
@@ -848,7 +848,7 @@ public class UserRepository_Tests
         Assert.NotNull(result);
         Assert.False(result.Succeeded);
 
-        var isUserNotFound = result.ErrorExists("User not found!");
+        var isUserNotFound = result.ErrorExists("User not found.");
         Assert.True(isUserNotFound);
     }
 
@@ -962,7 +962,7 @@ public class UserRepository_Tests
         Assert.NotNull(result);
         Assert.False(result.Succeeded);
 
-        var isUserNotFound = result.ErrorExists("User not found!");
+        var isUserNotFound = result.ErrorExists("User not found.");
         Assert.True(isUserNotFound);
     }
 
@@ -1013,7 +1013,7 @@ public class UserRepository_Tests
         Assert.NotNull(result);
         Assert.False(result.Succeeded);
 
-        var isUserNotFound = result.ErrorExists("User not found!");
+        var isUserNotFound = result.ErrorExists("User not found.");
         Assert.True(isUserNotFound);
     }
 

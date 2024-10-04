@@ -109,7 +109,7 @@ public class ExerciseRecordService : Service<ExerciseRecord>, IExerciseRecordSer
 
         try
         {
-            var userExerciseRecordByDate = (await baseRepository.FindAsync(bw => bw.Date == date))?.First();
+            var userExerciseRecordByDate = (await baseRepository.FindAsync(m => m.Date == date && m.UserId == userId)).FirstOrDefault();
             return ServiceResult<ExerciseRecord>.Ok(userExerciseRecordByDate);
         }
         catch (Exception ex)

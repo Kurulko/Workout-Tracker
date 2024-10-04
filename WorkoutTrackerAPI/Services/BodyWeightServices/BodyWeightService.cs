@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
@@ -107,7 +108,8 @@ public class BodyWeightService : Service<BodyWeight>, IBodyWeightService
         try
         {
             var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId);
-            var userMaxBodyWeight = userBodyWeights?.MaxBy(bw => BodyWeight.GetBodyWeightInKilos(bw));
+            var userMaxBodyWeight = userBodyWeights?.ToList().MaxBy(bw => BodyWeight.GetBodyWeightInKilos(bw));
+
             return ServiceResult<BodyWeight>.Ok(userMaxBodyWeight);
         }
         catch (Exception ex)
@@ -127,7 +129,7 @@ public class BodyWeightService : Service<BodyWeight>, IBodyWeightService
         try
         {
             var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId);
-            var userMinBodyWeight = userBodyWeights?.MinBy(bw => BodyWeight.GetBodyWeightInKilos(bw));
+            var userMinBodyWeight = userBodyWeights?.ToList().MinBy(bw => BodyWeight.GetBodyWeightInKilos(bw));
             return ServiceResult<BodyWeight>.Ok(userMinBodyWeight);
         }
         catch (Exception ex)
@@ -149,7 +151,7 @@ public class BodyWeightService : Service<BodyWeight>, IBodyWeightService
 
         try
         {
-            var userBodyWeightByDate = (await baseRepository.FindAsync(bw => bw.Date == date))?.First();
+            var userBodyWeightByDate = (await baseRepository.FindAsync(bw => bw.Date == date && bw.UserId == userId)).FirstOrDefault();
             return ServiceResult<BodyWeight>.Ok(userBodyWeightByDate);
         }
         catch (Exception ex)
@@ -205,7 +207,6 @@ public class BodyWeightService : Service<BodyWeight>, IBodyWeightService
                 return ServiceResult.Fail(UserNotHavePermissionStr("update", "body weight"));
 
             await baseRepository.UpdateAsync(bodyWeight);
-
             return ServiceResult.Ok();
         }
         catch (Exception ex)
