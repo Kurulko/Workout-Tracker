@@ -87,7 +87,7 @@ public class ExerciseRecordService : Service<ExerciseRecord>, IExerciseRecordSer
 
         try
         {
-            var userExerciseRecords = await baseRepository.FindAsync(bw => bw.UserId == userId);
+            var userExerciseRecords = await baseRepository.FindAsync(m => m.UserId == userId && m.ExerciseId == exerciseId);
             return ServiceResult<IQueryable<ExerciseRecord>>.Ok(userExerciseRecords);
         }
         catch (Exception ex)
@@ -109,12 +109,12 @@ public class ExerciseRecordService : Service<ExerciseRecord>, IExerciseRecordSer
 
         try
         {
-            var userExerciseRecordByDate = (await baseRepository.FindAsync(m => m.Date == date && m.UserId == userId)).FirstOrDefault();
+            var userExerciseRecordByDate = (await baseRepository.FindAsync(m => m.Date == date && m.UserId == userId && m.ExerciseId == exerciseId)).FirstOrDefault();
             return ServiceResult<ExerciseRecord>.Ok(userExerciseRecordByDate);
         }
         catch (Exception ex)
         {
-            return ServiceResult<ExerciseRecord>.Fail(FailedToAction("body weight by date", "get", ex.Message));
+            return ServiceResult<ExerciseRecord>.Fail(FailedToAction("exercise record by date", "get", ex.Message));
         }
     }
 
@@ -136,7 +136,7 @@ public class ExerciseRecordService : Service<ExerciseRecord>, IExerciseRecordSer
         }
         catch (Exception ex)
         {
-            return ServiceResult<ExerciseRecord>.Fail(FailedToAction("body weight", "get", ex.Message));
+            return ServiceResult<ExerciseRecord>.Fail(FailedToAction("exercise record", "get", ex.Message));
         }
     }
 

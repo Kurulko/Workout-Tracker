@@ -16,7 +16,7 @@ namespace WorkoutTrackerAPI.Tests.Services.UserServices;
 
 public class BodyWeightService_Tests : BaseService_Tests<BodyWeight>
 {
-    BodyWeight GetValidBodyWeight()
+    static BodyWeight GetValidBodyWeight()
     {
         var validBodyWeight = new BodyWeight()
         {
@@ -28,7 +28,7 @@ public class BodyWeightService_Tests : BaseService_Tests<BodyWeight>
         return validBodyWeight;
     }
 
-    IEnumerable<BodyWeight> GetValidBodyWeights()
+    static IEnumerable<BodyWeight> GetValidBodyWeights()
     {
         var validBodyWeights = new[]{
             new BodyWeight()
@@ -502,7 +502,7 @@ public class BodyWeightService_Tests : BaseService_Tests<BodyWeight>
 
 
     [Fact]
-    public async Task GetMimUserBodyWeight_ShouldReturnMaxBodyWeight_WhenInputIsValid()
+    public async Task GetMinUserBodyWeight_ShouldReturnMaxBodyWeight_WhenInputIsValid()
     {
         // Arrange
         using var db = contextFactory.CreateDatabaseContext();
@@ -938,7 +938,7 @@ public class BodyWeightService_Tests : BaseService_Tests<BodyWeight>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("BodyWeight entry cannot be null.", result.ErrorMessage);
+        Assert.Equal("Body weight entry cannot be null.", result.ErrorMessage);
     }
 
     [Fact]

@@ -295,7 +295,7 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
             Exercise? _exercise = await baseWorkoutRepository.GetByIdAsync(exercise.Id);
 
             if (_exercise is null)
-                return ServiceResult.Fail(new NotFoundException(nameof(Exercise)));
+                return ServiceResult.Fail(exerciseNotFoundException);
 
             if (_exercise.CreatedByUserId != userId)
                 return ServiceResult.Fail(UserNotHavePermissionStr("update", "exercise"));
@@ -332,7 +332,7 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         if (!(await userRepository.UserExistsAsync(userId)))
             throw userNotFoundException;
 
-        if (string.IsNullOrEmpty(userId))
+        if (string.IsNullOrEmpty(name))
             throw exerciseNameIsNullOrEmptyException;
 
         return await baseWorkoutRepository.ExistsByNameAsync(name);

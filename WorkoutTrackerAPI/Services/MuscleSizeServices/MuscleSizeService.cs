@@ -115,7 +115,7 @@ public class MuscleSizeService : Service<MuscleSize>, IMuscleSizeService
         try
         {
             var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId && ms.MuscleId == muscleId);
-            var userMaxMuscleSize = userMuscleSizes?.MaxBy(bw => MuscleSize.GetMuscleSizeInCentimeters(bw));
+            var userMaxMuscleSize = userMuscleSizes?.ToList().MaxBy(bw => MuscleSize.GetMuscleSizeInCentimeters(bw));
             return ServiceResult<MuscleSize>.Ok(userMaxMuscleSize);
         }   
         catch (Exception ex)
@@ -138,7 +138,7 @@ public class MuscleSizeService : Service<MuscleSize>, IMuscleSizeService
         try
         {
             var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId && ms.MuscleId == muscleId);
-            var userMinMuscleSize = userMuscleSizes?.MinBy(bw => MuscleSize.GetMuscleSizeInCentimeters(bw));
+            var userMinMuscleSize = userMuscleSizes?.ToList().MinBy(bw => MuscleSize.GetMuscleSizeInCentimeters(bw));
             return ServiceResult<MuscleSize>.Ok(userMinMuscleSize);
         }
         catch (Exception ex)
@@ -160,7 +160,7 @@ public class MuscleSizeService : Service<MuscleSize>, IMuscleSizeService
 
         try
         {
-            var userMuscleSizeByDate = (await baseRepository.FindAsync(m => m.Date == date && m.UserId == userId)).FirstOrDefault();
+            var userMuscleSizeByDate = (await baseRepository.FindAsync(m => m.Date == date && m.UserId == userId && m.MuscleId == muscleId)).FirstOrDefault();
             return ServiceResult<MuscleSize>.Ok(userMuscleSizeByDate);
         }
         catch (Exception ex)
@@ -213,7 +213,7 @@ public class MuscleSizeService : Service<MuscleSize>, IMuscleSizeService
                 return ServiceResult.Fail(muscleSizeNotFoundException);
 
             if (_muscleSize.UserId != userId)
-                return ServiceResult.Fail(UserNotHavePermissionStr("update", "body weight"));
+                return ServiceResult.Fail(UserNotHavePermissionStr("update", "muscle size"));
 
             await baseRepository.UpdateAsync(muscleSize);
 

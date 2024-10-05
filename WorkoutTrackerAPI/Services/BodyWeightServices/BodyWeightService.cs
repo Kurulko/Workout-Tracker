@@ -191,7 +191,7 @@ public class BodyWeightService : Service<BodyWeight>, IBodyWeightService
             return ServiceResult.Fail(userNotFoundException);
 
         if (bodyWeight is null)
-            return ServiceResult.Fail(new EntryNullException(nameof(BodyWeight)));
+            return ServiceResult.Fail(bodyWeightIsNullException);
 
         if (bodyWeight.Id < 1)
             return ServiceResult.Fail(invalidBodyWeightIDException);

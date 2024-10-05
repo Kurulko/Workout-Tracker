@@ -31,8 +31,6 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
-    <Folder Include="Services\WorkoutServices\" />
-    <Folder Include="Services\UserServices\" />
   </ItemGroup>
 
 </Project>
