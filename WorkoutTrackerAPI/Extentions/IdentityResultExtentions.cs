@@ -29,6 +29,6 @@ public static class IdentityResultExtentions
         if (identityResult.Succeeded)
             return false;
 
-        return identityResult.Errors.Any(e => e.Description == errorMessage);
+        return identityResult.Errors.Any(e => e.Description.Contains(errorMessage));
     }
 }

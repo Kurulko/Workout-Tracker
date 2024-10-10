@@ -15,10 +15,8 @@ using Xunit;
 
 namespace WorkoutTrackerAPI.Tests.Repositories;
 
-public class JwtHandler_Tests
+public class JwtHandler_Tests : BaseTests
 {
-    readonly WorkoutContextFactory contextFactory = new WorkoutContextFactory();
-
     readonly JwtSettings jwtSettings = new()
     {
         Audience = "Kurulko's audience",

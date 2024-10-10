@@ -197,7 +197,7 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
        if (!(await userRepository.UserExistsAsync(userId)))
             throw userNotFoundException;
 
-        if (string.IsNullOrEmpty(userId))
+        if (string.IsNullOrEmpty(name))
             throw workoutNameIsNullOrEmptyException;
 
         return await baseWorkoutRepository.ExistsByNameAsync(name);

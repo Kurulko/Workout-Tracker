@@ -28,11 +28,8 @@ public class RoleService : BaseService<User>, IRoleService
         if (role is null)
             throw roleIsNullException;
 
-        if (!string.IsNullOrEmpty(role.Id))
-            throw new ArgumentException(InvalidEntryIDWhileAddingStr("Role", "role"));
-
-        if (await RoleDoesNotExist(role.Id))
-            throw roleNotFoundException;
+        if (await RoleExistsAsync(role.Id))
+            throw new Exception("Role already exists.");
 
         return await roleRepository.AddRoleAsync(role);
     }
@@ -47,11 +44,6 @@ public class RoleService : BaseService<User>, IRoleService
 
         try
         {
-            IdentityRole? role = await roleRepository.GetRoleByIdAsync(roleId);
-
-            if (role is null)
-                return IdentityResultExtentions.Failed(roleNotFoundException);
-
             return await roleRepository.DeleteRoleAsync(roleId);
         }
         catch (Exception ex)
@@ -136,6 +128,4 @@ public class RoleService : BaseService<User>, IRoleService
 
     async Task<bool> RoleDoesNotExist(string roleId)
         => !(await roleRepository.RoleExistsAsync(roleId));
-    async Task<bool> RoleDoesNotExistByName(string roleName)
-        => !(await roleRepository.RoleExistsByNameAsync(roleName));
 }

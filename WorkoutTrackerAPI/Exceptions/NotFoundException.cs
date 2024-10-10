@@ -2,9 +2,7 @@
 
 public class NotFoundException : Exception
 {
-    public NotFoundException(string paramName) 
-        : base($"{paramName} not found.") 
-    {
-    
-    }
+    public string ParamName { get; init; }
+    public NotFoundException(string paramName) : base($"{paramName} not found.") 
+        => ParamName = paramName;
 }

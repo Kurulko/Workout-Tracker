@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Security.Claims;
 using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Data.Models;
@@ -26,6 +27,7 @@ public class UserService : BaseService<User>, IUserService
 
     ArgumentException invalidUserIDWhileAdding => InvalidEntryIDWhileAdding(nameof(User), "user");
 
+
     #region CRUD
 
     public async Task<User> AddUserAsync(User user)
@@ -33,8 +35,8 @@ public class UserService : BaseService<User>, IUserService
         if (user is null)
             throw new EntryNullException(nameof(User));
 
-        if (!string.IsNullOrEmpty(user.Id))
-            throw invalidUserIDWhileAdding;
+        if (await UserExistsAsync(user.Id))
+            throw new Exception("User already exists.");
 
         return await userRepository.AddUserAsync(user);
     }
@@ -43,9 +45,6 @@ public class UserService : BaseService<User>, IUserService
     {
         if (user is null)
             return IdentityResultExtentions.Failed(new EntryNullException(nameof(User)));
-
-        if (!string.IsNullOrEmpty(user.Id))
-            return IdentityResultExtentions.Failed(invalidUserIDWhileAdding);
 
         if (string.IsNullOrEmpty(password))
             return IdentityResultExtentions.Failed(new ArgumentNullOrEmptyException("Password"));
@@ -148,9 +147,6 @@ public class UserService : BaseService<User>, IUserService
         if (string.IsNullOrEmpty(userName))
             throw userNameIsNullOrEmptyException;
 
-        if (await UserDoesNotExistByName(userName))
-            throw userNotFoundException;
-
         return await userRepository.UserExistsByUsernameAsync(userName);
     }
 
@@ -237,7 +233,7 @@ public class UserService : BaseService<User>, IUserService
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToAction("current user password", "change", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToAction("user password", "change", ex.Message));
         }
     }
 
@@ -292,7 +288,7 @@ public class UserService : BaseService<User>, IUserService
     public async Task<IEnumerable<User>> GetUsersByRoleAsync(string roleName)
     {
         if (string.IsNullOrEmpty(roleName))
-            throw userNameIsNullOrEmptyException;
+            throw roleNameIsNullOrEmptyException;
 
         if (await RoleDoesNotExistByName(roleName))
             throw new NotFoundException("Role");
@@ -333,7 +329,7 @@ public class UserService : BaseService<User>, IUserService
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToAction("role to user", "add", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToAction("roles to user", "add", ex.Message));
         }
     }
 
@@ -353,6 +349,10 @@ public class UserService : BaseService<User>, IUserService
 
         try
         {
+            var userRoles = await userRepository.GetUserRolesAsync(userId);
+            if (!userRoles.Contains(roleName))
+                return IdentityResultExtentions.Failed($"User does not have '{roleName}' role");
+
             return await userRepository.DeleteRoleFromUserAsync(userId, roleName);
         }
         catch (Exception ex)

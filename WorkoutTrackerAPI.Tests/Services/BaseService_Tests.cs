@@ -11,27 +11,6 @@ using WorkoutTrackerAPI.Repositories.UserRepositories;
 
 namespace WorkoutTrackerAPI.Tests.Services;
 
-public abstract class BaseService_Tests<TModel> where TModel : class, IDbModel
+public abstract class BaseService_Tests : BaseTests
 {
-    protected readonly WorkoutContextFactory contextFactory = new();
-
-    protected async Task<User> GetDefaultUserAsync(WorkoutDbContext db)
-    {
-        var userManager = IdentityHelper.GetUserManager(db);
-        var userRepository = new UserRepository(userManager, db);
-
-        string name = "User";
-        string email = "user@email.com";
-        string password = "P@$$w0rd";
-
-        var user = await userRepository.GetUserByUsernameAsync(name);
-
-        if (user is null)
-        {
-            await WorkoutContextFactory.InitializeRolesAsync(db);
-            user = await UsersInitializer.InitializeAsync(userRepository, name, email, password, new[] { Roles.UserRole });
-        }
-
-        return user;
-    }
 }

@@ -16,10 +16,8 @@ using System.Linq.Expressions;
 
 namespace WorkoutTrackerAPI.Tests.Repositories;
 
-public class DbModelRepository_Tests<T> where T : class, IDbModel
+public abstract class DbModelRepository_Tests<T> : BaseTests where T : class, IDbModel
 {
-    protected readonly WorkoutContextFactory contextFactory = new WorkoutContextFactory();
-
     protected async Task<User> GetDefaultUserAsync(WorkoutDbContext db)
     {
         var userManager = IdentityHelper.GetUserManager(db);

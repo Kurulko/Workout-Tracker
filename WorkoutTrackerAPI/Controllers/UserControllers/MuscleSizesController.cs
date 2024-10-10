@@ -14,7 +14,7 @@ using WorkoutTrackerAPI.Services.WorkoutServices;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
-public class MuscleSizesController : BaseController<MuscleSize>
+public class MuscleSizesController : DbModelController<MuscleSize>
 {
     readonly IMuscleSizeService muscleSizeService;
     readonly IHttpContextAccessor httpContextAccessor;
@@ -36,7 +36,7 @@ public class MuscleSizesController : BaseController<MuscleSize>
 
 
     [HttpGet]
-    public async Task<ActionResult<ApiResult<MuscleSize>>> GetUserMuscleSizesAsync(
+    public async Task<ActionResult<ApiResult<MuscleSize>>> GetCurrentUserMuscleSizesAsync(
         long muscleId,
         int pageIndex = 0,
         int pageSize = 10,
@@ -72,7 +72,7 @@ public class MuscleSizesController : BaseController<MuscleSize>
     }
 
     [HttpGet("{muscleSizeId}")]
-    public async Task<ActionResult<MuscleSize>> GetUserMuscleSizeByIdAsync(long muscleSizeId)
+    public async Task<ActionResult<MuscleSize>> GetCurrentUserMuscleSizeByIdAsync(long muscleSizeId)
     {
         if (muscleSizeId < 1)
             return InvalidMuscleSizeID();
@@ -83,7 +83,7 @@ public class MuscleSizesController : BaseController<MuscleSize>
     }
 
     [HttpGet("by-date")]
-    public async Task<ActionResult<MuscleSize>> GetUserMuscleSizeByDateAsync(long muscleId, DateTime date)
+    public async Task<ActionResult<MuscleSize>> GetCurrentUserMuscleSizeByDateAsync(long muscleId, DateTime date)
     {
         if (muscleId < 1)
             return InvalidMuscleID();
@@ -94,7 +94,7 @@ public class MuscleSizesController : BaseController<MuscleSize>
     }
 
     [HttpGet("min-muscle-size")]
-    public async Task<ActionResult<MuscleSize>> GetMinUserMuscleSizeAsync(long muscleId)
+    public async Task<ActionResult<MuscleSize>> GetMinCurrentUserMuscleSizeAsync(long muscleId)
     {
         if (muscleId < 1)
             return InvalidMuscleID();
@@ -105,7 +105,7 @@ public class MuscleSizesController : BaseController<MuscleSize>
     }
 
     [HttpGet("max-muscle-size")]
-    public async Task<ActionResult<MuscleSize>> GetMaxUserMuscleSizeAsync(long muscleId)
+    public async Task<ActionResult<MuscleSize>> GetMaxCurrentUserMuscleSizeAsync(long muscleId)
     {
         if (muscleId < 1)
             return InvalidMuscleID();
@@ -117,7 +117,7 @@ public class MuscleSizesController : BaseController<MuscleSize>
 
 
     [HttpPost]
-    public async Task<ActionResult<MuscleSize>> AddMuscleSizeToUserAsync(MuscleSize muscleSize)
+    public async Task<ActionResult<MuscleSize>> AddMuscleSizeToCurrentUserAsync(MuscleSize muscleSize)
     {
         if (muscleSize is null)
             return MuscleSizeIsNull();
@@ -133,11 +133,11 @@ public class MuscleSizesController : BaseController<MuscleSize>
 
         muscleSize = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetUserMuscleSizeByIdAsync), new { id = muscleSize.Id }, muscleSize);
+        return CreatedAtAction(nameof(GetCurrentUserMuscleSizeByIdAsync), new { id = muscleSize.Id }, muscleSize);
     }
 
     [HttpPut("{muscleSizeId}")]
-    public async Task<IActionResult> UpdateUserMuscleSizeAsync(long muscleSizeId, MuscleSize muscleSize)
+    public async Task<IActionResult> UpdateCurrentUserMuscleSizeAsync(long muscleSizeId, MuscleSize muscleSize)
     {
         if(muscleSizeId < 1)
             return InvalidMuscleSizeID();
@@ -151,7 +151,7 @@ public class MuscleSizesController : BaseController<MuscleSize>
     }
 
     [HttpDelete("{muscleSizeId}")]
-    public async Task<IActionResult> DeleteMuscleSizeFromUserAsync(long muscleSizeId)
+    public async Task<IActionResult> DeleteMuscleSizeFromCurrentUserAsync(long muscleSizeId)
     {
         if (muscleSizeId < 1)
             return InvalidMuscleSizeID();

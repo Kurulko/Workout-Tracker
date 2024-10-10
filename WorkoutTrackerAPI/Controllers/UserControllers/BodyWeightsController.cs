@@ -14,7 +14,7 @@ using WorkoutTrackerAPI.Services.ExerciseServices;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
-public class BodyWeightsController : BaseController<BodyWeight>
+public class BodyWeightsController : DbModelController<BodyWeight>
 {
     readonly IHttpContextAccessor httpContextAccessor;
     readonly IBodyWeightService bodyWeightService;
@@ -54,7 +54,7 @@ public class BodyWeightsController : BaseController<BodyWeight>
             return EntryNotFound("Body weights");
 
         return await ApiResult<BodyWeight>.CreateAsync(
-            serviceResult.Model!,
+            serviceResult.Model,
             pageIndex,
             pageSize,
             sortColumn,
@@ -124,6 +124,9 @@ public class BodyWeightsController : BaseController<BodyWeight>
     {
         if (bodyWeightId < 1)
             return InvalidBodyWeightID();
+
+        if (bodyWeight is null)
+            return BodyWeightIsNull();
 
         if (bodyWeightId != bodyWeight.Id)
             return EntryIDsNotMatch(nameof(BodyWeight));

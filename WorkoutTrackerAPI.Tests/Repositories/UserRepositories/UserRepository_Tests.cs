@@ -19,11 +19,9 @@ using WorkoutTrackerAPI.Data.Models.UserModels;
 
 namespace WorkoutTrackerAPI.Tests.Repositories.UserRepositories;
 
-public class UserRepository_Tests
+public class UserRepository_Tests : BaseTests
 {
-    readonly WorkoutContextFactory contextFactory = new WorkoutContextFactory();
-
-    User CreateUser(string name, string email)
+    static User CreateUser(string name, string email)
     {
         User user = new()
         {
@@ -35,12 +33,12 @@ public class UserRepository_Tests
         return user;
     }
 
-    User GetValidUser()
+    static User GetValidUser()
     {
         return CreateUser("User", "user@gmail.com");
     }
 
-    IEnumerable<User> GetValidUsers()
+    static IEnumerable<User> GetValidUsers()
     {
         var user_User = CreateUser("User", "user@gmail.com");
         var admin_User = CreateUser("Admin", "admin@gmail.com");

@@ -13,7 +13,7 @@ namespace WorkoutTrackerAPI.Tests.Repositories.WorkoutRepositories;
 
 public class WorkoutRepository_Tests : BaseWorkoutRepository_Tests<Workout>
 {
-    async Task<Exercise> GetPlankExercise(WorkoutDbContext db)
+    static async Task<Exercise> GetPlankExercise(WorkoutDbContext db)
     {
         var muscleRepository = new MuscleRepository(db);
         var exerciseRepository = new ExerciseRepository(db);
@@ -21,7 +21,7 @@ public class WorkoutRepository_Tests : BaseWorkoutRepository_Tests<Workout>
         return await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Plank", ExerciseType.Time, "Rectus abdominis", "External oblique", "Quadriceps");
     }
 
-    async Task<Exercise> GetLegRaiseExercise(WorkoutDbContext db)
+    static async Task<Exercise> GetLegRaiseExercise(WorkoutDbContext db)
     {
         var muscleRepository = new MuscleRepository(db);
         var exerciseRepository = new ExerciseRepository(db);
@@ -29,7 +29,7 @@ public class WorkoutRepository_Tests : BaseWorkoutRepository_Tests<Workout>
         return await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Leg Raise", ExerciseType.Reps, "Rectus abdominis", "Hip flexors");
     }
 
-    async Task<Exercise> GetStandingCalfRaisesExercise(WorkoutDbContext db)
+    static async Task<Exercise> GetStandingCalfRaisesExercise(WorkoutDbContext db)
     {
         var muscleRepository = new MuscleRepository(db);
         var exerciseRepository = new ExerciseRepository(db);

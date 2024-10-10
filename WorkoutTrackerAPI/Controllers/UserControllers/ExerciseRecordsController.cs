@@ -12,7 +12,7 @@ using WorkoutTrackerAPI.Extentions;
 
 namespace WorkoutTrackerAPI.Controllers.UserControllers;
 
-public class ExerciseRecordsController : BaseController<ExerciseRecord>
+public class ExerciseRecordsController : DbModelController<ExerciseRecord>
 {
     readonly IExerciseRecordService exerciseRecordService;
     readonly IHttpContextAccessor httpContextAccessor;

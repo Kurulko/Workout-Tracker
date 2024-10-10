@@ -18,9 +18,9 @@ using System.Linq.Expressions;
 
 namespace WorkoutTrackerAPI.Tests.Services.UserServices;
 
-public class ExerciseRecordService_Tests : BaseService_Tests<ExerciseRecord>
+public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
 {
-    async Task<Exercise> GetPullUpExerciseAsync(WorkoutDbContext db)
+    static async Task<Exercise> GetPullUpExerciseAsync(WorkoutDbContext db)
     {
         var exerciseRepository = new ExerciseRepository(db);
 
@@ -37,7 +37,7 @@ public class ExerciseRecordService_Tests : BaseService_Tests<ExerciseRecord>
         return exercise;
     }
 
-    async Task<Exercise> GetPlankExerciseAsync(WorkoutDbContext db)
+    static async Task<Exercise> GetPlankExerciseAsync(WorkoutDbContext db)
     {
         var exerciseRepository = new ExerciseRepository(db);
 
@@ -75,7 +75,6 @@ public class ExerciseRecordService_Tests : BaseService_Tests<ExerciseRecord>
 
     async Task<IEnumerable<ExerciseRecord>> GetValidExerciseRecordsAsync(WorkoutDbContext db)
     {
-        User user = await GetDefaultUserAsync(db);
         Exercise exercise1 = await GetPullUpExerciseAsync(db);
         Exercise exercise2 = await GetPlankExerciseAsync(db);
 
@@ -87,7 +86,6 @@ public class ExerciseRecordService_Tests : BaseService_Tests<ExerciseRecord>
                     Reps = 10,
                     SumOfReps = 10,
                     CountOfTimes = 1,
-                    UserId = user.Id,
                     ExerciseId = exercise1.Id
                 },
             new ExerciseRecord()
@@ -96,7 +94,6 @@ public class ExerciseRecordService_Tests : BaseService_Tests<ExerciseRecord>
                     Reps = 19,
                     SumOfReps = 29,
                     CountOfTimes = 2,
-                    UserId = user.Id,
                     ExerciseId = exercise1.Id
                 },
                 new ExerciseRecord()
@@ -105,7 +102,6 @@ public class ExerciseRecordService_Tests : BaseService_Tests<ExerciseRecord>
                     Reps = 20,
                     SumOfReps = 49,
                     CountOfTimes = 3,
-                    UserId = user.Id,
                     ExerciseId = exercise1.Id
                 },
                 new ExerciseRecord()
@@ -114,7 +110,6 @@ public class ExerciseRecordService_Tests : BaseService_Tests<ExerciseRecord>
                     Time = new TimeSpan(0, 1, 0),
                     SumOfTime= new TimeSpan(0, 1, 0),
                     CountOfTimes = 1,
-                    UserId = user.Id,
                     ExerciseId = exercise2.Id
                 }
             };

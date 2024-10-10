@@ -9,7 +9,7 @@ using Xunit;
 
 namespace WorkoutTrackerAPI.Tests.Repositories.WorkoutRepositories;
 
-public class BaseWorkoutRepository_Tests<T> : DbModelRepository_Tests<T> where T : WorkoutModel
+public abstract class BaseWorkoutRepository_Tests<T> : DbModelRepository_Tests<T> where T : WorkoutModel
 {
     protected async Task GetModelByName_ShouldReturnModelByName(BaseWorkoutRepository<T> baseRepository, string name)
     {

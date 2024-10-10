@@ -19,19 +19,17 @@ public class ImpersonationService : IImpersonationService
     }
 
     const string OriginalUserIdSessionKey = "OriginalUserId";
-    HttpContext httpContext => httpContextAccessor.HttpContext!;
+    HttpContext HttpContext => httpContextAccessor.HttpContext!;
 
     public async Task ImpersonateAsync(string userId)
     {
         if (string.IsNullOrEmpty(userId))
             throw new ArgumentNullOrEmptyException("User ID");
 
-        User? userToImpersonate = await userManager.FindByIdAsync(userId);
-        if (userToImpersonate is null)
-            throw new NotFoundException("User to impersonate");
+        User? userToImpersonate = await userManager.FindByIdAsync(userId) ?? throw new NotFoundException("User to impersonate");
 
-        string originalUserId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        httpContext.Session.SetString(OriginalUserIdSessionKey, originalUserId);
+        string originalUserId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        HttpContext.Session.SetString(OriginalUserIdSessionKey, originalUserId);
 
         await signInManager.SignOutAsync();
         await signInManager.SignInAsync(userToImpersonate, isPersistent: false);
@@ -39,24 +37,22 @@ public class ImpersonationService : IImpersonationService
 
     public async Task RevertAsync()
     {
-        string? originalUserId = httpContext.Session.GetString(OriginalUserIdSessionKey);
+        string? originalUserId = HttpContext.Session.GetString(OriginalUserIdSessionKey);
         if (string.IsNullOrEmpty(originalUserId))
             throw new NotFoundException("Original User ID");
 
-        User? originalUser = await userManager.FindByIdAsync(originalUserId);
-        if (originalUser == null)
-            throw new NotFoundException("Original User");
+        User? originalUser = await userManager.FindByIdAsync(originalUserId) ?? throw new NotFoundException("Original User");
 
         await signInManager.SignOutAsync();
         await signInManager.SignInAsync(originalUser, isPersistent: false);
-        httpContext.Session.Remove(OriginalUserIdSessionKey);
+        HttpContext.Session.Remove(OriginalUserIdSessionKey);
     }
 
     public bool IsImpersonating()
     {
         try
         {
-            string? originalUserId = httpContext.Session.GetString(OriginalUserIdSessionKey);
+            string? originalUserId = HttpContext.Session.GetString(OriginalUserIdSessionKey);
             return !string.IsNullOrEmpty(originalUserId);
         }
         catch

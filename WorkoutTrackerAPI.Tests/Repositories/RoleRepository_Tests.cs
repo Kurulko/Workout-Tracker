@@ -17,10 +17,8 @@ using WorkoutTrackerAPI.Extentions;
 
 namespace WorkoutTrackerAPI.Tests.Repositories;
 
-public class RoleRepository_Tests
+public class RoleRepository_Tests : BaseTests
 {
-    readonly WorkoutContextFactory contextFactory = new WorkoutContextFactory();
-
     IdentityRole GetValidRole()
         => new IdentityRole("User");
 

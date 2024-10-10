@@ -14,7 +14,7 @@ public class WorkoutContextFactory
                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                .Options;
 
-        return new WorkoutDbContext(options); ;
+        return new WorkoutDbContext(options);
     }
 
     public static async Task InitializeRolesAsync(WorkoutDbContext db)

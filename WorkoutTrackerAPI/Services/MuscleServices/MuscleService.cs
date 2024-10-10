@@ -46,7 +46,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         Muscle? muscle = await baseWorkoutRepository.GetByIdAsync(muscleId);
 
         if (muscle is null)
-            return ServiceResult.Fail(new NotFoundException(nameof(Muscle)));
+            return ServiceResult.Fail(muscleNotFoundException);
 
         try
         {
@@ -55,7 +55,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
         catch
         {
-            return ServiceResult.Fail(FailedToAction("delete", "delete"));
+            return ServiceResult.Fail(FailedToAction("muscle", "delete"));
         }
     }
 

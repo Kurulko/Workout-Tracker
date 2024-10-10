@@ -13,7 +13,7 @@ namespace WorkoutTrackerAPI.Tests.Repositories.WorkoutRepositories;
 
 public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
 {
-    Muscle GetValidMuscle()
+    static Muscle GetValidMuscle()
     {
         var validMuscle = new Muscle()
         {
@@ -23,7 +23,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
         return validMuscle;
     }
 
-    IEnumerable<Muscle> GetValidMuscles()
+    static IEnumerable<Muscle> GetValidMuscles()
     {
         var validMuscles = new[]
              {

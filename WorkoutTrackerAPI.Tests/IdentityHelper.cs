@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data.Models.UserModels;
 
 namespace WorkoutTrackerAPI.Tests;
 
@@ -16,11 +17,10 @@ public static class IdentityHelper
         var roleStore = new RoleStore<IdentityRole>(db);
         return new RoleManager<IdentityRole>(
                    roleStore,
-                   new IRoleValidator<IdentityRole>[0],
+                   Array.Empty<IRoleValidator<IdentityRole>>(),
                    new UpperInvariantLookupNormalizer(),
-                   new Mock<IdentityErrorDescriber>().Object,
-                   new Mock<ILogger<RoleManager<IdentityRole>>>(
-                   ).Object);
+                   Mock.Of<IdentityErrorDescriber>(),
+                   Mock.Of<ILogger<RoleManager<IdentityRole>>>());
     }
 
     public static UserManager<User> GetUserManager(WorkoutDbContext db)
@@ -28,14 +28,26 @@ public static class IdentityHelper
         var userStore = new UserStore<User>(db);
         return new UserManager<User>(
                     userStore,
-                    new Mock<IOptions<IdentityOptions>>().Object,
-                    new Mock<IPasswordHasher<User>>().Object,
-                    new IUserValidator<User>[0],
-                    new IPasswordValidator<User>[0],
+                    Mock.Of<IOptions<IdentityOptions>>(),
+                    Mock.Of<IPasswordHasher<User>>(),
+                    Array.Empty<IUserValidator<User>>(),
+                    Array.Empty<IPasswordValidator<User>>(),
                     new UpperInvariantLookupNormalizer(),
-                    new Mock<IdentityErrorDescriber>().Object,
-                    new Mock<IServiceProvider>().Object,
-                    new Mock<ILogger<UserManager<User>>>(
-                    ).Object);
+                    Mock.Of<IdentityErrorDescriber>(),
+                    Mock.Of<IServiceProvider>(),
+                    Mock.Of<ILogger<UserManager<User>>>());
+    }
+    
+    public static SignInManager<User> GetSignInManager(WorkoutDbContext db, IHttpContextAccessor httpContextAccessor)
+    {
+        var userManager = GetUserManager(db);
+        return new SignInManager<User>(
+            userManager,
+            httpContextAccessor,
+            Mock.Of<IUserClaimsPrincipalFactory<User>>(),
+            Mock.Of<IOptions<IdentityOptions>>(),
+            Mock.Of<ILogger<SignInManager<User>>>(),
+            Mock.Of<IAuthenticationSchemeProvider>(),
+            Mock.Of<IUserConfirmation<User>>());
     }
 }

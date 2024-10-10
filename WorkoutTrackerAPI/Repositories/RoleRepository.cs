@@ -21,7 +21,7 @@ public class RoleRepository
     static IdentityResult roleIDIsNullOrEmptyResult => IdentityResultExtentions.Failed("Role ID cannot not be null or empty.");
 
 
-    public async Task<IdentityRole> AddRoleAsync(IdentityRole role)
+    public virtual async Task<IdentityRole> AddRoleAsync(IdentityRole role)
     {
         IdentityRole? existingRole = await GetRoleByIdAsync(role.Id);
 
@@ -37,7 +37,7 @@ public class RoleRepository
         return existingRole;
     }
 
-    public async Task<IdentityResult> DeleteRoleAsync(string roleId)
+    public virtual async Task<IdentityResult> DeleteRoleAsync(string roleId)
     {
         if (string.IsNullOrEmpty(roleId))
             return roleIDIsNullOrEmptyResult;
@@ -50,16 +50,16 @@ public class RoleRepository
         return roleNotFoundResult;
     }
 
-    public async Task<IQueryable<IdentityRole>> GetRolesAsync()
+    public virtual async Task<IQueryable<IdentityRole>> GetRolesAsync()
         => await Task.FromResult(roles);
 
-    public async Task<IdentityRole?> GetRoleByIdAsync(string roleId)
+    public virtual async Task<IdentityRole?> GetRoleByIdAsync(string roleId)
         => await roles.SingleOrDefaultAsync(u => u.Id == roleId);
 
-    public async Task<IdentityRole?> GetRoleByNameAsync(string name)
+    public virtual async Task<IdentityRole?> GetRoleByNameAsync(string name)
         => await roles.SingleOrDefaultAsync(u => u.Name == name);
 
-    public async Task<IdentityResult> UpdateRoleAsync(IdentityRole role)
+    public virtual async Task<IdentityResult> UpdateRoleAsync(IdentityRole role)
     {
         if (string.IsNullOrEmpty(role.Id))
             return roleIDIsNullOrEmptyResult;
@@ -72,9 +72,9 @@ public class RoleRepository
         return roleNotFoundResult;
     }
 
-    public async Task<bool> RoleExistsAsync(string roleId)
+    public virtual async Task<bool> RoleExistsAsync(string roleId)
         => await roles.AnyAsync(r => r.Id == roleId);
 
-    public async Task<bool> RoleExistsByNameAsync(string name)
+    public virtual async Task<bool> RoleExistsByNameAsync(string name)
         => await roles.AnyAsync(r => r.Name == name);
 }

@@ -1,16 +1,7 @@
-﻿using Castle.Components.DictionaryAdapter.Xml;
-using FakeItEasy.Sdk;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Moq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Exceptions;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
@@ -20,9 +11,9 @@ using Xunit;
 
 namespace WorkoutTrackerAPI.Tests.Services.WorkoutServices;
 
-public class ExerciseService_Tests : BaseService_Tests<Exercise>
+public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 {
-    async Task<Exercise> CreateExerciseAsync(WorkoutDbContext db, string name, ExerciseType exerciseType, params string[] muscleNames)
+    static async Task<Exercise> CreateExerciseAsync(WorkoutDbContext db, string name, ExerciseType exerciseType, params string[] muscleNames)
     {
         var muscleRepository = new MuscleRepository(db);
 
@@ -45,12 +36,12 @@ public class ExerciseService_Tests : BaseService_Tests<Exercise>
 
     }
 
-    async Task<Exercise> GetValidExerciseAsync(WorkoutDbContext db)
+    static async Task<Exercise> GetValidExerciseAsync(WorkoutDbContext db)
     {
         return await CreateExerciseAsync(db, "Plank", ExerciseType.Time, "Rectus abdominis", "External oblique", "Quadriceps");
     }
 
-    async Task<IEnumerable<Exercise>> GetValidExercisesAsync(WorkoutDbContext db)
+    static async Task<IEnumerable<Exercise>> GetValidExercisesAsync(WorkoutDbContext db)
     {
         var plankExercise = await CreateExerciseAsync(db, "Plank", ExerciseType.Time, "Rectus abdominis", "External oblique", "Quadriceps");
         var pullUpExercise = await CreateExerciseAsync(db, "Pull Up", ExerciseType.Reps, "Latissimus dorsi", "Biceps brachii", "Teres minor");

@@ -7,7 +7,7 @@ using WorkoutTrackerAPI.Data.Models;
 
 namespace WorkoutTrackerAPI.Tests.Services;
 
-public class BaseWorkoutService_Tests<TModel> : BaseService_Tests<TModel> 
+public class BaseWorkoutService_Tests<TModel> : DbModelService_Tests<TModel> 
     where TModel : WorkoutModel
 {
 }

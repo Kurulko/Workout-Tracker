@@ -9,7 +9,7 @@ using WorkoutTrackerAPI.Services.ExerciseRecordServices;
 
 namespace WorkoutTrackerAPI.Services.ExerciseRecordServices;
 
-public class ExerciseRecordService : Service<ExerciseRecord>, IExerciseRecordService
+public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRecordService
 {
     readonly UserRepository userRepository;
     public ExerciseRecordService(ExerciseRecordRepository baseRepository, UserRepository userRepository) : base(baseRepository)

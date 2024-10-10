@@ -12,7 +12,7 @@ using System.Linq.Expressions;
 
 namespace WorkoutTrackerAPI.Tests.Services.UserServices;
 
-public class MuscleSizeService_Tests : BaseService_Tests<MuscleSize>
+public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 {
     static async Task<Muscle> GetBackMuscleAsync(WorkoutDbContext db)
     {

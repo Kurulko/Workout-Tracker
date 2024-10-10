@@ -14,7 +14,7 @@ using System.Linq.Expressions;
 
 namespace WorkoutTrackerAPI.Tests.Services.UserServices;
 
-public class BodyWeightService_Tests : BaseService_Tests<BodyWeight>
+public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 {
     static BodyWeight GetValidBodyWeight()
     {
@@ -48,7 +48,7 @@ public class BodyWeightService_Tests : BaseService_Tests<BodyWeight>
         return validBodyWeights;
     }
 
-    IBodyWeightService GetBodyWeightService(WorkoutDbContext db)
+    static IBodyWeightService GetBodyWeightService(WorkoutDbContext db)
     {
         var bodyWeightRepository = new BodyWeightRepository(db);
         var userManager = IdentityHelper.GetUserManager(db);

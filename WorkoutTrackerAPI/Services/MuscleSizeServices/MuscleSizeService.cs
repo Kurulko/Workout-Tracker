@@ -11,7 +11,7 @@ using WorkoutTrackerAPI.Services.MuscleSizeServices;
 
 namespace WorkoutTrackerAPI.Services;
 
-public class MuscleSizeService : Service<MuscleSize>, IMuscleSizeService
+public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
 {
     readonly UserRepository userRepository;
     public MuscleSizeService(MuscleSizeRepository baseRepository, UserRepository userRepository) : base(baseRepository)

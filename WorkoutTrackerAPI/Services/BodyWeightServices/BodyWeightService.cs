@@ -10,7 +10,7 @@ using WorkoutTrackerAPI.Services.BodyWeightServices;
 
 namespace WorkoutTrackerAPI.Services;
 
-public class BodyWeightService : Service<BodyWeight>, IBodyWeightService
+public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
 {
     readonly UserRepository userRepository;
     public BodyWeightService(BodyWeightRepository baseRepository, UserRepository userRepository) : base(baseRepository)

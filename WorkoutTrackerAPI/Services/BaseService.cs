@@ -17,7 +17,7 @@ public class BaseService<TModel> where TModel : class
         if (!string.IsNullOrEmpty(message))
             result += $": {message}";
 
-        return result;
+        return result + ".";
     }
 
     protected string InvalidEntryIDWhileAddingStr(string entryName, string modelName)
