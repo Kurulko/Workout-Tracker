@@ -276,7 +276,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
-        Assert.Equal("Invalid exercise record ID.", badRequestResult.Value);
+        Assert.Equal("Invalid ExerciseRecord ID.", badRequestResult.Value);
     }
 
     [Fact]
@@ -330,14 +330,17 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
+        var user = await GetDefaultUserAsync(db);
+        SetupMockHttpContextAccessor(user.Id);
+
         var notFoundID = 1;
 
         // Act
         var result = await exerciseRecordsController.GetCurrentUserExerciseRecordByIdAsync(notFoundID);
 
         // Assert
-        var badRequestResult = Assert.IsType<NotFoundObjectResult>(result.Result);
-        Assert.Equal("Exercise record not found.", badRequestResult.Value);
+        var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+        Assert.Equal("Exercise record not found.", notFoundObjectResult.Value);
     }
 
 
@@ -412,6 +415,9 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
         using var db = contextFactory.CreateDatabaseContext();
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
+        var user = await GetDefaultUserAsync(db);
+        SetupMockHttpContextAccessor(user.Id);
+
         var notFoundDateTime = DateTime.Now.AddDays(-1111);
         var pullUpExercise = await GetPullUpExerciseAsync(db);
 
@@ -419,8 +425,8 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
         var result = await exerciseRecordsController.GetCurrentUserExerciseRecordByDateAsync(pullUpExercise.Id, notFoundDateTime);
 
         // Assert
-        var badRequestResult = Assert.IsType<NotFoundObjectResult>(result.Result);
-        Assert.Equal("Exercise record not found.", badRequestResult.Value);
+        var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+        Assert.Equal("Exercise record not found.", notFoundObjectResult.Value);
     }
 
 
@@ -458,7 +464,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
-        Assert.Equal("Exercise record is null.", badRequestResult.Value);
+        Assert.Equal("Exercise record entry is null.", badRequestResult.Value);
     }
 
     [Fact]
@@ -569,7 +575,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("Exercise record is null.", badRequestResult.Value);
+        Assert.Equal("Exercise record entry is null.", badRequestResult.Value);
     }
 
     [Fact]

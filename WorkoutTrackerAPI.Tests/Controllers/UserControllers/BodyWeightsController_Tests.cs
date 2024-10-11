@@ -189,7 +189,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
-        Assert.Equal("Invalid body weight ID.", badRequestResult.Value);
+        Assert.Equal("Invalid BodyWeight ID.", badRequestResult.Value);
     }
 
     [Fact]
@@ -243,14 +243,17 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightsController = GetBodyWeightsController(db);
 
+        var user = await GetDefaultUserAsync(db);
+        SetupMockHttpContextAccessor(user.Id);
+
         var notFoundID = 1;
 
         // Act
         var result = await bodyWeightsController.GetCurrentUserBodyWeightByIdAsync(notFoundID);
 
         // Assert
-        var badRequestResult = Assert.IsType<NotFoundObjectResult>(result.Result);
-        Assert.Equal("Body weight not found.", badRequestResult.Value);
+        var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+        Assert.Equal("Body weight not found.", notFoundObjectResult.Value);
     }
 
 
@@ -306,14 +309,17 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
         using var db = contextFactory.CreateDatabaseContext();
         var bodyWeightsController = GetBodyWeightsController(db);
 
+        var user = await GetDefaultUserAsync(db);
+        SetupMockHttpContextAccessor(user.Id);
+
         var notFoundDateTime = DateTime.Now.AddDays(-1111);
 
         // Act
         var result = await bodyWeightsController.GetCurrentUserBodyWeightByDateAsync(notFoundDateTime);
 
         // Assert
-        var badRequestResult = Assert.IsType<NotFoundObjectResult>(result.Result);
-        Assert.Equal("Body weight not found.", badRequestResult.Value);
+        var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+        Assert.Equal("Body weight not found.", notFoundObjectResult.Value);
     }
 
 
@@ -482,7 +488,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
-        Assert.Equal("Body weight is null.", badRequestResult.Value); 
+        Assert.Equal("Body weight entry is null.", badRequestResult.Value); 
     }
 
     [Fact]
@@ -593,7 +599,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("Body weight is null.", badRequestResult.Value);
+        Assert.Equal("Body weight entry is null.", badRequestResult.Value);
     }
 
     [Fact]

@@ -1,16 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Moq;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Services;
-using WorkoutTrackerAPI.Services.RoleServices;
-using WorkoutTrackerAPI.Services.UserServices;
 using Xunit;
 
 namespace WorkoutTrackerAPI.Tests.Initializers;

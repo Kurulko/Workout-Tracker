@@ -118,7 +118,7 @@ public class ExercisesController : BaseWorkoutController<Exercise>
 
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await exerciseService.GetUserExerciseByIdAsync(userId, exerciseId);
-        return HandleServiceResult(serviceResult, "User exercise not foud");
+        return HandleServiceResult(serviceResult, "User exercise not found.");
     }
 
     [HttpGet("exercise/by-name/{name}")]
@@ -139,7 +139,7 @@ public class ExercisesController : BaseWorkoutController<Exercise>
 
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await exerciseService.GetUserExerciseByNameAsync(userId, name);
-        return HandleServiceResult(serviceResult, "User exercise not foud");
+        return HandleServiceResult(serviceResult, "User exercise not found.");
     }
 
     [HttpPost]
@@ -179,7 +179,7 @@ public class ExercisesController : BaseWorkoutController<Exercise>
 
         exercise = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetExerciseByIdAsync), new { id = exercise.Id }, exercise);
+        return CreatedAtAction(nameof(GetCurrentUserExerciseByIdAsync), new { id = exercise.Id }, exercise);
     }
 
     [HttpPut("{exerciseId}")]
@@ -204,6 +204,9 @@ public class ExercisesController : BaseWorkoutController<Exercise>
     {
         if (exerciseId < 1)
             return InvalidExerciseID();
+
+        if (exercise is null)
+            return ExerciseIsNull();
 
         if (exerciseId != exercise.Id)
             return ExerciseIDsNotMatch();

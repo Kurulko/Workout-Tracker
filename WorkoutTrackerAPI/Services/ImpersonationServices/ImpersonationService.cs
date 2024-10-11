@@ -3,17 +3,18 @@ using System.Security.Claims;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Exceptions;
+using WorkoutTrackerAPI.Repositories.UserRepositories;
 
 namespace WorkoutTrackerAPI.Services.ImpersonationServices;
 
 public class ImpersonationService : IImpersonationService
 {
-    readonly UserManager<User> userManager;
+    readonly UserRepository userRepository;
     readonly SignInManager<User> signInManager;
     readonly IHttpContextAccessor httpContextAccessor;
-    public ImpersonationService(UserManager<User> userManager, SignInManager<User> signInManager, IHttpContextAccessor httpContextAccessor)
+    public ImpersonationService(UserRepository userRepository, SignInManager<User> signInManager, IHttpContextAccessor httpContextAccessor)
     {
-        this.userManager = userManager;
+        this.userRepository = userRepository;
         this.signInManager = signInManager;
         this.httpContextAccessor = httpContextAccessor;
     }
@@ -26,7 +27,7 @@ public class ImpersonationService : IImpersonationService
         if (string.IsNullOrEmpty(userId))
             throw new ArgumentNullOrEmptyException("User ID");
 
-        User? userToImpersonate = await userManager.FindByIdAsync(userId) ?? throw new NotFoundException("User to impersonate");
+        User? userToImpersonate = await userRepository.GetUserByIdAsync(userId) ?? throw new NotFoundException("User to impersonate");
 
         string originalUserId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
         HttpContext.Session.SetString(OriginalUserIdSessionKey, originalUserId);
@@ -41,7 +42,7 @@ public class ImpersonationService : IImpersonationService
         if (string.IsNullOrEmpty(originalUserId))
             throw new NotFoundException("Original User ID");
 
-        User? originalUser = await userManager.FindByIdAsync(originalUserId) ?? throw new NotFoundException("Original User");
+        User? originalUser = await userRepository.GetUserByIdAsync(originalUserId) ?? throw new NotFoundException("Original User");
 
         await signInManager.SignOutAsync();
         await signInManager.SignInAsync(originalUser, isPersistent: false);

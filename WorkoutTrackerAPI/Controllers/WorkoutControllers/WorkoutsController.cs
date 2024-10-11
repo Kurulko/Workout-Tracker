@@ -117,6 +117,9 @@ public class WorkoutsController : BaseWorkoutController<Workout>
         if (workoutId < 1)
             return InvalidWorkoutID();
 
+        if (workout is null)
+            return WorkoutIsNull();
+
         if (workoutId != workout.Id)
             return EntryIDsNotMatch(nameof(Workout));
 

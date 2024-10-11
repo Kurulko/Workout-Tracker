@@ -142,6 +142,9 @@ public class MuscleSizesController : DbModelController<MuscleSize>
         if(muscleSizeId < 1)
             return InvalidMuscleSizeID();
 
+        if (muscleSize is null)
+            return MuscleSizeIsNull();
+
         if (muscleSizeId != muscleSize.Id)
             return EntryIDsNotMatch(nameof(MuscleSize));
 

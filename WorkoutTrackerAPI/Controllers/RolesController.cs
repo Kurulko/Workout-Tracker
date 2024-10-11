@@ -23,9 +23,9 @@ public class RolesController : APIController
         => this.roleService = roleService;
 
     ActionResult RoleIDIsNullOrEmpty()
-        => BadRequest($"Role ID is null or empty.");
+        => BadRequest("Role ID is null or empty.");
     ActionResult RoleNameIsNullOrEmpty()
-        => BadRequest($"Role name is null or empty.");
+        => BadRequest("Role name is null or empty.");
     ActionResult RoleIsNull()
         => EntryIsNull("Role");
     ActionResult RoleNotFound()
@@ -115,9 +115,6 @@ public class RolesController : APIController
         if (role is null)
             return RoleIsNull();
 
-        if (!string.IsNullOrEmpty(role.Id))
-            return InvalidEntryIDWhileAdding("Role", "role");
-
         try
         {
             role = await roleService.AddRoleAsync(role);
@@ -167,7 +164,7 @@ public class RolesController : APIController
             string? roleId = await roleService.GetRoleIdByNameAsync(name);
 
             if (roleId is null)
-                return NotFound();
+                return RoleNotFound();
 
             return roleId;
         }
@@ -189,7 +186,7 @@ public class RolesController : APIController
             string? name = await roleService.GetRoleNameByIdAsync(roleId);
 
             if (name is null)
-                return NotFound();
+                return RoleNotFound();
 
             return name;
         }

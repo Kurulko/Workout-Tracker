@@ -118,6 +118,9 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecord>
         if (exerciseRecordId < 1)
             return InvalidExerciseRecordID();
 
+        if (exerciseRecord is null)
+            return ExerciseRecordIsNull();
+
         if (exerciseRecordId != exerciseRecord.Id)
             return EntryIDsNotMatch(nameof(ExerciseRecord));
 

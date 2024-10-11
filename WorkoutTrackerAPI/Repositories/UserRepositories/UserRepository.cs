@@ -83,19 +83,24 @@ public class UserRepository
     }
 
     public virtual async Task<User?> GetUserByUsernameAsync(string userName)
-        => await users.SingleOrDefaultAsync(u => u.UserName.ToLower() == userName.ToLower());
+        => await userManager.FindByNameAsync(userName);
+    public virtual async Task<User?> GetUserByEmailAsync(string email)
+        => await userManager.FindByEmailAsync(email);
 
     public virtual async Task<IQueryable<User>> GetUsersAsync()
         => await Task.FromResult(users);
 
     public virtual async Task<User?> GetUserByIdAsync(string userId)
-        => await users.SingleOrDefaultAsync(u => u.Id == userId);
+        => await userManager.FindByIdAsync(userId);
 
     public virtual async Task<bool> UserExistsAsync(string userId)
         => await users.AnyAsync(u => u.Id == userId);
 
     public virtual async Task<bool> UserExistsByUsernameAsync(string userName)
-        => await users.AnyAsync(r => r.UserName == userName);
+        => await users.AnyAsync(r => r.UserName.ToLower() == userName.ToLower());
+
+    public virtual async Task<bool> UserExistsByEmailAsync(string email)
+        => await users.AnyAsync(r => r.Email.ToLower() == email.ToLower());
 
     #endregion
 

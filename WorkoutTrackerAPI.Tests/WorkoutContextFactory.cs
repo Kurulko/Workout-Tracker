@@ -3,6 +3,7 @@ using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Initializers;
 using WorkoutTrackerAPI.Repositories;
 using Newtonsoft.Json.Linq;
+using System.Data;
 
 namespace WorkoutTrackerAPI.Tests;
 
@@ -23,7 +24,7 @@ public class WorkoutContextFactory
         var roleRepository = new RoleRepository(roleManager);
 
         var roles = await roleRepository.GetRolesAsync();
-        if (roles.Count() == 0)
+        if (!roles.Any())
             await RolesInitializer.InitializeAsync(roleRepository, Roles.AdminRole, Roles.UserRole);
     }
 
@@ -32,7 +33,7 @@ public class WorkoutContextFactory
         var muscleRepository = new MuscleRepository(db);
 
         var muscles = await muscleRepository.GetAllAsync();
-        if (muscles.Count() == 0)
+        if (!muscles.Any())
         {
             string json = await File.ReadAllTextAsync("Data/Source/muscles.json");
             var jsonObject = JObject.Parse(json);

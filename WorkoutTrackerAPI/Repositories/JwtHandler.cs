@@ -17,7 +17,7 @@ public class JwtHandler
     public JwtHandler(JwtSettings jwtSettings, UserManager<User> userManager)
         => (this.jwtSettings, this.userManager) = (jwtSettings, userManager);
 
-    public async Task<TokenModel> GenerateJwtTokenAsync(User user)
+    public virtual async Task<TokenModel> GenerateJwtTokenAsync(User user)
     {
         JwtSecurityTokenHandler tokenHandler = new();
 
@@ -65,7 +65,7 @@ public class JwtHandler
         return claims;
     }
 
-    public ClaimsPrincipal GetPrincipalFromToken(string token)
+    public virtual ClaimsPrincipal GetPrincipalFromToken(string token)
     {
         JwtSecurityTokenHandler tokenHandler = new();
         var validationParameters = (TokenValidationParameters)jwtSettings;

@@ -148,7 +148,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
         var okResult = Assert.IsType<ActionResult<ApiResult<MuscleSize>>>(result);
         Assert.NotNull(okResult);
         Assert.NotNull(okResult.Value);
-        Assert.Equal(muscleSizes.Count(), okResult.Value.TotalCount);
+        Assert.All(okResult.Value.Data, m => Assert.True(m.MuscleId == bicepsMuscle.Id));
     }
 
     [Fact]
@@ -251,7 +251,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
-        Assert.Equal("Invalid muscle size ID.", badRequestResult.Value);
+        Assert.Equal("Invalid MuscleSize ID.", badRequestResult.Value);
     }
 
     [Fact]
@@ -305,14 +305,17 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
         using var db = contextFactory.CreateDatabaseContext();
         var muscleSizesController = GetMuscleSizesController(db);
 
+        var user = await GetDefaultUserAsync(db);
+        SetupMockHttpContextAccessor(user.Id);
+
         var notFoundID = 1;
 
         // Act
         var result = await muscleSizesController.GetCurrentUserMuscleSizeByIdAsync(notFoundID);
 
         // Assert
-        var badRequestResult = Assert.IsType<NotFoundObjectResult>(result.Result);
-        Assert.Equal("Muscle size not found.", badRequestResult.Value);
+        var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+        Assert.Equal("Muscle size not found.", notFoundObjectResult.Value);
     }
 
 
@@ -389,6 +392,9 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
         using var db = contextFactory.CreateDatabaseContext();
         var muscleSizesController = GetMuscleSizesController(db);
 
+        var user = await GetDefaultUserAsync(db);
+        SetupMockHttpContextAccessor(user.Id);
+
         var notFoundDateTime = DateTime.Now.AddDays(-1111);
         var bicepsMuscle = await GetBicepsMuscleAsync(db);
 
@@ -396,8 +402,8 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
         var result = await muscleSizesController.GetCurrentUserMuscleSizeByDateAsync(bicepsMuscle.Id, notFoundDateTime);
 
         // Assert
-        var badRequestResult = Assert.IsType<NotFoundObjectResult>(result.Result);
-        Assert.Equal("Muscle size not found.", badRequestResult.Value);
+        var notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+        Assert.Equal("Muscle size not found.", notFoundObjectResult.Value);
     }
 
 
@@ -578,7 +584,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
-        Assert.Equal("Muscle size is null.", badRequestResult.Value);
+        Assert.Equal("Muscle size entry is null.", badRequestResult.Value);
     }
 
     [Fact]
@@ -689,7 +695,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("Muscle size is null.", badRequestResult.Value);
+        Assert.Equal("Muscle size entry is null.", badRequestResult.Value);
     }
 
     [Fact]

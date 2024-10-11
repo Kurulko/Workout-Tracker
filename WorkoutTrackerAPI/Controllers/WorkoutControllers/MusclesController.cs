@@ -101,6 +101,9 @@ public class MusclesController : BaseWorkoutController<Muscle>
         if (muscleId < 1)
             return InvalidMuscleID();
 
+        if (muscle is null)
+            return MuscleIsNull();
+
         if (muscleId != muscle.Id)
             return EntryIDsNotMatch(nameof(Muscle));
 

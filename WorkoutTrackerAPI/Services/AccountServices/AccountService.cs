@@ -14,19 +14,17 @@ namespace WorkoutTrackerAPI.Services.AccountServices;
 
 public class AccountService : IAccountService
 {
-    readonly UserManager<User> userManager;
     readonly SignInManager<User> signInManager;
     readonly UserRepository userRepository;
     readonly IHttpContextAccessor httpContextAccessor;
     readonly JwtHandler jwtHandler;
 
-    public AccountService(SignInManager<User> signInManager, UserRepository userRepository, JwtHandler jwtHandler, IHttpContextAccessor httpContextAccessor, UserManager<User> userManager)
+    public AccountService(SignInManager<User> signInManager, UserRepository userRepository, JwtHandler jwtHandler, IHttpContextAccessor httpContextAccessor)
     {
         this.signInManager = signInManager;
         this.userRepository = userRepository;
         this.jwtHandler = jwtHandler;
         this.httpContextAccessor = httpContextAccessor;
-        this.userManager = userManager;
     }
 
     public async Task<AuthResult> LoginAsync(LoginModel login)
@@ -37,9 +35,7 @@ public class AccountService : IAccountService
         var res = await signInManager.PasswordSignInAsync(login.Name, login.Password, login.RememberMe, false);
 
         if (!res.Succeeded)
-        {
             return AuthResult.Fail("Password or/and login invalid");
-        }
 
         try
         {
@@ -55,43 +51,37 @@ public class AccountService : IAccountService
 
     public async Task<AuthResult> RegisterAsync(RegisterModel register)
     {
-        string IdentityErrorsToString(IEnumerable<IdentityError> identityErrors)
-            => string.Join("; ", identityErrors.Select(e => e.Description));
-
-
         if (register is null)
             throw new EntryNullException("Register");
 
-        var existingUserByName = await userManager.FindByNameAsync(register.Name);
+        var existingUserByName = await userRepository.GetUserByUsernameAsync(register.Name);
         if (existingUserByName is not null)
             return AuthResult.Fail("Name already registered.");
 
-        var existingUserByEmail = await userManager.FindByEmailAsync(register.Email);
+        var existingUserByEmail = await userRepository.GetUserByEmailAsync(register.Email!);
         if (existingUserByEmail is not null)
             return AuthResult.Fail("Email already registered.");
 
 
-        User user = (User)register;
-        IdentityResult result = await userRepository.CreateUserAsync(user, register.Password);
-
-        if (!result.Succeeded)
-        {
-            string failMessage = IdentityErrorsToString(result.Errors);
-            return AuthResult.Fail($"Register failed: {failMessage}");
-        }
-
         try
         {
+            string IdentityErrorsToString(IEnumerable<IdentityError> identityErrors)
+                => string.Join("; ", identityErrors.Select(e => e.Description));
+
+            User user = (User)register;
             user.Registered = DateTime.Now;
+
+            IdentityResult result = await userRepository.CreateUserAsync(user, register.Password);
+            if (!result.Succeeded)
+                throw new Exception(IdentityErrorsToString(result.Errors));
+
             await signInManager.SignInAsync(user, register.RememberMe);
 
             string userRole = Roles.UserRole;
+
             var identityResult = await userRepository.AddRolesToUserAsync(user.Id, new[] { userRole });
             if (!identityResult.Succeeded)
-            {
-                string failMessage = IdentityErrorsToString(result.Errors);
-                return AuthResult.Fail($"Register failed: {failMessage}");
-            }
+                throw new Exception(IdentityErrorsToString(identityResult.Errors));
 
             var token = await jwtHandler.GenerateJwtTokenAsync((User)register);
             return AuthResult.Ok("Register successful", token);

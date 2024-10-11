@@ -109,7 +109,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
         // Assert
         var okResult = Assert.IsType<ActionResult<ApiResult<Muscle>>>(result);
         Assert.NotNull(okResult.Value);
-        Assert.Equal(2, okResult.Value.TotalCount);
+        Assert.Equal(2, okResult.Value.Data.Count());
     }
 
     [Fact]
@@ -272,7 +272,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("Muscle is null.", badRequestResult.Value);
+        Assert.Equal("Muscle entry is null.", badRequestResult.Value);
     }
 
     [Fact]
@@ -374,7 +374,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("Muscle is null.", badRequestResult.Value);
+        Assert.Equal("Muscle entry is null.", badRequestResult.Value);
     }
 
     [Fact]
@@ -477,6 +477,230 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
         Assert.Equal("Failed to delete muscle.", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task GetMuscleByNameAsync_ShouldReturnMuscleByName_WhenValidRequest()
+    {
+        // Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var muscleService = GetMuscleService(db);
+        var musclesController = GetMusclesController(db);
+
+        var muscle = GetValidMuscle();
+        await muscleService.AddMuscleAsync(muscle);
+
+        // Act
+        var result = await musclesController.GetMuscleByNameAsync(muscle.Name);
+
+        // Assert
+        var okResult = Assert.IsType<ActionResult<Muscle>>(result);
+        Assert.NotNull(okResult.Value);
+        Assert.Equal(muscle, okResult.Value);
+    }
+
+    [Fact]
+    public async Task GetMuscleByNameAsync_ShouldReturnBadRequest_WhenInvalidMuscleId()
+    {
+        // Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var musclesController = GetMusclesController(db);
+
+        // Act
+        var result = await musclesController.GetMuscleByNameAsync(null!);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal("Muscle name is null or empty.", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task GetMuscleByNameAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
+    {
+        // Arrange
+        var mockMuscleService = new Mock<IMuscleService>();
+        var musclesController = new MusclesController(mockMuscleService.Object);
+
+        mockMuscleService
+            .Setup(x => x.GetMuscleByNameAsync(It.IsAny<string>()))
+            .ReturnsAsync(ServiceResult<Muscle>.Fail("Failed to get muscle by name."));
+
+        var defaultExeciseName = "defaultExeciseName";
+
+        // Act
+        var result = await musclesController.GetMuscleByNameAsync(defaultExeciseName);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal("Failed to get muscle by name.", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task GetMuscleByNameAsync_ShouldReturnBadRequest_WhenMuscleNotFound()
+    {
+        //Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var musclesController = GetMusclesController(db);
+
+        var notFoundExeciseName = "notFoundExeciseName";
+
+        // Act
+        var result = await musclesController.GetMuscleByNameAsync(notFoundExeciseName);
+
+        // Assert
+        var badRequestResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+        Assert.Equal("Muscle not found.", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task MuscleExistsAsync_ShouldReturnBadRequest_WhenInvalidId()
+    {
+        // Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var musclesController = GetMusclesController(db);
+
+        long invalidID = -1;
+
+        // Act
+        var result = await musclesController.MuscleExistsAsync(invalidID);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal("Invalid Muscle ID.", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task MuscleExistsAsync_ShouldReturnTrue_WhenValidRequest()
+    {
+        // Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var muscleService = GetMuscleService(db);
+        var musclesController = GetMusclesController(db);
+
+        var muscle = GetValidMuscle();
+        await muscleService.AddMuscleAsync(muscle);
+
+        // Act
+        var result = await musclesController.MuscleExistsAsync(muscle.Id);
+
+        // Assert
+        var okResult = Assert.IsType<ActionResult<bool>>(result);
+        Assert.True(okResult.Value);
+    }
+
+    [Fact]
+    public async Task MuscleExistsAsync_ShouldReturnFalse_WhenValidRequest()
+    {
+        // Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var muscleService = GetMuscleService(db);
+        var musclesController = GetMusclesController(db);
+
+        var notFoundMuscleID = 1;
+
+        // Act
+        var result = await musclesController.MuscleExistsAsync(notFoundMuscleID);
+
+        // Assert
+        var okResult = Assert.IsType<ActionResult<bool>>(result);
+        Assert.False(okResult.Value);
+    }
+
+    [Fact]
+    public async Task MuscleExistsAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
+    {
+        // Arrange
+        var mockMuscleService = new Mock<IMuscleService>();
+        var musclesController = new MusclesController(mockMuscleService.Object);
+
+        mockMuscleService
+            .Setup(x => x.MuscleExistsAsync(It.IsAny<long>()))
+            .ThrowsAsync(new Exception("Database error"));
+
+        var defaultID = 1;
+
+        // Act
+        var result = await musclesController.MuscleExistsAsync(defaultID);
+
+        // Assert
+        var badRequestResult = Assert.IsType<ObjectResult>(result.Result);
+        Assert.Equal("Internal server error: Database error", badRequestResult.Value);
+        Assert.Equal(500, badRequestResult.StatusCode);
+    }
+
+
+    [Fact]
+    public async Task MuscleExistsByNameAsync_ShouldReturnBadRequest_WhenMuscleNameIsNullOrEmpty()
+    {
+        // Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var musclesController = GetMusclesController(db);
+
+        // Act
+        var result = await musclesController.MuscleExistsByNameAsync(null!);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal("Muscle name is null or empty.", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task MuscleExistsByNameAsync_ShouldReturnTrue_WhenValidRequest()
+    {
+        // Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var muscleService = GetMuscleService(db);
+        var musclesController = GetMusclesController(db);
+
+        var muscle = GetValidMuscle();
+        await muscleService.AddMuscleAsync(muscle);
+
+        // Act
+        var result = await musclesController.MuscleExistsByNameAsync(muscle.Name);
+
+        // Assert
+        var okResult = Assert.IsType<ActionResult<bool>>(result);
+        Assert.True(okResult.Value);
+    }
+
+    [Fact]
+    public async Task MuscleExistsByNameAsync_ShouldReturnFalse_WhenValidRequest()
+    {
+        // Arrange
+        using var db = contextFactory.CreateDatabaseContext();
+        var muscleService = GetMuscleService(db);
+        var musclesController = GetMusclesController(db);
+
+        var notFoundMuscleName = "notFoundMuscleName";
+
+        // Act
+        var result = await musclesController.MuscleExistsByNameAsync(notFoundMuscleName);
+
+        // Assert
+        var okResult = Assert.IsType<ActionResult<bool>>(result);
+        Assert.False(okResult.Value);
+    }
+
+    [Fact]
+    public async Task MuscleExistsByNameAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
+    {
+        // Arrange
+        var mockMuscleService = new Mock<IMuscleService>();
+        var musclesController = new MusclesController(mockMuscleService.Object);
+
+        mockMuscleService
+            .Setup(x => x.MuscleExistsByNameAsync(It.IsAny<string>()))
+            .ThrowsAsync(new Exception("Database error"));
+
+        var defaultMuscleName = "defaultMuscleName";
+
+        // Act
+        var result = await musclesController.MuscleExistsByNameAsync(defaultMuscleName);
+
+        // Assert
+        var badRequestResult = Assert.IsType<ObjectResult>(result.Result);
+        Assert.Equal("Internal server error: Database error", badRequestResult.Value);
+        Assert.Equal(500, badRequestResult.StatusCode);
     }
 }
 
