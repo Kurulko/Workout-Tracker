@@ -17,6 +17,18 @@ public class RegisterModel : AccountModel
     [JsonPropertyName("passwordconfirm")]
     public string PasswordConfirm { get; set; } = null!;
 
-    public static explicit operator User(RegisterModel register)
-        => new() { Email = register.Email, UserName = register.Name};
+    public static explicit operator User(RegisterModel registerModel)
+        => new() { Email = registerModel.Email, UserName = registerModel.Name};
+
+    public static explicit operator LoginModel(RegisterModel registerModel)
+    {
+        var loginModel = new LoginModel
+        {
+            Name = registerModel.Name,
+            Password = registerModel.Password,
+            RememberMe = registerModel.RememberMe
+        };
+
+        return loginModel;
+    }
 }

@@ -16,7 +16,7 @@ public class ImpersonationController : APIController
     public async Task<IActionResult> ImpersonateAsync(string userId)
     {
        if(string.IsNullOrEmpty(userId))
-           return BadRequest($"User ID is null or empty.");
+           return BadRequest("User ID is null or empty.");
 
         try
         {

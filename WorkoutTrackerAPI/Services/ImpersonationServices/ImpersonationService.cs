@@ -22,7 +22,7 @@ public class ImpersonationService : IImpersonationService
     const string OriginalUserIdSessionKey = "OriginalUserId";
     HttpContext HttpContext => httpContextAccessor.HttpContext!;
 
-    public async Task ImpersonateAsync(string userId)
+    public virtual async Task ImpersonateAsync(string userId)
     {
         if (string.IsNullOrEmpty(userId))
             throw new ArgumentNullOrEmptyException("User ID");
@@ -36,7 +36,7 @@ public class ImpersonationService : IImpersonationService
         await signInManager.SignInAsync(userToImpersonate, isPersistent: false);
     }
 
-    public async Task RevertAsync()
+    public virtual async Task RevertAsync()
     {
         string? originalUserId = HttpContext.Session.GetString(OriginalUserIdSessionKey);
         if (string.IsNullOrEmpty(originalUserId))
@@ -49,7 +49,7 @@ public class ImpersonationService : IImpersonationService
         HttpContext.Session.Remove(OriginalUserIdSessionKey);
     }
 
-    public bool IsImpersonating()
+    public virtual bool IsImpersonating()
     {
         try
         {

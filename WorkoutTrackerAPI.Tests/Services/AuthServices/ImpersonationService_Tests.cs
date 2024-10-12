@@ -25,7 +25,9 @@ namespace WorkoutTrackerAPI.Tests.Services;
 
 public class ImpersonationService_Tests : BaseService_Tests
 {
-    static void SetupMockHttpContext(Mock<HttpContext> mockHttpContext, User user)
+    readonly Mock<HttpContext> mockHttpContext = IdentityHelper.GetMockHttpContext();
+
+    void SetupMockHttpContext(User user)
     {
         mockHttpContext.Setup(x => x.User)
             .Returns(new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
@@ -34,65 +36,10 @@ public class ImpersonationService_Tests : BaseService_Tests
             })));
     }
 
-    static Mock<HttpContext> GetMockHttpContext()
+    IImpersonationService GetImpersonationService(WorkoutDbContext db)
     {
-        var mockHttpContext = new Mock<HttpContext>();
-
-        var session = new DistributedSession(
-            new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions())),
-            "session-id",
-            TimeSpan.FromMinutes(20),
-            TimeSpan.FromMinutes(20),
-            () => true,
-            new NullLoggerFactory(), 
-            true 
-        );
-
-        mockHttpContext.Setup(x => x.Session).Returns(session);
-
-        return mockHttpContext;
-    }
-
-    static Mock<IHttpContextAccessor> GetMockHttpContextAccessor(HttpContext httpContext)
-    {
-        var mockHttpContextAccessor = new Mock<IHttpContextAccessor>();
-       
-        mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
-
-        return mockHttpContextAccessor;
-    }
-
-    static Mock<SignInManager<User>> GetMockSignInManager(WorkoutDbContext db, IHttpContextAccessor httpContextAccessor, Mock<HttpContext> mockHttpContext)
-    {
-        var userManager = IdentityHelper.GetUserManager(db);
-
-        var mockSignInManager = new Mock<SignInManager<User>>(
-            userManager,
-            httpContextAccessor,
-            Mock.Of<IUserClaimsPrincipalFactory<User>>(),
-            Mock.Of<IOptions<IdentityOptions>>(),
-            Mock.Of<ILogger<SignInManager<User>>>(),
-            Mock.Of<IAuthenticationSchemeProvider>(),
-            Mock.Of<IUserConfirmation<User>>());
-
-        mockSignInManager.Setup(x => x.SignInAsync(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<string>()))
-            .Callback<User, bool, string>((_user, isPersistent, authenticationMethod) =>
-            {
-                mockHttpContext.Setup(x => x.User)
-                    .Returns(new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-                    {
-                        new Claim(ClaimTypes.NameIdentifier, _user.Id)
-                    })));
-            })
-            .Returns(Task.CompletedTask);
-
-        return mockSignInManager;
-    }
-
-    static IImpersonationService GetImpersonationService(WorkoutDbContext db, Mock<HttpContext> mockHttpContext)
-    {
-        var mockHttpContextAccessor = GetMockHttpContextAccessor(mockHttpContext.Object);
-        var mockSignInManager = GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
+        var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
+        var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
         return new ImpersonationService(userRepository, mockSignInManager.Object, mockHttpContextAccessor.Object);
@@ -145,13 +92,12 @@ public class ImpersonationService_Tests : BaseService_Tests
     {
         // Arrange
         using var db = contextFactory.CreateDatabaseContext();
-        var mockHttpContext = GetMockHttpContext();
-        var impersonationService = GetImpersonationService(db, mockHttpContext);
+        var impersonationService = GetImpersonationService(db);
 
         var user = await GetUserAsync(db);
         var impersonatedUser = await GetImpersonatedUserAsync(db);
 
-        SetupMockHttpContext(mockHttpContext, user);
+        SetupMockHttpContext(user);
 
         // Act
         await impersonationService.ImpersonateAsync(impersonatedUser.Id);
@@ -171,8 +117,7 @@ public class ImpersonationService_Tests : BaseService_Tests
     {
         // Arrange
         using var db = contextFactory.CreateDatabaseContext();
-        var mockHttpContext = GetMockHttpContext();
-        var impersonationService = GetImpersonationService(db, mockHttpContext);
+        var impersonationService = GetImpersonationService(db);
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<ArgumentNullOrEmptyException>(async () => await impersonationService.ImpersonateAsync(null!));
@@ -184,8 +129,7 @@ public class ImpersonationService_Tests : BaseService_Tests
     {
         // Arrange
         using var db = contextFactory.CreateDatabaseContext();
-        var mockHttpContext = GetMockHttpContext();
-        var impersonationService = GetImpersonationService(db, mockHttpContext);
+        var impersonationService = GetImpersonationService(db);
 
         var nonExistenceUserId = Guid.NewGuid().ToString();
 
@@ -200,18 +144,17 @@ public class ImpersonationService_Tests : BaseService_Tests
         // Arrange
         using var db = contextFactory.CreateDatabaseContext();
 
-        var mockHttpContext = GetMockHttpContext();
-        var mockHttpContextAccessor = GetMockHttpContextAccessor(mockHttpContext.Object);
-
+        var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
+        var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
-        var mockSignInManager = GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
+        var mockImpersonationService = new Mock<ImpersonationService>(userRepository, mockSignInManager.Object, mockHttpContextAccessor.Object);
         var impersonationService = new ImpersonationService(userRepository, mockSignInManager.Object, mockHttpContextAccessor.Object);
 
         var user = await GetUserAsync(db);
         var impersonatedUser = await GetImpersonatedUserAsync(db);
 
-        SetupMockHttpContext(mockHttpContext, user);
+        SetupMockHttpContext(user);
 
         mockSignInManager
             .Setup(repo => repo.SignOutAsync())
@@ -228,11 +171,10 @@ public class ImpersonationService_Tests : BaseService_Tests
     {
         // Arrange
         using var db = contextFactory.CreateDatabaseContext();
-        var mockHttpContext = GetMockHttpContext();
-        var impersonationService = GetImpersonationService(db, mockHttpContext);
+        var impersonationService = GetImpersonationService(db);
 
         var user = await GetUserAsync(db);
-        SetupMockHttpContext(mockHttpContext, user);
+        SetupMockHttpContext(user);
 
         var impersonatedUser = await GetImpersonatedUserAsync(db);
         await impersonationService.ImpersonateAsync(impersonatedUser.Id);
@@ -254,8 +196,7 @@ public class ImpersonationService_Tests : BaseService_Tests
     {
         // Arrange
         using var db = contextFactory.CreateDatabaseContext();
-        var mockHttpContext = GetMockHttpContext();
-        var impersonationService = GetImpersonationService(db, mockHttpContext);
+        var impersonationService = GetImpersonationService(db);
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<NotFoundException>(async () => await impersonationService.RevertAsync());
@@ -267,11 +208,10 @@ public class ImpersonationService_Tests : BaseService_Tests
     {
         // Arrange
         using var db = contextFactory.CreateDatabaseContext();
-        var mockHttpContext = GetMockHttpContext();
-        var impersonationService = GetImpersonationService(db, mockHttpContext);
+        var impersonationService = GetImpersonationService(db);
 
         var user = await GetUserAsync(db);
-        SetupMockHttpContext(mockHttpContext, user);
+        SetupMockHttpContext(user);
 
         string notFoundUserID = Guid.NewGuid().ToString();
         mockHttpContext.Object.Session.SetString("OriginalUserId", notFoundUserID);
@@ -287,16 +227,15 @@ public class ImpersonationService_Tests : BaseService_Tests
         // Arrange
         using var db = contextFactory.CreateDatabaseContext();
 
-        var mockHttpContext = GetMockHttpContext();
-        var mockHttpContextAccessor = GetMockHttpContextAccessor(mockHttpContext.Object);
-
+        var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
+        var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
-        var mockSignInManager = GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
+        var mockImpersonationService = new Mock<ImpersonationService>(userRepository, mockSignInManager.Object, mockHttpContextAccessor.Object);
         var impersonationService = new ImpersonationService(userRepository, mockSignInManager.Object, mockHttpContextAccessor.Object);
 
         var user = await GetUserAsync(db);
-        SetupMockHttpContext(mockHttpContext, user);
+        SetupMockHttpContext(user);
 
         var impersonatedUser = await GetImpersonatedUserAsync(db);
         await impersonationService.ImpersonateAsync(impersonatedUser.Id);
@@ -317,11 +256,10 @@ public class ImpersonationService_Tests : BaseService_Tests
     {
         // Arrange
         using var db = contextFactory.CreateDatabaseContext();
-        var mockHttpContext = GetMockHttpContext();
-        var impersonationService = GetImpersonationService(db, mockHttpContext);
+        var impersonationService = GetImpersonationService(db);
 
         var user = await GetUserAsync(db);
-        SetupMockHttpContext(mockHttpContext, user);
+        SetupMockHttpContext(user);
 
         var impersonatedUser = await GetImpersonatedUserAsync(db);
         await impersonationService.ImpersonateAsync(impersonatedUser.Id);
@@ -338,11 +276,10 @@ public class ImpersonationService_Tests : BaseService_Tests
     {
         // Arrange
         using var db = contextFactory.CreateDatabaseContext();
-        var mockHttpContext = GetMockHttpContext();
-        var impersonationService = GetImpersonationService(db, mockHttpContext);
+        var impersonationService = GetImpersonationService(db);
 
         var user = await GetUserAsync(db);
-        SetupMockHttpContext(mockHttpContext, user);
+        SetupMockHttpContext(user);
 
         // Act
         var result = impersonationService.IsImpersonating();

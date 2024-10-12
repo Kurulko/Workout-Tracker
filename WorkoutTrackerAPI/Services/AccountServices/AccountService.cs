@@ -1,14 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Serilog;
-using System.Linq.Dynamic.Core.Tokenizer;
-using System.Net.Mail;
-using System.Security.Claims;
 using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Exceptions;
+using WorkoutTrackerAPI.Extentions;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Services.UserServices;
 
 namespace WorkoutTrackerAPI.Services.AccountServices;
 
@@ -27,7 +23,7 @@ public class AccountService : IAccountService
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<AuthResult> LoginAsync(LoginModel login)
+    public virtual async Task<AuthResult> LoginAsync(LoginModel login)
     {
         if (login is null)
             throw new EntryNullException("Login");
@@ -49,7 +45,7 @@ public class AccountService : IAccountService
     }
 
 
-    public async Task<AuthResult> RegisterAsync(RegisterModel register)
+    public virtual async Task<AuthResult> RegisterAsync(RegisterModel register)
     {
         if (register is null)
             throw new EntryNullException("Register");
@@ -92,15 +88,14 @@ public class AccountService : IAccountService
         }
     }
 
-    public async Task LogoutAsync()
+    public virtual async Task LogoutAsync()
         => await signInManager.SignOutAsync();
 
-    public async Task<TokenModel> GetTokenAsync()
+    public virtual async Task<TokenModel> GetTokenAsync()
     {
-        var claims = httpContextAccessor.HttpContext!.User;
-        string userName = claims.Identity?.Name!;
-        User user = (await userRepository.GetUserByUsernameAsync(userName))!;
+        var userId = httpContextAccessor.GetUserId()!;
+        var user = await userRepository.GetUserByIdAsync(userId);
 
-        return await jwtHandler.GenerateJwtTokenAsync(user);
+        return await jwtHandler.GenerateJwtTokenAsync(user!);
     }
 }

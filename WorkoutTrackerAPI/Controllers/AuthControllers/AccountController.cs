@@ -14,8 +14,8 @@ public class AccountController : APIController
         => this.accountService = accountService;
 
 
-    [HttpPost(nameof(Register))]
-    public async Task<IActionResult> Register(RegisterModel register)
+    [HttpPost("Register")]
+    public async Task<IActionResult> RegisterAsync(RegisterModel register)
     {
         if (register is null)
             return EntryIsNull("Register");
@@ -23,19 +23,12 @@ public class AccountController : APIController
         if (!ModelState.IsValid)
             return HandleInvalidModelState();
 
-        try
-        {
-            var result = await accountService.RegisterAsync(register);
-            return result.Success ? Ok(result) : Unauthorized(result);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var result = await accountService.RegisterAsync(register);
+        return result.Success ? Ok(result) : Unauthorized(result);
     }
 
-    [HttpPost(nameof(Login))]
-    public async Task<IActionResult> Login(LoginModel login)
+    [HttpPost("Login")]
+    public async Task<IActionResult> LoginAsync(LoginModel login)
     {
         if (login is null)
             return EntryIsNull("Login");
@@ -43,15 +36,8 @@ public class AccountController : APIController
         if (!ModelState.IsValid)
             return HandleInvalidModelState();
 
-        try
-        {
-            var result = await accountService.LoginAsync(login);
-            return result.Success ? Ok(result) : Unauthorized(result);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var result = await accountService.LoginAsync(login);
+        return result.Success ? Ok(result) : Unauthorized(result);
     }
 
     [Authorize]
@@ -70,17 +56,17 @@ public class AccountController : APIController
     }
 
     [Authorize]
-    [HttpPost(nameof(Logout))]
-    public async Task<IActionResult> Logout()
+    [HttpPost("Logout")]
+    public async Task<IActionResult> LogoutAsync()
     {
         try
         {
             await accountService.LogoutAsync();
             return Ok();
         }
-        catch
+        catch(Exception ex) 
         {
-            return BadRequest("Logout failed!");
+            return BadRequest($"Logout failed: {ex.Message}.");
         }
     }
 }
