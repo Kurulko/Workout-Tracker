@@ -26,6 +26,7 @@ public interface IUserService
     Task<User?> GetUserByClaimsAsync(ClaimsPrincipal claims);
     Task<User?> GetUserByUsernameAsync(string userName);
     Task<string?> GetUserIdByUsernameAsync(string userName);
+    Task<string?> GetUserNameByIdAsync(string userID);
 
     #endregion
 

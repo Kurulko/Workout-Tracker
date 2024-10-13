@@ -115,6 +115,15 @@ public class UserService : BaseService<User>, IUserService
         return userByUsername?.Id;
     }
 
+    public async Task<string?> GetUserNameByIdAsync(string userId)
+    {
+        if (string.IsNullOrEmpty(userId))
+            throw userIdIsNullOrEmptyException;
+
+        var userById = await userRepository.GetUserByIdAsync(userId);
+        return userById?.UserName;
+    }
+
     public async Task<User?> GetUserByUsernameAsync(string userName)
     {
         if (string.IsNullOrEmpty(userName))

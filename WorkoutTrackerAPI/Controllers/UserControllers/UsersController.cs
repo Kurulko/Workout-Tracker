@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using System.Security.Principal;
 using WorkoutTrackerAPI.Data;
@@ -68,7 +69,7 @@ public class UsersController : APIController
             if (users is null)
                 return EntryNotFound("Users");
 
-            var userDTOs = mapper.Map<IQueryable<UserDTO>>(users);
+            var userDTOs = users.Select(u => mapper.Map<UserDTO>(u));
             return await ApiResult<UserDTO>.CreateAsync(
                 userDTOs,
                 pageIndex,
@@ -168,20 +169,43 @@ public class UsersController : APIController
 
     [Authorize(Roles = Roles.AdminRole)]
     [HttpPost]
-    public async Task<ActionResult<User>> AddUserAsync(UserCreationDTO user)
+    public async Task<IActionResult> AddUserAsync(UserCreationDTO userCreationDTO)
     {
-        if (user is null)
+        if (userCreationDTO is null)
             return UserIsNull();
 
         try
         {
-            User _user = mapper.Map<User>(user);
-            return await userService.AddUserAsync(_user);
+            var user = mapper.Map<User>(userCreationDTO);
+            await userService.AddUserAsync(user);
+
+            var userDTO = mapper.Map<UserDTO>(user);
+            return CreatedAtAction(nameof(GetUserByIdAsync), new { id = userDTO.UserId }, userDTO);
         }
         catch (Exception ex)
         {
             return HandleException(ex);
         }
+    }
+
+    [Authorize(Roles = Roles.AdminRole)]
+    [HttpPost]
+    public async Task<IActionResult> CreateUserAsync(UserCreationDTO userCreationDTO, string password)
+    {
+        if (userCreationDTO is null)
+            return UserIsNull();
+
+        if (string.IsNullOrEmpty(password))
+            return BadRequest("Password is null or empty.");
+
+        var user = mapper.Map<User>(userCreationDTO);
+        var result = await userService.CreateUserAsync(user, password);
+
+        if (!result.Succeeded)
+            return HandleIdentityResult(result);
+
+        var userDTO = mapper.Map<UserDTO>(user);
+        return CreatedAtAction(nameof(GetUserByIdAsync), new { id = userDTO.UserId }, userDTO);
     }
 
     [HttpPut("{userId}")]
@@ -210,7 +234,7 @@ public class UsersController : APIController
                 return HandleIdentityResult(identityResult);
             }
 
-            return Forbid("Access denied!");
+            return Forbid();
         }
         catch (Exception ex)
         {
@@ -268,6 +292,50 @@ public class UsersController : APIController
         }
     }
 
+    [HttpGet("id-by-name/{name}")]
+    public async Task<ActionResult<string>> GetUserIdByUsernameAsync(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return UserNameIsNullOrEmpty();
+
+        try
+        {
+            string? userId = await userService.GetUserIdByUsernameAsync(name);
+
+            if (userId is null)
+                return UserNotFound();
+
+            return userId;
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
+    }
+
+
+    [HttpGet("name-by-id/{userId}")]
+    public async Task<ActionResult<string>> GetUserNameByIdAsync(string userId)
+    {
+        if (string.IsNullOrEmpty(userId))
+            return UserIDIsNullOrEmpty();
+
+        try
+        {
+            string? name = await userService.GetUserNameByIdAsync(userId);
+
+            if (name is null)
+                return UserNotFound();
+
+            return name;
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
+    }
+
+
     #endregion
 
     #region UserModels
@@ -290,7 +358,7 @@ public class UsersController : APIController
             var userMuscleSizes = await userService.GetUserMuscleSizesAsync(currentUserId);
 
             if (userMuscleSizes is null)
-                return EntryNotFound("User Muscle Sizes");
+                return EntryNotFound("User muscle sizes");
 
             return await ApiResult<MuscleSize>.CreateAsync(
                 userMuscleSizes.AsQueryable(),
@@ -326,7 +394,7 @@ public class UsersController : APIController
             var userBodyWeights = await userService.GetUserBodyWeightsAsync(currentUserId);
 
             if (userBodyWeights is null)
-                return EntryNotFound("User Body Weights");
+                return EntryNotFound("User body weights");
 
             return await ApiResult<BodyWeight>.CreateAsync(
                 userBodyWeights.AsQueryable(),
@@ -362,7 +430,7 @@ public class UsersController : APIController
             var userWorkouts = await userService.GetUserWorkoutsAsync(currentUserId);
 
             if (userWorkouts is null)
-                return EntryNotFound("User Workouts");
+                return EntryNotFound("User workouts");
 
             return await ApiResult<Workout>.CreateAsync(
                 userWorkouts.AsQueryable(),
@@ -398,7 +466,7 @@ public class UsersController : APIController
             var userCreatedExercises = await userService.GetUserCreatedExercisesAsync(currentUserId);
 
             if (userCreatedExercises is null)
-                return EntryNotFound("User Created Exercises");
+                return EntryNotFound("User created exercises");
 
             return await ApiResult<Exercise>.CreateAsync(
                 userCreatedExercises.AsQueryable(),
@@ -434,7 +502,7 @@ public class UsersController : APIController
             var userExerciseRecords = await userService.GetUserExerciseRecordsAsync(currentUserId);
 
             if (userExerciseRecords is null)
-                return EntryNotFound("User Exercise Records");
+                return EntryNotFound("User exercise records");
 
             return await ApiResult<ExerciseRecord>.CreateAsync(
                 userExerciseRecords.AsQueryable(),
@@ -490,12 +558,12 @@ public class UsersController : APIController
 
     [Authorize(Roles = Roles.AdminRole)]
     [HttpPost("password")]
-    public async Task<IActionResult> CreatePassword(string userId, string newPassword)
+    public async Task<IActionResult> CreateUserPasswordAsync(string userId, string newPassword)
     {
         if (string.IsNullOrEmpty(userId))
             return UserIDIsNullOrEmpty();
 
-        if (newPassword is null)
+        if (string.IsNullOrEmpty(newPassword))
             return BadRequest("Password is null or empty.");
 
         var identityResult = await userService.AddUserPasswordAsync(userId, newPassword);
@@ -512,7 +580,8 @@ public class UsersController : APIController
         try
         {
             string currentUserId = httpContextAccessor.GetUserId()!;
-            return (ActionResult)(await userService.GetUserRolesAsync(currentUserId));
+            var userRoles = await userService.GetUserRolesAsync(currentUserId);
+            return userRoles.ToList();
         }
         catch (Exception ex)
         {
@@ -527,7 +596,7 @@ public class UsersController : APIController
         if (string.IsNullOrEmpty(userId))
             return UserIDIsNullOrEmpty();
 
-        if (roles.Length == 0)
+        if (roles is null || roles.Length == 0)
             return BadRequest("User cannot have no roles.");
 
         var identityResult = await userService.AddRolesToUserAsync(userId, roles);
@@ -568,10 +637,12 @@ public class UsersController : APIController
         try
         {
             var users = await userService.GetUsersByRoleAsync(roleName);
-            var userDTOs = mapper.Map<IQueryable<UserDTO>>(users);
+            if (users is null)
+                return EntryNotFound("Users");
 
+            var userDTOs = users.Select(u => mapper.Map<UserDTO>(u));
             return await ApiResult<UserDTO>.CreateAsync(
-                userDTOs,
+                userDTOs.AsQueryable(),
                 pageIndex,
                 pageSize,
                 sortColumn,

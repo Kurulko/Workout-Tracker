@@ -68,7 +68,8 @@ public class ApiResult<T>
                 filterColumn),
                 filterQuery);
         }
-        var count = await source.CountAsync();
+
+        int count = source.Count();
 
         if (!string.IsNullOrEmpty(sortColumn) && IsValidProperty(sortColumn))
         {
@@ -89,7 +90,7 @@ public class ApiResult<T>
             .Skip(pageIndex * pageSize)
             .Take(pageSize);
 
-        var data = await source.ToListAsync();
+        var data = source.ToList();
 
         return new ApiResult<T>(
             data,
