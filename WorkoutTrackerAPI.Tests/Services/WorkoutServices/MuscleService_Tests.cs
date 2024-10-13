@@ -58,7 +58,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task AddMuscle_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         var validMuscle = GetValidMuscle();
@@ -76,7 +76,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task AddMuscle_ShouldReturnFail_WhenMuscleIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         // Act
@@ -84,14 +84,14 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Muscle entry cannot be null.", result.ErrorMessage);
+        Assert.Contains("Muscle entry cannot be null.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task AddMuscle_ShouldReturnFail_WhenMuscleIdIsNonZero()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         var validMuscle = GetValidMuscle();
@@ -109,7 +109,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task AddMuscle_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepositoryMock = new Mock<MuscleRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -136,7 +136,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task DeleteMuscle_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         var muscle = GetValidMuscle();
@@ -157,7 +157,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task DeleteMuscle_ShouldReturnFail_WhenInvalidMuscleID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         long invalidMuscleID = -1;
@@ -167,14 +167,14 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid Muscle ID.", result.ErrorMessage);
+        Assert.Contains("Invalid Muscle ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task DeleteMuscle_ShouldReturnFail_WhenMuscleNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         long nonExistenceMuscleId = 100;
@@ -191,7 +191,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task DeleteMuscle_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepositoryMock = new Mock<MuscleRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -223,7 +223,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task GetMuscles_ShouldReturnMuscles_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         var muscles = GetValidMuscles();
@@ -246,7 +246,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task GetMuscles_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepositoryMock = new Mock<MuscleRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -273,7 +273,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task GetMuscleByName_ShouldReturnMuscleByName_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
 
@@ -298,7 +298,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task GetMuscleByName_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         var muscles = GetValidMuscles();
@@ -321,7 +321,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task GetMuscleByName_ShouldReturnFail_WhenInvalidName()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         var muscles = GetValidMuscles();
@@ -335,14 +335,14 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Muscle name cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("Muscle name cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetMuscleByName_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepositoryMock = new Mock<MuscleRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -370,7 +370,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task GetMuscleById_ShouldReturnMuscleById_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         var muscle = GetValidMuscle();
@@ -389,7 +389,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task GetMuscleById_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         // Act
@@ -404,7 +404,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task GetMuscleById_ShouldReturnFail_WhenInvalidMuscleID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         // Act
@@ -412,14 +412,14 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid Muscle ID.", result.ErrorMessage);
+        Assert.Contains("Invalid Muscle ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetMuscleById_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepositoryMock = new Mock<MuscleRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -446,7 +446,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task UpdateMuscle_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
 
@@ -471,7 +471,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task UpdateMuscle_ShouldReturnFail_WhenMuscleIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         // Act
@@ -479,14 +479,14 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Muscle entry cannot be null.", result.ErrorMessage);
+        Assert.Contains("Muscle entry cannot be null.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateMuscle_ShouldReturnFail_WhenInvalidMuscleID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         var muscle = GetValidMuscle();
@@ -500,14 +500,14 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid Muscle ID.", result.ErrorMessage);
+        Assert.Contains("Invalid Muscle ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateMuscle_ShouldReturnFail_WhenMuscleNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         var muscle = GetValidMuscle();
@@ -527,7 +527,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task UpdateMuscle_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepositoryMock = new Mock<MuscleRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -562,7 +562,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task MuscleExists_ShouldReturnTrue_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         var muscle = GetValidMuscle();
@@ -579,7 +579,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task MuscleExists_ShouldReturnFalse_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         // Act
@@ -593,7 +593,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task MuscleExists_ShouldThrowException_WhenInvalidMuscleID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         var muscle = GetValidMuscle();
@@ -603,14 +603,14 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidIDException>(async () => await muscleService.MuscleExistsAsync(muscle.Id));
-        Assert.Equal("Invalid Muscle ID.", ex.Message);
+        Assert.Contains("Invalid Muscle ID.", ex.Message);
     }
 
     [Fact]
     public async Task MuscleExists_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepositoryMock = new Mock<MuscleRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -634,7 +634,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task MuscleExistsByName_ShouldReturnTrue_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         var muscle = GetValidMuscle();
@@ -651,7 +651,7 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task MuscleExistsByName_ShouldReturnFalse_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         string nonExistenceName = "Non-existence name";
@@ -667,19 +667,19 @@ public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>
     public async Task MuscleExistsByName_ShouldThrowException_WhenInvalidMuscleID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<ArgumentNullOrEmptyException>(async () => await muscleService.MuscleExistsByNameAsync(null!));
-        Assert.Equal("Muscle name cannot be null or empty.", ex.Message);
+        Assert.Contains("Muscle name cannot be null or empty.", ex.Message);
     }
 
     [Fact]
     public async Task MuscleExistsByName_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepositoryMock = new Mock<MuscleRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);

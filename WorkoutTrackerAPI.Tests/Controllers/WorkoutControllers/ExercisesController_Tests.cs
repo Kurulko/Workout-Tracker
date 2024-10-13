@@ -79,7 +79,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetCurrentUserExercisesAsync_ShouldReturnPagedResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -106,7 +106,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetCurrentUserExercisesAsync_ShouldReturnFilteredResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -134,7 +134,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetCurrentUserExercisesAsync_ShouldReturnBadRequest_WhenInvalidPageSizeOrIndex()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         // Act
@@ -148,7 +148,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     [Fact]
     public async Task GetCurrentUserExercisesAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseService = new Mock<IExerciseService>();
         var exercisesController = new ExercisesController(mockExerciseService.Object, mockHttpContextAccessor.Object);
 
@@ -167,7 +167,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     [Fact]
     public async Task GetCurrentUserExercisesAsync_ShouldReturnBadRequest_WhenExercisesNotFound()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseService = new Mock<IExerciseService>();
         var exercisesController = new ExercisesController(mockExerciseService.Object, mockHttpContextAccessor.Object);
 
@@ -188,7 +188,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetCurrentUserExerciseByIdAsync_ShouldReturnBadRequest_WhenInvalidId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         long invalidID = -1;
@@ -205,7 +205,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetCurrentUserExerciseByIdAsync_ShouldReturnExerciseById_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -249,7 +249,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetCurrentUserExerciseByIdAsync_ShouldReturnBadRequest_WhenExerciseNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -271,7 +271,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetCurrentUserExerciseByNameAsync_ShouldReturnExerciseByName_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -294,7 +294,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetCurrentUserExerciseByNameAsync_ShouldReturnBadRequest_WhenInvalidExerciseId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         // Act
@@ -330,7 +330,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetCurrentUserExerciseByNameAsync_ShouldReturnBadRequest_WhenExerciseNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -351,7 +351,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task AddCurrentUserExerciseAsync_ShouldCreateExercise_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -373,7 +373,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task AddCurrentUserExerciseAsync_ShouldReturnBadRequest_WhenExerciseIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         // Act
@@ -388,7 +388,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task AddCurrentUserExerciseAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         var exercise = await GetValidExerciseAsync(db);
@@ -406,7 +406,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task AddCurrentUserExerciseAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseService = new Mock<IExerciseService>();
         var exercisesController = new ExercisesController(mockExerciseService.Object, mockHttpContextAccessor.Object);
 
@@ -429,7 +429,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task UpdateCurrentUserExerciseAsync_ShouldUpdateExercise_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -452,7 +452,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task UpdateCurrentUserExerciseAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -477,7 +477,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task UpdateCurrentUserExerciseAsync_ShouldReturnBadRequest_WhenExerciseIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -499,7 +499,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task UpdateCurrentUserExerciseAsync_ShouldReturnBadRequest_WhenIDsDoNotMatch()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -521,7 +521,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task UpdateCurrentUserExerciseAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseService = new Mock<IExerciseService>();
         var exercisesController = new ExercisesController(mockExerciseService.Object, mockHttpContextAccessor.Object);
 
@@ -546,7 +546,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task DeleteExerciseFromCurrentUserAsync_ShouldDeleteExercise_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -567,7 +567,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task DeleteExerciseFromCurrentUserAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         long invalidExerciseId = -1;
@@ -584,7 +584,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task DeleteExerciseFromCurrentUserAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseService = new Mock<IExerciseService>();
         var exercisesController = new ExercisesController(mockExerciseService.Object, mockHttpContextAccessor.Object);
 
@@ -609,7 +609,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task CurrentUserExerciseExistsAsync_ShouldReturnBadRequest_WhenInvalidId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         long invalidID = -1;
@@ -626,7 +626,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task CurrentUserExerciseExistsAsync_ShouldReturnTrue_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -648,7 +648,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task CurrentUserExerciseExistsAsync_ShouldReturnFalse_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -692,7 +692,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task CurrentUserExerciseExistsByNameAsync_ShouldReturnBadRequest_WhenExerciseNameIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         // Act
@@ -707,7 +707,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task CurrentUserExerciseExistsByNameAsync_ShouldReturnTrue_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -729,7 +729,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task CurrentUserExerciseExistsByNameAsync_ShouldReturnFalse_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -780,7 +780,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetExercisesAsync_ShouldReturnPagedResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -804,7 +804,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetExercisesAsync_ShouldReturnFilteredResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -829,7 +829,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetExercisesAsync_ShouldReturnBadRequest_WhenInvalidPageSizeOrIndex()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         // Act
@@ -843,7 +843,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     [Fact]
     public async Task GetExercisesAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseService = new Mock<IExerciseService>();
         var exercisesController = new ExercisesController(mockExerciseService.Object, mockHttpContextAccessor.Object);
 
@@ -862,7 +862,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     [Fact]
     public async Task GetExercisesAsync_ShouldReturnBadRequest_WhenExercisesNotFound()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseService = new Mock<IExerciseService>();
         var exercisesController = new ExercisesController(mockExerciseService.Object, mockHttpContextAccessor.Object);
 
@@ -883,7 +883,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetExerciseByIdAsync_ShouldReturnBadRequest_WhenInvalidId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         long invalidID = -1;
@@ -900,7 +900,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetExerciseByIdAsync_ShouldReturnExerciseById_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -941,7 +941,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetExerciseByIdAsync_ShouldReturnBadRequest_WhenExerciseNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         var notFoundID = 1;
@@ -960,7 +960,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetExerciseByNameAsync_ShouldReturnExerciseByName_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -980,7 +980,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetExerciseByNameAsync_ShouldReturnBadRequest_WhenInvalidExerciseId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         // Act
@@ -1016,7 +1016,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task GetExerciseByNameAsync_ShouldReturnBadRequest_WhenExerciseNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         var notFoundExeciseName = "notFoundExeciseName";
@@ -1034,7 +1034,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task AddExerciseAsync_ShouldCreateExercise_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         var exercise = await GetValidExerciseAsync(db);
@@ -1053,7 +1053,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task AddExerciseAsync_ShouldReturnBadRequest_WhenExerciseIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         // Act
@@ -1068,7 +1068,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task AddExerciseAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         var exercise = await GetValidExerciseAsync(db);
@@ -1086,7 +1086,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task AddExerciseAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseService = new Mock<IExerciseService>();
         var exercisesController = new ExercisesController(mockExerciseService.Object, mockHttpContextAccessor.Object);
 
@@ -1109,7 +1109,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task UpdateExerciseAsync_ShouldUpdateExercise_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -1129,7 +1129,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task UpdateExerciseAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -1151,7 +1151,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task UpdateExerciseAsync_ShouldReturnBadRequest_WhenExerciseIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -1170,7 +1170,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task UpdateExerciseAsync_ShouldReturnBadRequest_WhenIDsDoNotMatch()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -1189,7 +1189,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task UpdateExerciseAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseService = new Mock<IExerciseService>();
         var exercisesController = new ExercisesController(mockExerciseService.Object, mockHttpContextAccessor.Object);
 
@@ -1214,7 +1214,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task DeleteExerciseAsync_ShouldDeleteExercise_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -1232,7 +1232,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task DeleteExerciseAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         long invalidExerciseId = -1;
@@ -1249,7 +1249,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task DeleteExerciseAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseService = new Mock<IExerciseService>();
         var exercisesController = new ExercisesController(mockExerciseService.Object, mockHttpContextAccessor.Object);
 
@@ -1274,7 +1274,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task ExerciseExistsAsync_ShouldReturnBadRequest_WhenInvalidId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         long invalidID = -1;
@@ -1291,7 +1291,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task ExerciseExistsAsync_ShouldReturnTrue_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -1310,7 +1310,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task ExerciseExistsAsync_ShouldReturnFalse_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -1351,7 +1351,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task ExerciseExistsByNameAsync_ShouldReturnBadRequest_WhenExerciseNameIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exercisesController = GetExercisesController(db);
 
         // Act
@@ -1366,7 +1366,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task ExerciseExistsByNameAsync_ShouldReturnTrue_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 
@@ -1385,7 +1385,7 @@ public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
     public async Task ExerciseExistsByNameAsync_ShouldReturnFalse_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
         var exercisesController = GetExercisesController(db);
 

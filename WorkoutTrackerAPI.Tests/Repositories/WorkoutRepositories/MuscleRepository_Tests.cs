@@ -81,7 +81,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task AddAsync_ShouldReturnNewMuscle()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscle = GetValidMuscle();
@@ -94,7 +94,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task AddAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var invalidMuscle = GetInvalidMuscle();
@@ -107,7 +107,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task AddRangeAsync_ShouldAddMusclesSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscles = GetValidMuscles();
@@ -120,7 +120,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task AddRangeAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var invalidMuscles = GetInvalidMuscles();
@@ -133,7 +133,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task RemoveAsync_ShouldRemoveMuscleSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscle = GetValidMuscle();
@@ -147,7 +147,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task RemoveAsync_IncorrectMuscleID_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         //Act & Assert
@@ -158,7 +158,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task RemoveAsync_MuscleNotExist_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         //Act & Assert
@@ -169,7 +169,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task RemoveRangeAsync_ShouldRemoveMusclesSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscles = GetValidMuscles();
@@ -183,7 +183,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task RemoveRangeAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var invalidMuscles = GetInvalidMuscles();
@@ -196,7 +196,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task GetAllAsync_ShouldReturnMuscles()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscles = GetValidMuscles();
@@ -210,7 +210,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task GetAllAsync_ShouldReturnEmpty()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         //Act & Assert
@@ -221,7 +221,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task GetByIdAsync_ShouldReturnMuscleById()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscle = GetValidMuscle();
@@ -235,7 +235,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task GetByIdAsync_ShouldReturnNull()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         //Act & Assert
@@ -246,7 +246,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task GetByNameAsync_ShouldReturnMuscleByName()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscle = GetValidMuscle();
@@ -260,7 +260,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task GetByNameAsync_ShouldReturnNull()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         //Act & Assert
@@ -270,7 +270,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     [Fact]
     public async Task FindAsync_ShouldFindMuscles()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscles = new[]
@@ -298,7 +298,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     [Fact]
     public async Task FindAsync_ShouldReturnEmpty()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscles = new[]
@@ -327,7 +327,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task ExistsAsync_ShouldReturnTrue()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscle = GetValidMuscle();
@@ -341,7 +341,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task ExistsAsync_ShouldReturnFalse()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         //Act & Assert
@@ -352,7 +352,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task ExistsByNameAsync_ShouldReturnTrue()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscle = GetValidMuscle();
@@ -366,7 +366,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task ExistsByNameAsync_ShouldReturnFalse()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         //Act & Assert
@@ -377,7 +377,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task UpdateAsync_ShouldUpdateSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscle = GetValidMuscle();
@@ -393,7 +393,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task UpdateAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscle = GetValidMuscle();
@@ -409,7 +409,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task SaveChangesAsync_SavesEntitySuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscle = GetValidMuscle();
@@ -425,7 +425,7 @@ public class MuscleRepository_Tests : BaseWorkoutRepository_Tests<Muscle>
     public async Task SaveChangesAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         var validMuscle = GetValidMuscle();

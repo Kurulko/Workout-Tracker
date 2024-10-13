@@ -17,7 +17,7 @@ using WorkoutTrackerAPI.Extentions;
 
 namespace WorkoutTrackerAPI.Tests.Repositories;
 
-public class RoleRepository_Tests : BaseTests
+public class RoleRepository_Tests
 {
     IdentityRole GetValidRole()
         => new IdentityRole("User");
@@ -32,7 +32,7 @@ public class RoleRepository_Tests : BaseTests
     public async Task AddRole_ShouldReturnNewRole()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -54,7 +54,7 @@ public class RoleRepository_Tests : BaseTests
     public async Task AddRole_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -72,7 +72,7 @@ public class RoleRepository_Tests : BaseTests
     public async Task DeleteRole_ShouldDeleteRoleSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -93,7 +93,7 @@ public class RoleRepository_Tests : BaseTests
     public async Task DeleteRole_RoleNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -111,7 +111,7 @@ public class RoleRepository_Tests : BaseTests
     public async Task DeleteRole_IncorrectRoleID()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -129,7 +129,7 @@ public class RoleRepository_Tests : BaseTests
     public async Task GetRoles_ShouldReturnRoles()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -150,7 +150,7 @@ public class RoleRepository_Tests : BaseTests
     public async Task GetRoles_ShouldReturnEmpty()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -166,7 +166,7 @@ public class RoleRepository_Tests : BaseTests
     public async Task GetRoleById_ShouldReturnRoleById()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -185,7 +185,7 @@ public class RoleRepository_Tests : BaseTests
     public async Task GetRoleById_ShouldReturnNull()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -200,7 +200,7 @@ public class RoleRepository_Tests : BaseTests
     public async Task GetRoleByName_ShouldReturnRoleByName()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -219,7 +219,7 @@ public class RoleRepository_Tests : BaseTests
     public async Task GetRoleByName_ShouldReturnNull()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -233,7 +233,7 @@ public class RoleRepository_Tests : BaseTests
     [Fact]
     public async Task RoleExists_ShouldReturnTrue()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -251,7 +251,7 @@ public class RoleRepository_Tests : BaseTests
     public async Task RoleExists_ShouldReturnFalse()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -265,7 +265,7 @@ public class RoleRepository_Tests : BaseTests
     [Fact]
     public async Task RoleExistsByName_ShouldReturnTrue()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -283,7 +283,7 @@ public class RoleRepository_Tests : BaseTests
     public async Task RoleExistsByName_ShouldReturnFalse()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -297,7 +297,7 @@ public class RoleRepository_Tests : BaseTests
     [Fact]
     public async Task UpdateRole_ShouldUpdateRoleSuccessfully()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -319,7 +319,7 @@ public class RoleRepository_Tests : BaseTests
     [Fact]
     public async Task UpdateRole_RoleNotFound()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 
@@ -341,7 +341,7 @@ public class RoleRepository_Tests : BaseTests
     [Fact]
     public async Task UpdateRole_IncorrectRoleID()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepository = new RoleRepository(roleManager);
 

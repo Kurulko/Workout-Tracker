@@ -19,7 +19,7 @@ using WorkoutTrackerAPI.Data.Models.UserModels;
 
 namespace WorkoutTrackerAPI.Tests.Repositories.UserRepositories;
 
-public class UserRepository_Tests : BaseTests
+public class UserRepository_Tests
 {
     static User CreateUser(string name, string email)
     {
@@ -52,7 +52,7 @@ public class UserRepository_Tests : BaseTests
     public async Task AddUser_ShouldReturnNewUser()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -74,7 +74,7 @@ public class UserRepository_Tests : BaseTests
     public async Task CreateUser_ShouldCreateNewUserSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -93,7 +93,7 @@ public class UserRepository_Tests : BaseTests
     public async Task AddUser_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -112,7 +112,7 @@ public class UserRepository_Tests : BaseTests
     public async Task DeleteUser_ShouldDeleteUserSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -133,7 +133,7 @@ public class UserRepository_Tests : BaseTests
     public async Task DeleteUser_UserNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -151,7 +151,7 @@ public class UserRepository_Tests : BaseTests
     public async Task DeleteUser_IncorrectUserID()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -169,7 +169,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUsers_ShouldReturnUsers()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -190,7 +190,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUsers_ShouldReturnEmpty()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -206,7 +206,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserById_ShouldReturnUserById()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -225,7 +225,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserById_ShouldReturnNull()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -240,7 +240,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserByUsername_ShouldReturnUserByName()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -259,7 +259,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserByUsername_ShouldReturnNull()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -273,7 +273,7 @@ public class UserRepository_Tests : BaseTests
     [Fact]
     public async Task UserExists_ShouldReturnTrue()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -291,7 +291,7 @@ public class UserRepository_Tests : BaseTests
     public async Task UserExists_ShouldReturnFalse()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -305,7 +305,7 @@ public class UserRepository_Tests : BaseTests
     [Fact]
     public async Task UserExistsByUsername_ShouldReturnTrue()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -323,7 +323,7 @@ public class UserRepository_Tests : BaseTests
     public async Task UserExistsByName_ShouldReturnFalse()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -338,7 +338,7 @@ public class UserRepository_Tests : BaseTests
     [Fact]
     public async Task UpdateUser_ShouldUpdateUserSuccessfully()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -360,7 +360,7 @@ public class UserRepository_Tests : BaseTests
     [Fact]
     public async Task UpdateUser_UserNotFound()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -382,7 +382,7 @@ public class UserRepository_Tests : BaseTests
     [Fact]
     public async Task UpdateUser_IncorrectUserID()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -409,7 +409,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserExerciseRecords_ShouldReturnUserExerciseRecords()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -460,7 +460,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserExerciseRecords_ShouldReturnEmpty()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -479,7 +479,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserMuscleSizes_ShouldReturnUserMuscleSizes()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -533,7 +533,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserMuscleSizes_ShouldReturnEmpty()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -552,7 +552,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserBodyWeights_ShouldReturnUserMuscleSizes()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -593,7 +593,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserBodyWeights_ShouldReturnEmpty()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -612,7 +612,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserWorkouts_ShouldReturnUserWorkouts()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -665,7 +665,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserWorkouts_ShouldReturnEmpty()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -684,7 +684,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserCreatedExercise_ShouldReturnUserCreatedExercise()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -738,7 +738,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserCreatedExercise_ShouldReturnEmpty()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -761,7 +761,7 @@ public class UserRepository_Tests : BaseTests
     public async Task ChangeUserPassword_ShouldChangeUserPasswordSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -788,7 +788,7 @@ public class UserRepository_Tests : BaseTests
     public async Task ChangeUserPassword_UserNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -811,7 +811,7 @@ public class UserRepository_Tests : BaseTests
     public async Task AddUserPassword_ShouldAddUserPasswordSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -832,7 +832,7 @@ public class UserRepository_Tests : BaseTests
     public async Task AddUserPassword_UserNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -859,7 +859,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserRoles_ShouldReturnUserRoles()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -885,7 +885,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserRoles_ShouldReturnEmpty()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -905,7 +905,7 @@ public class UserRepository_Tests : BaseTests
     public async Task GetUserRoles_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -918,7 +918,7 @@ public class UserRepository_Tests : BaseTests
     public async Task AddRolesToUser_ShouldAddRolesToUserSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -946,7 +946,7 @@ public class UserRepository_Tests : BaseTests
     public async Task AddRolesToUser_UserNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -968,7 +968,7 @@ public class UserRepository_Tests : BaseTests
     public async Task DeleteRoleFromUser_ShouldDeleteRoleFromUserSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
@@ -998,7 +998,7 @@ public class UserRepository_Tests : BaseTests
     public async Task DeleteRoleFromUser_UserNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 

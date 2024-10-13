@@ -24,8 +24,7 @@ public class ExercisesInitializer_Tests
     public static async Task InitializeAsync()
     {
         //Arrange
-        WorkoutContextFactory factory = new();
-        using var db = factory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 

@@ -150,7 +150,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task AddAsync_ShouldReturnNewMuscleSize()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         var validMuscleSize = await GetValidMuscleSizeAsync(db);
@@ -163,7 +163,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task AddAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         var invalidMuscleSize = await GetInvalidMuscleSizeAsync(db);
@@ -176,7 +176,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task AddRangeAsync_ShouldAddMuscleSizesSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         var validMuscleSizes = await GetValidMuscleSizesAsync(db);
@@ -189,7 +189,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task AddRangeAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         var invalidMuscleSizes = await GetInvalidMuscleSizesAsync(db);
@@ -202,7 +202,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task RemoveAsync_ShouldRemoveMuscleSizeSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         var validMuscleSize = await GetValidMuscleSizeAsync(db);
@@ -216,7 +216,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task RemoveAsync_IncorrectMuscleSizeID_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         //Act & Assert
@@ -227,7 +227,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task RemoveAsync_MuscleSizeNotExist_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         //Act & Assert
@@ -238,7 +238,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task RemoveRangeAsync_ShouldRemoveMuscleSizesSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         var validMuscleSizes = await GetValidMuscleSizesAsync(db);
@@ -252,7 +252,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task RemoveRangeAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         var invalidMuscleSizes = await GetInvalidMuscleSizesAsync(db);
@@ -265,7 +265,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task GetAllAsync_ShouldReturnMuscleSizes()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         var validMuscleSizes = await GetValidMuscleSizesAsync(db);
@@ -279,7 +279,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task GetAllAsync_ShouldReturnEmpty()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         //Act & Assert
@@ -290,7 +290,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task GetByIdAsync_ShouldReturnMuscleSizeById()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         var validMuscleSize = await GetValidMuscleSizeAsync(db);
@@ -304,7 +304,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task GetByIdAsync_ShouldReturnNull()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         //Act & Assert
@@ -314,7 +314,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     [Fact]
     public async Task FindAsync_ShouldFindMuscleSizes()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         User user = await GetDefaultUserAsync(db);
@@ -358,7 +358,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     [Fact]
     public async Task FindAsync_ShouldReturnEmpty()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         User user = await GetDefaultUserAsync(db);
@@ -395,7 +395,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task ExistsAsync_ShouldReturnTrue()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         var validMuscleSize = await GetValidMuscleSizeAsync(db);
@@ -409,7 +409,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task ExistsAsync_ShouldReturnFalse()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         //Act & Assert
@@ -420,7 +420,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task UpdateAsync_ShouldUpdateSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         var validMuscleSize = await GetValidMuscleSizeAsync(db);
@@ -436,7 +436,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task UpdateAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         var validMuscleSize = await GetValidMuscleSizeAsync(db);
@@ -452,7 +452,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task SaveChangesAsync_SavesEntitySuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         var validMuscleSize = await GetValidMuscleSizeAsync(db);
@@ -468,7 +468,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
     public async Task SaveChangesAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepository = new MuscleSizeRepository(db);
 
         var validMuscleSize = await GetValidMuscleSizeAsync(db);

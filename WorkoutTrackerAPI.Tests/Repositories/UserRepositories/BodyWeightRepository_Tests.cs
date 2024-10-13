@@ -98,7 +98,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task AddAsync_ShouldReturnNewBodyWeight()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         var validBodyWeight = await GetValidBodyWeightAsync(db);
@@ -111,7 +111,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task AddAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         var invalidBodyWeight = await GetInvalidBodyWeightAsync(db);
@@ -124,7 +124,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task AddRangeAsync_ShouldAddBodyWeightsSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         var validBodyWeights = await GetValidBodyWeightsAsync(db);
@@ -137,7 +137,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task AddRangeAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         var invalidBodyWeights = await GetInvalidBodyWeightsAsync(db);
@@ -150,7 +150,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task RemoveAsync_ShouldRemoveBodyWeightSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         var validBodyWeight = await GetValidBodyWeightAsync(db);
@@ -164,7 +164,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task RemoveAsync_IncorrectBodyWeightID_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         //Act & Assert
@@ -175,7 +175,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task RemoveAsync_BodyWeightNotExist_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         //Act & Assert
@@ -186,7 +186,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task RemoveRangeAsync_ShouldRemoveBodyWeightsSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         var validBodyWeights = await GetValidBodyWeightsAsync(db);
@@ -200,7 +200,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task RemoveRangeAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         var invalidBodyWeights = await GetInvalidBodyWeightsAsync(db);
@@ -213,7 +213,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task GetAllAsync_ShouldReturnBodyWeights()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         var validBodyWeights = await GetValidBodyWeightsAsync(db);
@@ -227,7 +227,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task GetAllAsync_ShouldReturnEmpty()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         //Act & Assert
@@ -238,7 +238,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task GetByIdAsync_ShouldReturnBodyWeightById()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         var validBodyWeight = await GetValidBodyWeightAsync(db);
@@ -252,7 +252,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task GetByIdAsync_ShouldReturnNull()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         //Act & Assert
@@ -262,7 +262,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     [Fact]
     public async Task FindAsync_ShouldFindBodyWeights()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         User user = await GetDefaultUserAsync(db);
@@ -300,7 +300,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     [Fact]
     public async Task FindAsync_ShouldReturnEmpty()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         User user = await GetDefaultUserAsync(db);
@@ -340,7 +340,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task ExistsAsync_ShouldReturnTrue()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         var validBodyWeight = await GetValidBodyWeightAsync(db);
@@ -354,7 +354,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task ExistsAsync_ShouldReturnFalse()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         //Act & Assert
@@ -365,7 +365,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task UpdateAsync_ShouldUpdateSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         var validBodyWeight = await GetValidBodyWeightAsync(db);
@@ -381,7 +381,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task UpdateAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         var validBodyWeight = await GetValidBodyWeightAsync(db);
@@ -397,7 +397,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task SaveChangesAsync_SavesEntitySuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         var validBodyWeight = await GetValidBodyWeightAsync(db);
@@ -413,7 +413,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
     public async Task SaveChangesAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepository = new BodyWeightRepository(db);
 
         var validBodyWeight = await GetValidBodyWeightAsync(db);

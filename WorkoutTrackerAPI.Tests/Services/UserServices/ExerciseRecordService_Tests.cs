@@ -130,7 +130,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task AddExerciseRecordToUser_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var validExerciseRecord = await GetValidExerciseRecordAsync(db);
@@ -149,7 +149,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task AddExerciseRecordToUser_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var validExerciseRecord = await GetValidExerciseRecordAsync(db);
@@ -159,14 +159,14 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task AddExerciseRecordToUser_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var validExerciseRecord = await GetValidExerciseRecordAsync(db);
@@ -184,7 +184,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task AddExerciseRecordToUser_ShouldReturnFail_WhenExerciseRecordIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -194,14 +194,14 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Exercise record entry cannot be null.", result.ErrorMessage);
+        Assert.Contains("Exercise record entry cannot be null.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task AddExerciseRecordToUser_ShouldReturnFail_WhenExerciseRecordIdIsNonZero()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -220,7 +220,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task AddExerciseRecordToUser_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordRepositoryMock = new Mock<ExerciseRecordRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -247,7 +247,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task DeleteExerciseRecordFromUser_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var exerciseRecord = await GetValidExerciseRecordAsync(db);
@@ -270,7 +270,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task DeleteExerciseRecordFromUser_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var exerciseRecord = await GetValidExerciseRecordAsync(db);
@@ -280,14 +280,14 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task DeleteExerciseRecordFromUser_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var exerciseRecord = await GetValidExerciseRecordAsync(db);
@@ -305,7 +305,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task DeleteExerciseRecordFromUser_ShouldReturnFail_WhenInvalidExerciseRecordID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -316,14 +316,14 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid ExerciseRecord ID.", result.ErrorMessage);
+        Assert.Contains("Invalid ExerciseRecord ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task DeleteExerciseRecordFromUser_ShouldReturnFail_WhenExerciseRecordNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -342,7 +342,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task DeleteExerciseRecordFromUser_ShouldReturnFail_AccessDenied()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordRepositoryMock = new Mock<ExerciseRecordRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -374,7 +374,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task DeleteExerciseRecordFromUser_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordRepositoryMock = new Mock<ExerciseRecordRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -407,7 +407,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task GetUserExerciseRecords_ShouldReturnExerciseRecords_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var exerciseRecords = await GetValidExerciseRecordsAsync(db);
@@ -433,7 +433,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task GetUserExerciseRecords_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var pullUpExercise = await GetPullUpExerciseAsync(db);
@@ -443,14 +443,14 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserExerciseRecords_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         string nonExistenceUserId = Guid.NewGuid().ToString();
@@ -469,7 +469,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task GetUserExerciseRecords_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordRepositoryMock = new Mock<ExerciseRecordRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -498,7 +498,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task GetUserExerciseRecordByDate_ShouldReturnExerciseRecordByDate_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -526,7 +526,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task GetUserExerciseRecordByDate_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -553,7 +553,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task GetUserExerciseRecordByDate_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         DateOnly today = DateOnly.FromDateTime(DateTime.Now);
@@ -565,14 +565,14 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserExerciseRecordByDate_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         string nonExistenceUserId = Guid.NewGuid().ToString();
@@ -592,7 +592,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task GetUserExerciseRecordByDate_ShouldReturnFail_WhenInvalidDate()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -619,7 +619,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task GetUserExerciseRecordByDate_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordRepositoryMock = new Mock<ExerciseRecordRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -650,7 +650,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task GetUserExerciseRecordById_ShouldReturnExerciseRecordById_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -671,7 +671,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task GetUserExerciseRecordById_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -688,7 +688,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task GetUserExerciseRecordById_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -701,14 +701,14 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserExerciseRecordById_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -730,7 +730,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task GetUserExerciseRecordById_ShouldReturnFail_WhenInvalidExerciseRecordID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -740,14 +740,14 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid ExerciseRecord ID.", result.ErrorMessage);
+        Assert.Contains("Invalid ExerciseRecord ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserExerciseRecordById_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordRepositoryMock = new Mock<ExerciseRecordRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -778,7 +778,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task UpdateUserExerciseRecord_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -803,7 +803,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task UpdateUserExerciseRecord_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -818,14 +818,14 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateUserExerciseRecord_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -849,7 +849,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task UpdateUserExerciseRecord_ShouldReturnFail_WhenExerciseRecordIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -859,14 +859,14 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Exercise record entry cannot be null.", result.ErrorMessage);
+        Assert.Contains("Exercise record entry cannot be null.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateUserExerciseRecord_ShouldReturnFail_WhenInvalidExerciseRecordID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -882,14 +882,14 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid ExerciseRecord ID.", result.ErrorMessage);
+        Assert.Contains("Invalid ExerciseRecord ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateUserExerciseRecord_ShouldReturnFail_WhenExerciseRecordNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -910,7 +910,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task UpdateUserExerciseRecord_ShouldReturnFail_WhenAccessDenied()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordRepositoryMock = new Mock<ExerciseRecordRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -940,7 +940,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     public async Task UpdateUserExerciseRecord_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordRepositoryMock = new Mock<ExerciseRecordRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);

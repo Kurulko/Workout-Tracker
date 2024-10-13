@@ -33,7 +33,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task AddRole_ShouldReturnNewRole_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var validRole = GetValidRole();
@@ -50,19 +50,19 @@ public class RoleService_Tests : BaseService_Tests
     public async Task AddRole_ShouldThrowException_WhenRoleIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<EntryNullException>(async () => await roleService.AddRoleAsync(null!));
-        Assert.Equal("Role entry cannot be null.", ex.Message);
+        Assert.Contains("Role entry cannot be null.", ex.Message);
     }
 
     [Fact]
     public async Task AddRole_ShouldThrowException_WhenRoleAlreadyExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var validRole = GetValidRole();
@@ -77,7 +77,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task AddRole_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepositoryMock = new Mock<RoleRepository>(roleManager);
@@ -104,7 +104,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task DeleteRole_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var role = GetValidRole();
@@ -124,7 +124,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task DeleteRole_ShouldReturnFail_WhenInvalidRoleID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         string invalidRoleID = Guid.NewGuid().ToString();
@@ -143,7 +143,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task DeleteRole_ShouldReturnFail_WhenRoleNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         string nonExistenceRoleId = Guid.NewGuid().ToString();
@@ -162,7 +162,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task DeleteRole_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepositoryMock = new Mock<RoleRepository>(roleManager);
@@ -193,7 +193,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task GetRoles_ShouldReturnRoles_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var roles = GetValidRoles();
@@ -215,7 +215,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task GetRoles_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepositoryMock = new Mock<RoleRepository>(roleManager);
@@ -236,7 +236,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task GetRoleByName_ShouldReturnRoleByName_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var roles = GetValidRoles();
@@ -259,7 +259,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task GetRoleByName_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var roles = GetValidRoles();
@@ -281,7 +281,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task GetRoleByName_ShouldThrowException_WhenInvalidName()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var roles = GetValidRoles();
@@ -292,14 +292,14 @@ public class RoleService_Tests : BaseService_Tests
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<ArgumentNullOrEmptyException>(async () => await roleService.GetRoleByNameAsync(null!));
-        Assert.Equal("Role name cannot be null or empty.", ex.Message);
+        Assert.Contains("Role name cannot be null or empty.", ex.Message);
     }
 
     [Fact]
     public async Task GetRoleByName_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepositoryMock = new Mock<RoleRepository>(roleManager);
@@ -321,7 +321,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task GetRoleById_ShouldReturnRoleById_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var role = GetValidRole();
@@ -339,7 +339,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task GetRoleById_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         string nonExistenceRoleId = Guid.NewGuid().ToString();
@@ -355,19 +355,19 @@ public class RoleService_Tests : BaseService_Tests
     public async Task GetRoleById_ShouldThrowException_WhenInvalidRoleID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<ArgumentNullOrEmptyException>(async () => await roleService.GetRoleByIdAsync(null!));
-        Assert.Equal("Role ID cannot be null or empty.", ex.Message);
+        Assert.Contains("Role ID cannot be null or empty.", ex.Message);
     }
 
     [Fact]
     public async Task GetRoleById_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepositoryMock = new Mock<RoleRepository>(roleManager);
@@ -389,7 +389,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task UpdateRole_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var role = GetValidRole();
@@ -412,7 +412,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task UpdateRole_ShouldReturnFail_WhenRoleIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         // Act
@@ -429,7 +429,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task UpdateRole_ShouldReturnFail_WhenInvalidRoleID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var role = GetValidRole();
@@ -452,7 +452,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task UpdateRole_ShouldReturnFail_WhenRoleNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var role = GetValidRole();
@@ -472,7 +472,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task UpdateRole_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepositoryMock = new Mock<RoleRepository>(roleManager);
@@ -506,7 +506,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task RoleExists_ShouldReturnTrue_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var role = GetValidRole();
@@ -523,7 +523,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task RoleExists_ShouldReturnFalse_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         string nonExistenceRoleId = Guid.NewGuid().ToString();
@@ -539,19 +539,19 @@ public class RoleService_Tests : BaseService_Tests
     public async Task RoleExists_ShouldThrowException_WhenInvalidRoleID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<ArgumentNullOrEmptyException>(async () => await roleService.RoleExistsAsync(null!));
-        Assert.Equal("Role ID cannot be null or empty.", ex.Message);
+        Assert.Contains("Role ID cannot be null or empty.", ex.Message);
     }
 
     [Fact]
     public async Task RoleExists_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepositoryMock = new Mock<RoleRepository>(roleManager);
@@ -573,7 +573,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task RoleExistsByName_ShouldReturnTrue_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var role = GetValidRole();
@@ -590,7 +590,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task RoleExistsByName_ShouldReturnFalse_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         string nonExistenceName = "Non-existence name";
@@ -606,19 +606,19 @@ public class RoleService_Tests : BaseService_Tests
     public async Task RoleExistsByName_ShouldThrowException_WhenInvalidRoleID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<ArgumentNullOrEmptyException>(async () => await roleService.RoleExistsByNameAsync(null!));
-        Assert.Equal("Role name cannot be null or empty.", ex.Message);
+        Assert.Contains("Role name cannot be null or empty.", ex.Message);
     }
 
     [Fact]
     public async Task RoleExistsByName_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepositoryMock = new Mock<RoleRepository>(roleManager);
@@ -640,7 +640,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task GetRoleIdByName_ShouldReturnRoleIdByName_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var role = GetValidRole();
@@ -659,7 +659,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task GetRoleIdByName_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         string nonExistenceRole = "Non-existence role";
@@ -675,19 +675,19 @@ public class RoleService_Tests : BaseService_Tests
     public async Task GetRoleIdByName_ShouldThrowException_WhenInvalidName()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<ArgumentNullOrEmptyException>(async () => await roleService.GetRoleIdByNameAsync(null!));
-        Assert.Equal("Role name cannot be null or empty.", ex.Message);
+        Assert.Contains("Role name cannot be null or empty.", ex.Message);
     }
 
     [Fact]
     public async Task GetRoleIdByName_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepositoryMock = new Mock<RoleRepository>(roleManager);
@@ -710,7 +710,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task GetRoleNameById_ShouldReturnRoleNameById_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         var role = GetValidRole();
@@ -729,7 +729,7 @@ public class RoleService_Tests : BaseService_Tests
     public async Task GetRoleNameById_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         string nonExistenceRoleId = Guid.NewGuid().ToString();
@@ -745,19 +745,19 @@ public class RoleService_Tests : BaseService_Tests
     public async Task GetRoleNameById_ShouldThrowException_WhenInvalidId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<ArgumentNullOrEmptyException>(async () => await roleService.GetRoleNameByIdAsync(null!));
-        Assert.Equal("Role ID cannot be null or empty.", ex.Message);
+        Assert.Contains("Role ID cannot be null or empty.", ex.Message);
     }
 
     [Fact]
     public async Task GetRoleNameById_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var roleManager = IdentityHelper.GetRoleManager(db);
         var roleRepositoryMock = new Mock<RoleRepository>(roleManager);

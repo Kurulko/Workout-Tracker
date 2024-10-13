@@ -73,7 +73,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task GetCurrentUserBodyWeightsAsync_ShouldReturnPagedResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
         var bodyWeightsController = GetBodyWeightsController(db);
 
@@ -101,7 +101,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task GetCurrentUserBodyWeightsAsync_ShouldReturnFilteredResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
         var bodyWeightsController = GetBodyWeightsController(db);
 
@@ -127,7 +127,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task GetCurrentUserBodyWeightsAsync_ShouldReturnBadRequest_WhenInvalidPageSizeOrIndex()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightsController = GetBodyWeightsController(db);
 
         // Act
@@ -141,7 +141,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     [Fact]
     public async Task GetCurrentUserBodyWeightsAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockBodyWeightService = new Mock<IBodyWeightService>();
         var bodyWeightsController = new BodyWeightsController(mockBodyWeightService.Object, mockHttpContextAccessor.Object);
 
@@ -160,7 +160,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     [Fact]
     public async Task GetCurrentUserBodyWeightsAsync_ShouldReturnBadRequest_WhenBodyWeightsNotFound()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockBodyWeightService = new Mock<IBodyWeightService>();
         var bodyWeightsController = new BodyWeightsController(mockBodyWeightService.Object, mockHttpContextAccessor.Object);
 
@@ -181,7 +181,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task GetCurrentUserBodyWeightByIdAsync_ShouldReturnBadRequest_WhenInvalidId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightsController = GetBodyWeightsController(db);
 
         // Act
@@ -196,7 +196,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task GetCurrentUserBodyWeightByIdAsync_ShouldReturnBodyWeightById_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
         var bodyWeightsController = GetBodyWeightsController(db);
 
@@ -240,7 +240,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task GetCurrentUserBodyWeightByIdAsync_ShouldReturnBadRequest_WhenBodyWeightNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightsController = GetBodyWeightsController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -262,7 +262,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task GetCurrentUserBodyWeightByDateAsync_ShouldReturnBodyWeightByDate_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
         var bodyWeightsController = GetBodyWeightsController(db);
 
@@ -306,7 +306,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task GetCurrentUserBodyWeightByDateAsync_ShouldReturnBadRequest_WhenBodyWeightNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightsController = GetBodyWeightsController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -328,7 +328,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task GetMinCurrentUserBodyWeightAsync_ShouldReturnBodyWeight_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
         var bodyWeightsController = GetBodyWeightsController(db);
 
@@ -393,7 +393,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task GetMaxCurrentUserBodyWeightAsync_ShouldReturnBodyWeight_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
         var bodyWeightsController = GetBodyWeightsController(db);
 
@@ -458,7 +458,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task AddBodyWeightToCurrentUserAsync_ShouldCreateBodyWeight_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightsController = GetBodyWeightsController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -480,7 +480,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task AddBodyWeightToCurrentUserAsync_ShouldReturnBadRequest_WhenBodyWeightIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightsController = GetBodyWeightsController(db);
 
         // Act
@@ -495,7 +495,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task AddBodyWeightToCurrentUserAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightsController = GetBodyWeightsController(db);
 
         var bodyWeight = GetValidBodyWeight();
@@ -513,7 +513,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task AddBodyWeightToCurrentUserAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockBodyWeightService = new Mock<IBodyWeightService>();
         var bodyWeightsController = new BodyWeightsController(mockBodyWeightService.Object, mockHttpContextAccessor.Object);
 
@@ -536,7 +536,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task UpdateCurrentUserBodyWeightAsync_ShouldUpdateBodyWeight_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
         var bodyWeightsController = GetBodyWeightsController(db);
 
@@ -559,7 +559,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task UpdateCurrentUserBodyWeightAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
         var bodyWeightsController = GetBodyWeightsController(db);
 
@@ -584,7 +584,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task UpdateCurrentUserBodyWeightAsync_ShouldReturnBadRequest_WhenBodyWeightIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
         var bodyWeightsController = GetBodyWeightsController(db);
 
@@ -606,7 +606,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task UpdateCurrentUserBodyWeightAsync_ShouldReturnBadRequest_WhenIDsDoNotMatch()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
         var bodyWeightsController = GetBodyWeightsController(db);
 
@@ -628,7 +628,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task UpdateCurrentUserBodyWeightAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockBodyWeightService = new Mock<IBodyWeightService>();
         var bodyWeightsController = new BodyWeightsController(mockBodyWeightService.Object, mockHttpContextAccessor.Object);
 
@@ -653,7 +653,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task DeleteBodyWeightFromCurrentUserAsync_ShouldDeleteBodyWeight_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
         var bodyWeightsController = GetBodyWeightsController(db);
 
@@ -674,7 +674,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task DeleteBodyWeightFromCurrentUserAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightsController = GetBodyWeightsController(db);
 
         long invalidBodyWeightId = -1;
@@ -691,7 +691,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     public async Task DeleteBodyWeightFromCurrentUserAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockBodyWeightService = new Mock<IBodyWeightService>();
         var bodyWeightsController = new BodyWeightsController(mockBodyWeightService.Object, mockHttpContextAccessor.Object);
 

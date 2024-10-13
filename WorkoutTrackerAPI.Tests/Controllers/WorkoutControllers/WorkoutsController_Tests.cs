@@ -107,7 +107,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task GetCurrentUserWorkoutsAsync_ShouldReturnPagedResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutService = GetWorkoutService(db);
         var workoutsController = GetWorkoutsController(db);
 
@@ -134,7 +134,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task GetCurrentUserWorkoutsAsync_ShouldReturnFilteredResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutService = GetWorkoutService(db);
         var workoutsController = GetWorkoutsController(db);
 
@@ -161,7 +161,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task GetCurrentUserWorkoutsAsync_ShouldReturnBadRequest_WhenInvalidPageSizeOrIndex()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutsController = GetWorkoutsController(db);
 
         // Act
@@ -175,7 +175,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     [Fact]
     public async Task GetCurrentUserWorkoutsAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockWorkoutService = new Mock<IWorkoutService>();
         var workoutsController = new WorkoutsController(mockWorkoutService.Object, mockHttpContextAccessor.Object);
 
@@ -194,7 +194,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     [Fact]
     public async Task GetCurrentUserWorkoutsAsync_ShouldReturnBadRequest_WhenWorkoutsNotFound()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockWorkoutService = new Mock<IWorkoutService>();
         var workoutsController = new WorkoutsController(mockWorkoutService.Object, mockHttpContextAccessor.Object);
 
@@ -215,7 +215,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task GetCurrentUserWorkoutByIdAsync_ShouldReturnBadRequest_WhenInvalidId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutsController = GetWorkoutsController(db);
 
         long invalidID = -1;
@@ -232,7 +232,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task GetCurrentUserWorkoutByIdAsync_ShouldReturnWorkoutById_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutService = GetWorkoutService(db);
         var workoutsController = GetWorkoutsController(db);
 
@@ -276,7 +276,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task GetCurrentUserWorkoutByIdAsync_ShouldReturnBadRequest_WhenWorkoutNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutsController = GetWorkoutsController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -298,7 +298,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task GetCurrentUserWorkoutByNameAsync_ShouldReturnWorkoutByName_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutService = GetWorkoutService(db);
         var workoutsController = GetWorkoutsController(db);
 
@@ -321,7 +321,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task GetCurrentUserWorkoutByNameAsync_ShouldReturnBadRequest_WhenInvalidWorkoutId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutsController = GetWorkoutsController(db);
 
         // Act
@@ -357,7 +357,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task GetCurrentUserWorkoutByNameAsync_ShouldReturnBadRequest_WhenWorkoutNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutsController = GetWorkoutsController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -378,7 +378,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task AddCurrentUserWorkoutAsync_ShouldCreateWorkout_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutsController = GetWorkoutsController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -400,7 +400,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task AddCurrentUserWorkoutAsync_ShouldReturnBadRequest_WhenWorkoutIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutsController = GetWorkoutsController(db);
 
         // Act
@@ -415,7 +415,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task AddCurrentUserWorkoutAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutsController = GetWorkoutsController(db);
 
         var workout = await GetValidWorkoutAsync(db);
@@ -433,7 +433,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task AddCurrentUserWorkoutAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockWorkoutService = new Mock<IWorkoutService>();
         var workoutsController = new WorkoutsController(mockWorkoutService.Object, mockHttpContextAccessor.Object);
 
@@ -456,7 +456,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task UpdateCurrentUserWorkoutAsync_ShouldUpdateWorkout_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutService = GetWorkoutService(db);
         var workoutsController = GetWorkoutsController(db);
 
@@ -479,7 +479,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task UpdateCurrentUserWorkoutAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutService = GetWorkoutService(db);
         var workoutsController = GetWorkoutsController(db);
 
@@ -504,7 +504,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task UpdateCurrentUserWorkoutAsync_ShouldReturnBadRequest_WhenWorkoutIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutService = GetWorkoutService(db);
         var workoutsController = GetWorkoutsController(db);
 
@@ -526,7 +526,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task UpdateCurrentUserWorkoutAsync_ShouldReturnBadRequest_WhenIDsDoNotMatch()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutService = GetWorkoutService(db);
         var workoutsController = GetWorkoutsController(db);
 
@@ -548,7 +548,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task UpdateCurrentUserWorkoutAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockWorkoutService = new Mock<IWorkoutService>();
         var workoutsController = new WorkoutsController(mockWorkoutService.Object, mockHttpContextAccessor.Object);
 
@@ -573,7 +573,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task DeleteCurrentUserWorkoutAsync_ShouldDeleteWorkout_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutService = GetWorkoutService(db);
         var workoutsController = GetWorkoutsController(db);
 
@@ -594,7 +594,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task DeleteCurrentUserWorkoutAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutsController = GetWorkoutsController(db);
 
         long invalidWorkoutId = -1;
@@ -611,7 +611,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task DeleteCurrentUserWorkoutAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockWorkoutService = new Mock<IWorkoutService>();
         var workoutsController = new WorkoutsController(mockWorkoutService.Object, mockHttpContextAccessor.Object);
 
@@ -634,7 +634,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task CurrentUserWorkoutExistsAsync_ShouldReturnBadRequest_WhenInvalidId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutsController = GetWorkoutsController(db);
 
         long invalidID = -1;
@@ -651,7 +651,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task CurrentUserWorkoutExistsAsync_ShouldReturnTrue_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutService = GetWorkoutService(db);
         var workoutsController = GetWorkoutsController(db);
 
@@ -673,7 +673,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task CurrentUserWorkoutExistsAsync_ShouldReturnFalse_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutService = GetWorkoutService(db);
         var workoutsController = GetWorkoutsController(db);
 
@@ -717,7 +717,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task CurrentUserWorkoutExistsByNameAsync_ShouldReturnBadRequest_WhenWorkoutNameIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutsController = GetWorkoutsController(db);
 
         // Act
@@ -732,7 +732,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task CurrentUserWorkoutExistsByNameAsync_ShouldReturnTrue_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutService = GetWorkoutService(db);
         var workoutsController = GetWorkoutsController(db);
 
@@ -754,7 +754,7 @@ public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
     public async Task CurrentUserWorkoutExistsByNameAsync_ShouldReturnFalse_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var workoutService = GetWorkoutService(db);
         var workoutsController = GetWorkoutsController(db);
 

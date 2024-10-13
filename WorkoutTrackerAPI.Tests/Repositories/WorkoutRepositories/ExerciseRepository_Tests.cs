@@ -78,7 +78,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task AddAsync_ShouldReturnNewExercise()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var validExercise = await GetValidExerciseAsync(db);
@@ -91,7 +91,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task AddAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var invalidExercise = await GetInvalidExerciseAsync(db);
@@ -104,7 +104,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task AddRangeAsync_ShouldAddExercisesSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var validExercises = await GetValidExercisesAsync(db);
@@ -117,7 +117,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task AddRangeAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var invalidExercises = await GetInvalidExercisesAsync(db);
@@ -130,7 +130,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task RemoveAsync_ShouldRemoveExerciseSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var validExercise = await GetValidExerciseAsync(db);
@@ -144,7 +144,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task RemoveAsync_IncorrectExerciseID_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         //Act & Assert
@@ -155,7 +155,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task RemoveAsync_ExerciseNotExist_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         //Act & Assert
@@ -166,7 +166,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task RemoveRangeAsync_ShouldRemoveExercisesSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var validExercises = await GetValidExercisesAsync(db);
@@ -180,7 +180,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task RemoveRangeAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var invalidExercises = await GetInvalidExercisesAsync(db);
@@ -193,7 +193,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task GetAllAsync_ShouldReturnExercises()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var validExercises = await GetValidExercisesAsync(db);
@@ -207,7 +207,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task GetAllAsync_ShouldReturnEmpty()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         //Act & Assert
@@ -218,7 +218,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task GetByIdAsync_ShouldReturnExerciseById()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var validExercise = await GetValidExerciseAsync(db);
@@ -232,7 +232,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task GetByIdAsync_ShouldReturnNull()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         //Act & Assert
@@ -243,7 +243,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task GetByNameAsync_ShouldReturnExerciseByName()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var validExercise = await GetValidExerciseAsync(db);
@@ -257,7 +257,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task GetByNameAsync_ShouldReturnNull()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         //Act & Assert
@@ -267,7 +267,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     [Fact]
     public async Task FindAsync_ShouldFindExercises()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var plankExercise = await CreateExerciseAsync(db, "Plank", ExerciseType.Time, "Rectus abdominis", "External oblique", "Quadriceps");
@@ -285,7 +285,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     [Fact]
     public async Task FindAsync_ShouldReturnEmpty()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var plankExercise = await CreateExerciseAsync(db, "Plank", ExerciseType.Time, "Rectus abdominis", "External oblique", "Quadriceps");
@@ -304,7 +304,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task ExistsAsync_ShouldReturnTrue()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var validExercise = await GetValidExerciseAsync(db);
@@ -318,7 +318,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task ExistsAsync_ShouldReturnFalse()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         //Act & Assert
@@ -329,7 +329,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task ExistsByNameAsync_ShouldReturnTrue()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var validExercise = await GetValidExerciseAsync(db);
@@ -343,7 +343,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task ExistsByNameAsync_ShouldReturnFalse()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         //Act & Assert
@@ -354,7 +354,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task UpdateAsync_ShouldUpdateSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var validExercise = await GetValidExerciseAsync(db);
@@ -370,7 +370,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task UpdateAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var validExercise = await GetValidExerciseAsync(db);
@@ -386,7 +386,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task SaveChangesAsync_SavesEntitySuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var validExercise = await GetValidExerciseAsync(db);
@@ -402,7 +402,7 @@ public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
     public async Task SaveChangesAsync_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepository = new ExerciseRepository(db);
 
         var validExercise = await GetValidExerciseAsync(db);

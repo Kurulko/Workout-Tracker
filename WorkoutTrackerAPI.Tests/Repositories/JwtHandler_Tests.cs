@@ -15,7 +15,7 @@ using Xunit;
 
 namespace WorkoutTrackerAPI.Tests.Repositories;
 
-public class JwtHandler_Tests : BaseTests
+public class JwtHandler_Tests
 {
     readonly JwtSettings jwtSettings = new()
     {
@@ -41,7 +41,7 @@ public class JwtHandler_Tests : BaseTests
     public async Task GenerateJwtToken_ShouldGenerateJwtTokenSuccessfully()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
         var jwtHandler = new JwtHandler(jwtSettings, userManager);
@@ -68,7 +68,7 @@ public class JwtHandler_Tests : BaseTests
     public async Task GetPrincipalFromToken_ShouldReturnPrincipalFromToken()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
         var jwtHandler = new JwtHandler(jwtSettings, userManager);
@@ -97,7 +97,7 @@ public class JwtHandler_Tests : BaseTests
     public void GetPrincipalFromToken_ShouldThrowException()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userManager = IdentityHelper.GetUserManager(db);
         var jwtHandler = new JwtHandler(jwtSettings, userManager);
 

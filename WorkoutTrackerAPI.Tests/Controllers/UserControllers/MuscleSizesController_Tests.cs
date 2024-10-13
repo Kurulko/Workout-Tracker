@@ -125,7 +125,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task GetCurrentUserMuscleSizesAsync_ShouldReturnPagedResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
         var muscleSizesController = GetMuscleSizesController(db);
 
@@ -155,7 +155,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task GetCurrentUserMuscleSizesAsync_ShouldReturnFilteredResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
         var muscleSizesController = GetMuscleSizesController(db);
 
@@ -183,7 +183,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task GetCurrentUserMuscleSizesAsync_ShouldReturnBadRequest_WhenInvalidPageSizeOrIndex()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizesController = GetMuscleSizesController(db);
 
         var bicepsMuscle = await GetBicepsMuscleAsync(db);
@@ -199,7 +199,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     [Fact]
     public async Task GetCurrentUserMuscleSizesAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockMuscleSizeService = new Mock<IMuscleSizeService>();
         var muscleSizesController = new MuscleSizesController(mockMuscleSizeService.Object, mockHttpContextAccessor.Object);
 
@@ -220,7 +220,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     [Fact]
     public async Task GetCurrentUserMuscleSizesAsync_ShouldReturnBadRequest_WhenMuscleSizesNotFound()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockMuscleSizeService = new Mock<IMuscleSizeService>();
         var muscleSizesController = new MuscleSizesController(mockMuscleSizeService.Object, mockHttpContextAccessor.Object);
 
@@ -243,7 +243,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task GetCurrentUserMuscleSizeByIdAsync_ShouldReturnBadRequest_WhenInvalidId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizesController = GetMuscleSizesController(db);
 
         // Act
@@ -258,7 +258,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task GetCurrentUserMuscleSizeByIdAsync_ShouldReturnMuscleSizeById_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
         var muscleSizesController = GetMuscleSizesController(db);
 
@@ -302,7 +302,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task GetCurrentUserMuscleSizeByIdAsync_ShouldReturnBadRequest_WhenMuscleSizeNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizesController = GetMuscleSizesController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -324,7 +324,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task GetCurrentUserMuscleSizeByDateAsync_ShouldReturnMuscleSizeByDate_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
         var muscleSizesController = GetMuscleSizesController(db);
 
@@ -349,7 +349,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task GetCurrentUserMuscleSizeByDateAsync_ShouldReturnBadRequest_WhenInvalidMuscleId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizesController = GetMuscleSizesController(db);
 
         long invalidMuscleID = -1;
@@ -389,7 +389,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task GetCurrentUserMuscleSizeByDateAsync_ShouldReturnBadRequest_WhenMuscleSizeNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizesController = GetMuscleSizesController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -412,7 +412,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task GetMinCurrentUserMuscleSizeAsync_ShouldReturnMuscleSize_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
         var muscleSizesController = GetMuscleSizesController(db);
 
@@ -483,7 +483,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task GetMaxCurrentUserMuscleSizeAsync_ShouldReturnMuscleSize_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
         var muscleSizesController = GetMuscleSizesController(db);
 
@@ -554,7 +554,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task AddMuscleSizeToCurrentUserAsync_ShouldCreateMuscleSize_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizesController = GetMuscleSizesController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -576,7 +576,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task AddMuscleSizeToCurrentUserAsync_ShouldReturnBadRequest_WhenMuscleSizeIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizesController = GetMuscleSizesController(db);
 
         // Act
@@ -591,7 +591,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task AddMuscleSizeToCurrentUserAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizesController = GetMuscleSizesController(db);
 
         var muscleSize = await GetValidMuscleSizeAsync(db);
@@ -609,7 +609,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task AddMuscleSizeToCurrentUserAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockMuscleSizeService = new Mock<IMuscleSizeService>();
         var muscleSizesController = new MuscleSizesController(mockMuscleSizeService.Object, mockHttpContextAccessor.Object);
 
@@ -632,7 +632,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task UpdateCurrentUserMuscleSizeAsync_ShouldUpdateMuscleSize_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
         var muscleSizesController = GetMuscleSizesController(db);
 
@@ -655,7 +655,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task UpdateCurrentUserMuscleSizeAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
         var muscleSizesController = GetMuscleSizesController(db);
 
@@ -680,7 +680,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task UpdateCurrentUserMuscleSizeAsync_ShouldReturnBadRequest_WhenMuscleSizeIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
         var muscleSizesController = GetMuscleSizesController(db);
 
@@ -702,7 +702,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task UpdateCurrentUserMuscleSizeAsync_ShouldReturnBadRequest_WhenIDsDoNotMatch()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
         var muscleSizesController = GetMuscleSizesController(db);
 
@@ -724,7 +724,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task UpdateCurrentUserMuscleSizeAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockMuscleSizeService = new Mock<IMuscleSizeService>();
         var muscleSizesController = new MuscleSizesController(mockMuscleSizeService.Object, mockHttpContextAccessor.Object);
 
@@ -749,7 +749,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task DeleteMuscleSizeFromCurrentUserAsync_ShouldDeleteMuscleSize_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
         var muscleSizesController = GetMuscleSizesController(db);
 
@@ -770,7 +770,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task DeleteMuscleSizeFromCurrentUserAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizesController = GetMuscleSizesController(db);
 
         long invalidMuscleSizeId = -1;
@@ -787,7 +787,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
     public async Task DeleteMuscleSizeFromCurrentUserAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockMuscleSizeService = new Mock<IMuscleSizeService>();
         var muscleSizesController = new MuscleSizesController(mockMuscleSizeService.Object, mockHttpContextAccessor.Object);
 

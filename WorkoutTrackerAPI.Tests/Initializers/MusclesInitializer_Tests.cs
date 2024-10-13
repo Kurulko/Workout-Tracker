@@ -19,8 +19,7 @@ public class MusclesInitializer_Tests
     public static async Task InitializeAsync()
     {
         //Arrange
-        WorkoutContextFactory factory = new();
-        using var db = factory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleRepository = new MuscleRepository(db);
 
         string json = await File.ReadAllTextAsync("Data/Source/muscles.json");

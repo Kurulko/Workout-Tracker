@@ -51,7 +51,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task RegisterAsync_ShouldRegister_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var accountService = GetAccountService(db);
 
         var registerModel = GetValidRegisterModel();
@@ -73,7 +73,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task RegisterAsync_ShouldThrowException_WhenRegisterModelIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var accountService = GetAccountService(db);
 
         // Act & Assert
@@ -85,7 +85,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task RegisterAsync_ShouldReturnFailResult_WhenNameAlreadyRegistered()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var accountService = GetAccountService(db);
 
         var registerModel = GetValidRegisterModel();
@@ -107,7 +107,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task RegisterAsync_ShouldReturnFailResult_WhenEmailAlreadyRegistered()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var accountService = GetAccountService(db);
 
         var registerModel = GetValidRegisterModel();
@@ -129,7 +129,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task RegisterAsync_ShouldReturnFailResult_WhileCreatingNewUser()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
@@ -164,7 +164,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task RegisterAsync_ShouldReturnFailResult_WhileAddingRolesToUser()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
@@ -203,7 +203,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task RegisterAsync_ShouldReturnFailResult_WhileGeneratingJwtToken()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
@@ -234,7 +234,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task LoginAsync_ShouldLogin_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
@@ -268,7 +268,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task LoginAsync_ShouldThrowException_WhenLoginModelIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var accountService = GetAccountService(db);
 
         // Act & Assert
@@ -280,7 +280,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task LoginAsync_ShouldReturnFailResult_WhenPasswordOrLoginInvalid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
@@ -307,7 +307,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task LoginAsync_ShouldReturnFailResult_WhileGeneratingJwtToken()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
@@ -343,7 +343,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task LogoutAsync_ShouldLogout_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
@@ -367,7 +367,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task LogoutAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
@@ -389,7 +389,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task GetTokenAsync_ShouldReturnToken_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var accountService = GetAccountService(db);
 
         var registerModel = GetValidRegisterModel();
@@ -412,7 +412,7 @@ public class AccountService_Tests : BaseService_Tests
     public async Task GetTokenAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);

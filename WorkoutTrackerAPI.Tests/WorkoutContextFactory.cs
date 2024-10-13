@@ -9,7 +9,7 @@ namespace WorkoutTrackerAPI.Tests;
 
 public class WorkoutContextFactory
 {
-    public WorkoutDbContext CreateDatabaseContext()
+    public static WorkoutDbContext CreateDatabaseContext()
     {
         var options = new DbContextOptionsBuilder<WorkoutDbContext>()
                .UseInMemoryDatabase(Guid.NewGuid().ToString())

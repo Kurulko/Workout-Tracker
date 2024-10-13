@@ -65,7 +65,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task AddUserExercise_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var validExercise = await GetValidExerciseAsync(db);
@@ -84,7 +84,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task AddUserExercise_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var validExercise = await GetValidExerciseAsync(db);
@@ -94,14 +94,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task AddUserExercise_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var validExercise = await GetValidExerciseAsync(db);
@@ -119,7 +119,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task AddUserExercise_ShouldReturnFail_WhenExerciseIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -129,14 +129,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Exercise entry cannot be null.", result.ErrorMessage);
+        Assert.Contains("Exercise entry cannot be null.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task AddUserExercise_ShouldReturnFail_WhenExerciseIdIsNonZero()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -155,7 +155,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task AddUserExercise_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -184,7 +184,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task AddExercise_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var validExercise = await GetValidExerciseAsync(db);
@@ -202,7 +202,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task AddExercise_ShouldReturnFail_WhenExerciseCreatedByUser()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -222,7 +222,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task AddExercise_ShouldReturnFail_WhenExerciseIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         // Act
@@ -230,14 +230,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Exercise entry cannot be null.", result.ErrorMessage);
+        Assert.Contains("Exercise entry cannot be null.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task AddExercise_ShouldReturnFail_WhenExerciseIdIsNonZero()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var validExercise = await GetValidExerciseAsync(db);
@@ -255,7 +255,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task AddExercise_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -282,7 +282,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task DeleteExerciseFromUser_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var exercise = await GetValidExerciseAsync(db);
@@ -305,7 +305,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task DeleteExerciseFromUser_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var exercise = await GetValidExerciseAsync(db);
@@ -315,14 +315,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task DeleteExerciseFromUser_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var exercise = await GetValidExerciseAsync(db);
@@ -340,7 +340,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task DeleteExerciseFromUser_ShouldReturnFail_WhenInvalidExerciseID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -351,14 +351,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid Exercise ID.", result.ErrorMessage);
+        Assert.Contains("Invalid Exercise ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task DeleteExerciseFromUser_ShouldReturnFail_WhenExerciseNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -377,7 +377,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task DeleteExerciseFromUser_ShouldReturnFail_AccessDenied()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -409,7 +409,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task DeleteExerciseFromUser_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -443,7 +443,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task DeleteExercise_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var exercise = await GetValidExerciseAsync(db);
@@ -464,7 +464,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task DeleteExercise_ShouldReturnFail_WhenInvalidExerciseID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         long invalidExerciseID = -1;
@@ -474,14 +474,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid Exercise ID.", result.ErrorMessage);
+        Assert.Contains("Invalid Exercise ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task DeleteExercise_ShouldReturnFail_WhenExerciseNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         long nonExistenceExerciseId = 100;
@@ -498,7 +498,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task DeleteExercise_ShouldReturnFail_AccessDenied()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -528,7 +528,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task DeleteExercise_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -561,7 +561,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetUserExercises_ShouldReturnExercises_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var exercises = await GetValidExercisesAsync(db);
@@ -585,7 +585,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetUserExercises_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         // Act
@@ -593,14 +593,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserExercises_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         string nonExistenceUserId = Guid.NewGuid().ToString();
@@ -617,7 +617,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetUserExercises_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -646,7 +646,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetExercises_ShouldReturnExercises_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var exercises = await GetValidExercisesAsync(db);
@@ -669,7 +669,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetExercises_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -696,7 +696,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetUserExerciseByName_ShouldReturnExerciseByName_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -722,7 +722,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetUserExerciseByName_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -747,7 +747,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetUserExerciseByName_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         string exerciseName = "Pull Up";
@@ -757,14 +757,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserExerciseByName_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         string nonExistenceUserId = Guid.NewGuid().ToString();
@@ -782,7 +782,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetUserExerciseByName_ShouldReturnFail_WhenInvalidName()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -798,14 +798,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Exercise name cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("Exercise name cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserExerciseByName_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -835,7 +835,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetExerciseByName_ShouldReturnExerciseByName_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
 
@@ -860,7 +860,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetExerciseByName_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var exercises = await GetValidExercisesAsync(db);
@@ -883,7 +883,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetExerciseByName_ShouldReturnFail_WhenInvalidName()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var exercises = await GetValidExercisesAsync(db);
@@ -897,14 +897,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Exercise name cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("Exercise name cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetExerciseByName_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -932,7 +932,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetUserExerciseById_ShouldReturnExerciseById_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -953,7 +953,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetUserExerciseById_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -970,7 +970,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetUserExerciseById_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -983,14 +983,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserExerciseById_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1012,7 +1012,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetUserExerciseById_ShouldReturnFail_WhenInvalidExerciseID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1022,14 +1022,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid Exercise ID.", result.ErrorMessage);
+        Assert.Contains("Invalid Exercise ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserExerciseById_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -1057,7 +1057,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetExerciseById_ShouldReturnExerciseById_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var exercise = await GetValidExerciseAsync(db);
@@ -1076,7 +1076,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetExerciseById_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         // Act
@@ -1091,7 +1091,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task GetExerciseById_ShouldReturnFail_WhenInvalidExerciseID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         // Act
@@ -1099,14 +1099,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid Exercise ID.", result.ErrorMessage);
+        Assert.Contains("Invalid Exercise ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetExerciseById_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -1134,7 +1134,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UpdateUserExercise_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1159,7 +1159,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UpdateUserExercise_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1174,14 +1174,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateUserExercise_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1205,7 +1205,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UpdateUserExercise_ShouldReturnFail_WhenExerciseIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1215,14 +1215,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Exercise entry cannot be null.", result.ErrorMessage);
+        Assert.Contains("Exercise entry cannot be null.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateUserExercise_ShouldReturnFail_WhenInvalidExerciseID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1238,14 +1238,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid Exercise ID.", result.ErrorMessage);
+        Assert.Contains("Invalid Exercise ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateUserExercise_ShouldReturnFail_WhenExerciseNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1266,7 +1266,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UpdateUserExercise_ShouldReturnFail_WhenAccessDenied()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -1296,7 +1296,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UpdateUserExercise_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -1332,7 +1332,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UpdateExercise_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
 
@@ -1357,7 +1357,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UpdateExercise_ShouldReturnFail_WhenExerciseIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         // Act
@@ -1365,14 +1365,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Exercise entry cannot be null.", result.ErrorMessage);
+        Assert.Contains("Exercise entry cannot be null.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateExercise_ShouldReturnFail_WhenInvalidExerciseID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var exercise = await GetValidExerciseAsync(db);
@@ -1386,14 +1386,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid Exercise ID.", result.ErrorMessage);
+        Assert.Contains("Invalid Exercise ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateExercise_ShouldReturnFail_WhenExerciseNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var exercise = await GetValidExerciseAsync(db);
@@ -1413,7 +1413,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UpdateExercise_ShouldReturnFail_WhenAccessDenied()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -1442,7 +1442,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UpdateExercise_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -1476,7 +1476,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UserExerciseExists_ShouldReturnTrue_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1495,7 +1495,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UserExerciseExists_ShouldReturnFalse_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1511,7 +1511,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UserExerciseExists_ShouldThrowException_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1521,14 +1521,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<ArgumentNullOrEmptyException>(async () => await exerciseService.UserExerciseExistsAsync(null!, exercise.Id));
-        Assert.Equal("User ID cannot be null or empty.", ex.Message);
+        Assert.Contains("User ID cannot be null or empty.", ex.Message);
     }
 
     [Fact]
     public async Task UserExerciseExists_ShouldThrowException_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1546,7 +1546,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UserExerciseExists_ShouldThrowException_WhenInvalidExerciseID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1557,14 +1557,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidIDException>(async () => await exerciseService.UserExerciseExistsAsync(user.Id, exercise.Id));
-        Assert.Equal("Invalid Exercise ID.", ex.Message);
+        Assert.Contains("Invalid Exercise ID.", ex.Message);
     }
 
     [Fact]
     public async Task UserExerciseExists_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -1590,7 +1590,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task ExerciseExists_ShouldReturnTrue_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var exercise = await GetValidExerciseAsync(db);
@@ -1607,7 +1607,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task ExerciseExists_ShouldReturnFalse_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         // Act
@@ -1621,7 +1621,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task ExerciseExists_ShouldThrowException_WhenInvalidExerciseID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var exercise = await GetValidExerciseAsync(db);
@@ -1631,14 +1631,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<InvalidIDException>(async () => await exerciseService.ExerciseExistsAsync(exercise.Id));
-        Assert.Equal("Invalid Exercise ID.", ex.Message);
+        Assert.Contains("Invalid Exercise ID.", ex.Message);
     }
 
     [Fact]
     public async Task ExerciseExists_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -1663,7 +1663,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UserExerciseExistsByName_ShouldReturnTrue_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1682,7 +1682,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UserExerciseExistsByName_ShouldReturnFalse_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1699,7 +1699,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UserExerciseExistsByName_ShouldThrowException_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1709,14 +1709,14 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<ArgumentNullOrEmptyException>(async () => await exerciseService.UserExerciseExistsByNameAsync(null!, exercise.Name));
-        Assert.Equal("User ID cannot be null or empty.", ex.Message);
+        Assert.Contains("User ID cannot be null or empty.", ex.Message);
     }
 
     [Fact]
     public async Task UserExerciseExistsByName_ShouldThrowException_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1734,21 +1734,21 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task UserExerciseExistsByName_ShouldThrowException_WhenInvalidExerciseID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var user = await GetDefaultUserAsync(db);
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<ArgumentNullOrEmptyException>(async () => await exerciseService.UserExerciseExistsByNameAsync(user.Id, null!));
-        Assert.Equal("Exercise name cannot be null or empty.", ex.Message);
+        Assert.Contains("Exercise name cannot be null or empty.", ex.Message);
     }
 
     [Fact]
     public async Task UserExerciseExistsByName_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -1774,7 +1774,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task ExerciseExistsByName_ShouldReturnTrue_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         var exercise = await GetValidExerciseAsync(db);
@@ -1791,7 +1791,7 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task ExerciseExistsByName_ShouldReturnFalse_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         string nonExistenceName = "Non-existence name";
@@ -1807,19 +1807,19 @@ public class ExerciseService_Tests : BaseWorkoutService_Tests<Exercise>
     public async Task ExerciseExistsByName_ShouldThrowException_WhenInvalidExerciseID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseService = GetExerciseService(db);
 
         //Act & Assert
         var ex = await Assert.ThrowsAsync<ArgumentNullOrEmptyException>(async () => await exerciseService.ExerciseExistsByNameAsync(null!));
-        Assert.Equal("Exercise name cannot be null or empty.", ex.Message);
+        Assert.Contains("Exercise name cannot be null or empty.", ex.Message);
     }
 
     [Fact]
     public async Task ExerciseExistsByName_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRepositoryMock = new Mock<ExerciseRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);

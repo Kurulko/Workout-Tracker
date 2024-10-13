@@ -47,7 +47,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRolesAsync_ShouldReturnPagedResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -71,7 +71,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRolesAsync_ShouldReturnFilteredResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -95,7 +95,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRolesAsync_ShouldReturnBadRequest_WhenInvalidPageSizeOrIndex()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var rolesController = GetRolesController(db);
 
         // Act
@@ -109,7 +109,7 @@ public class RolesController_Tests : APIController_Tests
     [Fact]
     public async Task GetRolesAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockRoleService = new Mock<IRoleService>();
         var rolesController = new RolesController(mockRoleService.Object);
 
@@ -129,7 +129,7 @@ public class RolesController_Tests : APIController_Tests
     [Fact]
     public async Task GetRolesAsync_ShouldReturnBadRequest_WhenRolesNotFound()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockRoleService = new Mock<IRoleService>();
         var rolesController = new RolesController(mockRoleService.Object);
 
@@ -150,7 +150,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRoleByIdAsync_ShouldReturnBadRequest_WhenRoleIDIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var rolesController = GetRolesController(db);
 
         // Act
@@ -165,7 +165,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRoleByIdAsync_ShouldReturnRoleById_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -207,7 +207,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRoleByIdAsync_ShouldReturnBadRequest_WhenRoleNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var rolesController = GetRolesController(db);
 
         var notFoundID = Guid.NewGuid().ToString();
@@ -226,7 +226,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRoleByNameAsync_ShouldReturnBadRequest_WhenRoleNameIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var rolesController = GetRolesController(db);
 
         // Act
@@ -241,7 +241,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRoleByNameAsync_ShouldReturnRoleByName_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -283,7 +283,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRoleByNameAsync_ShouldReturnBadRequest_WhenRoleNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var rolesController = GetRolesController(db);
 
         var notFoundName = "notFoundName";
@@ -301,7 +301,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task AddRoleAsync_ShouldCreateRole_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var rolesController = GetRolesController(db);
 
         var role = GetValidRole();
@@ -320,7 +320,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task AddRoleAsync_ShouldReturnBadRequest_WhenRoleIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var rolesController = GetRolesController(db);
 
         // Act
@@ -335,7 +335,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task AddRoleAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockRoleService = new Mock<IRoleService>();
         var rolesController = new RolesController(mockRoleService.Object);
 
@@ -359,7 +359,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task UpdateRoleAsync_ShouldUpdateRole_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -379,7 +379,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task UpdateRoleAsync_ShouldReturnBadRequest_WhenInvalidRoleIDIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -400,7 +400,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task UpdateRoleAsync_ShouldReturnBadRequest_WhenRoleIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -419,7 +419,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task UpdateRoleAsync_ShouldReturnBadRequest_WhenIDsDoNotMatch()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -438,7 +438,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task UpdateRoleAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockRoleService = new Mock<IRoleService>();
         var rolesController = new RolesController(mockRoleService.Object);
 
@@ -462,7 +462,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task DeleteRoleAsync_ShouldDeleteRole_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -480,7 +480,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task DeleteRoleAsync_ShouldReturnBadRequest_WhenRoleIDIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var rolesController = GetRolesController(db);
 
         // Act
@@ -495,7 +495,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task DeleteRoleAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockRoleService = new Mock<IRoleService>();
         var rolesController = new RolesController(mockRoleService.Object);
 
@@ -518,7 +518,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task RoleExistsAsync_ShouldReturnBadRequest_WhenRoleIDIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var rolesController = GetRolesController(db);
 
         // Act
@@ -533,7 +533,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task RoleExistsAsync_ShouldReturnTrue_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -552,7 +552,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task RoleExistsAsync_ShouldReturnFalse_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -593,7 +593,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task RoleExistsByNameAsync_ShouldReturnBadRequest_WhenRoleNameIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var rolesController = GetRolesController(db);
 
         // Act
@@ -608,7 +608,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task RoleExistsByNameAsync_ShouldReturnTrue_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -627,7 +627,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task RoleExistsByNameAsync_ShouldReturnFalse_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -668,7 +668,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRoleNameByIdAsync_ShouldReturnBadRequest_WhenRoleIDIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var rolesController = GetRolesController(db);
 
         // Act
@@ -683,7 +683,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRoleNameByIdAsync_ShouldReturnRoleById_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -725,7 +725,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRoleNameByIdAsync_ShouldReturnBadRequest_WhenRoleNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var rolesController = GetRolesController(db);
 
         var notFoundID = Guid.NewGuid().ToString();
@@ -744,7 +744,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRoleIdByNameAsync_ShouldReturnBadRequest_WhenRoleNameIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var rolesController = GetRolesController(db);
 
         // Act
@@ -759,7 +759,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRoleIdByNameAsync_ShouldReturnRoleByName_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleService = GetRoleService(db);
         var rolesController = GetRolesController(db);
 
@@ -801,7 +801,7 @@ public class RolesController_Tests : APIController_Tests
     public async Task GetRoleIdByNameAsync_ShouldReturnBadRequest_WhenRoleNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var rolesController = GetRolesController(db);
 
         var notFoundName = "notFoundName";

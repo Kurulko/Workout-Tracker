@@ -68,7 +68,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task GetMusclesAsync_ShouldReturnPagedResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
         var musclesController = GetMusclesController(db);
 
@@ -93,7 +93,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task GetMusclesAsync_ShouldReturnFilteredResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
         var musclesController = GetMusclesController(db);
 
@@ -116,7 +116,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task GetMusclesAsync_ShouldReturnBadRequest_WhenInvalidPageSizeOrIndex()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var musclesController = GetMusclesController(db);
 
         // Act
@@ -130,7 +130,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     [Fact]
     public async Task GetMusclesAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockMuscleService = new Mock<IMuscleService>();
         var musclesController = new MusclesController(mockMuscleService.Object);
 
@@ -149,7 +149,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     [Fact]
     public async Task GetMusclesAsync_ShouldReturnBadRequest_WhenMusclesNotFound()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockMuscleService = new Mock<IMuscleService>();
         var musclesController = new MusclesController(mockMuscleService.Object);
 
@@ -170,7 +170,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task GetMuscleByIdAsync_ShouldReturnBadRequest_WhenInvalidId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var musclesController = GetMusclesController(db);
 
         // Act
@@ -185,7 +185,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task GetMuscleByIdAsync_ShouldReturnMuscleById_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
         var musclesController = GetMusclesController(db);
 
@@ -226,7 +226,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task GetMuscleByIdAsync_ShouldReturnBadRequest_WhenMuscleNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var musclesController = GetMusclesController(db);
 
         var notFoundID = 1;
@@ -245,7 +245,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task AddMuscleAsync_ShouldCreateMuscle_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var musclesController = GetMusclesController(db);
 
         var muscle = GetValidMuscle();
@@ -264,7 +264,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task AddMuscleAsync_ShouldReturnBadRequest_WhenMuscleIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var musclesController = GetMusclesController(db);
 
         // Act
@@ -279,7 +279,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task AddMuscleAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var musclesController = GetMusclesController(db);
 
         var muscle = GetValidMuscle();
@@ -297,7 +297,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task AddMuscleAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockMuscleService = new Mock<IMuscleService>();
         var musclesController = new MusclesController(mockMuscleService.Object);
 
@@ -320,7 +320,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task UpdateMuscleAsync_ShouldUpdateMuscle_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
         var musclesController = GetMusclesController(db);
 
@@ -340,7 +340,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task UpdateMuscleAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
         var musclesController = GetMusclesController(db);
 
@@ -362,7 +362,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task UpdateMuscleAsync_ShouldReturnBadRequest_WhenMuscleIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
         var musclesController = GetMusclesController(db);
 
@@ -381,7 +381,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task UpdateMuscleAsync_ShouldReturnBadRequest_WhenIDsDoNotMatch()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
         var musclesController = GetMusclesController(db);
 
@@ -400,7 +400,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task UpdateMuscleAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockMuscleService = new Mock<IMuscleService>();
         var musclesController = new MusclesController(mockMuscleService.Object);
 
@@ -425,7 +425,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task DeleteMuscleUserAsync_ShouldDeleteMuscle_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
         var musclesController = GetMusclesController(db);
 
@@ -443,7 +443,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task DeleteMuscleAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var musclesController = GetMusclesController(db);
 
         long invalidMuscleId = -1;
@@ -460,7 +460,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task DeleteMuscleAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockMuscleService = new Mock<IMuscleService>();
         var musclesController = new MusclesController(mockMuscleService.Object);
 
@@ -483,7 +483,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task GetMuscleByNameAsync_ShouldReturnMuscleByName_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
         var musclesController = GetMusclesController(db);
 
@@ -503,7 +503,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task GetMuscleByNameAsync_ShouldReturnBadRequest_WhenInvalidMuscleId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var musclesController = GetMusclesController(db);
 
         // Act
@@ -539,7 +539,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task GetMuscleByNameAsync_ShouldReturnBadRequest_WhenMuscleNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var musclesController = GetMusclesController(db);
 
         var notFoundExeciseName = "notFoundExeciseName";
@@ -556,7 +556,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task MuscleExistsAsync_ShouldReturnBadRequest_WhenInvalidId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var musclesController = GetMusclesController(db);
 
         long invalidID = -1;
@@ -573,7 +573,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task MuscleExistsAsync_ShouldReturnTrue_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
         var musclesController = GetMusclesController(db);
 
@@ -592,7 +592,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task MuscleExistsAsync_ShouldReturnFalse_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
         var musclesController = GetMusclesController(db);
 
@@ -633,7 +633,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task MuscleExistsByNameAsync_ShouldReturnBadRequest_WhenMuscleNameIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var musclesController = GetMusclesController(db);
 
         // Act
@@ -648,7 +648,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task MuscleExistsByNameAsync_ShouldReturnTrue_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
         var musclesController = GetMusclesController(db);
 
@@ -667,7 +667,7 @@ public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
     public async Task MuscleExistsByNameAsync_ShouldReturnFalse_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleService = GetMuscleService(db);
         var musclesController = GetMusclesController(db);
 

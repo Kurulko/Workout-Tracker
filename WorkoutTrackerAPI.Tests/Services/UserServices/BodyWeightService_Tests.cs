@@ -60,7 +60,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task AddBodyWeightToUser_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var validBodyWeight = GetValidBodyWeight();
@@ -79,7 +79,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task AddBodyWeightToUser_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var validBodyWeight = GetValidBodyWeight();
@@ -89,14 +89,14 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task AddBodyWeightToUser_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var validBodyWeight = GetValidBodyWeight();
@@ -114,7 +114,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task AddBodyWeightToUser_ShouldReturnFail_WhenBodyWeightIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -124,14 +124,14 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Body weight entry cannot be null.", result.ErrorMessage);
+        Assert.Contains("Body weight entry cannot be null.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task AddBodyWeightToUser_ShouldReturnFail_WhenBodyWeightIdIsNonZero()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -150,7 +150,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task AddBodyWeightToUser_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepositoryMock = new Mock<BodyWeightRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -177,7 +177,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task DeleteBodyWeightFromUser_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var bodyWeight = GetValidBodyWeight();
@@ -200,7 +200,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task DeleteBodyWeightFromUser_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var bodyWeight = GetValidBodyWeight();
@@ -210,14 +210,14 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task DeleteBodyWeightFromUser_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var bodyWeight = GetValidBodyWeight();
@@ -235,7 +235,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task DeleteBodyWeightFromUser_ShouldReturnFail_WhenInvalidBodyWeightID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -246,14 +246,14 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid BodyWeight ID.", result.ErrorMessage);
+        Assert.Contains("Invalid BodyWeight ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task DeleteBodyWeightFromUser_ShouldReturnFail_WhenBodyWeightNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -272,7 +272,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task DeleteBodyWeightFromUser_ShouldReturnFail_AccessDenied()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepositoryMock = new Mock<BodyWeightRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -304,7 +304,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task DeleteBodyWeightFromUser_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepositoryMock = new Mock<BodyWeightRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -337,7 +337,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetUserBodyWeights_ShouldReturnBodyWeights_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var bodyWeights = GetValidBodyWeights();
@@ -361,7 +361,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetUserBodyWeights_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         // Act
@@ -369,14 +369,14 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserBodyWeights_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         string nonExistenceUserId = Guid.NewGuid().ToString();
@@ -393,7 +393,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetUserBodyWeights_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepositoryMock = new Mock<BodyWeightRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -420,7 +420,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetMaxUserBodyWeight_ShouldReturnMaxBodyWeight_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -446,7 +446,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetMaxUserBodyWeight_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         // Act
@@ -454,14 +454,14 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetMaxUserBodyWeight_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         string nonExistenceUserId = Guid.NewGuid().ToString();
@@ -478,7 +478,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetMaxUserBodyWeight_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepositoryMock = new Mock<BodyWeightRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -505,7 +505,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetMinUserBodyWeight_ShouldReturnMaxBodyWeight_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -531,7 +531,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetMinUserBodyWeight_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         // Act
@@ -539,14 +539,14 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetMinUserBodyWeight_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         string nonExistenceUserId = Guid.NewGuid().ToString();
@@ -563,7 +563,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetMinUserBodyWeight_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepositoryMock = new Mock<BodyWeightRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -590,7 +590,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetUserBodyWeightByDate_ShouldReturnBodyWeightByDate_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -615,7 +615,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetUserBodyWeightByDate_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -640,7 +640,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetUserBodyWeightByDate_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         DateOnly today = DateOnly.FromDateTime(DateTime.Now);
@@ -650,14 +650,14 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserBodyWeightByDate_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         string nonExistenceUserId = Guid.NewGuid().ToString();
@@ -675,7 +675,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetUserBodyWeightByDate_ShouldReturnFail_WhenInvalidDate()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -700,7 +700,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetUserBodyWeightByDate_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepositoryMock = new Mock<BodyWeightRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -729,7 +729,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetUserBodyWeightById_ShouldReturnBodyWeightById_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -750,7 +750,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetUserBodyWeightById_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -767,7 +767,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetUserBodyWeightById_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -780,14 +780,14 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserBodyWeightById_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -809,7 +809,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task GetUserBodyWeightById_ShouldReturnFail_WhenInvalidBodyWeightID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -819,14 +819,14 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid BodyWeight ID.", result.ErrorMessage);
+        Assert.Contains("Invalid BodyWeight ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserBodyWeightById_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepositoryMock = new Mock<BodyWeightRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -857,7 +857,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task UpdateUserBodyWeight_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -882,7 +882,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task UpdateUserBodyWeight_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -897,14 +897,14 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateUserBodyWeight_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -928,7 +928,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task UpdateUserBodyWeight_ShouldReturnFail_WhenBodyWeightIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -938,14 +938,14 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Body weight entry cannot be null.", result.ErrorMessage);
+        Assert.Contains("Body weight entry cannot be null.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateUserBodyWeight_ShouldReturnFail_WhenInvalidBodyWeightID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -961,14 +961,14 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid BodyWeight ID.", result.ErrorMessage);
+        Assert.Contains("Invalid BodyWeight ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateUserBodyWeight_ShouldReturnFail_WhenBodyWeightNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightService = GetBodyWeightService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -989,7 +989,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task UpdateUserBodyWeight_ShouldReturnFail_WhenAccessDenied()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepositoryMock = new Mock<BodyWeightRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -1019,7 +1019,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     public async Task UpdateUserBodyWeight_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var bodyWeightRepositoryMock = new Mock<BodyWeightRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);

@@ -86,7 +86,7 @@ public class ImpersonationController_Tests : APIController_Tests
     public async Task ImpersonateAsync_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var impersonationController = GetImpersonationController(db);
 
         var user = await GetUserAsync(db);
@@ -105,7 +105,7 @@ public class ImpersonationController_Tests : APIController_Tests
     public async Task ImpersonateAsync_ShouldReturnBadRequest_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var impersonationController = GetImpersonationController(db);
 
         // Act
@@ -120,7 +120,7 @@ public class ImpersonationController_Tests : APIController_Tests
     public async Task ImpersonateAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
@@ -148,7 +148,7 @@ public class ImpersonationController_Tests : APIController_Tests
     public async Task RevertAsync_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var impersonationController = GetImpersonationController(db);
 
         var user = await GetUserAsync(db);
@@ -168,7 +168,7 @@ public class ImpersonationController_Tests : APIController_Tests
     public async Task RevertAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
@@ -193,7 +193,7 @@ public class ImpersonationController_Tests : APIController_Tests
     public async Task IsImpersonating_ShouldReturnTrue_WhenImpersonating()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var impersonationController = GetImpersonationController(db);
 
         var user = await GetUserAsync(db);
@@ -213,7 +213,7 @@ public class ImpersonationController_Tests : APIController_Tests
     public void IsImpersonating_ShouldReturnFalse_WhenNotImpersonating()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var impersonationController = GetImpersonationController(db);
 
         // Act

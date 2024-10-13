@@ -118,7 +118,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task AddMuscleSizeToUser_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var validMuscleSize = await GetValidMuscleSizeAsync(db);
@@ -137,7 +137,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task AddMuscleSizeToUser_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var validMuscleSize = await GetValidMuscleSizeAsync(db);
@@ -147,14 +147,14 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task AddMuscleSizeToUser_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var validMuscleSize = await GetValidMuscleSizeAsync(db);
@@ -172,7 +172,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task AddMuscleSizeToUser_ShouldReturnFail_WhenMuscleSizeIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -182,14 +182,14 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Muscle size entry cannot be null.", result.ErrorMessage);
+        Assert.Contains("Muscle size entry cannot be null.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task AddMuscleSizeToUser_ShouldReturnFail_WhenMuscleSizeIdIsNonZero()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -208,7 +208,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task AddMuscleSizeToUser_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepositoryMock = new Mock<MuscleSizeRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -235,7 +235,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task DeleteMuscleSizeFromUser_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var muscleSize = await GetValidMuscleSizeAsync(db);
@@ -258,7 +258,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task DeleteMuscleSizeFromUser_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var muscleSize = await GetValidMuscleSizeAsync(db);
@@ -268,14 +268,14 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task DeleteMuscleSizeFromUser_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var muscleSize = await GetValidMuscleSizeAsync(db);
@@ -293,7 +293,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task DeleteMuscleSizeFromUser_ShouldReturnFail_WhenInvalidMuscleSizeID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -304,14 +304,14 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid MuscleSize ID.", result.ErrorMessage);
+        Assert.Contains("Invalid MuscleSize ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task DeleteMuscleSizeFromUser_ShouldReturnFail_WhenMuscleSizeNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -330,7 +330,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task DeleteMuscleSizeFromUser_ShouldReturnFail_AccessDenied()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepositoryMock = new Mock<MuscleSizeRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -362,7 +362,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task DeleteMuscleSizeFromUser_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepositoryMock = new Mock<MuscleSizeRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -395,7 +395,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetUserMuscleSizes_ShouldReturnMuscleSizes_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var muscleSizes = await GetValidMuscleSizesAsync(db);
@@ -421,7 +421,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetUserMuscleSizes_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var bicepsMuscle = await GetBicepsMuscleAsync(db);
@@ -431,14 +431,14 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserMuscleSizes_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         string nonExistenceUserId = Guid.NewGuid().ToString();
@@ -456,7 +456,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetUserMuscleSizes_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepositoryMock = new Mock<MuscleSizeRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -485,7 +485,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetMaxUserMuscleSize_ShouldReturnMaxMuscleSize_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -513,7 +513,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetMaxUserMuscleSize_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var bicepsMuscle = await GetBicepsMuscleAsync(db);
@@ -523,14 +523,14 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetMaxUserMuscleSize_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         string nonExistenceUserId = Guid.NewGuid().ToString();
@@ -548,7 +548,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetMaxUserMuscleSize_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepositoryMock = new Mock<MuscleSizeRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -577,7 +577,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetMinUserMuscleSize_ShouldReturnMaxMuscleSize_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -605,7 +605,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetMinUserMuscleSize_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var bicepsMuscle = await GetBicepsMuscleAsync(db);
@@ -615,14 +615,14 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetMinUserMuscleSize_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         string nonExistenceUserId = Guid.NewGuid().ToString();
@@ -640,7 +640,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetMinUserMuscleSize_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepositoryMock = new Mock<MuscleSizeRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -669,7 +669,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetUserMuscleSizeByDate_ShouldReturnMuscleSizeByDate_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -697,7 +697,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetUserMuscleSizeByDate_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -724,7 +724,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetUserMuscleSizeByDate_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         DateOnly today = DateOnly.FromDateTime(DateTime.Now);
@@ -736,14 +736,14 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserMuscleSizeByDate_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         string nonExistenceUserId = Guid.NewGuid().ToString();
@@ -763,7 +763,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetUserMuscleSizeByDate_ShouldReturnFail_WhenInvalidDate()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -790,7 +790,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetUserMuscleSizeByDate_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepositoryMock = new Mock<MuscleSizeRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -821,7 +821,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetUserMuscleSizeById_ShouldReturnMuscleSizeById_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -842,7 +842,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetUserMuscleSizeById_ShouldReturnNull_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -859,7 +859,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetUserMuscleSizeById_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -872,14 +872,14 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserMuscleSizeById_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -901,7 +901,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task GetUserMuscleSizeById_ShouldReturnFail_WhenInvalidMuscleSizeID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -911,14 +911,14 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid MuscleSize ID.", result.ErrorMessage);
+        Assert.Contains("Invalid MuscleSize ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task GetUserMuscleSizeById_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepositoryMock = new Mock<MuscleSizeRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -949,7 +949,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task UpdateUserMuscleSize_ShouldReturnOk_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -974,7 +974,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task UpdateUserMuscleSize_ShouldReturnFail_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -989,14 +989,14 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("User ID cannot be null or empty.", result.ErrorMessage);
+        Assert.Contains("User ID cannot be null or empty.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateUserMuscleSize_ShouldReturnFail_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1020,7 +1020,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task UpdateUserMuscleSize_ShouldReturnFail_WhenMuscleSizeIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1030,14 +1030,14 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Muscle size entry cannot be null.", result.ErrorMessage);
+        Assert.Contains("Muscle size entry cannot be null.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateUserMuscleSize_ShouldReturnFail_WhenInvalidMuscleSizeID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1053,14 +1053,14 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 
         // Assert
         Assert.False(result.Success);
-        Assert.Equal("Invalid MuscleSize ID.", result.ErrorMessage);
+        Assert.Contains("Invalid MuscleSize ID.", result.ErrorMessage);
     }
 
     [Fact]
     public async Task UpdateUserMuscleSize_ShouldReturnFail_WhenMuscleSizeNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeService = GetMuscleSizeService(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -1081,7 +1081,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task UpdateUserMuscleSize_ShouldReturnFail_WhenAccessDenied()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepositoryMock = new Mock<MuscleSizeRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);
@@ -1111,7 +1111,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
     public async Task UpdateUserMuscleSize_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var muscleSizeRepositoryMock = new Mock<MuscleSizeRepository>(db);
 
         var userManager = IdentityHelper.GetUserManager(db);

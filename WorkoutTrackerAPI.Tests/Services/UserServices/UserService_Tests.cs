@@ -70,7 +70,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddUserAsync_ShouldThrowEntryNullException_WhenUserIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act & Assert
@@ -82,7 +82,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddUserAsync_ShouldThrowException_WhenUserAlreadyExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -97,7 +97,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddUserAsync_ShouldReturnUser_WhenSuccessfullyAdded()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
         var user = GetValidUser();
 
@@ -113,7 +113,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddUserAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -137,7 +137,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task CreateUserAsync_ShouldReturnFailedResult_WhenUserIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string password = "P@$$w0rd";
@@ -154,7 +154,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task CreateUserAsync_ShouldReturnFailedResult_WhenPasswordIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
         var user = GetValidUser();
 
@@ -172,7 +172,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task CreateUserAsync_ShouldReturnSuccessResult_WhenUserIsCreatedSuccessfully()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -189,7 +189,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task CreateUserAsync__ShouldReturnFailedResult_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -219,7 +219,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task UpdateUserAsync_ShouldReturnFailedResult_WhenUserIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act
@@ -236,7 +236,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task UpdateUserAsync_ShouldReturnFailedResult_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -256,7 +256,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task UpdateUserAsync_ShouldReturnFailedResult_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -274,7 +274,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task UpdateUserAsync_ShouldReturnSuccessResult_WhenUserIsUpdatedSuccessfully()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -291,7 +291,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task UpdateUserAsync_ShouldReturnFailedResult_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -325,7 +325,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task DeleteUserAsync_ShouldReturnFailedResult_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act
@@ -340,7 +340,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task DeleteUserAsync_ShouldReturnFailedResult_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserId = "non-existent-userId";
@@ -357,7 +357,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task DeleteUserAsync_ShouldReturnSuccessResult_WhenUserIsDeletedSuccessfully()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -374,7 +374,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task DeleteUserAsync_ShouldReturnFailedResult_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -406,7 +406,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserByClaimsAsync_ShouldThrowEntryNullException_WhenClaimsAreNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act & Assert
@@ -418,7 +418,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserByClaimsAsync_ShouldReturnUser_WhenClaimsAreValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -438,7 +438,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserByClaimsAsync_ShouldReturnNull_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserName = "nonExistentUserName";
@@ -455,7 +455,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserByClaimsAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -482,7 +482,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserIdByUsernameAsync_ShouldThrowArgumentException_WhenUserNameIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act & Assert
@@ -494,7 +494,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserIdByUsernameAsync_ShouldReturnUserId_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -512,7 +512,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserIdByUsernameAsync_ShouldReturnNull_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserName = "nonExistentUserName";
@@ -528,7 +528,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserIdByUsernameAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -547,13 +547,82 @@ public class UserService_Tests : BaseService_Tests
         Assert.Equal("Database error.", ex.Message);
     }
 
+    [Fact]
+    public async Task GetUserNameByIdAsync_ShouldThrowArgumentException_WhenUserIdIsNullOrEmpty()
+    {
+        // Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+        var userService = GetUserService(db);
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<ArgumentNullOrEmptyException>(() => userService.GetUserNameByIdAsync(null!));
+        Assert.Equal("User ID", ex.ParamName);
+    }
+
+    [Fact]
+    public async Task GetUserNameByIdAsync_ShouldReturnUserName_WhenUserExists()
+    {
+        // Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+        var userService = GetUserService(db);
+
+        var user = GetValidUser();
+        await userService.AddUserAsync(user);
+
+        // Act
+        var result = await userService.GetUserNameByIdAsync(user.Id);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(user.UserName, result);
+    }
+
+    [Fact]
+    public async Task GetUserNameByIdAsync_ShouldReturnNull_WhenUserDoesNotExist()
+    {
+        // Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+        var userService = GetUserService(db);
+
+        string nonExistentUserID = "nonExistentUserID";
+
+        // Act
+        var result = await userService.GetUserNameByIdAsync(nonExistentUserID);
+
+        // Assert
+        Assert.Null(result);
+    }
+    
+    [Fact]
+    public async Task GetUserNameByIdAsync_ShouldThrowException_WhenExceptionOccurs()
+    {
+        // Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+
+        var userManager = IdentityHelper.GetUserManager(db);
+        var mockUserRepository = new Mock<UserRepository>(userManager, db);
+        var roleRepository = GetRoleRepository(db);
+        var userService = new UserService(mockUserRepository.Object, roleRepository);
+
+        var user = GetValidUser();
+        await userService.AddUserAsync(user);
+
+        mockUserRepository
+            .Setup(repo => repo.GetUserByIdAsync(It.IsAny<string>()))
+            .ThrowsAsync(new Exception("Database error."));
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<Exception>(() => userService.GetUserNameByIdAsync(user.Id));
+        Assert.Equal("Database error.", ex.Message);
+    }
+
 
 
     [Fact]
     public async Task GetUserByUsernameAsync_ShouldThrowArgumentException_WhenUserNameIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act & Assert
@@ -565,7 +634,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserByUsernameAsync_ShouldReturnUser_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -583,7 +652,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserByUsernameAsync_ShouldReturnNull_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserName = "nonExistentUserName";
@@ -599,7 +668,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserByUsernameAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -624,7 +693,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUsersAsync_ShouldReturnAllUsers()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var users = GetValidUsers();
@@ -645,7 +714,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUsersAsync_ShouldReturnEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act
@@ -660,7 +729,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUsersAsync_ShouldThrowException()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -681,7 +750,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserByIdAsync_ShouldThrowArgumentException_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act & Assert
@@ -693,7 +762,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserByIdAsync_ShouldReturnUser_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -711,7 +780,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserByIdAsync_ShouldReturnNull_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserID = "non-existent-userId";
@@ -727,7 +796,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserByIdAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -752,7 +821,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task UserExistsAsync_ShouldThrowArgumentException_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act & Assert
@@ -764,7 +833,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task UserExistsAsync_ShouldReturnTrue_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -781,7 +850,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task UserExistsAsync_ShouldReturnFalse_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserID = "non-existent-userId";
@@ -797,7 +866,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task UserExistsAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -821,7 +890,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task UserExistsByUsernameAsync_ShouldThrowArgumentException_WhenUserNameIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act & Assert
@@ -833,7 +902,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task UserExistsByUsernameAsync_ShouldReturnTrue_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -850,7 +919,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task UserExistsByUsernameAsync_ShouldReturnFalse_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserName = "non-existent-userName";
@@ -866,7 +935,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task UserExistsByUsernameAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -894,7 +963,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserExerciseRecordsAsync_ShouldThrowArgumentException_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act & Assert
@@ -906,7 +975,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserExerciseRecordsAsync_ShouldThrowException_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserID = "non-existent-userId";
@@ -920,7 +989,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserExerciseRecordsAsync_ShouldReturnExerciseRecords_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -974,7 +1043,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserExerciseRecordsAsync_ShouldReturnEmpty_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -992,7 +1061,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserExerciseRecordsAsyn_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -1021,7 +1090,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserMuscleSizesAsync_ShouldThrowArgumentException_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act & Assert
@@ -1033,7 +1102,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserMuscleSizesAsync_ShouldThrowException_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserID = "non-existent-userId";
@@ -1047,7 +1116,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserMuscleSizesAsync_ShouldReturnMuscleSizes_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -1103,7 +1172,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserMuscleSizesAsync_ShouldReturnEmpty_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -1121,7 +1190,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserMuscleSizesAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -1150,7 +1219,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserBodyWeightsAsync_ShouldThrowArgumentException_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act & Assert
@@ -1162,7 +1231,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserBodyWeightsAsync_ShouldThrowException_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserID = "non-existent-userId";
@@ -1176,7 +1245,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserBodyWeightsAsync_ShouldReturnBodyWeights_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -1220,7 +1289,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserBodyWeightsAsync_ShouldReturnEmpty_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -1238,7 +1307,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserBodyWeightsAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -1267,7 +1336,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserWorkoutsAsync_ShouldThrowArgumentException_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act & Assert
@@ -1279,7 +1348,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserWorkoutsAsync_ShouldThrowException_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserID = "non-existent-userId";
@@ -1293,7 +1362,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserWorkoutsAsync_ShouldReturnWorkouts_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -1348,7 +1417,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserWorkoutsAsync_ShouldReturnEmpty_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -1366,7 +1435,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserWorkoutsAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -1395,7 +1464,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserCreatedExercisesAsync_ShouldThrowArgumentException_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act & Assert
@@ -1407,7 +1476,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserCreatedExercisesAsync_ShouldThrowException_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserID = "non-existent-userId";
@@ -1421,7 +1490,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserCreatedExercisesAsync_ShouldReturnExercises_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -1478,7 +1547,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserCreatedExercisesAsync_ShouldReturnEmpty_WhenUserExists()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -1496,7 +1565,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserCreatedExercisesAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -1528,7 +1597,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task ChangeUserPasswordAsync_ShouldReturnFailedResult_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string oldPassword = "old-P@$$w0rd";
@@ -1546,7 +1615,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task ChangeUserPasswordAsync_ShouldReturnFailedResult_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserID = "non-existent-userId";
@@ -1565,7 +1634,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task ChangeUserPasswordAsync_ShouldReturnFailedResult_WhenOldPasswordOrNewPasswordIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -1594,7 +1663,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task ChangeUserPasswordAsync_ShouldReturnFailedResult_WhenOldPasswordEqualsNewPassword()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
 
@@ -1616,7 +1685,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task ChangeUserPasswordAsync_ShouldReturnSuccess_WhenValidInputsAreProvided()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -1638,7 +1707,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task ChangeUserPasswordAsync_ShouldReturnFailedResult_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -1675,7 +1744,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddUserPasswordAsync_ShouldReturnFailedResult_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string newPassword = "new-P@$$w0rd";
@@ -1692,7 +1761,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddUserPasswordAsync_ShouldReturnFailedResult_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserID = "non-existent-userId";
@@ -1710,7 +1779,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddUserPasswordAsync_ShouldReturnFailedResult_WhenNewPasswordIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -1728,7 +1797,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddUserPasswordAsync_ShouldReturnSuccess_WhenValidInputsAreProvided()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -1747,7 +1816,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddUserPasswordAsync_ShouldReturnFailedResult_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -1783,7 +1852,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserRolesAsync_ShouldThrowArgumentNullOrEmptyException_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act & Assert
@@ -1795,7 +1864,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserRolesAsync_ShouldThrowNotFoundException_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserID = "non-existent-userId";
@@ -1809,7 +1878,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUserRolesAsync_ShouldReturnUserRoles_WhenValidUserIdIsProvided()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -1834,7 +1903,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddUserPasswordAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -1868,7 +1937,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUsersByRoleAsync_ShouldThrow_WhenRoleNameIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         // Act & Assert
@@ -1880,7 +1949,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUsersByRoleAsync_ShouldThrow_WhenRoleDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentRoleName = "nonExistentRoleName";
@@ -1894,7 +1963,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUsersByRoleAsync_ShouldReturnUsers_WhenValidRoleNameIsProvided()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user_User = CreateUser("User", "user@gmail.com");
@@ -1927,7 +1996,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task GetUsersByRoleAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -1964,7 +2033,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddRolesToUserAsync_ShouldReturnFailedResult_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string[] roles = { Roles.AdminRole };
@@ -1981,7 +2050,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddRolesToUserAsync_ShouldReturnFailedResult_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserID = "non-existent-userId";
@@ -1999,7 +2068,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddRolesToUserAsync_ShouldReturnFailedResult_WhenRolesArrayIsEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -2017,7 +2086,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddRolesToUserAsync_ShouldReturnFailedResult_WhenRoleDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -2037,7 +2106,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddRolesToUserAsync_ShouldReturnSuccess_WhenValidInputsAreProvided()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -2057,7 +2126,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task AddRolesToUserAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);
@@ -2093,7 +2162,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task DeleteRoleFromUserAsync_ShouldReturnFailedResult_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string roleName = Roles.AdminRole;
@@ -2110,7 +2179,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task DeleteRoleFromUserAsync_ShouldReturnFailedResult_WhenUserDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         string nonExistentUserID = "non-existent-userId";
@@ -2128,7 +2197,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task DeleteRoleFromUserAsync_ShouldReturnFailedResult_WhenRoleNameIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -2146,7 +2215,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task DeleteRoleFromUserAsync_ShouldReturnFailedResult_WhenRoleDoesNotExist()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -2165,7 +2234,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task DeleteRoleFromUserAsync_ShouldReturnFailedResult_WhenUserDoesNotHaveThisRole()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -2188,7 +2257,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task DeleteRoleFromUserAsync_ShouldReturnSuccess_WhenValidInputsAreProvided()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var userService = GetUserService(db);
 
         var user = GetValidUser();
@@ -2210,7 +2279,7 @@ public class UserService_Tests : BaseService_Tests
     public async Task DeleteRoleFromUserAsync_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var userManager = IdentityHelper.GetUserManager(db);
         var mockUserRepository = new Mock<UserRepository>(userManager, db);

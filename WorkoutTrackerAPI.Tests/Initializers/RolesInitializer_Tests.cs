@@ -19,8 +19,7 @@ public class RolesInitializer_Tests
     public static async Task InitializeAsync()
     {
         //Arrange
-        WorkoutContextFactory factory = new();
-        using var db = factory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var roleManager = IdentityHelper.GetRoleManager(db);
 
         var roleRepository = new RoleRepository(roleManager);

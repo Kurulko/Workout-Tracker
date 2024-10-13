@@ -65,7 +65,7 @@ public class AccountController_Tests : APIController_Tests
     public async Task RegisterAsync_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var accountController = GetAccountController(db);
 
         var registerModel = GetValidRegisterModel();
@@ -87,7 +87,7 @@ public class AccountController_Tests : APIController_Tests
     public async Task RegisterAsync_ShouldReturnBadRequest_WhenRegisterModelIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var accountController = GetAccountController(db);
 
         // Act
@@ -102,7 +102,7 @@ public class AccountController_Tests : APIController_Tests
     public async Task RegisterAsync_ShouldReturnBadRequest_WhenRegisterModelIsInvalid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var accountController = GetAccountController(db);
 
         var registerModel = new RegisterModel();
@@ -114,8 +114,14 @@ public class AccountController_Tests : APIController_Tests
         var result = await accountController.RegisterAsync(registerModel);
 
         // Assert
-        var okResult = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.NotNull(okResult.Value);
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.NotNull(badRequestResult.Value);
+        Assert.IsAssignableFrom<string[]>(badRequestResult.Value);
+
+        var errors = (badRequestResult.Value as string[])!;
+        Assert.Equal(2, errors.Length);
+        Assert.Contains("Required", errors);
+        Assert.Contains("Minimum length 8 required", errors);
     }
 
 
@@ -123,7 +129,7 @@ public class AccountController_Tests : APIController_Tests
     public async Task RegisterAsync_ShouldReturnBadRequest_WhenUnauthorized()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
@@ -157,7 +163,7 @@ public class AccountController_Tests : APIController_Tests
     public async Task LoginAsync_ShouldReturnOk_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var accountController = GetAccountController(db);
 
         var registerModel = GetValidRegisterModel();
@@ -182,7 +188,7 @@ public class AccountController_Tests : APIController_Tests
     public async Task LoginAsync_ShouldReturnBadRequest_WhenLoginModelIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var accountController = GetAccountController(db);
 
         // Act
@@ -197,7 +203,7 @@ public class AccountController_Tests : APIController_Tests
     public async Task LoginAsync_ShouldReturnBadRequest_WhenLoginModelIsInvalid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var accountController = GetAccountController(db);
 
         var registerModel = new RegisterModel();
@@ -218,7 +224,7 @@ public class AccountController_Tests : APIController_Tests
     public async Task LoginAsync_ShouldReturnBadRequest_WhenUnauthorized()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);
@@ -252,7 +258,7 @@ public class AccountController_Tests : APIController_Tests
     public async Task GetTokenAsync_ShouldReturnOkToken_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var accountController = GetAccountController(db);
 
         var registerModel = GetValidRegisterModel();
@@ -280,7 +286,7 @@ public class AccountController_Tests : APIController_Tests
     public async Task GetTokenAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
         var userManager = IdentityHelper.GetUserManager(db);

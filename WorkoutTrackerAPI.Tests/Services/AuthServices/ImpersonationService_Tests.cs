@@ -91,7 +91,7 @@ public class ImpersonationService_Tests : BaseService_Tests
     public async Task Impersonate_ShouldImpersonate_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var impersonationService = GetImpersonationService(db);
 
         var user = await GetUserAsync(db);
@@ -116,7 +116,7 @@ public class ImpersonationService_Tests : BaseService_Tests
     public async Task Impersonate_ShouldThrowException_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var impersonationService = GetImpersonationService(db);
 
         //Act & Assert
@@ -128,7 +128,7 @@ public class ImpersonationService_Tests : BaseService_Tests
     public async Task Impersonate_ShouldThrowException_WhenUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var impersonationService = GetImpersonationService(db);
 
         var nonExistenceUserId = Guid.NewGuid().ToString();
@@ -142,7 +142,7 @@ public class ImpersonationService_Tests : BaseService_Tests
     public async Task Impersonate_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
@@ -170,7 +170,7 @@ public class ImpersonationService_Tests : BaseService_Tests
     public async Task Revert_ShouldRevert_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var impersonationService = GetImpersonationService(db);
 
         var user = await GetUserAsync(db);
@@ -195,7 +195,7 @@ public class ImpersonationService_Tests : BaseService_Tests
     public async Task Revert_ShouldThrowException_WhenOriginalUserIDNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var impersonationService = GetImpersonationService(db);
 
         //Act & Assert
@@ -207,7 +207,7 @@ public class ImpersonationService_Tests : BaseService_Tests
     public async Task Revert_ShouldThrowException_WhenOriginalUserNotFound()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var impersonationService = GetImpersonationService(db);
 
         var user = await GetUserAsync(db);
@@ -225,7 +225,7 @@ public class ImpersonationService_Tests : BaseService_Tests
     public async Task Revert_ShouldThrowException_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
 
         var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
         var mockSignInManager = IdentityHelper.GetMockSignInManager(db, mockHttpContextAccessor.Object, mockHttpContext);
@@ -255,7 +255,7 @@ public class ImpersonationService_Tests : BaseService_Tests
     public async Task IsImpersonating_ShouldReturnTrue_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var impersonationService = GetImpersonationService(db);
 
         var user = await GetUserAsync(db);
@@ -275,7 +275,7 @@ public class ImpersonationService_Tests : BaseService_Tests
     public async Task IsImpersonating_ShouldReturnFalse_WhenInputIsValid()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var impersonationService = GetImpersonationService(db);
 
         var user = await GetUserAsync(db);

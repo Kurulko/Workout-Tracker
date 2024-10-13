@@ -11,6 +11,6 @@ using WorkoutTrackerAPI.Repositories.UserRepositories;
 
 namespace WorkoutTrackerAPI.Tests.Services;
 
-public abstract class BaseService_Tests : BaseTests
+public abstract class BaseService_Tests
 {
 }

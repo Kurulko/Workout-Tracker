@@ -132,7 +132,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task GetCurrentUserExerciseRecordsAsync_ShouldReturnPagedResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
@@ -162,7 +162,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task GetCurrentUserExerciseRecordsAsync_ShouldReturnFilteredResult_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
@@ -191,7 +191,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task GetCurrentUserExerciseRecordsAsync_ShouldReturnBadRequest_WhenInvalidExerciseID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
         // Act
@@ -206,7 +206,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task GetCurrentUserExerciseRecordsAsync_ShouldReturnBadRequest_WhenInvalidPageSizeOrIndex()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
         var pullUpExercise = await GetPullUpExerciseAsync(db);
@@ -222,7 +222,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     [Fact]
     public async Task GetCurrentUserExerciseRecordsAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseRecordService = new Mock<IExerciseRecordService>();
         var exerciseRecordsController = new ExerciseRecordsController(mockExerciseRecordService.Object, mockHttpContextAccessor.Object);
 
@@ -243,7 +243,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     [Fact]
     public async Task GetCurrentUserExerciseRecordsAsync_ShouldReturnBadRequest_WhenExerciseRecordsNotFound()
     {
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseRecordService = new Mock<IExerciseRecordService>();
         var exerciseRecordsController = new ExerciseRecordsController(mockExerciseRecordService.Object, mockHttpContextAccessor.Object);
 
@@ -266,7 +266,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task GetCurrentUserExerciseRecordByIdAsync_ShouldReturnBadRequest_WhenInvalidId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
         long invalidID = -1;
@@ -283,7 +283,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task GetCurrentUserExerciseRecordByIdAsync_ShouldReturnExerciseRecordById_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
@@ -327,7 +327,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task GetCurrentUserExerciseRecordByIdAsync_ShouldReturnBadRequest_WhenExerciseRecordNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -349,7 +349,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task GetCurrentUserExerciseRecordByDateAsync_ShouldReturnExerciseRecordByDate_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
@@ -372,7 +372,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task GetCurrentUserExerciseRecordByDateAsync_ShouldReturnBadRequest_WhenInvalidExerciseId()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
         long invalidExerciseID = -1;
@@ -412,7 +412,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task GetCurrentUserExerciseRecordByDateAsync_ShouldReturnBadRequest_WhenExerciseRecordNotFound()
     {
         //Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -434,7 +434,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task AddExerciseRecordToCurrentUserAsync_ShouldCreateExerciseRecord_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
         var user = await GetDefaultUserAsync(db);
@@ -456,7 +456,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task AddExerciseRecordToCurrentUserAsync_ShouldReturnBadRequest_WhenExerciseRecordIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
         // Act
@@ -471,7 +471,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task AddExerciseRecordToCurrentUserAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
         var exerciseRecord = await GetValidExerciseRecordAsync(db);
@@ -489,7 +489,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task AddExerciseRecordToCurrentUserAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseRecordService = new Mock<IExerciseRecordService>();
         var exerciseRecordsController = new ExerciseRecordsController(mockExerciseRecordService.Object, mockHttpContextAccessor.Object);
 
@@ -512,7 +512,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task UpdateCurrentUserExerciseRecordAsync_ShouldUpdateExerciseRecord_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
@@ -535,7 +535,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task UpdateCurrentUserExerciseRecordAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
@@ -560,7 +560,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task UpdateCurrentUserExerciseRecordAsync_ShouldReturnBadRequest_WhenExerciseRecordIsNull()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
@@ -582,7 +582,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task UpdateCurrentUserExerciseRecordAsync_ShouldReturnBadRequest_WhenIDsDoNotMatch()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
@@ -604,7 +604,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task UpdateCurrentUserExerciseRecordAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseRecordService = new Mock<IExerciseRecordService>();
         var exerciseRecordsController = new ExerciseRecordsController(mockExerciseRecordService.Object, mockHttpContextAccessor.Object);
 
@@ -629,7 +629,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task DeleteExerciseRecordFromCurrentUserAsync_ShouldDeleteExerciseRecord_WhenValidRequest()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordService = GetExerciseRecordService(db);
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
@@ -650,7 +650,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task DeleteExerciseRecordFromCurrentUserAsync_ShouldReturnBadRequest_WhenInvalidID()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var exerciseRecordsController = GetExerciseRecordsController(db);
 
         long invalidExerciseRecordId = -1;
@@ -667,7 +667,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
     public async Task DeleteExerciseRecordFromCurrentUserAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
     {
         // Arrange
-        using var db = contextFactory.CreateDatabaseContext();
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
         var mockExerciseRecordService = new Mock<IExerciseRecordService>();
         var exerciseRecordsController = new ExerciseRecordsController(mockExerciseRecordService.Object, mockHttpContextAccessor.Object);
 

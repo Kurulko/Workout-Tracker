@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WorkoutTrackerAPI.Tests.Controllers;
 
-public abstract class APIController_Tests : BaseTests
+public abstract class APIController_Tests
 {
 }
     
