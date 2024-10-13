@@ -92,7 +92,7 @@ public class ApiResult<T>
 
         var data = source.ToList();
 
-        return new ApiResult<T>(
+        var apiResult = new ApiResult<T>(
             data,
             count,
             pageIndex,
@@ -102,6 +102,7 @@ public class ApiResult<T>
             filterColumn,
             filterQuery
         );
+        return await Task.FromResult(apiResult);
     }
 
     #endregion

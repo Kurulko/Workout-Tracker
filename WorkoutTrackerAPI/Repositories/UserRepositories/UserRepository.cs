@@ -160,15 +160,15 @@ public class UserRepository
         return await userManager.AddPasswordAsync(user, newPassword);
     }
 
-    //public virtual async Task<bool> HasUserPasswordAsync(string userId)
-    //{
-    //    User? user = await GetUserByIdAsync(userId);
+    public virtual async Task<bool> HasUserPasswordAsync(string userId)
+    {
+        User? user = await GetUserByIdAsync(userId);
 
-    //    if (user is null)
-    //        return false;
+        if (user is null)
+           throw new NotFoundException(nameof(User));
 
-    //    return await userManager.HasPasswordAsync(user);
-    //}
+        return await userManager.HasPasswordAsync(user);
+    }
 
     #endregion
 

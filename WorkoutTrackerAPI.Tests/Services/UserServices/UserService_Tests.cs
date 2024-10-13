@@ -1844,6 +1844,95 @@ public class UserService_Tests : BaseService_Tests
         Assert.True(result.ErrorExists("Failed to add user password: Database error."));
     }
 
+
+    [Fact]
+    public async Task HasUserPasswordAsync_ShouldThrowException_WhenUserIdIsNullOrEmpty()
+    {
+        // Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+        var userService = GetUserService(db);
+
+        //Act & Assert
+        var ex = await Assert.ThrowsAsync<ArgumentNullOrEmptyException>(async () => await userService.HasUserPasswordAsync(null!));
+        Assert.Contains("User ID cannot be null or empty.", ex.Message);
+    }
+
+    [Fact]
+    public async Task HasUserPasswordAsync_ShouldThrowException_WhenUserDoesNotExist()
+    {
+        // Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+        var userService = GetUserService(db);
+
+        string nonExistentUserID = Guid.NewGuid().ToString();
+
+        //Act & Assert
+        var ex = await Assert.ThrowsAsync<NotFoundException>(async () => await userService.HasUserPasswordAsync(nonExistentUserID));
+        Assert.Equal("User not found.", ex.Message);
+    }
+
+    [Fact]
+    public async Task HasUserPasswordAsync_ShouldReturnTrue_WhenUserHasPassword()
+    {
+        // Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+        var userService = GetUserService(db);
+
+        var user = GetValidUser();
+        string password = "P@$$w0rd";
+        await userService.CreateUserAsync(user, password);
+
+        // Act
+        var result = await userService.HasUserPasswordAsync(user.Id);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task HasUserPasswordAsync_ShouldReturnFalse_WhenUserDoesNotHavePassword()
+    {
+        // Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+        var userService = GetUserService(db);
+
+        var user = GetValidUser();
+        await userService.AddUserAsync(user);
+
+        // Act
+        var result = await userService.HasUserPasswordAsync(user.Id);
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public async Task HasUserPasswordAsync_ShouldThrowException_WhenExceptionOccurs()
+    {
+        // Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+
+        var userManager = IdentityHelper.GetUserManager(db);
+        var mockUserRepository = new Mock<UserRepository>(userManager, db);
+        var roleRepository = GetRoleRepository(db);
+        var userService = new UserService(mockUserRepository.Object, roleRepository);
+
+        var user = GetValidUser();
+        await userService.AddUserAsync(user);
+
+        mockUserRepository
+            .Setup(repo => repo.UserExistsAsync(It.IsAny<string>()))
+            .ReturnsAsync(() => true);
+
+        mockUserRepository
+            .Setup(repo => repo.HasUserPasswordAsync(It.IsAny<string>()))
+            .ThrowsAsync(new Exception("Database error"));
+
+        //Act & Assert
+        var ex = await Assert.ThrowsAsync<Exception>(async () => await userService.HasUserPasswordAsync(user.Id));
+        Assert.Equal("Database error", ex.Message);
+    }
+
     #endregion
 
     #region Roles

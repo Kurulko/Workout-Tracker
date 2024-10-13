@@ -31,16 +31,40 @@ public static class IdentityHelper
     public static UserManager<User> GetUserManager(WorkoutDbContext db)
     {
         var userStore = new UserStore<User>(db);
+
+        var identityOptions = Options.Create(new IdentityOptions
+        {
+            Password = new PasswordOptions
+            {
+                RequiredLength = 6,
+                RequireDigit = true,
+                RequireUppercase = true,
+                RequireLowercase = true,
+                RequireNonAlphanumeric = false
+            }
+        });
+
+        var mockPasswordHasher = new Mock<IPasswordHasher<User>>();
+        mockPasswordHasher.Setup(x => x.HashPassword(It.IsAny<User>(), It.IsAny<string>()))
+            .Returns("hashed-password");
+        mockPasswordHasher.Setup(x => x.VerifyHashedPassword(It.IsAny<User>(), "hashed-password", It.IsAny<string>()))
+            .Returns(PasswordVerificationResult.Success);
+
+        var mockPasswordValidator = new Mock<IPasswordValidator<User>>();
+        mockPasswordValidator.Setup(x => x.ValidateAsync(It.IsAny<UserManager<User>>(), It.IsAny<User>(), It.IsAny<string>()))
+            .ReturnsAsync(IdentityResult.Success);
+
         return new UserManager<User>(
-                    userStore,
-                    Mock.Of<IOptions<IdentityOptions>>(),
-                    Mock.Of<IPasswordHasher<User>>(),
-                    Array.Empty<IUserValidator<User>>(),
-                    Array.Empty<IPasswordValidator<User>>(),
-                    new UpperInvariantLookupNormalizer(),
-                    Mock.Of<IdentityErrorDescriber>(),
-                    Mock.Of<IServiceProvider>(),
-                    Mock.Of<ILogger<UserManager<User>>>());
+            userStore,
+            identityOptions,
+            mockPasswordHasher.Object,
+            Array.Empty<IUserValidator<User>>(),  
+            new IPasswordValidator<User>[] { mockPasswordValidator.Object }, 
+            new UpperInvariantLookupNormalizer(),
+            new IdentityErrorDescriber(),
+            null,
+            Mock.Of<ILogger<UserManager<User>>>()
+        );
     }
 
     public static Mock<HttpContext> GetMockHttpContext()

@@ -1746,6 +1746,85 @@ public class UsersController_Tests : APIController_Tests
         Assert.Contains("Failed to create user password.", (badRequestResult.Value as string[])!);
     }
 
+
+    [Fact]
+    public async Task HasUserPasswordAsync_ShouldReturnOkTrueResult_WhenValidRequest()
+    {
+        // Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+        var userService = GetUserService(db);
+        var usersController = GetUsersController(db);
+
+        var user = GetValidUser();
+        string password = "P@$$w0rd";
+        await userService.CreateUserAsync(user, password);
+
+        // Act
+        var result = await usersController.HasUserPasswordAsync(user.Id);
+
+        // Assert
+        Assert.IsAssignableFrom<ActionResult<bool>>(result);
+        Assert.True(result.Value);
+    }
+
+    [Fact]
+    public async Task HasUserPasswordAsync_ShouldReturnOkFalseResult_WhenValidRequest()
+    {
+        // Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+        var userService = GetUserService(db);
+        var usersController = GetUsersController(db);
+
+        var user = GetValidUser();
+        await userService.AddUserAsync(user);
+        
+        // Act
+        var result = await usersController.HasUserPasswordAsync(user.Id);
+
+        // Assert
+        Assert.IsAssignableFrom<ActionResult<bool>>(result);
+        Assert.False(result.Value);
+    }
+
+    [Fact]
+    public async Task HasUserPasswordAsync_ShouldReturnBadRequest_WhenUserIDIsNullOrEmpty()
+    {
+        // Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+        var usersController = GetUsersController(db);
+
+        // Act
+        var result = await usersController.HasUserPasswordAsync(null!);
+
+        // Assert
+        var objectResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal("User ID is null or empty.", objectResult.Value);
+    }
+
+    [Fact]
+    public async Task HasUserPasswordAsync_ShouldReturnBadRequest_WhenExceptionOccurs()
+    {
+        // Arrange
+        var mockUserService = new Mock<IUserService>();
+        var mockHttpContextAccessor = IdentityHelper.GetMockHttpContextAccessor(mockHttpContext.Object);
+        var mapper = GetMapper();
+        var usersController = new UsersController(mockUserService.Object, mapper, mockHttpContextAccessor.Object);
+
+        mockUserService
+            .Setup(x => x.HasUserPasswordAsync(It.IsAny<string>()))
+            .ThrowsAsync(new Exception("Database error"));
+
+        var user = GetValidUser();
+
+        // Act
+        var result = await usersController.HasUserPasswordAsync(user.Id);
+
+        // Assert
+        var objectResult = Assert.IsType<ObjectResult>(result.Result);
+        Assert.Contains("Database error", (objectResult.Value as string)!);
+        Assert.Equal(500, objectResult.StatusCode);
+    }
+
     #endregion
 
     #region Roles

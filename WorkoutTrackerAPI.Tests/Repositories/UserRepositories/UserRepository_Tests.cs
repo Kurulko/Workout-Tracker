@@ -765,19 +765,14 @@ public class UserRepository_Tests
         var userManager = IdentityHelper.GetUserManager(db);
         var userRepository = new UserRepository(userManager, db);
 
-        //var validUser = GetValidUser();
-        string password = "P@$$w0rd2464ergv68re4";
-        //await userRepository.CreateUserAsync(validUser, password);
-
-        await WorkoutContextFactory.InitializeRolesAsync(db);
-        var validUser = await UsersInitializer.InitializeAsync(userRepository, "User", "user@gmail.com", password, new[] { Roles.UserRole });
+        var validUser = GetValidUser();
+        string password = "P@$$w0rd";
+        await userRepository.CreateUserAsync(validUser, password);
 
         string newPassword = "Newre4e4r6g4erP@$$w0rd";
 
         //Act
         var result = await userRepository.ChangeUserPasswordAsync(validUser.Id, password, newPassword);
-
-        var errors = result.Errors?.Select(e => e?.Description).ToArray();
 
         //Assert
         Assert.NotNull(result);
@@ -850,6 +845,57 @@ public class UserRepository_Tests
         Assert.True(isUserNotFound);
     }
 
+    [Fact]
+    public async Task HasUserPasswordAsync_ShouldReturnTrue()
+    {
+        //Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+        var userManager = IdentityHelper.GetUserManager(db);
+        var userRepository = new UserRepository(userManager, db);
+
+        var validUser = GetValidUser();
+        string password = "P@$$w0rd";
+        await userRepository.CreateUserAsync(validUser, password);
+
+        //Act
+        var result = await userRepository.HasUserPasswordAsync(validUser.Id);
+
+        //Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task HasUserPasswordAsync_ShouldReturnFalse()
+    {
+        //Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+        var userManager = IdentityHelper.GetUserManager(db);
+        var userRepository = new UserRepository(userManager, db);
+
+        var validUser = GetValidUser();
+        await userRepository.AddUserAsync(validUser);
+
+        //Act
+        var result = await userRepository.HasUserPasswordAsync(validUser.Id);
+
+        //Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public async Task HasUserPasswordAsync_ShouldThrowException_UserNotFound()
+    {
+        //Arrange
+        using var db = WorkoutContextFactory.CreateDatabaseContext();
+        var userManager = IdentityHelper.GetUserManager(db);
+        var userRepository = new UserRepository(userManager, db);
+
+        var notFoundUserID = Guid.NewGuid().ToString();
+
+        //Act & Assert
+        var ex = await Assert.ThrowsAsync<NotFoundException>(async () => await userRepository.HasUserPasswordAsync(notFoundUserID));
+        Assert.Equal("User not found.", ex.Message);
+    }
 
     #endregion
 
