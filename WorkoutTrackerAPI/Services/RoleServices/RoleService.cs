@@ -8,6 +8,7 @@ using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Exceptions;
 using WorkoutTrackerAPI.Extentions;
 using WorkoutTrackerAPI.Repositories;
+using WorkoutTrackerAPI.Repositories.UserRepositories;
 
 namespace WorkoutTrackerAPI.Services.RoleServices;
 
@@ -36,19 +37,19 @@ public class RoleService : BaseService<User>, IRoleService
 
     public async Task<IdentityResult> DeleteRoleAsync(string roleId)
     {
-        if (string.IsNullOrEmpty(roleId))
-            return IdentityResultExtentions.Failed(roleIdIsNullOrEmptyException);
-
-        if (await RoleDoesNotExist(roleId))
-            return IdentityResultExtentions.Failed(roleNotFoundException);
-
         try
         {
+            await CheckRoleIdAsync(roleId);
+
             return await roleRepository.DeleteRoleAsync(roleId);
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return IdentityResultExtentions.Failed(ex.Message);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToAction("role", "delete", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("role", "delete", ex.Message));
         }
     }
 
@@ -73,22 +74,22 @@ public class RoleService : BaseService<User>, IRoleService
 
     public async Task<IdentityResult> UpdateRoleAsync(IdentityRole role)
     {
-        if (role is null)
-            return IdentityResultExtentions.Failed(roleIsNullException);
-
-        if (string.IsNullOrEmpty(role.Id))
-            return IdentityResultExtentions.Failed(roleIdIsNullOrEmptyException);
-
-        if (await RoleDoesNotExist(role.Id))
-            return IdentityResultExtentions.Failed(roleNotFoundException);
-
         try
         {
+            if (role is null)
+                throw roleIsNullException;
+
+            await CheckRoleIdAsync(role.Id);
+
             return await roleRepository.UpdateRoleAsync(role);
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return IdentityResultExtentions.Failed(ex.Message);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToAction("role", "update", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("role", "update", ex.Message));
         }
     }
 
@@ -126,6 +127,13 @@ public class RoleService : BaseService<User>, IRoleService
         return await roleRepository.RoleExistsByNameAsync(name);
     }
 
-    async Task<bool> RoleDoesNotExist(string roleId)
-        => !(await roleRepository.RoleExistsAsync(roleId));
+    async Task CheckRoleIdAsync(string roleId)
+    {
+        if (string.IsNullOrEmpty(roleId))
+            throw roleIdIsNullOrEmptyException;
+
+        bool roleExists = await roleRepository.RoleExistsAsync(roleId);
+        if (!roleExists)
+            throw roleNotFoundException;
+    }
 }

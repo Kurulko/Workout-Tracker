@@ -19,158 +19,153 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
     readonly InvalidIDException invalidExerciseRecordIDException = new (nameof(ExerciseRecord));
     readonly NotFoundException exerciseRecordNotFoundException = new ("Exercise record");
 
-
     public async Task<ServiceResult<ExerciseRecord>> AddExerciseRecordToUserAsync(string userId, ExerciseRecord exerciseRecord)
     {
-        if (string.IsNullOrEmpty(userId))
-            return ServiceResult<ExerciseRecord>.Fail(userIdIsNullOrEmptyException);
-
-        if (!(await userRepository.UserExistsAsync(userId)))
-            return ServiceResult<ExerciseRecord>.Fail(userNotFoundException);
-
-        if (exerciseRecord is null)
-            return ServiceResult<ExerciseRecord>.Fail(exerciseRecordIsNullException);
-
-        if (exerciseRecord.Id != 0)
-            return ServiceResult<ExerciseRecord>.Fail(InvalidEntryIDWhileAddingStr(nameof(ExerciseRecord), "exercise record"));
-
         try
         {
+            await CheckUserIdAsync(userRepository, userId);
+
+            if (exerciseRecord is null)
+                throw exerciseRecordIsNullException;
+
+            if (exerciseRecord.Id != 0)
+                throw InvalidEntryIDWhileAddingException(nameof(ExerciseRecord), "exercise record");
+
             exerciseRecord.UserId = userId;
             await baseRepository.AddAsync(exerciseRecord);
 
             return ServiceResult<ExerciseRecord>.Ok(exerciseRecord);
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<ExerciseRecord>.Fail(ex.Message);
+        }
         catch (Exception ex)
         {
-            return ServiceResult<ExerciseRecord>.Fail(FailedToAction("exercise record", "add", ex.Message));
+            return ServiceResult<ExerciseRecord>.Fail(FailedToActionStr("exercise record", "add", ex.Message));
         }
     }
 
     public async Task<ServiceResult> DeleteExerciseRecordFromUserAsync(string userId, long exerciseRecordId)
     {
-        if (string.IsNullOrEmpty(userId))
-            return ServiceResult.Fail(userIdIsNullOrEmptyException);
-
-        if (!(await userRepository.UserExistsAsync(userId)))
-            return ServiceResult.Fail(userNotFoundException);
-
-        if (exerciseRecordId < 1)
-            return ServiceResult.Fail(invalidExerciseRecordIDException);
-
-        ExerciseRecord? exerciseRecord = await baseRepository.GetByIdAsync(exerciseRecordId);
-
-        if (exerciseRecord is null)
-            return ServiceResult.Fail(exerciseRecordNotFoundException);
-
-        if (exerciseRecord.UserId != userId)
-            return ServiceResult.Fail(UserNotHavePermissionStr("delete", "exercise record"));
-
         try
         {
+            await CheckUserIdAsync(userRepository, userId);
+
+            if (exerciseRecordId < 1)
+                throw invalidExerciseRecordIDException;
+
+            ExerciseRecord? exerciseRecord = await baseRepository.GetByIdAsync(exerciseRecordId) ?? throw exerciseRecordNotFoundException;
+
+            if (exerciseRecord.UserId != userId)
+                throw UserNotHavePermissionException("delete", "exercise record");
+
             await baseRepository.RemoveAsync(exerciseRecordId);
             return ServiceResult.Ok();
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        {
+            return ServiceResult.Fail(ex.Message);
+        }
         catch
         {
-            return ServiceResult.Fail(FailedToAction("exercise record", "delete"));
+            return ServiceResult.Fail(FailedToActionStr("exercise record", "delete"));
         }
     }
 
     public async Task<ServiceResult<IQueryable<ExerciseRecord>>> GetUserExerciseRecordsAsync(string userId, long exerciseId)
     {
-        if (string.IsNullOrEmpty(userId))
-            return ServiceResult<IQueryable<ExerciseRecord>>.Fail(userIdIsNullOrEmptyException);
-
-        if (!(await userRepository.UserExistsAsync(userId)))
-            return ServiceResult<IQueryable<ExerciseRecord>>.Fail(userNotFoundException);
-
         try
         {
+            await CheckUserIdAsync(userRepository, userId);
+
             var userExerciseRecords = await baseRepository.FindAsync(m => m.UserId == userId && m.ExerciseId == exerciseId);
             return ServiceResult<IQueryable<ExerciseRecord>>.Ok(userExerciseRecords);
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<IQueryable<ExerciseRecord>>.Fail(ex.Message);
+        }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<ExerciseRecord>>.Fail(FailedToAction("exercise records", "get", ex.Message));
+            return ServiceResult<IQueryable<ExerciseRecord>>.Fail(FailedToActionStr("exercise records", "get", ex.Message));
         }
     }
 
     public async Task<ServiceResult<ExerciseRecord>> GetUserExerciseRecordByDateAsync(string userId, long exerciseId, DateOnly date)
     {
-        if (string.IsNullOrEmpty(userId))
-            return ServiceResult<ExerciseRecord>.Fail(userIdIsNullOrEmptyException);
-
-        if (!(await userRepository.UserExistsAsync(userId)))
-            return ServiceResult<ExerciseRecord>.Fail(userNotFoundException);
-
-        if (date > DateOnly.FromDateTime(DateTime.Now))
-            return ServiceResult<ExerciseRecord>.Fail("Incorrect date.");
-
         try
         {
+            await CheckUserIdAsync(userRepository, userId);
+
+            if (date > DateOnly.FromDateTime(DateTime.Now))
+                throw new ArgumentException("Incorrect date.");
+
+
             var userExerciseRecordByDate = (await baseRepository.FindAsync(m => m.Date == date && m.UserId == userId && m.ExerciseId == exerciseId)).FirstOrDefault();
             return ServiceResult<ExerciseRecord>.Ok(userExerciseRecordByDate);
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<ExerciseRecord>.Fail(ex.Message);
+        }
         catch (Exception ex)
         {
-            return ServiceResult<ExerciseRecord>.Fail(FailedToAction("exercise record by date", "get", ex.Message));
+            return ServiceResult<ExerciseRecord>.Fail(FailedToActionStr("exercise record by date", "get", ex.Message));
         }
     }
 
     public async Task<ServiceResult<ExerciseRecord>> GetUserExerciseRecordByIdAsync(string userId, long exerciseRecordId)
     {
-        if (string.IsNullOrEmpty(userId))
-            return ServiceResult<ExerciseRecord>.Fail(userIdIsNullOrEmptyException);
-
-        if (!(await userRepository.UserExistsAsync(userId)))
-            return ServiceResult<ExerciseRecord>.Fail(userNotFoundException);
-
-        if (exerciseRecordId < 1)
-            return ServiceResult<ExerciseRecord>.Fail(invalidExerciseRecordIDException);
 
         try
         {
+            await CheckUserIdAsync(userRepository, userId);
+
+            if (exerciseRecordId < 1)
+                throw invalidExerciseRecordIDException;
+
             var userExerciseRecordById = await baseRepository.GetByIdAsync(exerciseRecordId);
             return ServiceResult<ExerciseRecord>.Ok(userExerciseRecordById);
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<ExerciseRecord>.Fail(ex.Message);
+        }
         catch (Exception ex)
         {
-            return ServiceResult<ExerciseRecord>.Fail(FailedToAction("exercise record", "get", ex.Message));
+            return ServiceResult<ExerciseRecord>.Fail(FailedToActionStr("exercise record", "get", ex.Message));
         }
     }
 
     public async Task<ServiceResult> UpdateUserExerciseRecordAsync(string userId, ExerciseRecord exerciseRecord)
     {
-        if (string.IsNullOrEmpty(userId))
-            return ServiceResult.Fail(userIdIsNullOrEmptyException);
-
-        if (!(await userRepository.UserExistsAsync(userId)))
-            return ServiceResult.Fail(userNotFoundException);
-
-        if (exerciseRecord is null)
-            return ServiceResult.Fail(exerciseRecordIsNullException);
-
-        if (exerciseRecord.Id < 1)
-            return ServiceResult.Fail(invalidExerciseRecordIDException);
-
         try
         {
-            ExerciseRecord? _exerciseRecord = await baseRepository.GetByIdAsync(exerciseRecord.Id);
+            await CheckUserIdAsync(userRepository, userId);
 
-            if (_exerciseRecord is null)
-                return ServiceResult.Fail(exerciseRecordNotFoundException);
+            if (exerciseRecord is null)
+                throw exerciseRecordIsNullException;
+
+            if (exerciseRecord.Id < 1)
+                throw invalidExerciseRecordIDException;
+
+            var _exerciseRecord = await baseRepository.GetByIdAsync(exerciseRecord.Id) ?? throw exerciseRecordNotFoundException;
 
             if (_exerciseRecord.UserId != userId)
-                return ServiceResult.Fail(UserNotHavePermissionStr("update", "exercise record"));
+                throw UserNotHavePermissionException("update", "exercise record");
 
             await baseRepository.UpdateAsync(exerciseRecord);
 
             return ServiceResult.Ok();
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        {
+            return ServiceResult.Fail(ex.Message);
+        }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToAction("exercise record", "update", ex.Message));
+            return ServiceResult.Fail(FailedToActionStr("exercise record", "update", ex.Message));
         }
     }
 }

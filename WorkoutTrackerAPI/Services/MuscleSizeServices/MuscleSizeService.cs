@@ -17,211 +17,204 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
     public MuscleSizeService(MuscleSizeRepository baseRepository, UserRepository userRepository) : base(baseRepository)
         => this.userRepository = userRepository;
 
-    readonly EntryNullException muscleSizeIsNullException = new ("Muscle size");
-    readonly InvalidIDException invalidMuscleSizeIDException = new (nameof(MuscleSize));
-    readonly NotFoundException muscleSizeNotFoundException = new ("Muscle size");
+    readonly EntryNullException muscleSizeIsNullException = new("Muscle size");
+    readonly InvalidIDException invalidMuscleSizeIDException = new(nameof(MuscleSize));
+    readonly NotFoundException muscleSizeNotFoundException = new("Muscle size");
 
 
     public async Task<ServiceResult<MuscleSize>> AddMuscleSizeToUserAsync(string userId, MuscleSize muscleSize)
     {
-        if (string.IsNullOrEmpty(userId))
-            return ServiceResult<MuscleSize>.Fail(userIdIsNullOrEmptyException);
-
-        if (!(await userRepository.UserExistsAsync(userId)))
-            return ServiceResult<MuscleSize>.Fail(userNotFoundException);
-
-        if (muscleSize is null)
-            return ServiceResult<MuscleSize>.Fail(muscleSizeIsNullException);
-
-        if (muscleSize.Id != 0)
-            return ServiceResult<MuscleSize>.Fail(InvalidEntryIDWhileAddingStr(nameof(MuscleSize), "muscle size"));
-
         try
         {
+            await CheckUserIdAsync(userRepository, userId);
+
+            if (muscleSize is null)
+                throw muscleSizeIsNullException;
+
+            if (muscleSize.Id != 0)
+                throw InvalidEntryIDWhileAddingException(nameof(MuscleSize), "muscle size");
+
             muscleSize.UserId = userId;
             await baseRepository.AddAsync(muscleSize);
 
             return ServiceResult<MuscleSize>.Ok(muscleSize);
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<MuscleSize>.Fail(ex.Message);
+        }
         catch (Exception ex)
         {
-            return ServiceResult<MuscleSize>.Fail(FailedToAction("muscle size", "add", ex.Message));
+            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("muscle size", "add", ex.Message));
         }
     }
 
     public async Task<ServiceResult> DeleteMuscleSizeFromUserAsync(string userId, long muscleSizeId)
     {
-        if (string.IsNullOrEmpty(userId))
-            return ServiceResult.Fail(userIdIsNullOrEmptyException);
-
-        if (!(await userRepository.UserExistsAsync(userId)))
-            return ServiceResult.Fail(userNotFoundException);
-
-        if (muscleSizeId < 1)
-            return ServiceResult.Fail(invalidMuscleSizeIDException);
-
-        MuscleSize? muscleSize = await baseRepository.GetByIdAsync(muscleSizeId);
-
-        if (muscleSize is null)
-            return ServiceResult.Fail(muscleSizeNotFoundException);
-
-        if (muscleSize.UserId != userId)
-            return ServiceResult.Fail(UserNotHavePermissionStr("delete", "muscle size"));
-
         try
         {
+            await CheckUserIdAsync(userRepository, userId);
+
+            if (muscleSizeId < 1)
+                throw invalidMuscleSizeIDException;
+
+            var muscleSize = await baseRepository.GetByIdAsync(muscleSizeId) ?? throw muscleSizeNotFoundException;
+
+            if (muscleSize.UserId != userId)
+                throw UserNotHavePermissionException("delete", "muscle size");
+
             await baseRepository.RemoveAsync(muscleSizeId);
             return ServiceResult.Ok();
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        {
+            return ServiceResult.Fail(ex.Message);
+        }
         catch
         {
-            return ServiceResult.Fail(FailedToAction("muscle size", "delete"));
+            return ServiceResult.Fail(FailedToActionStr("muscle size", "delete"));
         }
     }
 
     public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesAsync(string userId, long muscleId)
     {
-        if (string.IsNullOrEmpty(userId))
-            return ServiceResult<IQueryable<MuscleSize>>.Fail(userIdIsNullOrEmptyException);
-
-        if (!(await userRepository.UserExistsAsync(userId)))
-            return ServiceResult<IQueryable<MuscleSize>>.Fail(userNotFoundException);
-
-        if (muscleId < 1)
-            return ServiceResult<IQueryable<MuscleSize>>.Fail(invalidMuscleSizeIDException);
-
         try
         {
+            await CheckUserIdAsync(userRepository, userId);
+
+            if (muscleId < 1)
+                throw invalidMuscleSizeIDException;
+
             var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId && ms.MuscleId == muscleId);
             return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizes);
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<IQueryable<MuscleSize>>.Fail(ex.Message);
+        }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<MuscleSize>>.Fail(FailedToAction("muscle sizes", "get", ex.Message));
+            return ServiceResult<IQueryable<MuscleSize>>.Fail(FailedToActionStr("muscle sizes", "get", ex.Message));
         }
     }
 
     public async Task<ServiceResult<MuscleSize>> GetMaxUserMuscleSizeAsync(string userId, long muscleId)
     {
-        if (string.IsNullOrEmpty(userId))
-            return ServiceResult<MuscleSize>.Fail(userIdIsNullOrEmptyException);
-
-        if (!(await userRepository.UserExistsAsync(userId)))
-            return ServiceResult<MuscleSize>.Fail(userNotFoundException);
-
-        if (muscleId < 1)
-            return ServiceResult<MuscleSize>.Fail(invalidMuscleSizeIDException);
-
         try
         {
+            await CheckUserIdAsync(userRepository, userId);
+
+            if (muscleId < 1)
+                throw invalidMuscleSizeIDException;
+
             var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId && ms.MuscleId == muscleId);
             var userMaxMuscleSize = userMuscleSizes?.ToList().MaxBy(bw => MuscleSize.GetMuscleSizeInCentimeters(bw));
             return ServiceResult<MuscleSize>.Ok(userMaxMuscleSize);
-        }   
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<MuscleSize>.Fail(ex.Message);
+        }
         catch (Exception ex)
         {
-            return ServiceResult<MuscleSize>.Fail(FailedToAction("max muscle size", "get", ex.Message));
+            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("max muscle size", "get", ex.Message));
         }
     }
 
     public async Task<ServiceResult<MuscleSize>> GetMinUserMuscleSizeAsync(string userId, long muscleId)
     {
-        if (string.IsNullOrEmpty(userId))
-            return ServiceResult<MuscleSize>.Fail(userIdIsNullOrEmptyException);
-
-        if (!(await userRepository.UserExistsAsync(userId)))
-            return ServiceResult<MuscleSize>.Fail(userNotFoundException);
-
-        if (muscleId < 1)
-            return ServiceResult<MuscleSize>.Fail(invalidMuscleSizeIDException);
-
         try
         {
+            await CheckUserIdAsync(userRepository, userId);
+
+            if (muscleId < 1)
+                throw invalidMuscleSizeIDException;
+
             var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId && ms.MuscleId == muscleId);
             var userMinMuscleSize = userMuscleSizes?.ToList().MinBy(bw => MuscleSize.GetMuscleSizeInCentimeters(bw));
             return ServiceResult<MuscleSize>.Ok(userMinMuscleSize);
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<MuscleSize>.Fail(ex.Message);
+        }
         catch (Exception ex)
         {
-            return ServiceResult<MuscleSize>.Fail(FailedToAction("min muscle size", "get", ex.Message));
+            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("min muscle size", "get", ex.Message));
         }
     }
 
     public async Task<ServiceResult<MuscleSize>> GetUserMuscleSizeByDateAsync(string userId, long muscleId, DateOnly date)
     {
-        if (string.IsNullOrEmpty(userId))
-            return ServiceResult<MuscleSize>.Fail(userIdIsNullOrEmptyException);
-
-        if (!(await userRepository.UserExistsAsync(userId)))
-            return ServiceResult<MuscleSize>.Fail(userNotFoundException);
-
-        if (date > DateOnly.FromDateTime(DateTime.Now))
-            return ServiceResult<MuscleSize>.Fail("Incorrect date.");
-
         try
         {
+            await CheckUserIdAsync(userRepository, userId);
+
+            if (date > DateOnly.FromDateTime(DateTime.Now))
+                throw new ArgumentException("Incorrect date.");
+
             var userMuscleSizeByDate = (await baseRepository.FindAsync(m => m.Date == date && m.UserId == userId && m.MuscleId == muscleId)).FirstOrDefault();
             return ServiceResult<MuscleSize>.Ok(userMuscleSizeByDate);
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<MuscleSize>.Fail(ex.Message);
+        }
         catch (Exception ex)
         {
-            return ServiceResult<MuscleSize>.Fail(FailedToAction("muscle size by date", "get", ex.Message));
+            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("muscle size by date", "get", ex.Message));
         }
     }
 
     public async Task<ServiceResult<MuscleSize>> GetUserMuscleSizeByIdAsync(string userId, long muscleSizeId)
     {
-        if (string.IsNullOrEmpty(userId))
-            return ServiceResult<MuscleSize>.Fail(userIdIsNullOrEmptyException);
-
-        if (!(await userRepository.UserExistsAsync(userId)))
-            return ServiceResult<MuscleSize>.Fail(userNotFoundException);
-
-        if (muscleSizeId < 1)
-            return ServiceResult<MuscleSize>.Fail(invalidMuscleSizeIDException);
-
         try
         {
+            await CheckUserIdAsync(userRepository, userId);
+
+            if (muscleSizeId < 1)
+                throw invalidMuscleSizeIDException;
+
             var userMuscleSizeById = await baseRepository.GetByIdAsync(muscleSizeId);
             return ServiceResult<MuscleSize>.Ok(userMuscleSizeById);
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<MuscleSize>.Fail(ex.Message);
+        }
         catch (Exception ex)
         {
-            return ServiceResult<MuscleSize>.Fail(FailedToAction("muscle size", "get", ex.Message));
+            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("muscle size", "get", ex.Message));
         }
     }
 
     public async Task<ServiceResult> UpdateUserMuscleSizeAsync(string userId, MuscleSize muscleSize)
     {
-        if (string.IsNullOrEmpty(userId))
-            return ServiceResult.Fail(userIdIsNullOrEmptyException);
-
-        if (!(await userRepository.UserExistsAsync(userId)))
-            return ServiceResult.Fail(userNotFoundException);
-
-        if (muscleSize is null)
-            return ServiceResult.Fail(muscleSizeIsNullException);
-
-        if (muscleSize.Id < 1)
-            return ServiceResult.Fail(invalidMuscleSizeIDException);
-
         try
         {
-            MuscleSize? _muscleSize = await baseRepository.GetByIdAsync(muscleSize.Id);
+            await CheckUserIdAsync(userRepository, userId);
 
-            if (_muscleSize is null)
-                return ServiceResult.Fail(muscleSizeNotFoundException);
+            if (muscleSize is null)
+                throw muscleSizeIsNullException;
+
+            if (muscleSize.Id < 1)
+                throw invalidMuscleSizeIDException;
+
+            var _muscleSize = await baseRepository.GetByIdAsync(muscleSize.Id) ?? throw muscleSizeNotFoundException;
 
             if (_muscleSize.UserId != userId)
-                return ServiceResult.Fail(UserNotHavePermissionStr("update", "muscle size"));
+                throw UserNotHavePermissionException("update", "muscle size");
 
             await baseRepository.UpdateAsync(muscleSize);
-
             return ServiceResult.Ok();
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        {
+            return ServiceResult.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToAction("muscle size", "update", ex.Message));
+            return ServiceResult.Fail(FailedToActionStr("muscle size", "update", ex.Message));
         }
     }
 }

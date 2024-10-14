@@ -34,7 +34,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
         catch (Exception ex)
         {
-            return ServiceResult<Muscle>.Fail(FailedToAction("muscle", "add", ex.Message));
+            return ServiceResult<Muscle>.Fail(FailedToActionStr("muscle", "add", ex.Message));
         }
     }
 
@@ -55,7 +55,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
         catch
         {
-            return ServiceResult.Fail(FailedToAction("muscle", "delete"));
+            return ServiceResult.Fail(FailedToActionStr("muscle", "delete"));
         }
     }
 
@@ -71,7 +71,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
         catch (Exception ex)
         {
-            return ServiceResult<Muscle>.Fail(FailedToAction("muscle", "get", ex.Message));
+            return ServiceResult<Muscle>.Fail(FailedToActionStr("muscle", "get", ex.Message));
         }
     }
 
@@ -87,7 +87,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
         catch (Exception ex)
         {
-            return ServiceResult<Muscle>.Fail(FailedToAction("muscle by name", "get", ex.Message));
+            return ServiceResult<Muscle>.Fail(FailedToActionStr("muscle by name", "get", ex.Message));
         }
     }
 
@@ -100,7 +100,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<Muscle>>.Fail(FailedToAction("muscles", "get", ex.Message));
+            return ServiceResult<IQueryable<Muscle>>.Fail(FailedToActionStr("muscles", "get", ex.Message));
         }
     }
 
@@ -141,7 +141,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToAction("muscle", "update", ex.Message));
+            return ServiceResult.Fail(FailedToActionStr("muscle", "update", ex.Message));
         }
     }
 }

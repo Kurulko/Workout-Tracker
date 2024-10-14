@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.IO;
 using System.Security.Claims;
 using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Data.Models;
@@ -24,8 +25,9 @@ public class UserService : BaseService<User>, IUserService
 
     readonly EntryNullException userIsNullException = new EntryNullException(nameof(User));
     readonly ArgumentNullOrEmptyException userNameIsNullOrEmptyException = new("User name");
+    readonly NotFoundException roleNotFoundException = new("Role");
 
-    ArgumentException invalidUserIDWhileAdding => InvalidEntryIDWhileAdding(nameof(User), "user");
+    ArgumentException InvalidUserIDWhileAdding => InvalidEntryIDWhileAddingException(nameof(User), "user");
 
 
     #region CRUD
@@ -33,7 +35,7 @@ public class UserService : BaseService<User>, IUserService
     public async Task<User> AddUserAsync(User user)
     {
         if (user is null)
-            throw new EntryNullException(nameof(User));
+            throw userIsNullException;
 
         if (await UserExistsAsync(user.Id))
             throw new Exception("User already exists.");
@@ -55,46 +57,46 @@ public class UserService : BaseService<User>, IUserService
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToAction("user", "create", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("user", "create", ex.Message));
         }
     }
 
     public async Task<IdentityResult> UpdateUserAsync(User user)
     {
-        if (user is null)
-            return IdentityResultExtentions.Failed(userIsNullException);
-
-        if (string.IsNullOrEmpty(user.Id))
-            return IdentityResultExtentions.Failed(userIdIsNullOrEmptyException);
-
         try
         {
-            if (await UserDoesNotExist(user.Id))
-                return IdentityResultExtentions.Failed(userNotFoundException);
+            if (user is null)
+                throw userIsNullException;
+
+            await CheckUserIdAsync(user.Id);
 
             return await userRepository.UpdateUserAsync(user);
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return IdentityResultExtentions.Failed(ex.Message);
+        }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToAction("user", "update", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("user", "update", ex.Message));
         }
     }
 
     public async Task<IdentityResult> DeleteUserAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
-            return IdentityResultExtentions.Failed(userIdIsNullOrEmptyException);
-
         try
         {
-            if (await UserDoesNotExist(userId))
-                return IdentityResultExtentions.Failed(userNotFoundException);
+            await CheckUserIdAsync(userId);
 
             return await userRepository.DeleteUserAsync(userId);
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return IdentityResultExtentions.Failed(ex.Message);
+        }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToAction("user", "delete", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("user", "delete", ex.Message));
         }
     }
 
@@ -165,56 +167,31 @@ public class UserService : BaseService<User>, IUserService
 
     public async Task<IQueryable<ExerciseRecord>?> GetUserExerciseRecordsAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
-            throw userIdIsNullOrEmptyException;
-
-        if (await UserDoesNotExist(userId))
-            throw userNotFoundException;
-
+        await CheckUserIdAsync(userId);
         return await userRepository.GetUserExerciseRecordsAsync(userId);
     }
 
     public async Task<IQueryable<MuscleSize>?> GetUserMuscleSizesAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
-            throw userIdIsNullOrEmptyException;
-
-        if (await UserDoesNotExist(userId))
-            throw userNotFoundException;
-
+        await CheckUserIdAsync(userId);
         return await userRepository.GetUserMuscleSizesAsync(userId);
     }
 
     public async Task<IQueryable<BodyWeight>?> GetUserBodyWeightsAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
-            throw userIdIsNullOrEmptyException;
-
-        if (await UserDoesNotExist(userId))
-            throw userNotFoundException;
-
+        await CheckUserIdAsync(userId);
         return await userRepository.GetUserBodyWeightsAsync(userId);
     }
 
     public async Task<IQueryable<Workout>?> GetUserWorkoutsAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
-            throw userIdIsNullOrEmptyException;
-
-        if (await UserDoesNotExist(userId))
-            throw userNotFoundException;
-
+        await CheckUserIdAsync(userId);
         return await userRepository.GetUserWorkoutsAsync(userId);
     }
 
     public async Task<IQueryable<Exercise>?> GetUserCreatedExercisesAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
-            throw userIdIsNullOrEmptyException;
-
-        if (await UserDoesNotExist(userId))
-            throw userNotFoundException;
-
+        await CheckUserIdAsync(userId);
         return await userRepository.GetUserCreatedExercisesAsync(userId);
     }
 
@@ -224,55 +201,52 @@ public class UserService : BaseService<User>, IUserService
 
     public async Task<IdentityResult> ChangeUserPasswordAsync(string userId, string oldPassword, string newPassword)
     {
-        if (string.IsNullOrEmpty(userId))
-            return IdentityResultExtentions.Failed(userIdIsNullOrEmptyException);
-
-        if (await UserDoesNotExist(userId))
-            return IdentityResultExtentions.Failed(userNotFoundException);
-
-        if (string.IsNullOrEmpty(oldPassword) || string.IsNullOrEmpty(newPassword))
-            return IdentityResultExtentions.Failed(new ArgumentNullOrEmptyException("Old or new password"));
-
-        if (oldPassword == newPassword)
-            return IdentityResultExtentions.Failed(new ArgumentException("The old password cannot be equal to the new one."));
-
         try
         {
+            await CheckUserIdAsync(userId);
+
+            if (string.IsNullOrEmpty(oldPassword) || string.IsNullOrEmpty(newPassword))
+                throw new ArgumentNullOrEmptyException("Old or new password");
+
+            if (oldPassword == newPassword)
+                throw new ArgumentException("The old password cannot be equal to the new one.");
+
             return await userRepository.ChangeUserPasswordAsync(userId, oldPassword, newPassword);
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return IdentityResultExtentions.Failed(ex.Message);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToAction("user password", "change", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("user password", "change", ex.Message));
         }
     }
 
     public async Task<IdentityResult> AddUserPasswordAsync(string userId, string newPassword)
     {
-        if (string.IsNullOrEmpty(userId))
-            return IdentityResultExtentions.Failed(userIdIsNullOrEmptyException);
-
-        if (await UserDoesNotExist(userId))
-            return IdentityResultExtentions.Failed(userNotFoundException);
-
-        if (string.IsNullOrEmpty(newPassword))
-            return IdentityResultExtentions.Failed(new ArgumentNullOrEmptyException("Password"));
         try
         {
+            await CheckUserIdAsync(userId);
+
+            if (string.IsNullOrEmpty(newPassword))
+                throw new ArgumentNullOrEmptyException("Password");
+
             return await userRepository.AddUserPasswordAsync(userId, newPassword);
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return IdentityResultExtentions.Failed(ex.Message);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToAction("user password", "add", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("user password", "add", ex.Message));
         }
     }
 
     public async Task<bool> HasUserPasswordAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
-            throw userIdIsNullOrEmptyException;
-
-        if (await UserDoesNotExist(userId))
-            throw userNotFoundException;
+        await CheckUserIdAsync(userId);
 
         return await userRepository.HasUserPasswordAsync(userId);
     }
@@ -285,22 +259,14 @@ public class UserService : BaseService<User>, IUserService
 
     public async Task<IEnumerable<string>> GetUserRolesAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
-            throw userIdIsNullOrEmptyException;
-
-        if (await UserDoesNotExist(userId))
-            throw userNotFoundException;
+        await CheckUserIdAsync(userId);
 
         return await userRepository.GetUserRolesAsync(userId);
     }
 
     public async Task<IEnumerable<User>> GetUsersByRoleAsync(string roleName)
     {
-        if (string.IsNullOrEmpty(roleName))
-            throw roleNameIsNullOrEmptyException;
-
-        if (await RoleDoesNotExistByName(roleName))
-            throw new NotFoundException("Role");
+        await CheckRoleNameAsync(roleName);
 
         var allUser = await userRepository.GetUsersAsync();
 
@@ -317,68 +283,67 @@ public class UserService : BaseService<User>, IUserService
 
     public async Task<IdentityResult> AddRolesToUserAsync(string userId, string[] roles)
     {
-        if (string.IsNullOrEmpty(userId))
-            return IdentityResultExtentions.Failed(userIdIsNullOrEmptyException);
-
-        if (await UserDoesNotExist(userId))
-            return IdentityResultExtentions.Failed(userNotFoundException);
-
-        if (roles.Length == 0)
-            return IdentityResultExtentions.Failed("User cannot have no roles.");
-
-        foreach (var role in roles)
-        {
-            if (await RoleDoesNotExistByName(role))
-                return IdentityResultExtentions.Failed(new NotFoundException($"Role '{role}'"));
-        }
-
         try
         {
+            await CheckUserIdAsync(userId);
+
+            if (roles.Length == 0)
+                throw new ArgumentException("User cannot have no roles.");
+
+            foreach (var roleStr in roles)
+            {
+                var roleExists = await roleRepository.RoleExistsByNameAsync(roleStr);
+                if (!roleExists)
+                    throw new NotFoundException($"Role '{roleStr}'");
+            }
+
             return await userRepository.AddRolesToUserAsync(userId, roles);
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return IdentityResultExtentions.Failed(ex.Message);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToAction("roles to user", "add", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("roles to user", "add", ex.Message));
         }
     }
 
     public async Task<IdentityResult> DeleteRoleFromUserAsync(string userId, string roleName)
     {
-        if (string.IsNullOrEmpty(userId))
-            return IdentityResultExtentions.Failed(userIdIsNullOrEmptyException);
-
-        if (await UserDoesNotExist(userId))
-            return IdentityResultExtentions.Failed(userNotFoundException);
-
-        if (string.IsNullOrEmpty(roleName))
-            return IdentityResultExtentions.Failed(roleNameIsNullOrEmptyException);
-
-        if (await RoleDoesNotExistByName(roleName))
-            return IdentityResultExtentions.Failed(new NotFoundException("Role"));
-
         try
         {
+            await CheckUserIdAsync(userId);
+            await CheckRoleNameAsync(roleName);
+
             var userRoles = await userRepository.GetUserRolesAsync(userId);
             if (!userRoles.Contains(roleName))
                 return IdentityResultExtentions.Failed($"User does not have '{roleName}' role");
 
             return await userRepository.DeleteRoleFromUserAsync(userId, roleName);
         }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return IdentityResultExtentions.Failed(ex.Message);
+        }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToAction("role from user", "delete", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("role from user", "delete", ex.Message));
         }
     }
 
     #endregion
 
-    async Task<bool> UserDoesNotExist(string userId)
-        => !(await userRepository.UserExistsAsync(userId));
-    async Task<bool> UserDoesNotExistByName(string userName)
-        => !(await userRepository.UserExistsByUsernameAsync(userName));
+    async Task CheckUserIdAsync(string userId)
+        => await CheckUserIdAsync(userRepository, userId);
 
-    async Task<bool> RoleDoesNotExist(string roleId)
-        => !(await roleRepository.RoleExistsAsync(roleId));
-    async Task<bool> RoleDoesNotExistByName(string roleName)
-        => !(await roleRepository.RoleExistsByNameAsync(roleName));
+    async Task CheckRoleNameAsync(string roleName)
+    {
+        if (string.IsNullOrEmpty(roleName))
+            throw roleNameIsNullOrEmptyException;
+
+        bool roleExists = await roleRepository.RoleExistsByNameAsync(roleName);
+        if (!roleExists)
+            throw roleNotFoundException;
+    }
 }

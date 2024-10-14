@@ -58,10 +58,9 @@ public class AccountService : IAccountService
         if (existingUserByEmail is not null)
             return AuthResult.Fail("Email already registered.");
 
-
         try
         {
-            string IdentityErrorsToString(IEnumerable<IdentityError> identityErrors)
+            static string IdentityErrorsToString(IEnumerable<IdentityError> identityErrors)
                 => string.Join("; ", identityErrors.Select(e => e.Description));
 
             User user = (User)register;
