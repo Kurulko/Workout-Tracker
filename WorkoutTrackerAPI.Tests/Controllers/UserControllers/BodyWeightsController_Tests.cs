@@ -41,7 +41,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
     {
         var validBodyWeight = new BodyWeight()
         {
-            Date = DateOnly.FromDateTime(DateTime.Now),
+            Date = DateTime.Now,
             Weight = 70,
             WeightType = WeightType.Kilogram,
         };
@@ -54,13 +54,13 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
         var validBodyWeights = new[]{
             new BodyWeight()
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-150)),
+                Date = DateTime.Now.AddDays(-150),
                 Weight = 60,
                 WeightType = WeightType.Kilogram,
             },
             new BodyWeight()
             {
-                Date = DateOnly.FromDateTime(DateTime.Now),
+                Date = DateTime.Now,
                 Weight = 70,
                 WeightType = WeightType.Kilogram,
             }
@@ -273,7 +273,7 @@ public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
         await bodyWeightService.AddBodyWeightToUserAsync(user.Id, bodyWeight);
 
         // Act
-        var result = await bodyWeightsController.GetCurrentUserBodyWeightByDateAsync(bodyWeight.Date.ToDateTime(new TimeOnly()));
+        var result = await bodyWeightsController.GetCurrentUserBodyWeightByDateAsync(bodyWeight.Date);
 
         // Assert
         var okResult = Assert.IsType<ActionResult<BodyWeight>>(result);

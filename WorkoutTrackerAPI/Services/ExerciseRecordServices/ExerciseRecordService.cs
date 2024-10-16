@@ -102,7 +102,7 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
                 throw new ArgumentException("Incorrect date.");
 
 
-            var userExerciseRecordByDate = (await baseRepository.FindAsync(m => m.Date == date && m.UserId == userId && m.ExerciseId == exerciseId)).FirstOrDefault();
+            var userExerciseRecordByDate = (await baseRepository.FindAsync(m => DateOnly.FromDateTime(m.Date) == date && m.UserId == userId && m.ExerciseId == exerciseId)).FirstOrDefault();
             return ServiceResult<ExerciseRecord>.Ok(userExerciseRecordByDate);
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)

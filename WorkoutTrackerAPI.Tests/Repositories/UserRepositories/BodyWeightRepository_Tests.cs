@@ -18,7 +18,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
 
         var validBodyWeight = new BodyWeight()
         {
-            Date = DateOnly.FromDateTime(DateTime.Now),
+            Date = DateTime.Now,
             Weight = 70,
             WeightType = WeightType.Kilogram,
             UserId = user.Id
@@ -35,14 +35,14 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
              {
                 new BodyWeight()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Weight = 70,
                     WeightType = WeightType.Kilogram,
                     UserId = user.Id
                 },
                 new BodyWeight()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-2)),
+                    Date = DateTime.Now.AddDays(-2),
                     Weight = 62,
                     WeightType = WeightType.Pound,
                     UserId = user.Id
@@ -59,7 +59,7 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
         var invalidBodyWeight = new BodyWeight()
         {
             Id = -1,
-            Date = DateOnly.FromDateTime(DateTime.Now),
+            Date = DateTime.Now,
             Weight = 70,
             WeightType = WeightType.Kilogram,
             UserId = user.Id
@@ -77,14 +77,14 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
                 new BodyWeight()
                 {
                     Id = -1,
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Weight = 70.0f,
                     WeightType = WeightType.Kilogram,
                     UserId = user.Id
                 },
                 new BodyWeight()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-2)),
+                    Date = DateTime.Now.AddDays(-2),
                     Weight = 62,
                     WeightType = WeightType.Pound,
                     UserId = user.Id
@@ -270,21 +270,21 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
              {
                 new BodyWeight()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Weight = 70.0f,
                     WeightType = WeightType.Kilogram,
                     UserId = user.Id
                 },
                 new BodyWeight()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-2)),
+                    Date = DateTime.Now.AddDays(-2),
                     Weight = 62,
                     WeightType = WeightType.Pound,
                     UserId = user.Id
                 },
                 new BodyWeight()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-300)),
+                    Date = DateTime.Now.AddDays(-300),
                     Weight = 254,
                     WeightType = WeightType.Pound,
                     UserId = user.Id
@@ -309,21 +309,21 @@ public class BodyWeightRepository_Tests : DbModelRepository_Tests<BodyWeight>
              {
                 new BodyWeight()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Weight = 70.0f,
                     WeightType = WeightType.Kilogram,
                     UserId = user.Id
                 },
                 new BodyWeight()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-2)),
+                    Date = DateTime.Now.AddDays(-2),
                     Weight = 62,
                     WeightType = WeightType.Pound,
                     UserId = user.Id
                 },
                 new BodyWeight()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-300)),
+                    Date = DateTime.Now.AddDays(-300),
                     Weight = 254,
                     WeightType = WeightType.Pound,
                     UserId = user.Id

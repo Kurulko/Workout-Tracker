@@ -153,7 +153,7 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
             if (date > DateOnly.FromDateTime(DateTime.Now))
                 throw new ArgumentException("Incorrect date.");
 
-            var userMuscleSizeByDate = (await baseRepository.FindAsync(m => m.Date == date && m.UserId == userId && m.MuscleId == muscleId)).FirstOrDefault();
+            var userMuscleSizeByDate = (await baseRepository.FindAsync(m => DateOnly.FromDateTime(m.Date) == date && m.UserId == userId && m.MuscleId == muscleId)).FirstOrDefault();
             return ServiceResult<MuscleSize>.Ok(userMuscleSizeByDate);
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)

@@ -141,7 +141,7 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
             if (date > DateOnly.FromDateTime(DateTime.Now))
                 throw new ArgumentException("Incorrect date.");
 
-            var userBodyWeightByDate = (await baseRepository.FindAsync(bw => bw.Date == date && bw.UserId == userId)).FirstOrDefault();
+            var userBodyWeightByDate = (await baseRepository.FindAsync(bw => DateOnly.FromDateTime(bw.Date) == date && bw.UserId == userId)).FirstOrDefault();
             return ServiceResult<BodyWeight>.Ok(userBodyWeightByDate);
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)

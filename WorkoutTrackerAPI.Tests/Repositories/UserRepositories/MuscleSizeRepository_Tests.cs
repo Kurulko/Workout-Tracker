@@ -59,7 +59,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
 
         var validMuscleSize = new MuscleSize()
         {
-            Date = DateOnly.FromDateTime(DateTime.Now),
+            Date = DateTime.Now,
             Size = 40,
             SizeType = SizeType.Centimeter,
             MuscleId = muscle.Id,
@@ -79,7 +79,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
              {
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Size = 40,
                     SizeType = SizeType.Centimeter,
                     MuscleId = bicepsMuscle.Id,
@@ -87,7 +87,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
                 },
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Size = 120,
                     SizeType = SizeType.Centimeter,
                     MuscleId = backMuscle.Id,
@@ -106,7 +106,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
         var invalidMuscleSize = new MuscleSize()
         {
             Id = -1,
-            Date = DateOnly.FromDateTime(DateTime.Now),
+            Date = DateTime.Now,
             Size = 40,
             SizeType = SizeType.Centimeter,
             MuscleId = muscle.Id,
@@ -127,7 +127,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
                 new MuscleSize()
                 {
                     Id = -1,
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Size = 40,
                     SizeType = SizeType.Centimeter,
                     MuscleId = bicepsMuscle.Id,
@@ -135,7 +135,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
                 },
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Size = 120,
                     SizeType = SizeType.Centimeter,
                     MuscleId = backMuscle.Id,
@@ -325,7 +325,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
              {
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Size = 40,
                     SizeType = SizeType.Centimeter,
                     MuscleId = bicepsMuscle.Id,
@@ -333,7 +333,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
                 },
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-100)),
+                    Date = DateTime.Now.AddDays(-100),
                     Size = 35,
                     SizeType = SizeType.Centimeter,
                     MuscleId = bicepsMuscle.Id,
@@ -341,7 +341,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
                 },
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Size = 120,
                     SizeType = SizeType.Centimeter,
                     MuscleId = backMuscle.Id,
@@ -369,7 +369,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
              {
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Size = 40,
                     SizeType = SizeType.Centimeter,
                     MuscleId = bicepsMuscle.Id,
@@ -377,7 +377,7 @@ public class MuscleSizeRepository_Tests : DbModelRepository_Tests<MuscleSize>
                 },
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-150)),
+                    Date = DateTime.Now.AddDays(-150),
                     Size = 35,
                     SizeType = SizeType.Centimeter,
                     MuscleId = bicepsMuscle.Id,

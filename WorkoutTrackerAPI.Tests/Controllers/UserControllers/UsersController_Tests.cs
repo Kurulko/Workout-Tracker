@@ -1006,21 +1006,21 @@ public class UsersController_Tests : APIController_Tests
         {
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-100)),
+                    Date = DateTime.Now.AddDays(-100),
                     Size = 35,
                     SizeType = SizeType.Centimeter,
                     MuscleId = muscle.Id,
                 },
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-30)),
+                    Date = DateTime.Now.AddDays(-30),
                     Size = 40,
                     SizeType = SizeType.Centimeter,
                     MuscleId = muscle.Id,
                 },
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Size = 42,
                     SizeType = SizeType.Centimeter,
                     MuscleId = muscle.Id,
@@ -1122,13 +1122,13 @@ public class UsersController_Tests : APIController_Tests
            {
                 new BodyWeight()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Weight = 70,
                     WeightType = WeightType.Kilogram,
                 },
                 new BodyWeight()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-2)),
+                    Date = DateTime.Now.AddDays(-2),
                     Weight = 62,
                     WeightType = WeightType.Pound,
                 }
@@ -1472,7 +1472,7 @@ public class UsersController_Tests : APIController_Tests
              {
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Reps = 20,
                     SumOfReps = 39,
                     CountOfTimes = 2,
@@ -1480,7 +1480,7 @@ public class UsersController_Tests : APIController_Tests
                 },
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-2)),
+                    Date = DateTime.Now.AddDays(-2),
                     Reps = 19,
                     SumOfReps = 19,
                     CountOfTimes = 1,

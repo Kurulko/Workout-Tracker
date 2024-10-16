@@ -3,7 +3,7 @@
 public class ExerciseRecord : IDbModel
 {
     public long Id { get; set; }
-    public DateOnly Date { get; set; }
+    public DateTime Date { get; set; }
     public int CountOfTimes { get; set; }
 
     public double? Weight { get; set; }

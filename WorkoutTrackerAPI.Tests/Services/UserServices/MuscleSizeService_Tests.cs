@@ -59,7 +59,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 
         var validMuscleSize = new MuscleSize()
         {
-            Date = DateOnly.FromDateTime(DateTime.Now),
+            Date = DateTime.Now,
             Size = 40,
             SizeType = SizeType.Centimeter,
             MuscleId = muscle.Id,
@@ -79,7 +79,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
              {
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-150)),
+                    Date = DateTime.Now.AddDays(-150),
                     Size = 37,
                     SizeType = SizeType.Centimeter,
                     MuscleId = bicepsMuscle.Id,
@@ -87,7 +87,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
                 }, 
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Size = 40,
                     SizeType = SizeType.Centimeter,
                     MuscleId = bicepsMuscle.Id,
@@ -95,7 +95,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
                 },
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Size = 120,
                     SizeType = SizeType.Centimeter,
                     MuscleId = backMuscle.Id,
@@ -690,7 +690,7 @@ public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
         // Assert
         Assert.True(result.Success);
         Assert.NotNull(result.Model);
-        Assert.Equal(today, result.Model.Date);
+        Assert.Equal(today, DateOnly.FromDateTime(result.Model.Date));
     }
 
     [Fact]

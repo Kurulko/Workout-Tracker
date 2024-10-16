@@ -72,7 +72,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
 
         var validExerciseRecord = new ExerciseRecord()
         {
-            Date = DateOnly.FromDateTime(DateTime.Now),
+            Date = DateTime.Now,
             Reps = 20,
             SumOfReps = 20,
             CountOfTimes = 1,
@@ -92,7 +92,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
              {
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-15)),
+                    Date = DateTime.Now.AddDays(-15),
                     Reps = 10,
                     SumOfReps = 10,
                     CountOfTimes = 1,
@@ -100,7 +100,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
                 },
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-25)),
+                    Date = DateTime.Now.AddDays(-25),
                     Reps = 19,
                     SumOfReps = 29,
                     CountOfTimes = 2,
@@ -108,7 +108,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
                 },
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Reps = 20,
                     SumOfReps = 49,
                     CountOfTimes = 3,
@@ -116,7 +116,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
                 },
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Time = new TimeSpan(0, 1, 0),
                     SumOfTime= new TimeSpan(0, 1, 0),
                     CountOfTimes = 1,
@@ -360,7 +360,7 @@ public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseR
         await exerciseRecordService.AddExerciseRecordToUserAsync(user.Id, exerciseRecord);
 
         // Act
-        var result = await exerciseRecordsController.GetCurrentUserExerciseRecordByDateAsync(exerciseRecord.ExerciseId, exerciseRecord.Date.ToDateTime(new TimeOnly()));
+        var result = await exerciseRecordsController.GetCurrentUserExerciseRecordByDateAsync(exerciseRecord.ExerciseId, exerciseRecord.Date);
 
         // Assert
         var okResult = Assert.IsType<ActionResult<ExerciseRecord>>(result);

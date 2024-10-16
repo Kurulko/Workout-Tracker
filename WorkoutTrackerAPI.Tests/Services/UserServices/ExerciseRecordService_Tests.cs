@@ -62,7 +62,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
 
         var validExerciseRecord = new ExerciseRecord()
         {
-            Date = DateOnly.FromDateTime(DateTime.Now),
+            Date = DateTime.Now,
             Reps = 20,
             SumOfReps = 20,
             CountOfTimes = 1,
@@ -82,7 +82,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
              {
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-15)),
+                    Date = DateTime.Now.AddDays(-15),
                     Reps = 10,
                     SumOfReps = 10,
                     CountOfTimes = 1,
@@ -90,7 +90,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
                 },
             new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-25)),
+                    Date = DateTime.Now.AddDays(-25),
                     Reps = 19,
                     SumOfReps = 29,
                     CountOfTimes = 2,
@@ -98,7 +98,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
                 },
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Reps = 20,
                     SumOfReps = 49,
                     CountOfTimes = 3,
@@ -106,7 +106,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
                 },
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Time = new TimeSpan(0, 1, 0),
                     SumOfTime= new TimeSpan(0, 1, 0),
                     CountOfTimes = 1,
@@ -519,7 +519,7 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
         // Assert
         Assert.True(result.Success);
         Assert.NotNull(result.Model);
-        Assert.Equal(today, result.Model.Date);
+        Assert.Equal(today, DateOnly.FromDateTime(result.Model.Date));
     }
 
     [Fact]

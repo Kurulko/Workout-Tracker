@@ -74,7 +74,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
 
         var validMuscleSize = new MuscleSize()
         {
-            Date = DateOnly.FromDateTime(DateTime.Now),
+            Date = DateTime.Now,
             Size = 40,
             SizeType = SizeType.Centimeter,
             MuscleId = muscle.Id,
@@ -94,7 +94,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
              {
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-150)),
+                    Date = DateTime.Now.AddDays(-150),
                     Size = 37,
                     SizeType = SizeType.Centimeter,
                     MuscleId = bicepsMuscle.Id,
@@ -102,7 +102,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
                 },
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Size = 40,
                     SizeType = SizeType.Centimeter,
                     MuscleId = bicepsMuscle.Id,
@@ -110,7 +110,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
                 },
                 new MuscleSize()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Size = 120,
                     SizeType = SizeType.Centimeter,
                     MuscleId = backMuscle.Id,
@@ -337,7 +337,7 @@ public class MuscleSizesController_Tests : DbModelController_Tests<MuscleSize>
         var bicepsMuscle = await GetBicepsMuscleAsync(db);
 
         // Act
-        var result = await muscleSizesController.GetCurrentUserMuscleSizeByDateAsync(bicepsMuscle.Id, muscleSize.Date.ToDateTime(new TimeOnly()));
+        var result = await muscleSizesController.GetCurrentUserMuscleSizeByDateAsync(bicepsMuscle.Id, muscleSize.Date);
 
         // Assert
         var okResult = Assert.IsType<ActionResult<MuscleSize>>(result);

@@ -20,7 +20,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
     {
         var validBodyWeight = new BodyWeight()
         {
-            Date = DateOnly.FromDateTime(DateTime.Now),
+            Date = DateTime.Now,
             Weight = 70,
             WeightType = WeightType.Kilogram,
         };
@@ -33,13 +33,13 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
         var validBodyWeights = new[]{
             new BodyWeight()
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(-150)),
+                Date = DateTime.Now.AddDays(-150),
                 Weight = 60,
                 WeightType = WeightType.Kilogram,
             },
             new BodyWeight()
             {
-                Date = DateOnly.FromDateTime(DateTime.Now),
+                Date = DateTime.Now,
                 Weight = 70,
                 WeightType = WeightType.Kilogram,
             }
@@ -608,7 +608,7 @@ public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
         // Assert
         Assert.True(result.Success);
         Assert.NotNull(result.Model);
-        Assert.Equal(today, result.Model.Date);
+        Assert.Equal(today, DateOnly.FromDateTime(result.Model.Date));
     }
 
     [Fact]

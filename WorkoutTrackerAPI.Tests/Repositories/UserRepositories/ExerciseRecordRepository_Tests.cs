@@ -59,7 +59,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
 
         var validExerciseRecord = new ExerciseRecord()
         {
-            Date = DateOnly.FromDateTime(DateTime.Now),
+            Date = DateTime.Now,
             Reps = 20,
             SumOfReps = 20,
             CountOfTimes = 1,
@@ -80,7 +80,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
              {
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Reps = 20,
                     SumOfReps = 20,
                     CountOfTimes = 1,
@@ -89,7 +89,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
                 },
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Time = new TimeSpan(0, 1, 0),
                     SumOfTime= new TimeSpan(0, 1, 0),
                     CountOfTimes = 1,
@@ -109,7 +109,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
         var invalidExerciseRecord = new ExerciseRecord()
         {
             Id = -1,
-            Date = DateOnly.FromDateTime(DateTime.Now),
+            Date = DateTime.Now,
             Reps = 20,
             SumOfReps = 20,
             CountOfTimes = 1,
@@ -131,7 +131,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
                 new ExerciseRecord()
                 {
                     Id = -1,
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Reps = 20,
                     SumOfReps = 20,
                     CountOfTimes = 1,
@@ -140,7 +140,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
                 },
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Time = new TimeSpan(0, 1, 0),
                     SumOfTime= new TimeSpan(0, 1, 0),
                     CountOfTimes = 1,
@@ -350,7 +350,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
              {
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Reps = 20,
                     SumOfReps = 20,
                     CountOfTimes = 1,
@@ -359,7 +359,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
                 },
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Time = new TimeSpan(0, 1, 0),
                     SumOfTime= new TimeSpan(0, 1, 0),
                     CountOfTimes = 1,
@@ -390,7 +390,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
              {
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Reps = 20,
                     SumOfReps = 20,
                     CountOfTimes = 1,
@@ -399,7 +399,7 @@ public class ExerciseRecordRepository_Tests : DbModelRepository_Tests<ExerciseRe
                 },
                 new ExerciseRecord()
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Now),
+                    Date = DateTime.Now,
                     Time = new TimeSpan(0, 1, 0),
                     SumOfTime= new TimeSpan(0, 1, 0),
                     CountOfTimes = 1,

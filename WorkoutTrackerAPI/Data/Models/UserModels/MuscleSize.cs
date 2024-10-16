@@ -7,7 +7,7 @@ namespace WorkoutTrackerAPI.Data.Models.UserModels;
 public class MuscleSize : IDbModel
 {
     public long Id { get; set; }
-    public DateOnly Date { get; set; }
+    public DateTime Date { get; set; }
     public float Size { get; set; }
     public SizeType SizeType { get; set; }
 
