@@ -34,10 +34,8 @@ services.AddSwaggerGen();
 
 services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-// Add ApplicationDbContext and SQL Server support
 services.AddMSSQLServer(config);
 
-// Add ASP.NET Core Identity support
 services.AddIdentityModels();
 
 services.AddJWTAuthentication(config);
@@ -50,7 +48,6 @@ var app = builder.Build();
 
 app.UseSerilogRequestLogging();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

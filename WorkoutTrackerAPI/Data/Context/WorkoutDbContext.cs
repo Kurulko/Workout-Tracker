@@ -18,7 +18,8 @@ public class WorkoutDbContext : IdentityDbContext<User>
     public DbSet<ExerciseRecord> ExerciseRecords => Set<ExerciseRecord>();
 
     public WorkoutDbContext(DbContextOptions options)
-        : base(options) { }
+        : base(options)
+         => Database.EnsureCreated();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -11,10 +11,16 @@ public class ExercisesInitializer
 {
     public static async Task<Exercise> InitializeAsync(ExerciseRepository exerciseRepository, MuscleRepository muscleRepository, string name, ExerciseType exerciseType, params string[] muscleNames)
     {
-        Exercise exercise = new();
+        var exercise = await exerciseRepository.GetByNameAsync(name);
 
-        exercise.Name = name;
-        exercise.Type = exerciseType;
+        if (exercise is not null)
+            return exercise;
+
+        exercise = new()
+        {
+            Name = name,
+            Type = exerciseType
+        };
 
         var muscles = new List<Muscle>();
 

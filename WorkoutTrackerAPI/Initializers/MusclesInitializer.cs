@@ -10,7 +10,12 @@ public class MusclesInitializer
 {
     public static async Task<Muscle> InitializeAsync(MuscleRepository muscleRepository, MuscleData muscleData, Muscle? parentMuscle)
     {
-        Muscle muscle = new Muscle
+        var muscle = await muscleRepository.GetByNameAsync(muscleData.Name);
+
+        if (muscle is not null)
+            return muscle;
+
+        muscle = new Muscle()
         {
             Name = muscleData.Name,
             ParentMuscle = parentMuscle
