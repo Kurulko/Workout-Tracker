@@ -101,6 +101,7 @@ public class ExercisesController : BaseWorkoutController<Exercise>
     }
 
     [HttpGet("exercise/{exerciseId}")]
+    [ActionName(nameof(GetExerciseByIdAsync))]
     public async Task<ActionResult<Exercise>> GetExerciseByIdAsync(long exerciseId)
     {
         if (exerciseId < 1)
@@ -111,6 +112,7 @@ public class ExercisesController : BaseWorkoutController<Exercise>
     }
 
     [HttpGet("user-exercise/{exerciseId}")]
+    [ActionName(nameof(GetCurrentUserExerciseByIdAsync))]
     public async Task<ActionResult<Exercise>> GetCurrentUserExerciseByIdAsync(long exerciseId)
     {
         if (exerciseId < 1)

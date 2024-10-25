@@ -14,6 +14,9 @@ public class AccountController : APIController
         => this.accountService = accountService;
 
 
+    IActionResult HandleAuthResult(AuthResult authResult)
+        => authResult.Success ? Ok(authResult) : BadRequest(authResult);
+
     [HttpPost("Register")]
     public async Task<IActionResult> RegisterAsync(RegisterModel register)
     {
@@ -24,7 +27,7 @@ public class AccountController : APIController
             return HandleInvalidModelState();
 
         var result = await accountService.RegisterAsync(register);
-        return result.Success ? Ok(result) : Unauthorized(result);
+        return HandleAuthResult(result);
     }
 
     [HttpPost("Login")]
@@ -37,7 +40,7 @@ public class AccountController : APIController
             return HandleInvalidModelState();
 
         var result = await accountService.LoginAsync(login);
-        return result.Success ? Ok(result) : Unauthorized(result);
+        return HandleAuthResult(result);
     }
 
     [Authorize]

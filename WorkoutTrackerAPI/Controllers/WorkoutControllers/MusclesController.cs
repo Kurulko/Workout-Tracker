@@ -55,6 +55,7 @@ public class MusclesController : BaseWorkoutController<Muscle>
     }
 
     [HttpGet("{muscleId}")]
+    [ActionName(nameof(GetMuscleByIdAsync))]
     public async Task<ActionResult<Muscle>> GetMuscleByIdAsync(long muscleId)
     {
         if (muscleId < 1)
@@ -91,7 +92,7 @@ public class MusclesController : BaseWorkoutController<Muscle>
 
         muscle = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetMuscleByIdAsync), new { id = muscle.Id }, muscle);
+        return CreatedAtAction(nameof(GetMuscleByIdAsync), new { muscleId = muscle.Id }, muscle);
     }
 
     [HttpPut("{muscleId}")]

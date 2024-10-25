@@ -69,6 +69,7 @@ public class WorkoutsController : BaseWorkoutController<Workout>
     }
 
     [HttpGet("{workoutId}")]
+    [ActionName(nameof(GetCurrentUserWorkoutByIdAsync))]
     public async Task<ActionResult<Workout>> GetCurrentUserWorkoutByIdAsync(long workoutId)
     {
         if (workoutId < 1)

@@ -70,6 +70,7 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecord>
     }
 
     [HttpGet("{exerciseRecordId}")]
+    [ActionName(nameof(GetCurrentUserExerciseRecordByIdAsync))]
     public async Task<ActionResult<ExerciseRecord>> GetCurrentUserExerciseRecordByIdAsync(long exerciseRecordId)
     {
         if (exerciseRecordId < 1)

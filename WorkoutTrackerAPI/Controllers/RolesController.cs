@@ -68,6 +68,7 @@ public class RolesController : APIController
     }
 
     [HttpGet("{roleId}")]
+    [ActionName(nameof(GetRoleByIdAsync))]
     public async Task<ActionResult<IdentityRole>> GetRoleByIdAsync(string roleId)
     {
         if (string.IsNullOrEmpty(roleId))

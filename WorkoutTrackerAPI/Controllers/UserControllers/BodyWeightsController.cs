@@ -65,6 +65,7 @@ public class BodyWeightsController : DbModelController<BodyWeight>
     }
 
     [HttpGet("{bodyWeightId}")]
+    [ActionName(nameof(GetCurrentUserBodyWeightByIdAsync))]
     public async Task<ActionResult<BodyWeight>> GetCurrentUserBodyWeightByIdAsync(long bodyWeightId)
     {
         if (bodyWeightId < 1)

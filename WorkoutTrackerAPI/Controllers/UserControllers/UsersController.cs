@@ -47,7 +47,7 @@ public class UsersController : APIController
         => EntryNotFound("User");
 
 
-    #region User
+    #region CRUD
 
     [HttpGet]
     [Authorize(Roles = Roles.AdminRole)]
@@ -88,6 +88,7 @@ public class UsersController : APIController
 
     [HttpGet("{userId}")]
     [Authorize(Roles = Roles.AdminRole)]
+    [ActionName(nameof(GetUserByIdAsync))]
     public async Task<ActionResult<UserDTO>> GetUserByIdAsync(string userId)
     {
         if (string.IsNullOrEmpty(userId))
@@ -189,7 +190,7 @@ public class UsersController : APIController
     }
 
     [Authorize(Roles = Roles.AdminRole)]
-    [HttpPost]
+    [HttpPost("create")]
     public async Task<IActionResult> CreateUserAsync(UserCreationDTO userCreationDTO, string password)
     {
         if (userCreationDTO is null)

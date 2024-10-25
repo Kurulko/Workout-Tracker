@@ -72,6 +72,7 @@ public class MuscleSizesController : DbModelController<MuscleSize>
     }
 
     [HttpGet("{muscleSizeId}")]
+    [ActionName(nameof(GetCurrentUserMuscleSizeByIdAsync))]
     public async Task<ActionResult<MuscleSize>> GetCurrentUserMuscleSizeByIdAsync(long muscleSizeId)
     {
         if (muscleSizeId < 1)
