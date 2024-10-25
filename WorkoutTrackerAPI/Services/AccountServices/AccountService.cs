@@ -35,7 +35,8 @@ public class AccountService : IAccountService
 
         try
         {
-            var token = await jwtHandler.GenerateJwtTokenAsync((User)login);
+            var user = await userRepository.GetUserByUsernameAsync(login.Name);
+            var token = await jwtHandler.GenerateJwtTokenAsync(user!);
             return AuthResult.Ok("Login successful", token);
         }
         catch (Exception ex)
@@ -78,7 +79,7 @@ public class AccountService : IAccountService
             if (!identityResult.Succeeded)
                 throw new Exception(IdentityErrorsToString(identityResult.Errors));
 
-            var token = await jwtHandler.GenerateJwtTokenAsync((User)register);
+            var token = await jwtHandler.GenerateJwtTokenAsync(user);
             return AuthResult.Ok("Register successful", token);
         }
         catch (Exception ex)

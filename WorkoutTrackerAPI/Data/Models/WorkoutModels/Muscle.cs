@@ -6,6 +6,7 @@ public class Muscle : WorkoutModel
 {
     public byte[]? Image { get; set; }
 
+    public long? ParentMuscleId { get; set; }
     public Muscle? ParentMuscle { get; set; } = null!;
     public IEnumerable<Muscle>? ChildMuscles { get; set; } = null!;
     public IEnumerable<Exercise>? Exercises { get; set; } = null!;

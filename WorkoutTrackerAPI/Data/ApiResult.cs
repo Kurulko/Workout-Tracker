@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Linq.Dynamic.Core;
 using WorkoutTrackerAPI.Extentions;
+using System.Collections;
 
 namespace WorkoutTrackerAPI.Data;
 
@@ -78,12 +79,7 @@ public class ApiResult<T>
             if (!result)
                 sortOrder = "ASC";
 
-            source = source.OrderBy(
-                string.Format(
-                "{0} {1}",
-                sortColumn,
-                sortOrder)
-            );
+            source = source.OrderBy($"{sortColumn} {sortOrder}");
         }
 
         source = source
@@ -199,3 +195,4 @@ public class ApiResult<T>
 
     #endregion
 }
+

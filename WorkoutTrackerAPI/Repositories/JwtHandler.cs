@@ -7,21 +7,22 @@ using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Settings;
 using WorkoutTrackerAPI.Exceptions;
+using WorkoutTrackerAPI.Repositories.UserRepositories;
 
 namespace WorkoutTrackerAPI.Repositories;
 
 public class JwtHandler
 {
     readonly JwtSettings jwtSettings;
-    readonly UserManager<User> userManager;
-    public JwtHandler(JwtSettings jwtSettings, UserManager<User> userManager)
-        => (this.jwtSettings, this.userManager) = (jwtSettings, userManager);
+    readonly UserRepository userRepository;
+    public JwtHandler(JwtSettings jwtSettings, UserRepository userRepository)
+        => (this.jwtSettings, this.userRepository) = (jwtSettings, userRepository);
 
     public virtual async Task<TokenModel> GenerateJwtTokenAsync(User user)
     {
         JwtSecurityTokenHandler tokenHandler = new();
 
-        var roles = await userManager.GetRolesAsync(user);
+        var roles = await userRepository.GetUserRolesAsync(user.Id);
 
         var rolesClaims = GetRolesClaims(user, roles);
 
