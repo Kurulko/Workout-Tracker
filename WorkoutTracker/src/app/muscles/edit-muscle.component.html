@@ -1,0 +1,46 @@
+<base-app [title]="title">
+    <p *ngIf="this.id && !muscle"><em>Loading...</em></p>
+
+    <mat-error *ngIf="errorMessage">
+        <h4>{{errorMessage}}</h4>
+    </mat-error>
+
+    <!-- Name -->
+    <mat-form-field>
+        <mat-label>Name:</mat-label>
+        <input matInput [(ngModel)]="muscle.name" required minlength="3" placeholder="Insert Name" #name="ngModel">
+        <mat-error [hidden]="name.valid || name.untouched">
+            Name must be at least 3 characters long
+        </mat-error>
+    </mat-form-field>
+    <br />
+
+    <mat-form-field *ngIf="allMuscles | async as result">
+      <mat-label>Select Parent Muscles...</mat-label>
+      <mat-select [(ngModel)]="muscle.parentMuscleId">
+        <mat-option *ngFor="let parentMuscle of result"  [value]="parentMuscle.id">
+          {{parentMuscle.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <br />
+
+    <mat-form-field *ngIf="allMuscles | async as result">
+      <mat-label>Select Child Muscles...</mat-label>
+      <mat-select [(ngModel)]="muscle.childMuscles" multiple>
+        <mat-option *ngFor="let childMuscle of result" [value]="childMuscle.id">
+          {{childMuscle.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <br />
+
+    <div>
+        <button type="button" mat-raised-button color="primary" (click)="onSubmit()" [disabled]="name.invalid">
+          {{ this.id ? "Save" : "Create" }}
+        </button>
+        <button type="button" mat-flat-button color="secondary" [routerLink]="['/']">
+            Cancel
+        </button>
+    </div>
+</base-app>
