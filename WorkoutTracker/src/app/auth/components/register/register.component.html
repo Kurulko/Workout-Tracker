@@ -1,0 +1,69 @@
+<base-app title="Register">
+    <mat-error *ngIf="authResult && !authResult.success">
+        <h4>{{authResult.message}}</h4>
+    </mat-error>
+
+    <form [formGroup]="form" (ngSubmit)="account()">
+        <!-- Name -->
+        <mat-form-field>
+            <mat-label>Name:</mat-label>
+            <input matInput formControlName="name" placeholder="Insert Name" />
+            <mat-error *ngFor="let error of getErrors(form.get('name')!, 'User Name')">
+                {{error}}
+            </mat-error>
+        </mat-form-field>
+        <br />
+
+        <!-- Email -->
+        <mat-form-field>
+            <mat-label>Email:</mat-label>
+            <input matInput formControlName="email" placeholder="Insert Email">
+            <mat-error *ngFor="let error of getErrors(form.get('email')!, 'Email')">
+                {{error}}
+            </mat-error>
+        </mat-form-field>
+        <br />
+
+        <!-- Confirm Password -->
+        <mat-form-field>
+            <mat-label>Password</mat-label>
+            <input matInput type="password" [type]="passwordFieldType" 
+                formControlName="password" placeholder="Insert Password">
+            <mat-error *ngFor="let error of getErrors(form.get('password')!, 'Password')">
+                {{error}}
+            </mat-error>
+        </mat-form-field>
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="togglePasswordVisibility()" aria-label="Toggle password visibility">
+            <i class="fas" [ngClass]="passwordFieldType === 'password' ? 'fa-eye' : 'fa-eye-slash'"></i>
+        </button>
+        <br />
+
+        <!-- Confirm Password -->
+        <mat-form-field>
+            <mat-label>Confirm Password</mat-label>
+            <input matInput type="password" [type]="confirmPasswordFieldType" 
+                formControlName="passwordConfirmation" placeholder="Confirm Password">
+            <mat-error *ngFor="let error of getErrors(form.get('passwordConfirmation')!, 'Confirm Password')">
+                {{error}}
+            </mat-error>
+        </mat-form-field>
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="toggleConfirmPasswordVisibility()" aria-label="Toggle confirm password visibility">
+            <i class="fas" [ngClass]="confirmPasswordFieldType === 'password' ? 'fa-eye' : 'fa-eye-slash'"></i>
+        </button>
+        <mat-error *ngIf="form.errors?.['notMatching'] && form.get('passwordConfirmation')?.touched && form.get('passwordConfirmation')?.dirty && form.get('password')?.touched">
+            Passwords do not match.
+        </mat-error>
+        <br />
+
+        <!-- Remember Me -->
+        <mat-checkbox formControlName="rememberMe">Remember Me</mat-checkbox>
+        <br /><br />
+    
+        <div>
+            <button mat-raised-button type="submit" color="primary" [disabled]="form.invalid">Register</button>
+            <button mat-flat-button type="button" color="secondary" [routerLink]="['/']">
+                Cancel
+            </button>
+        </div>
+    </form>
+</base-app>
