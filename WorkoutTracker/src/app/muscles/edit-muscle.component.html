@@ -15,20 +15,22 @@
     </mat-form-field>
     <br />
 
-    <mat-form-field *ngIf="allMuscles | async as result">
+    <!-- Parent Muscle -->
+    <mat-form-field *ngIf="parentMuscles | async as result">
       <mat-label>Select Parent Muscles...</mat-label>
       <mat-select [(ngModel)]="muscle.parentMuscleId">
-        <mat-option *ngFor="let parentMuscle of result"  [value]="parentMuscle.id">
+        <mat-option *ngFor="let parentMuscle of result" [value]="parentMuscle.id" (onSelectionChange)="selectedParentMuscle()">
           {{parentMuscle.name}}
         </mat-option>
       </mat-select>
     </mat-form-field>
     <br />
 
-    <mat-form-field *ngIf="allMuscles | async as result">
+    <!-- Child Muscles -->
+    <mat-form-field *ngIf="childMuscles | async as result">
       <mat-label>Select Child Muscles...</mat-label>
       <mat-select [(ngModel)]="muscle.childMuscles" multiple>
-        <mat-option *ngFor="let childMuscle of result" [value]="childMuscle.id">
+        <mat-option *ngFor="let childMuscle of result" [value]="childMuscle">
           {{childMuscle.name}}
         </mat-option>
       </mat-select>
