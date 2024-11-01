@@ -1,0 +1,54 @@
+<base-app title="Body Weights">
+  <p *ngIf="!data"><em>Loading...</em></p>
+
+  <button type="button" color="primary" class="btn btn-outline-primary" [routerLink]="['/body-weight']">
+    Add Body Weight
+  </button>
+  <br/>
+
+  <table mat-table [dataSource]="data"
+      class="mat-elevation-z8"
+      [hidden]="!data"
+      matSort (matSortChange)="loadData()"
+      [matSortActive]="defaultSortColumn"
+      [matSortDirection]="defaultSortOrder">
+
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+        <td mat-cell *matCellDef="let bodyWeight"> {{ bodyWeight.id }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+        <td mat-cell *matCellDef="let bodyWeight">
+          <a [routerLink]="['/bodyWeight', bodyWeight.id]">{{ bodyWeight.date }}</a>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="weight">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight</th>
+        <td mat-cell *matCellDef="let bodyWeight"> {{ bodyWeight.weight }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="weightType">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight Type</th>
+        <td mat-cell *matCellDef="let bodyWeight"> {{ bodyWeight.weightType }} </td>
+      </ng-container>
+      
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let bodyWeight">
+          <button type="button" mat-button color="warn" (click)="deleteBodyWeight(bodyWeight.id)">Delete</button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <mat-paginator [hidden]="!data"
+              (page)="getData($event)"
+              [pageSize]="10"
+              [pageSizeOptions]="[10, 20, 50]"
+              showFirstLastButtons />
+</base-app>

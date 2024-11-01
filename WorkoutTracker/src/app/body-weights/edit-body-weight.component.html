@@ -1,0 +1,52 @@
+<base-app [title]="title">
+    <p *ngIf="this.id && !bodyWeight"><em>Loading...</em></p>
+
+    <mat-error *ngIf="errorMessage">
+        <h4>{{errorMessage}}</h4>
+    </mat-error>
+
+    <!-- Date -->
+    <mat-form-field>
+      <mat-label>Date:</mat-label>
+      <input matInput [matDatepicker]="picker" [(ngModel)]="bodyWeight.date" placeholder="Insert Date" required [max]="maxDate" #date="ngModel"/>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker />
+      <mat-error [hidden]="date.valid || date.untouched">
+        Date is required
+      </mat-error>
+    </mat-form-field>
+    <br />
+
+     <!-- Weight -->
+     <mat-form-field>
+      <mat-label>Weight:</mat-label>
+      <input matInput type="number" [(ngModel)]="bodyWeight.weight" required placeholder="Insert Weight" #weight="ngModel">
+      <mat-error [hidden]="weight.valid || weight.untouched">
+          Weight is required
+      </mat-error>
+    </mat-form-field>
+    <br />
+
+    <!-- Weight Type -->
+    <mat-form-field>
+      <mat-label>Select Weight Type...</mat-label>
+      <mat-select [(ngModel)]="bodyWeight.weightType" required #weightType="ngModel">
+        <mat-option *ngFor="let weightType of weightTypes" [value]="weightType">
+          {{ weightType }}
+        </mat-option>
+      </mat-select>
+      <mat-error [hidden]="weightType.valid || weightType.untouched">
+        Weight Type is required.
+      </mat-error>
+    </mat-form-field>
+    <br />
+
+    <div>
+        <button type="button" mat-raised-button color="primary" (click)="onSubmit()" [disabled]="date.invalid || weight.invalid || weightType.invalid">
+          {{ this.id ? "Save" : "Create" }}
+        </button>
+        <button type="button" mat-flat-button color="secondary" [routerLink]="['/']">
+            Cancel
+        </button>
+    </div>
+</base-app>
