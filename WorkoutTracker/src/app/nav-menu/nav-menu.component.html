@@ -8,6 +8,9 @@
       <a *ngIf="isLoggedIn" mat-flat-button color="primary" [routerLink]="['/muscles']">
         Muscles
       </a>
+      <a *ngIf="isLoggedIn" mat-flat-button color="primary" [routerLink]="['/body-weights']">
+        Body Weights
+      </a>
       <span class="separator"></span>
       <a *ngIf="!isLoggedIn" mat-flat-button color="primary" [routerLink]="['/login']">
         Login
