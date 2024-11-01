@@ -16,7 +16,7 @@ using WorkoutTrackerAPI.Services.WorkoutServices;
 
 namespace ExerciseTrackerAPI.Controllers.ExerciseControllers;
 
-public class ExercisesController : BaseWorkoutController<Exercise, ExerciseDTO>
+public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDTO>
 {
     readonly IExerciseService exerciseService;
     readonly IHttpContextAccessor httpContextAccessor;
@@ -152,14 +152,15 @@ public class ExercisesController : BaseWorkoutController<Exercise, ExerciseDTO>
 
     [HttpPost]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddExerciseAsync(Exercise exercise)
+    public async Task<IActionResult> AddExerciseAsync(ExerciseDTO exerciseDTO)
     {
-        if (exercise is null)
+        if (exerciseDTO is null)
             return ExerciseIsNull();
 
-        if (exercise.Id != 0)
+        if (exerciseDTO.Id != 0)
             return InvalidExerciseIDWhileAdding();
 
+        var exercise = mapper.Map<Exercise>(exerciseDTO);
         var serviceResult = await exerciseService.AddExerciseAsync(exercise);
 
         if (!serviceResult.Success)
@@ -171,15 +172,16 @@ public class ExercisesController : BaseWorkoutController<Exercise, ExerciseDTO>
     }
 
     [HttpPost("user-exercise")]
-    public async Task<IActionResult> AddCurrentUserExerciseAsync(Exercise exercise)
+    public async Task<IActionResult> AddCurrentUserExerciseAsync(ExerciseDTO exerciseDTO)
     {
-        if (exercise is null)
+        if (exerciseDTO is null)
             return ExerciseIsNull();
 
-        if (exercise.Id != 0)
+        if (exerciseDTO.Id != 0)
             return InvalidExerciseIDWhileAdding();
 
         string userId = httpContextAccessor.GetUserId()!;
+        var exercise = mapper.Map<Exercise>(exerciseDTO);
         var serviceResult = await exerciseService.AddUserExerciseAsync(userId, exercise);
 
         if (!serviceResult.Success)
@@ -192,34 +194,36 @@ public class ExercisesController : BaseWorkoutController<Exercise, ExerciseDTO>
 
     [HttpPut("{exerciseId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateExerciseAsync(long exerciseId, Exercise exercise)
+    public async Task<IActionResult> UpdateExerciseAsync(long exerciseId, ExerciseDTO exerciseDTO)
     {
         if (exerciseId < 1)
             return InvalidExerciseID();
 
-        if (exercise is null)
+        if (exerciseDTO is null)
             return ExerciseIsNull();
 
-        if (exerciseId != exercise.Id)
+        if (exerciseId != exerciseDTO.Id)
             return ExerciseIDsNotMatch();
 
+        var exercise = mapper.Map<Exercise>(exerciseDTO);
         var serviceResult = await exerciseService.UpdateExerciseAsync(exercise);
         return HandleServiceResult(serviceResult);
     }
 
     [HttpPut("user-exercise/{exerciseId}")]
-    public async Task<IActionResult> UpdateCurrentUserExerciseAsync(long exerciseId, Exercise exercise)
+    public async Task<IActionResult> UpdateCurrentUserExerciseAsync(long exerciseId, ExerciseDTO exerciseDTO)
     {
         if (exerciseId < 1)
             return InvalidExerciseID();
 
-        if (exercise is null)
+        if (exerciseDTO is null)
             return ExerciseIsNull();
 
-        if (exerciseId != exercise.Id)
+        if (exerciseId != exerciseDTO.Id)
             return ExerciseIDsNotMatch();
 
         string userId = httpContextAccessor.GetUserId()!;
+        var exercise = mapper.Map<Exercise>(exerciseDTO);
         var serviceResult = await exerciseService.UpdateUserExerciseAsync(userId, exercise);
         return HandleServiceResult(serviceResult);
     }

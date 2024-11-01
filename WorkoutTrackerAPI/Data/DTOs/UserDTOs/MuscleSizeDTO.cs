@@ -3,7 +3,7 @@ using WorkoutTrackerAPI.Data.Models;
 
 namespace WorkoutTrackerAPI.Data.DTOs;
 
-public class MuscleSizeDTO : IDbModel
+public class MuscleSizeDTO
 {
     public long Id { get; set; }
     public DateTime Date { get; set; }

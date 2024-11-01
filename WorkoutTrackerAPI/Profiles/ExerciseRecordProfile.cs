@@ -9,5 +9,6 @@ public class ExerciseRecordProfile : Profile
     public ExerciseRecordProfile()
     {
         CreateMap<ExerciseRecordDTO, ExerciseRecord>().ReverseMap();
+        CreateMap<ExerciseRecordCreationDTO, ExerciseRecord>().ReverseMap();
     }
 }

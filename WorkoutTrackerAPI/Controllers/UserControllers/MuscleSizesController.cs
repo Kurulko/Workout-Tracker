@@ -17,7 +17,7 @@ using WorkoutTrackerAPI.Services.WorkoutServices;
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
 [Route("api/muscle-sizes")]
-public class MuscleSizesController : DbModelController<MuscleSize, MuscleSizeDTO>
+public class MuscleSizesController : DbModelController<MuscleSizeDTO, MuscleSizeDTO>
 {
     readonly IMuscleSizeService muscleSizeService;
     readonly IHttpContextAccessor httpContextAccessor;
@@ -123,15 +123,16 @@ public class MuscleSizesController : DbModelController<MuscleSize, MuscleSizeDTO
 
 
     [HttpPost]
-    public async Task<IActionResult> AddMuscleSizeToCurrentUserAsync(MuscleSize muscleSize)
+    public async Task<IActionResult> AddMuscleSizeToCurrentUserAsync(MuscleSizeDTO muscleSizeDTO)
     {
-        if (muscleSize is null)
+        if (muscleSizeDTO is null)
             return MuscleSizeIsNull();
 
-        if (muscleSize.Id != 0)
+        if (muscleSizeDTO.Id != 0)
             return InvalidEntryIDWhileAdding(nameof(MuscleSize), "muscle size");
 
         string userId = httpContextAccessor.GetUserId()!;
+        var muscleSize = mapper.Map<MuscleSize>(muscleSizeDTO);
         var serviceResult = await muscleSizeService.AddMuscleSizeToUserAsync(userId, muscleSize);
 
         if (!serviceResult.Success)
@@ -143,18 +144,19 @@ public class MuscleSizesController : DbModelController<MuscleSize, MuscleSizeDTO
     }
 
     [HttpPut("{muscleSizeId}")]
-    public async Task<IActionResult> UpdateCurrentUserMuscleSizeAsync(long muscleSizeId, MuscleSize muscleSize)
+    public async Task<IActionResult> UpdateCurrentUserMuscleSizeAsync(long muscleSizeId, MuscleSizeDTO muscleSizeDTO)
     {
         if(muscleSizeId < 1)
             return InvalidMuscleSizeID();
 
-        if (muscleSize is null)
+        if (muscleSizeDTO is null)
             return MuscleSizeIsNull();
 
-        if (muscleSizeId != muscleSize.Id)
+        if (muscleSizeId != muscleSizeDTO.Id)
             return EntryIDsNotMatch(nameof(MuscleSize));
 
         string userId = httpContextAccessor.GetUserId()!;
+        var muscleSize = mapper.Map<MuscleSize>(muscleSizeDTO);
         var serviceResult = await muscleSizeService.UpdateUserMuscleSizeAsync(userId, muscleSize);
         return HandleServiceResult(serviceResult);
     }

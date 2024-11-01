@@ -9,5 +9,6 @@ public class WorkoutProfile : Profile
     public WorkoutProfile()
     {
         CreateMap<WorkoutDTO, Workout>().ReverseMap();
+        CreateMap<WorkoutCreationDTO, Workout>().ReverseMap();
     }
 }

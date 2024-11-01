@@ -28,14 +28,27 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
             if (exerciseRecord is null)
                 throw exerciseRecordIsNullException;
 
+            exerciseRecord.CountOfTimes++;
+            exerciseRecord.UserId = userId;
+            exerciseRecord.Date = DateTime.Now;
+
+            if (exerciseRecord.Reps is not null)
+                exerciseRecord.SumOfReps += exerciseRecord.Reps;
+
+            if (exerciseRecord.Time is not null)
+                exerciseRecord.SumOfTime = exerciseRecord.SumOfTime + exerciseRecord.Time!;
+
+            if (exerciseRecord.Weight is not null)
+                exerciseRecord.SumOfWeight += exerciseRecord.Weight;
+
             if (exerciseRecord.Id == 0)
             {
-
+                await baseRepository.AddAsync(exerciseRecord);
             }
-                //throw InvalidEntryIDWhileAddingException(nameof(ExerciseRecord), "exercise record");
-
-            exerciseRecord.UserId = userId;
-            await baseRepository.AddAsync(exerciseRecord);
+            else
+            {
+                await baseRepository.UpdateAsync(exerciseRecord);
+            }
 
             return ServiceResult<ExerciseRecord>.Ok(exerciseRecord);
         }

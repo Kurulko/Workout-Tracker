@@ -5,9 +5,9 @@ using WorkoutTrackerAPI.Services.WorkoutServices;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
-public abstract class BaseWorkoutController<T, TDTO> : DbModelController<T, TDTO>
-    where T : WorkoutModel
-    where TDTO : WorkoutModel
+public abstract class BaseWorkoutController<TDTO, TCreationDTO> : DbModelController<TDTO, TCreationDTO>
+    where TDTO : class
+    where TCreationDTO : class
 {
     public BaseWorkoutController(IMapper mapper) : base(mapper)
     {

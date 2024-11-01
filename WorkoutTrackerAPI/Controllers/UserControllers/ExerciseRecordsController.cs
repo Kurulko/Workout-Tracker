@@ -15,7 +15,7 @@ using AutoMapper;
 namespace WorkoutTrackerAPI.Controllers.UserControllers;
 
 [Route("api/exercise-records")]
-public class ExerciseRecordsController : DbModelController<ExerciseRecord, ExerciseRecordDTO>
+public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, ExerciseRecordCreationDTO>
 {
     readonly IExerciseRecordService exerciseRecordService;
     readonly IHttpContextAccessor httpContextAccessor;
@@ -99,15 +99,13 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecord, Exerc
 
 
     [HttpPost]
-    public async Task<IActionResult> AddExerciseRecordToCurrentUserAsync(ExerciseRecord exerciseRecord)
+    public async Task<IActionResult> AddExerciseRecordToCurrentUserAsync(ExerciseRecordCreationDTO exerciseRecordCreationDTO)
     {
-        if (exerciseRecord is null)
+        if (exerciseRecordCreationDTO is null)
             return ExerciseRecordIsNull();
 
-        if (exerciseRecord.Id != 0)
-            return InvalidEntryIDWhileAdding(nameof(ExerciseRecord), "exercise record");
-
         string userId = httpContextAccessor.GetUserId()!;
+        var exerciseRecord = mapper.Map<ExerciseRecord>(exerciseRecordCreationDTO);
         var serviceResult = await exerciseRecordService.AddExerciseRecordToUserAsync(userId, exerciseRecord);
 
         if (!serviceResult.Success)
@@ -119,18 +117,19 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecord, Exerc
     }
 
     [HttpPut("{exerciseRecordId}")]
-    public async Task<IActionResult> UpdateCurrentUserExerciseRecordAsync(long exerciseRecordId, ExerciseRecord exerciseRecord)
+    public async Task<IActionResult> UpdateCurrentUserExerciseRecordAsync(long exerciseRecordId, ExerciseRecordDTO exerciseRecordDTO)
     {
         if (exerciseRecordId < 1)
             return InvalidExerciseRecordID();
 
-        if (exerciseRecord is null)
+        if (exerciseRecordDTO is null)
             return ExerciseRecordIsNull();
 
-        if (exerciseRecordId != exerciseRecord.Id)
+        if (exerciseRecordId != exerciseRecordDTO.Id)
             return EntryIDsNotMatch(nameof(ExerciseRecord));
 
         string userId = httpContextAccessor.GetUserId()!;
+        var exerciseRecord = mapper.Map<ExerciseRecord>(exerciseRecordDTO);
         var serviceResult = await exerciseRecordService.UpdateUserExerciseRecordAsync(userId, exerciseRecord);
         return HandleServiceResult(serviceResult);
     }

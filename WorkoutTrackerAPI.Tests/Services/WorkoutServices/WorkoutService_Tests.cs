@@ -165,25 +165,6 @@ public class WorkoutService_Tests : BaseWorkoutService_Tests<Workout>
     }
 
     [Fact]
-    public async Task AddUserWorkout_ShouldReturnFail_WhenWorkoutIdIsNonZero()
-    {
-        // Arrange
-        using var db = WorkoutContextFactory.CreateDatabaseContext();
-        var workoutService = GetWorkoutService(db);
-
-        var user = await GetDefaultUserAsync(db);
-        var validWorkout = await GetValidWorkoutAsync(db);
-        validWorkout.Id = 1;
-
-        // Act
-        var result = await workoutService.AddUserWorkoutAsync(user.Id, validWorkout);
-
-        // Assert
-        Assert.False(result.Success);
-        Assert.Equal("Workout ID must not be set when adding a new workout.", result.ErrorMessage);
-    }
-
-    [Fact]
     public async Task AddUserWorkout_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange

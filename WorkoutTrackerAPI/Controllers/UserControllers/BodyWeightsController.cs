@@ -1,23 +1,16 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Data;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.DTOs;
-using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Extentions;
-using WorkoutTrackerAPI.Services;
 using WorkoutTrackerAPI.Services.BodyWeightServices;
-using WorkoutTrackerAPI.Services.ExerciseRecordServices;
-using WorkoutTrackerAPI.Services.ExerciseServices;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
 [Route("api/body-weights")]
-public class BodyWeightsController : DbModelController<BodyWeight, BodyWeightDTO>
+public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeightDTO>
 {
     readonly IHttpContextAccessor httpContextAccessor;
     readonly IBodyWeightService bodyWeightService;
@@ -106,15 +99,16 @@ public class BodyWeightsController : DbModelController<BodyWeight, BodyWeightDTO
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddBodyWeightToCurrentUserAsync([FromBody] BodyWeight bodyWeight)
+    public async Task<IActionResult> AddBodyWeightToCurrentUserAsync([FromBody] BodyWeightDTO bodyWeightDTO)
     {
-        if (bodyWeight is null)
+        if (bodyWeightDTO is null)
             return BodyWeightIsNull();
 
-        if (bodyWeight.Id != 0)
+        if (bodyWeightDTO.Id != 0)
             return InvalidEntryIDWhileAdding(nameof(BodyWeight), "body weight");
 
         string userId = httpContextAccessor.GetUserId()!;
+        var bodyWeight = mapper.Map<BodyWeight>(bodyWeightDTO);
         var serviceResult = await bodyWeightService.AddBodyWeightToUserAsync(userId, bodyWeight);
 
         if (!serviceResult.Success)
@@ -126,18 +120,19 @@ public class BodyWeightsController : DbModelController<BodyWeight, BodyWeightDTO
     }
 
     [HttpPut("{bodyWeightId}")]
-    public async Task<IActionResult> UpdateCurrentUserBodyWeightAsync(long bodyWeightId, [FromBody] BodyWeight bodyWeight)
+    public async Task<IActionResult> UpdateCurrentUserBodyWeightAsync(long bodyWeightId, [FromBody] BodyWeightDTO bodyWeightDTO)
     {
         if (bodyWeightId < 1)
             return InvalidBodyWeightID();
 
-        if (bodyWeight is null)
+        if (bodyWeightDTO is null)
             return BodyWeightIsNull();
 
-        if (bodyWeightId != bodyWeight.Id)
+        if (bodyWeightId != bodyWeightDTO.Id)
             return EntryIDsNotMatch(nameof(BodyWeight));
 
         string userId = httpContextAccessor.GetUserId()!;
+        var bodyWeight = mapper.Map<BodyWeight>(bodyWeightDTO);
         var serviceResult = await bodyWeightService.UpdateUserBodyWeightAsync(userId, bodyWeight);
         return HandleServiceResult(serviceResult);
     }

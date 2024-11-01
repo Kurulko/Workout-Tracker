@@ -9,7 +9,7 @@ using AutoMapper;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
-public class MusclesController : BaseWorkoutController<Muscle, MuscleDTO>
+public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
 {
     readonly IMuscleService muscleService;
     public MusclesController(IMuscleService muscleService, IMapper mapper) : base(mapper)
@@ -81,14 +81,15 @@ public class MusclesController : BaseWorkoutController<Muscle, MuscleDTO>
 
     [HttpPost]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddMuscleAsync(Muscle muscle)
+    public async Task<IActionResult> AddMuscleAsync(MuscleDTO muscleDTO)
     {
-        if (muscle is null)
+        if (muscleDTO is null)
             return MuscleIsNull();
 
-        if (muscle.Id != 0)
+        if (muscleDTO.Id != 0)
             return InvalidEntryIDWhileAdding(nameof(Muscle), "muscle");
 
+        var muscle = mapper.Map<Muscle>(muscleDTO);
         var serviceResult = await muscleService.AddMuscleAsync(muscle);
 
         if (!serviceResult.Success)
@@ -101,17 +102,19 @@ public class MusclesController : BaseWorkoutController<Muscle, MuscleDTO>
 
     [HttpPut("{muscleId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateMuscleAsync(long muscleId, Muscle muscle)
+    public async Task<IActionResult> UpdateMuscleAsync(long muscleId, MuscleDTO muscleDTO)
     {
         if (muscleId < 1)
             return InvalidMuscleID();
 
-        if (muscle is null)
+        if (muscleDTO is null)
             return MuscleIsNull();
 
-        if (muscleId != muscle.Id)
+        if (muscleId != muscleDTO.Id)
             return EntryIDsNotMatch(nameof(Muscle));
 
+
+        var muscle = mapper.Map<Muscle>(muscleDTO);
         var serviceResult = await muscleService.UpdateMuscleAsync(muscle);
         return HandleServiceResult(serviceResult);
     }

@@ -7,15 +7,16 @@ using WorkoutTrackerAPI.Data.Models;
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
 [Authorize]
-public abstract class DbModelController<T, TDTO> : APIController
-    where T : class, IDbModel
-    where TDTO : class, IDbModel
+public abstract class DbModelController<TDTO, TCreationDTO> : APIController
+    where TDTO : class
+    where TCreationDTO : class
 {
     protected readonly IMapper mapper;
     public DbModelController(IMapper mapper)
         => this.mapper = mapper;
 
-    protected ActionResult<TDTO> HandleDTOServiceResult(ServiceResult<T> serviceResult, string? notFoundMessage = null)
+    protected ActionResult<TDTO> HandleDTOServiceResult<T>(ServiceResult<T> serviceResult, string? notFoundMessage = null)
+        where T : class, IDbModel 
     {
         ServiceResult<TDTO> serviceResultDTO;
         if (serviceResult.Success)

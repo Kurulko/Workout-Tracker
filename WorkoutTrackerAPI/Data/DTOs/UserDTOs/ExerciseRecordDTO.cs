@@ -2,7 +2,7 @@
 
 namespace WorkoutTrackerAPI.Data.DTOs;
 
-public class ExerciseRecordDTO : IDbModel
+public class ExerciseRecordDTO
 {
     public long Id { get; set; }
     public DateTime Date { get; set; }

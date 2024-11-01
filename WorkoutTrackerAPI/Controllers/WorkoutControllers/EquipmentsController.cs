@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using WorkoutTrackerAPI.Data.DTOs;
-using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Services.EquipmentServices;
 using WorkoutTrackerAPI.Data.Models.WorkoutModels;
@@ -11,7 +10,7 @@ using WorkoutTrackerAPI.Extentions;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
-public class EquipmentsController : BaseWorkoutController<Equipment, EquipmentDTO>
+public class EquipmentsController : BaseWorkoutController<EquipmentDTO, EquipmentDTO>
 {
     readonly IEquipmentService equipmentService;
     readonly IHttpContextAccessor httpContextAccessor;
@@ -147,14 +146,15 @@ public class EquipmentsController : BaseWorkoutController<Equipment, EquipmentDT
 
     [HttpPost]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddEquipmentAsync(Equipment equipment)
+    public async Task<IActionResult> AddEquipmentAsync(EquipmentDTO equipmentDTO)
     {
-        if (equipment is null)
+        if (equipmentDTO is null)
             return EquipmentIsNull();
 
-        if (equipment.Id != 0)
+        if (equipmentDTO.Id != 0)
             return InvalidEquipmentIDWhileAdding();
 
+        var equipment = mapper.Map<Equipment>(equipmentDTO);
         var serviceResult = await equipmentService.AddEquipmentAsync(equipment);
 
         if (!serviceResult.Success)
@@ -166,15 +166,16 @@ public class EquipmentsController : BaseWorkoutController<Equipment, EquipmentDT
     }
 
     [HttpPost("user-equipment")]
-    public async Task<IActionResult> AddCurrentUserEquipmentAsync(Equipment equipment)
+    public async Task<IActionResult> AddCurrentUserEquipmentAsync(EquipmentDTO equipmentDTO)
     {
-        if (equipment is null)
+        if (equipmentDTO is null)
             return EquipmentIsNull();
 
-        if (equipment.Id != 0)
+        if (equipmentDTO.Id != 0)
             return InvalidEquipmentIDWhileAdding();
 
         string userId = httpContextAccessor.GetUserId()!;
+        var equipment = mapper.Map<Equipment>(equipmentDTO);
         var serviceResult = await equipmentService.AddUserEquipmentAsync(userId, equipment);
 
         if (!serviceResult.Success)
@@ -187,34 +188,36 @@ public class EquipmentsController : BaseWorkoutController<Equipment, EquipmentDT
 
     [HttpPut("{equipmentId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateEquipmentAsync(long equipmentId, Equipment equipment)
+    public async Task<IActionResult> UpdateEquipmentAsync(long equipmentId, EquipmentDTO equipmentDTO)
     {
         if (equipmentId < 1)
             return InvalidEquipmentID();
 
-        if (equipment is null)
+        if (equipmentDTO is null)
             return EquipmentIsNull();
 
-        if (equipmentId != equipment.Id)
+        if (equipmentId != equipmentDTO.Id)
             return EquipmentIDsNotMatch();
 
+        var equipment = mapper.Map<Equipment>(equipmentDTO);
         var serviceResult = await equipmentService.UpdateEquipmentAsync(equipment);
         return HandleServiceResult(serviceResult);
     }
 
     [HttpPut("user-equipment/{equipmentId}")]
-    public async Task<IActionResult> UpdateCurrentUserEquipmentAsync(long equipmentId, Equipment equipment)
+    public async Task<IActionResult> UpdateCurrentUserEquipmentAsync(long equipmentId, EquipmentDTO equipmentDTO)
     {
         if (equipmentId < 1)
             return InvalidEquipmentID();
 
-        if (equipment is null)
+        if (equipmentDTO is null)
             return EquipmentIsNull();
 
-        if (equipmentId != equipment.Id)
+        if (equipmentId != equipmentDTO.Id)
             return EquipmentIDsNotMatch();
 
         string userId = httpContextAccessor.GetUserId()!;
+        var equipment = mapper.Map<Equipment>(equipmentDTO);
         var serviceResult = await equipmentService.UpdateUserEquipmentAsync(userId, equipment);
         return HandleServiceResult(serviceResult);
     }

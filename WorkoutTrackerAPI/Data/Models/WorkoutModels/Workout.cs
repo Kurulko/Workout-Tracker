@@ -9,6 +9,10 @@ public class Workout : WorkoutModel
     public DateTime Created { get; set; }
     public DateTime Started { get; set; }
     public int CountOfTrainings { get; set; }
+
+    public double Weight { get; set; }
+    public TimeSpan Time { get; set; }
+
     public double SumOfWeight { get; set; }
     public TimeSpan SumOfTime { get; set; }
 

@@ -4,7 +4,7 @@ using WorkoutTrackerAPI.Data.Models;
 
 namespace WorkoutTrackerAPI.Data.DTOs;
 
-public class BodyWeightDTO : IDbModel
+public class BodyWeightDTO
 {
     public long Id { get; set; }
     public DateTime Date { get; set; }

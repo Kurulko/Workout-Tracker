@@ -198,25 +198,6 @@ public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
     }
 
     [Fact]
-    public async Task AddExerciseRecordToUser_ShouldReturnFail_WhenExerciseRecordIdIsNonZero()
-    {
-        // Arrange
-        using var db = WorkoutContextFactory.CreateDatabaseContext();
-        var exerciseRecordService = GetExerciseRecordService(db);
-
-        var user = await GetDefaultUserAsync(db);
-        var validExerciseRecord = await GetValidExerciseRecordAsync(db);
-        validExerciseRecord.Id = 1;
-
-        // Act
-        var result = await exerciseRecordService.AddExerciseRecordToUserAsync(user.Id, validExerciseRecord);
-
-        // Assert
-        Assert.False(result.Success);
-        Assert.Equal("ExerciseRecord ID must not be set when adding a new exercise record.", result.ErrorMessage);
-    }
-
-    [Fact]
     public async Task AddExerciseRecordToUser_ShouldReturnFail_WhenExceptionOccurs()
     {
         // Arrange

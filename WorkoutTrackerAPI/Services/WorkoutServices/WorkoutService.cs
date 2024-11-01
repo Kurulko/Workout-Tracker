@@ -32,17 +32,19 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
 
             workout.UserId = userId;
 
-            //if (workout.Id != 0)
-            //throw InvalidEntryIDWhileAddingException(nameof(Workout), "workout");
+            workout.CountOfTrainings++;
+
+            workout.SumOfWeight += workout.Weight;
+            workout.SumOfTime += workout.Time;
+
             if (workout.Id == 0)
             {
-                workout.CountOfTrainings++;
-                workout.SumOfWeight += workout.We;
-                await baseWorkoutRepository.UpdateAsync(workout);
+                workout.Created = workout.Started = DateTime.Now;
+                await baseWorkoutRepository.AddAsync(workout);
             }
             else
             {
-                await baseWorkoutRepository.AddAsync(workout);
+                await baseWorkoutRepository.UpdateAsync(workout);
             }
 
             return ServiceResult<Workout>.Ok(workout);

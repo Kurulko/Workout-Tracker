@@ -5,10 +5,11 @@ using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Services.WorkoutServices;
 using WorkoutTrackerAPI.Extentions;
+using WorkoutTrackerAPI.Data.Models.UserModels;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
-public class WorkoutsController : BaseWorkoutController<Workout, WorkoutDTO>
+public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreationDTO>
 {
     readonly IWorkoutService workoutService;
     readonly IHttpContextAccessor httpContextAccessor;
@@ -88,15 +89,13 @@ public class WorkoutsController : BaseWorkoutController<Workout, WorkoutDTO>
 
 
     [HttpPost]
-    public async Task<IActionResult> AddCurrentUserWorkoutAsync(Workout workout)
+    public async Task<IActionResult> AddCurrentUserWorkoutAsync(WorkoutCreationDTO workoutCreationDTO)
     {
-        if (workout is null)
+        if (workoutCreationDTO is null)
             return WorkoutIsNull();
 
-        if (workout.Id != 0)
-            return InvalidEntryIDWhileAdding(nameof(Workout), "workout");
-
         string userId = httpContextAccessor.GetUserId()!;
+        var workout = mapper.Map<Workout>(workoutCreationDTO);
         var serviceResult = await workoutService.AddUserWorkoutAsync(userId, workout);
 
         if (!serviceResult.Success)
@@ -108,18 +107,19 @@ public class WorkoutsController : BaseWorkoutController<Workout, WorkoutDTO>
     }
 
     [HttpPut("{workoutId}")]
-    public async Task<IActionResult> UpdateCurrentUserWorkoutAsync(long workoutId, Workout workout)
+    public async Task<IActionResult> UpdateCurrentUserWorkoutAsync(long workoutId, WorkoutDTO workoutDTO)
     {
         if (workoutId < 1)
             return InvalidWorkoutID();
 
-        if (workout is null)
+        if (workoutDTO is null)
             return WorkoutIsNull();
 
-        if (workoutId != workout.Id)
+        if (workoutId != workoutDTO.Id)
             return EntryIDsNotMatch(nameof(Workout));
 
         string userId = httpContextAccessor.GetUserId()!;
+        var workout = mapper.Map<Workout>(workoutDTO);
         var serviceResult = await workoutService.UpdateUserWorkoutAsync(userId, workout);
         return HandleServiceResult(serviceResult);
     }
