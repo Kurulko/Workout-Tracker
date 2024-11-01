@@ -14,6 +14,7 @@ using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Data.DTOs;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
+using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Extentions;
 using WorkoutTrackerAPI.Services;
 using WorkoutTrackerAPI.Services.MuscleSizeServices;
@@ -342,7 +343,7 @@ public class UsersController : APIController
     #region UserModels
 
     [HttpGet($"user-muscle_sizes")]
-    public async Task<ActionResult<ApiResult<MuscleSize>>> GetCurrentUserMuscleSizesAsync(
+    public async Task<ActionResult<ApiResult<MuscleSizeDTO>>> GetCurrentUserMuscleSizesAsync(
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -361,8 +362,9 @@ public class UsersController : APIController
             if (userMuscleSizes is null)
                 return EntryNotFound("User muscle sizes");
 
-            return await ApiResult<MuscleSize>.CreateAsync(
-                userMuscleSizes.AsQueryable(),
+            var userMuscleSizeDTOs = userMuscleSizes.Select(m => mapper.Map<MuscleSizeDTO>(m));
+            return await ApiResult<MuscleSizeDTO>.CreateAsync(
+                userMuscleSizeDTOs,
                 pageIndex,
                 pageSize,
                 sortColumn,
@@ -378,7 +380,7 @@ public class UsersController : APIController
     }
 
     [HttpGet($"user-body_weights")]
-    public async Task<ActionResult<ApiResult<BodyWeight>>> GetCurrentUserBodyWeightsAsync(
+    public async Task<ActionResult<ApiResult<BodyWeightDTO>>> GetCurrentUserBodyWeightsAsync(
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -397,8 +399,9 @@ public class UsersController : APIController
             if (userBodyWeights is null)
                 return EntryNotFound("User body weights");
 
-            return await ApiResult<BodyWeight>.CreateAsync(
-                userBodyWeights.AsQueryable(),
+            var userBodyWeightDTOs = userBodyWeights.Select(m => mapper.Map<BodyWeightDTO>(m));
+            return await ApiResult<BodyWeightDTO>.CreateAsync(
+                userBodyWeightDTOs,
                 pageIndex,
                 pageSize,
                 sortColumn,
@@ -414,7 +417,7 @@ public class UsersController : APIController
     }
 
     [HttpGet($"user-workouts")]
-    public async Task<ActionResult<ApiResult<Workout>>> GetCurrentUserWorkoutsAsync(
+    public async Task<ActionResult<ApiResult<WorkoutDTO>>> GetCurrentUserWorkoutsAsync(
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -433,8 +436,9 @@ public class UsersController : APIController
             if (userWorkouts is null)
                 return EntryNotFound("User workouts");
 
-            return await ApiResult<Workout>.CreateAsync(
-                userWorkouts.AsQueryable(),
+            var userWorkoutDTOs = userWorkouts.Select(m => mapper.Map<WorkoutDTO>(m));
+            return await ApiResult<WorkoutDTO>.CreateAsync(
+                userWorkoutDTOs,
                 pageIndex,
                 pageSize,
                 sortColumn,
@@ -450,7 +454,7 @@ public class UsersController : APIController
     }
 
     [HttpGet($"user-exercises")]
-    public async Task<ActionResult<ApiResult<Exercise>>> GetCurrentUserCreatedExercisesAsync(
+    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetCurrentUserCreatedExercisesAsync(
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -469,8 +473,9 @@ public class UsersController : APIController
             if (userCreatedExercises is null)
                 return EntryNotFound("User created exercises");
 
-            return await ApiResult<Exercise>.CreateAsync(
-                userCreatedExercises.AsQueryable(),
+            var userCreatedExerciseDTOs = userCreatedExercises.Select(m => mapper.Map<ExerciseDTO>(m));
+            return await ApiResult<ExerciseDTO>.CreateAsync(
+                userCreatedExerciseDTOs,
                 pageIndex,
                 pageSize,
                 sortColumn,
@@ -486,7 +491,7 @@ public class UsersController : APIController
     }
 
     [HttpGet($"user-exercise_records")]
-    public async Task<ActionResult<ApiResult<ExerciseRecord>>> GetCurrentUserExerciseRecordsAsync(
+    public async Task<ActionResult<ApiResult<ExerciseRecordDTO>>> GetCurrentUserExerciseRecordsAsync(
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -505,8 +510,46 @@ public class UsersController : APIController
             if (userExerciseRecords is null)
                 return EntryNotFound("User exercise records");
 
-            return await ApiResult<ExerciseRecord>.CreateAsync(
-                userExerciseRecords.AsQueryable(),
+            var userExerciseRecordDTOs = userExerciseRecords.Select(m => mapper.Map<ExerciseRecordDTO>(m));
+            return await ApiResult<ExerciseRecordDTO>.CreateAsync(
+                userExerciseRecordDTOs,
+                pageIndex,
+                pageSize,
+                sortColumn,
+                sortOrder,
+                filterColumn,
+                filterQuery
+            );
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
+    }
+
+    [HttpGet($"user-equipments")]
+    public async Task<ActionResult<ApiResult<EquipmentDTO>>> GetCurrentUserEquipmentsAsync(
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? sortColumn = null,
+        string? sortOrder = null,
+        string? filterColumn = null,
+        string? filterQuery = null)
+    {
+        if (pageIndex < 0 || pageSize <= 0)
+            return InvalidPageIndexOrPageSize();
+
+        try
+        {
+            string currentUserId = httpContextAccessor.GetUserId()!;
+            var userEquipments = await userService.GetUserEquipmentsAsync(currentUserId);
+
+            if (userEquipments is null)
+                return EntryNotFound("User equipments");
+
+            var userEquipmentDTOs = userEquipments.Select(m => mapper.Map<EquipmentDTO>(m));
+            return await ApiResult<EquipmentDTO>.CreateAsync(
+                userEquipmentDTOs,
                 pageIndex,
                 pageSize,
                 sortColumn,

@@ -7,6 +7,7 @@ using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
+using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Exceptions;
 using WorkoutTrackerAPI.Extentions;
 
@@ -134,6 +135,12 @@ public class UserRepository
     {
         User userWithCreatedExercises = await db.Users.Include(u => u.CreatedExercises).SingleAsync(u => u.Id == userId);
         return userWithCreatedExercises.CreatedExercises?.AsQueryable();
+    }
+
+    public virtual async Task<IQueryable<Equipment>?> GetUserEquipmentsAsync(string userId)
+    {
+        User userWithCreatedExercises = await db.Users.Include(u => u.UserEquipments).SingleAsync(u => u.Id == userId);
+        return userWithCreatedExercises.UserEquipments?.AsQueryable();
     }
 
     #endregion

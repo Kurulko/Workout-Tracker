@@ -28,7 +28,7 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
             if (exercise is null)
                 throw  exerciseIsNullException;
 
-            if (exercise.IsCreatedByUser)
+            if (!string.IsNullOrEmpty(exercise.CreatedByUserId))
                 throw new UnauthorizedAccessException("Exercise entry cannot be created by user.");
 
             if (exercise.Id != 0)
@@ -83,7 +83,7 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
 
             var exercise = await baseWorkoutRepository.GetByIdAsync(exerciseId) ?? throw exerciseNotFoundException;
 
-            if (exercise.IsCreatedByUser)
+            if (!string.IsNullOrEmpty(exercise.CreatedByUserId))
                 throw UserNotHavePermissionException("delete", "exercise");
 
             await baseWorkoutRepository.RemoveAsync(exerciseId);
@@ -270,7 +270,7 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
 
             var _exercise = await baseWorkoutRepository.GetByIdAsync(exercise.Id) ?? throw exerciseNotFoundException;
 
-            if (_exercise.IsCreatedByUser)
+            if (!string.IsNullOrEmpty(_exercise.CreatedByUserId))
                 throw UserNotHavePermissionException("update", "exercise");
 
             await baseWorkoutRepository.UpdateAsync(exercise);

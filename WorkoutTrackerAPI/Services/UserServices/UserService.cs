@@ -6,6 +6,7 @@ using System.Security.Claims;
 using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
+using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Exceptions;
 using WorkoutTrackerAPI.Extentions;
 using WorkoutTrackerAPI.Repositories;
@@ -193,6 +194,12 @@ public class UserService : BaseService<User>, IUserService
     {
         await CheckUserIdAsync(userId);
         return await userRepository.GetUserCreatedExercisesAsync(userId);
+    }
+
+    public async Task<IQueryable<Equipment>?> GetUserEquipmentsAsync(string userId)
+    {
+        await CheckUserIdAsync(userId);
+        return await userRepository.GetUserEquipmentsAsync(userId);
     }
 
     #endregion

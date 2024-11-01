@@ -5,6 +5,7 @@ using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Data.DTOs;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
+using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 
 namespace WorkoutTrackerAPI.Services.UserServices;
 
@@ -37,6 +38,7 @@ public interface IUserService
     Task<IQueryable<BodyWeight>?> GetUserBodyWeightsAsync(string userId);
     Task<IQueryable<Workout>?> GetUserWorkoutsAsync(string userId);
     Task<IQueryable<Exercise>?> GetUserCreatedExercisesAsync(string userId);
+    Task<IQueryable<Equipment>?> GetUserEquipmentsAsync(string userId);
 
     #endregion
 

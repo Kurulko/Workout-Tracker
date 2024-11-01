@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.Metrics;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
+using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Exceptions;
 
 namespace WorkoutTrackerAPI.Data;
@@ -16,9 +17,9 @@ public class WorkoutDbContext : IdentityDbContext<User>
     public DbSet<MuscleSize> MuscleSizes => Set<MuscleSize>();
     public DbSet<BodyWeight> BodyWeights => Set<BodyWeight>();
     public DbSet<ExerciseRecord> ExerciseRecords => Set<ExerciseRecord>();
+    public DbSet<Equipment> Equipments => Set<Equipment>();
 
-    public WorkoutDbContext(DbContextOptions options)
-        : base(options)
+    public WorkoutDbContext(DbContextOptions options) : base(options)
          => Database.EnsureCreated();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,6 +30,12 @@ public class WorkoutDbContext : IdentityDbContext<User>
             .HasOne(e => e.CreatedByUser)
             .WithMany(u => u.CreatedExercises)
             .HasForeignKey(e => e.CreatedByUserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Equipment>()
+            .HasOne(e => e.OwnedByUser)
+            .WithMany(u => u.UserEquipments)
+            .HasForeignKey(e => e.OwnedByUserId)
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<ExerciseRecord>()

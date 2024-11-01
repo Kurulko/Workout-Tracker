@@ -8,12 +8,15 @@ using System.Drawing;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
+using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Data.Settings;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
+using WorkoutTrackerAPI.Repositories.WorkoutRepositories;
 using WorkoutTrackerAPI.Services;
 using WorkoutTrackerAPI.Services.AccountServices;
 using WorkoutTrackerAPI.Services.BodyWeightServices;
+using WorkoutTrackerAPI.Services.EquipmentServices;
 using WorkoutTrackerAPI.Services.ExerciseRecordServices;
 using WorkoutTrackerAPI.Services.ExerciseServices;
 using WorkoutTrackerAPI.Services.ImpersonationServices;
@@ -81,6 +84,7 @@ public static class ServiceProviders
     {
         services.AddScoped<BodyWeightRepository>();
         services.AddScoped<ExerciseRepository>();
+        services.AddScoped<EquipmentRepository>();
         services.AddScoped<MuscleRepository>();
         services.AddScoped<MuscleSizeRepository>();
         services.AddScoped<WorkoutRepository>();
@@ -88,6 +92,7 @@ public static class ServiceProviders
 
         services.AddScoped<IBodyWeightService, BodyWeightService>();
         services.AddScoped<IExerciseService, ExerciseService>();
+        services.AddScoped<IEquipmentService, EquipmentService>();
         services.AddScoped<IMuscleService, MuscleService>();
         services.AddScoped<IMuscleSizeService, MuscleSizeService>();
         services.AddScoped<IWorkoutService, WorkoutService>();
