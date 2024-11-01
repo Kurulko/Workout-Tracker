@@ -1,4 +1,5 @@
-export interface WorkoutModel {
-    id: number;
+import { DbModel } from "./db-model.model";
+
+export interface WorkoutModel extends DbModel{
     name: string;
 }
