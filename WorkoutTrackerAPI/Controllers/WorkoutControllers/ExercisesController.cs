@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WorkoutTrackerAPI;
 using WorkoutTrackerAPI.Controllers.WorkoutControllers;
 using WorkoutTrackerAPI.Data;
+using WorkoutTrackerAPI.Data.DTOs;
 using WorkoutTrackerAPI.Data.Models;
+using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Extentions;
 using WorkoutTrackerAPI.Services;
 using WorkoutTrackerAPI.Services.ExerciseRecordServices;
@@ -13,18 +16,19 @@ using WorkoutTrackerAPI.Services.WorkoutServices;
 
 namespace ExerciseTrackerAPI.Controllers.ExerciseControllers;
 
-public class ExercisesController : BaseWorkoutController<Exercise>
+public class ExercisesController : BaseWorkoutController<Exercise, ExerciseDTO>
 {
     readonly IExerciseService exerciseService;
     readonly IHttpContextAccessor httpContextAccessor;
-    public ExercisesController(IExerciseService exerciseService, IHttpContextAccessor httpContextAccessor)
+    public ExercisesController(IExerciseService exerciseService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        : base(mapper)
     {
         this.exerciseService = exerciseService;
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    ActionResult<Exercise> HandleExerciseServiceResult(ServiceResult<Exercise> serviceResult)
-        => HandleServiceResult(serviceResult, "Exercise not found.");
+    ActionResult<ExerciseDTO> HandleExerciseDTOServiceResult(ServiceResult<Exercise> serviceResult)
+        => HandleDTOServiceResult(serviceResult, "Exercise not found.");
 
     ActionResult InvalidExerciseID()
         => InvalidEntryID(nameof(Exercise));
@@ -38,7 +42,7 @@ public class ExercisesController : BaseWorkoutController<Exercise>
         => InvalidEntryIDWhileAdding(nameof(Exercise), "exercise");
 
     [HttpGet("exercises")]
-    public async Task<ActionResult<ApiResult<Exercise>>> GetExercisesAsync(
+    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetExercisesAsync(
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -54,11 +58,12 @@ public class ExercisesController : BaseWorkoutController<Exercise>
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
 
-        if (serviceResult.Model is null)
+        if (serviceResult.Model is not IQueryable<Exercise> exercises)
             return EntryNotFound("Exercises");
 
-        return await ApiResult<Exercise>.CreateAsync(
-            serviceResult.Model!,
+        var exerciseDTOs = exercises.Select(m => mapper.Map<ExerciseDTO>(m));
+        return await ApiResult<ExerciseDTO>.CreateAsync(
+            exerciseDTOs,
             pageIndex,
             pageSize,
             sortColumn,
@@ -69,7 +74,7 @@ public class ExercisesController : BaseWorkoutController<Exercise>
     }
 
     [HttpGet("user-exercises")]
-    public async Task<ActionResult<ApiResult<Exercise>>> GetCurrentUserExercisesAsync(
+    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetCurrentUserExercisesAsync(
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -86,11 +91,12 @@ public class ExercisesController : BaseWorkoutController<Exercise>
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
 
-        if (serviceResult.Model is null)
-            return EntryNotFound("User exercises");
+        if (serviceResult.Model is not IQueryable<Exercise> exercises)
+            return EntryNotFound("Exercises");
 
-        return await ApiResult<Exercise>.CreateAsync(
-            serviceResult.Model!,
+        var exerciseDTOs = exercises.Select(m => mapper.Map<ExerciseDTO>(m));
+        return await ApiResult<ExerciseDTO>.CreateAsync(
+            exerciseDTOs,
             pageIndex,
             pageSize,
             sortColumn,
@@ -102,51 +108,51 @@ public class ExercisesController : BaseWorkoutController<Exercise>
 
     [HttpGet("exercise/{exerciseId}")]
     [ActionName(nameof(GetExerciseByIdAsync))]
-    public async Task<ActionResult<Exercise>> GetExerciseByIdAsync(long exerciseId)
+    public async Task<ActionResult<ExerciseDTO>> GetExerciseByIdAsync(long exerciseId)
     {
         if (exerciseId < 1)
             return InvalidExerciseID();
 
         var serviceResult = await exerciseService.GetExerciseByIdAsync(exerciseId);
-        return HandleExerciseServiceResult(serviceResult);
+        return HandleExerciseDTOServiceResult(serviceResult);
     }
 
     [HttpGet("user-exercise/{exerciseId}")]
     [ActionName(nameof(GetCurrentUserExerciseByIdAsync))]
-    public async Task<ActionResult<Exercise>> GetCurrentUserExerciseByIdAsync(long exerciseId)
+    public async Task<ActionResult<ExerciseDTO>> GetCurrentUserExerciseByIdAsync(long exerciseId)
     {
         if (exerciseId < 1)
             return InvalidExerciseID();
 
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await exerciseService.GetUserExerciseByIdAsync(userId, exerciseId);
-        return HandleServiceResult(serviceResult, "User exercise not found.");
+        return HandleDTOServiceResult(serviceResult, "User exercise not found.");
     }
 
     [HttpGet("exercise/by-name/{name}")]
-    public async Task<ActionResult<Exercise>> GetExerciseByNameAsync(string name)
+    public async Task<ActionResult<ExerciseDTO>> GetExerciseByNameAsync(string name)
     {
         if (string.IsNullOrEmpty(name))
             return ExerciseNameIsNullOrEmpty();
 
         var serviceResult = await exerciseService.GetExerciseByNameAsync(name);
-        return HandleExerciseServiceResult(serviceResult);
+        return HandleExerciseDTOServiceResult(serviceResult);
     }
 
     [HttpGet("user-exercise/by-name/{name}")]
-    public async Task<ActionResult<Exercise>> GetCurrentUserExerciseByNameAsync(string name)
+    public async Task<ActionResult<ExerciseDTO>> GetCurrentUserExerciseByNameAsync(string name)
     {
         if (string.IsNullOrEmpty(name))
             return ExerciseNameIsNullOrEmpty();
 
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await exerciseService.GetUserExerciseByNameAsync(userId, name);
-        return HandleServiceResult(serviceResult, "User exercise not found.");
+        return HandleDTOServiceResult(serviceResult, "User exercise not found.");
     }
 
     [HttpPost]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<ActionResult<Exercise>> AddExerciseAsync(Exercise exercise)
+    public async Task<IActionResult> AddExerciseAsync(Exercise exercise)
     {
         if (exercise is null)
             return ExerciseIsNull();
@@ -165,7 +171,7 @@ public class ExercisesController : BaseWorkoutController<Exercise>
     }
 
     [HttpPost("user-exercise")]
-    public async Task<ActionResult<Exercise>> AddCurrentUserExerciseAsync(Exercise exercise)
+    public async Task<IActionResult> AddCurrentUserExerciseAsync(Exercise exercise)
     {
         if (exercise is null)
             return ExerciseIsNull();

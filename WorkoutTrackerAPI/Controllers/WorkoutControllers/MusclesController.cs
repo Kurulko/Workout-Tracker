@@ -3,17 +3,20 @@ using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Services.MuscleServices;
 using Microsoft.AspNetCore.Authorization;
+using WorkoutTrackerAPI.Data.DTOs;
+using WorkoutTrackerAPI.Data.Models.UserModels;
+using AutoMapper;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
-public class MusclesController : BaseWorkoutController<Muscle>
+public class MusclesController : BaseWorkoutController<Muscle, MuscleDTO>
 {
     readonly IMuscleService muscleService;
-    public MusclesController(IMuscleService muscleService)
+    public MusclesController(IMuscleService muscleService, IMapper mapper) : base(mapper)
         => this.muscleService = muscleService;
 
-    ActionResult<Muscle> HandleMuscleServiceResult(ServiceResult<Muscle> serviceResult)
-        => HandleServiceResult(serviceResult, "Muscle not found.");
+    ActionResult<MuscleDTO> HandleMuscleDTOServiceResult(ServiceResult<Muscle> serviceResult)
+        => HandleDTOServiceResult(serviceResult, "Muscle not found.");
 
     ActionResult InvalidMuscleID()
         => InvalidEntryID(nameof(Muscle));
@@ -24,7 +27,7 @@ public class MusclesController : BaseWorkoutController<Muscle>
 
 
     [HttpGet]
-    public async Task<ActionResult<ApiResult<Muscle>>> GetMusclesAsync(
+    public async Task<ActionResult<ApiResult<MuscleDTO>>> GetMusclesAsync(
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -40,11 +43,12 @@ public class MusclesController : BaseWorkoutController<Muscle>
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
 
-        if (serviceResult.Model is null)
+        if (serviceResult.Model is not IQueryable<Muscle> muscles)
             return EntryNotFound("Muscles");
 
-        return await ApiResult<Muscle>.CreateAsync(
-            serviceResult.Model!,
+        var muscleDTOs = muscles.Select(m => mapper.Map<MuscleDTO>(m));
+        return await ApiResult<MuscleDTO>.CreateAsync(
+            muscleDTOs,
             pageIndex,
             pageSize,
             sortColumn,
@@ -56,23 +60,23 @@ public class MusclesController : BaseWorkoutController<Muscle>
 
     [HttpGet("{muscleId}")]
     [ActionName(nameof(GetMuscleByIdAsync))]
-    public async Task<ActionResult<Muscle>> GetMuscleByIdAsync(long muscleId)
+    public async Task<ActionResult<MuscleDTO>> GetMuscleByIdAsync(long muscleId)
     {
         if (muscleId < 1)
             return InvalidMuscleID();
 
         var serviceResult = await muscleService.GetMuscleByIdAsync(muscleId);
-        return HandleMuscleServiceResult(serviceResult);
+        return HandleMuscleDTOServiceResult(serviceResult);
     }
 
     [HttpGet("by-name/{name}")]
-    public async Task<ActionResult<Muscle>> GetMuscleByNameAsync(string name)
+    public async Task<ActionResult<MuscleDTO>> GetMuscleByNameAsync(string name)
     {
         if (string.IsNullOrEmpty(name))
             return MuscleNameIsNullOrEmpty();
 
         var serviceResult = await muscleService.GetMuscleByNameAsync(name);
-        return HandleMuscleServiceResult(serviceResult);
+        return HandleMuscleDTOServiceResult(serviceResult);
     }
 
     [HttpPost]

@@ -9,21 +9,25 @@ using System.Data;
 using WorkoutTrackerAPI.Services;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Extentions;
+using WorkoutTrackerAPI.Data.DTOs;
+using AutoMapper;
 
 namespace WorkoutTrackerAPI.Controllers.UserControllers;
 
-public class ExerciseRecordsController : DbModelController<ExerciseRecord>
+[Route("api/exercise-records")]
+public class ExerciseRecordsController : DbModelController<ExerciseRecord, ExerciseRecordDTO>
 {
     readonly IExerciseRecordService exerciseRecordService;
     readonly IHttpContextAccessor httpContextAccessor;
-    public ExerciseRecordsController(IExerciseRecordService exerciseRecordService, IHttpContextAccessor httpContextAccessor)
+    public ExerciseRecordsController(IExerciseRecordService exerciseRecordService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        : base(mapper)
     {
         this.exerciseRecordService = exerciseRecordService;
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    ActionResult<ExerciseRecord> HandleExerciseRecordServiceResult(ServiceResult<ExerciseRecord> serviceResult)
-        => HandleServiceResult(serviceResult, "Exercise record not found.");
+    ActionResult<ExerciseRecordDTO> HandleExerciseRecordDTOServiceResult(ServiceResult<ExerciseRecord> serviceResult)
+        => HandleDTOServiceResult(serviceResult, "Exercise record not found.");
 
     ActionResult InvalidExerciseRecordID()
         => InvalidEntryID(nameof(ExerciseRecord));
@@ -34,7 +38,7 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecord>
 
 
     [HttpGet]
-    public async Task<ActionResult<ApiResult<ExerciseRecord>>> GetCurrentUserExerciseRecordsAsync(
+    public async Task<ActionResult<ApiResult<ExerciseRecordDTO>>> GetCurrentUserExerciseRecordsAsync(
         long exerciseId,
         int pageIndex = 0,
         int pageSize = 10,
@@ -55,11 +59,12 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecord>
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
 
-        if (serviceResult.Model is null)
+        if (serviceResult.Model is not IQueryable<ExerciseRecord> exerciseRecords)
             return EntryNotFound("Exercise records");
 
-        return await ApiResult<ExerciseRecord>.CreateAsync(
-            serviceResult.Model!,
+        var exerciseRecordDTOs = exerciseRecords.Select(m => mapper.Map<ExerciseRecordDTO>(m));
+        return await ApiResult<ExerciseRecordDTO>.CreateAsync(
+            exerciseRecordDTOs,
             pageIndex,
             pageSize,
             sortColumn,
@@ -71,30 +76,30 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecord>
 
     [HttpGet("{exerciseRecordId}")]
     [ActionName(nameof(GetCurrentUserExerciseRecordByIdAsync))]
-    public async Task<ActionResult<ExerciseRecord>> GetCurrentUserExerciseRecordByIdAsync(long exerciseRecordId)
+    public async Task<ActionResult<ExerciseRecordDTO>> GetCurrentUserExerciseRecordByIdAsync(long exerciseRecordId)
     {
         if (exerciseRecordId < 1)
             return InvalidExerciseRecordID();
        
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await exerciseRecordService.GetUserExerciseRecordByIdAsync(userId, exerciseRecordId);
-        return HandleExerciseRecordServiceResult(serviceResult);
+        return HandleExerciseRecordDTOServiceResult(serviceResult);
     }
 
     [HttpGet("by-date")]
-    public async Task<ActionResult<ExerciseRecord>> GetCurrentUserExerciseRecordByDateAsync(long exerciseId, DateTime date)
+    public async Task<ActionResult<ExerciseRecordDTO>> GetCurrentUserExerciseRecordByDateAsync(long exerciseId, DateTime date)
     {
         if (exerciseId < 1)
             return InvalidExerciseID();
 
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await exerciseRecordService.GetUserExerciseRecordByDateAsync(userId, exerciseId, DateOnly.FromDateTime(date));
-        return HandleExerciseRecordServiceResult(serviceResult);
+        return HandleExerciseRecordDTOServiceResult(serviceResult);
     }
 
 
     [HttpPost]
-    public async Task<ActionResult<ExerciseRecord>> AddExerciseRecordToCurrentUserAsync(ExerciseRecord exerciseRecord)
+    public async Task<IActionResult> AddExerciseRecordToCurrentUserAsync(ExerciseRecord exerciseRecord)
     {
         if (exerciseRecord is null)
             return ExerciseRecordIsNull();

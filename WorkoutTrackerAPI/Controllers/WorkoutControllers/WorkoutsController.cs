@@ -1,32 +1,26 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WorkoutTrackerAPI.Data.DTOs;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Services;
 using WorkoutTrackerAPI.Services.WorkoutServices;
-using WorkoutTrackerAPI.Exceptions;
-using Microsoft.EntityFrameworkCore;
-using WorkoutTrackerAPI.Services.MuscleServices;
-using WorkoutTrackerAPI.Services.ExerciseRecordServices;
 using WorkoutTrackerAPI.Extentions;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
-public class WorkoutsController : BaseWorkoutController<Workout>
+public class WorkoutsController : BaseWorkoutController<Workout, WorkoutDTO>
 {
     readonly IWorkoutService workoutService;
     readonly IHttpContextAccessor httpContextAccessor;
-    public WorkoutsController(IWorkoutService workoutService, IHttpContextAccessor httpContextAccessor)
+    public WorkoutsController(IWorkoutService workoutService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        : base(mapper)
     {
         this.workoutService = workoutService;
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    ActionResult<Workout> HandleWorkoutServiceResult(ServiceResult<Workout> serviceResult)
-        => HandleServiceResult(serviceResult, "Workout not found.");
+    ActionResult<WorkoutDTO> HandleWorkoutDTOServiceResult(ServiceResult<Workout> serviceResult)
+        => HandleDTOServiceResult(serviceResult, "Workout not found.");
 
     ActionResult InvalidWorkoutID()
         => InvalidEntryID(nameof(Workout));
@@ -37,7 +31,7 @@ public class WorkoutsController : BaseWorkoutController<Workout>
 
 
     [HttpGet]
-    public async Task<ActionResult<ApiResult<Workout>>> GetCurrentUserWorkoutsAsync(
+    public async Task<ActionResult<ApiResult<WorkoutDTO>>> GetCurrentUserWorkoutsAsync(
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -54,11 +48,12 @@ public class WorkoutsController : BaseWorkoutController<Workout>
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
 
-        if (serviceResult.Model is null)
+        if (serviceResult.Model is not IQueryable<Workout> workouts)
             return EntryNotFound("Workouts");
 
-        return await ApiResult<Workout>.CreateAsync(
-            serviceResult.Model!,
+        var workoutDTOs = workouts.Select(m => mapper.Map<WorkoutDTO>(m));
+        return await ApiResult<WorkoutDTO>.CreateAsync(
+            workoutDTOs,
             pageIndex,
             pageSize,
             sortColumn,
@@ -70,30 +65,30 @@ public class WorkoutsController : BaseWorkoutController<Workout>
 
     [HttpGet("{workoutId}")]
     [ActionName(nameof(GetCurrentUserWorkoutByIdAsync))]
-    public async Task<ActionResult<Workout>> GetCurrentUserWorkoutByIdAsync(long workoutId)
+    public async Task<ActionResult<WorkoutDTO>> GetCurrentUserWorkoutByIdAsync(long workoutId)
     {
         if (workoutId < 1)
             return InvalidWorkoutID();
 
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await workoutService.GetUserWorkoutByIdAsync(userId, workoutId);
-        return HandleWorkoutServiceResult(serviceResult);
+        return HandleWorkoutDTOServiceResult(serviceResult);
     }
 
     [HttpGet("by-name/{name}")]
-    public async Task<ActionResult<Workout>> GetCurrentUserWorkoutByNameAsync(string name)
+    public async Task<ActionResult<WorkoutDTO>> GetCurrentUserWorkoutByNameAsync(string name)
     {
         if (string.IsNullOrEmpty(name))
             return WorkoutNameIsNullOrEmpty();
 
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await workoutService.GetUserWorkoutByNameAsync(userId, name);
-        return HandleWorkoutServiceResult(serviceResult);
+        return HandleWorkoutDTOServiceResult(serviceResult);
     }
 
 
     [HttpPost]
-    public async Task<ActionResult<Workout>> AddCurrentUserWorkoutAsync(Workout workout)
+    public async Task<IActionResult> AddCurrentUserWorkoutAsync(Workout workout)
     {
         if (workout is null)
             return WorkoutIsNull();

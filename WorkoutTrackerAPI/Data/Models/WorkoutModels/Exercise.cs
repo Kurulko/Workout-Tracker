@@ -10,9 +10,6 @@ public class Exercise : WorkoutModel
     public string? Description { get; set; }
     public ExerciseType Type { get; set; }
 
-    [NotMapped]
-    public bool IsCreatedByUser => CreatedByUserId is not null;
-
     public string? CreatedByUserId { get; set; }
     public User? CreatedByUser { get; set; }
 

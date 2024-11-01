@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using WorkoutTrackerAPI.Data;
+using WorkoutTrackerAPI.Data.DTOs;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Extentions;
@@ -14,18 +16,20 @@ using WorkoutTrackerAPI.Services.ExerciseServices;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
-public class BodyWeightsController : DbModelController<BodyWeight>
+[Route("api/body-weights")]
+public class BodyWeightsController : DbModelController<BodyWeight, BodyWeightDTO>
 {
     readonly IHttpContextAccessor httpContextAccessor;
     readonly IBodyWeightService bodyWeightService;
-    public BodyWeightsController(IBodyWeightService bodyWeightService, IHttpContextAccessor httpContextAccessor)
+    public BodyWeightsController(IBodyWeightService bodyWeightService, IMapper mapper, IHttpContextAccessor httpContextAccessor) 
+        : base(mapper)
     {
         this.bodyWeightService = bodyWeightService;
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    ActionResult<BodyWeight> HandleBodyWeightServiceResult(ServiceResult<BodyWeight> serviceResult)
-        => HandleServiceResult(serviceResult, "Body weight not found.");
+    ActionResult<BodyWeightDTO> HandleBodyWeightDTOServiceResult(ServiceResult<BodyWeight> serviceResult)
+        => HandleDTOServiceResult(serviceResult, "Body weight not found.");
 
     ActionResult InvalidBodyWeightID()
         => InvalidEntryID(nameof(BodyWeight));
@@ -33,7 +37,7 @@ public class BodyWeightsController : DbModelController<BodyWeight>
         => EntryIsNull("Body weight");
 
     [HttpGet]
-    public async Task<ActionResult<ApiResult<BodyWeight>>> GetCurrentUserBodyWeightsAsync(
+    public async Task<ActionResult<ApiResult<BodyWeightDTO>>> GetCurrentUserBodyWeightsAsync(
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -50,11 +54,12 @@ public class BodyWeightsController : DbModelController<BodyWeight>
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
 
-        if (serviceResult.Model is null)
+        if (serviceResult.Model is not IQueryable<BodyWeight> bodyWeights)
             return EntryNotFound("Body weights");
 
-        return await ApiResult<BodyWeight>.CreateAsync(
-            serviceResult.Model,
+        var bodyWeightDTOs = bodyWeights.Select(m => mapper.Map<BodyWeightDTO>(m));
+        return await ApiResult<BodyWeightDTO>.CreateAsync(
+            bodyWeightDTOs,
             pageIndex,
             pageSize,
             sortColumn,
@@ -66,42 +71,42 @@ public class BodyWeightsController : DbModelController<BodyWeight>
 
     [HttpGet("{bodyWeightId}")]
     [ActionName(nameof(GetCurrentUserBodyWeightByIdAsync))]
-    public async Task<ActionResult<BodyWeight>> GetCurrentUserBodyWeightByIdAsync(long bodyWeightId)
+    public async Task<ActionResult<BodyWeightDTO>> GetCurrentUserBodyWeightByIdAsync(long bodyWeightId)
     {
         if (bodyWeightId < 1)
             return InvalidBodyWeightID();
 
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await bodyWeightService.GetUserBodyWeightByIdAsync(userId, bodyWeightId);
-        return HandleBodyWeightServiceResult(serviceResult);
+        return HandleDTOServiceResult(serviceResult);
     }
 
     [HttpGet("by-date")]
-    public async Task<ActionResult<BodyWeight>> GetCurrentUserBodyWeightByDateAsync(DateTime date)
+    public async Task<ActionResult<BodyWeightDTO>> GetCurrentUserBodyWeightByDateAsync(DateTime date)
     {
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await bodyWeightService.GetUserBodyWeightByDateAsync(userId, DateOnly.FromDateTime(date));
-        return HandleBodyWeightServiceResult(serviceResult);
+        return HandleDTOServiceResult(serviceResult);
     }
 
     [HttpGet("min-body-weight")]
-    public async Task<ActionResult<BodyWeight>> GetMinCurrentUserBodyWeightAsync()
+    public async Task<ActionResult<BodyWeightDTO>> GetMinCurrentUserBodyWeightAsync()
     {
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await bodyWeightService.GetMinUserBodyWeightAsync(userId);
-        return HandleBodyWeightServiceResult(serviceResult);
+        return HandleDTOServiceResult(serviceResult);
     }
 
     [HttpGet("max-body-weight")]
-    public async Task<ActionResult<BodyWeight>> GetMaxCurrentUserBodyWeightAsync()
+    public async Task<ActionResult<BodyWeightDTO>> GetMaxCurrentUserBodyWeightAsync()
     {
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await bodyWeightService.GetMaxUserBodyWeightAsync(userId);
-        return HandleBodyWeightServiceResult(serviceResult);
+        return HandleDTOServiceResult(serviceResult);
     }
 
     [HttpPost]
-    public async Task<ActionResult<BodyWeight>> AddBodyWeightToCurrentUserAsync(BodyWeight bodyWeight)
+    public async Task<IActionResult> AddBodyWeightToCurrentUserAsync([FromBody] BodyWeight bodyWeight)
     {
         if (bodyWeight is null)
             return BodyWeightIsNull();
@@ -121,7 +126,7 @@ public class BodyWeightsController : DbModelController<BodyWeight>
     }
 
     [HttpPut("{bodyWeightId}")]
-    public async Task<IActionResult> UpdateCurrentUserBodyWeightAsync(long bodyWeightId, BodyWeight bodyWeight)
+    public async Task<IActionResult> UpdateCurrentUserBodyWeightAsync(long bodyWeightId, [FromBody] BodyWeight bodyWeight)
     {
         if (bodyWeightId < 1)
             return InvalidBodyWeightID();
