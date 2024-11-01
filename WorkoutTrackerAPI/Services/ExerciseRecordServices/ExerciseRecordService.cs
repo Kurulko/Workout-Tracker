@@ -28,8 +28,11 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
             if (exerciseRecord is null)
                 throw exerciseRecordIsNullException;
 
-            if (exerciseRecord.Id != 0)
-                throw InvalidEntryIDWhileAddingException(nameof(ExerciseRecord), "exercise record");
+            if (exerciseRecord.Id == 0)
+            {
+
+            }
+                //throw InvalidEntryIDWhileAddingException(nameof(ExerciseRecord), "exercise record");
 
             exerciseRecord.UserId = userId;
             await baseRepository.AddAsync(exerciseRecord);

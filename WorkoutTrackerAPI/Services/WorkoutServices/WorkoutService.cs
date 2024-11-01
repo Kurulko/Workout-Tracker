@@ -15,9 +15,9 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
     public WorkoutService(WorkoutRepository baseWorkoutRepository, UserRepository userRepository) : base(baseWorkoutRepository)
         => this.userRepository = userRepository;
 
-    readonly EntryNullException workoutIsNullException = new (nameof(Workout));
-    readonly InvalidIDException invalidWorkoutIDException = new (nameof(Workout));
-    readonly NotFoundException workoutNotFoundException = new (nameof(Workout));
+    readonly EntryNullException workoutIsNullException = new(nameof(Workout));
+    readonly InvalidIDException invalidWorkoutIDException = new(nameof(Workout));
+    readonly NotFoundException workoutNotFoundException = new(nameof(Workout));
     readonly ArgumentNullOrEmptyException workoutNameIsNullOrEmptyException = new("Workout name");
 
 
@@ -30,11 +30,20 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             if (workout is null)
                 throw workoutIsNullException;
 
-            if (workout.Id != 0)
-                throw InvalidEntryIDWhileAddingException(nameof(Workout), "workout");
-
             workout.UserId = userId;
-            await baseWorkoutRepository.AddAsync(workout);
+
+            //if (workout.Id != 0)
+            //throw InvalidEntryIDWhileAddingException(nameof(Workout), "workout");
+            if (workout.Id == 0)
+            {
+                workout.CountOfTrainings++;
+                workout.SumOfWeight += workout.We;
+                await baseWorkoutRepository.UpdateAsync(workout);
+            }
+            else
+            {
+                await baseWorkoutRepository.AddAsync(workout);
+            }
 
             return ServiceResult<Workout>.Ok(workout);
         }
