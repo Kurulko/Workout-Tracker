@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { BaseComponent } from './shared/components/base.component';
@@ -18,6 +19,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { MusclesComponent } from './muscles/muscles.component';
 import { MuscleEditComponent } from './muscles/edit-muscle.component';
+import { BodyWeightsComponent } from './body-weights/body-weights.component';
+import { BodyWeightEditComponent } from './body-weights/edit-body-weight.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +32,9 @@ import { MuscleEditComponent } from './muscles/edit-muscle.component';
     NavMenuComponent,
     BaseComponent,
     MusclesComponent,
-    MuscleEditComponent
+    MuscleEditComponent,
+    BodyWeightsComponent,
+    BodyWeightEditComponent
   ],
   imports: [
     BrowserModule,
@@ -47,6 +52,7 @@ import { MuscleEditComponent } from './muscles/edit-muscle.component';
       multi: true 
     }
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

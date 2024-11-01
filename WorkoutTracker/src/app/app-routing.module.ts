@@ -8,6 +8,8 @@ import { NotFoundComponent } from '../app/not-found/not-found.component';
 import { HomeComponent } from '../app/home/home.component';
 import { MusclesComponent } from '../app/muscles/muscles.component';
 import { MuscleEditComponent } from '../app/muscles/edit-muscle.component';
+import { BodyWeightsComponent } from '../app/body-weights/body-weights.component';
+import { BodyWeightEditComponent } from '../app/body-weights/edit-body-weight.component';
 
 const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -18,6 +20,9 @@ const routes: Routes = [
     { path: 'muscles', component: MusclesComponent, canActivate: [AuthGuard] },
     { path: 'muscle', component: MuscleEditComponent, canActivate: [AuthGuard] },
     { path: 'muscle/:id', component: MuscleEditComponent, canActivate: [AuthGuard] },
+    { path: 'body-weights', component: BodyWeightsComponent, canActivate: [AuthGuard] },
+    { path: 'body-weight', component: BodyWeightEditComponent, canActivate: [AuthGuard] },
+    { path: 'body-weight/:id', component: BodyWeightEditComponent, canActivate: [AuthGuard] },
     { path: '**', component: NotFoundComponent },
 ];
 

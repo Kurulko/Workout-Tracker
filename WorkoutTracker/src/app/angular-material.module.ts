@@ -9,6 +9,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { NgxMatDatetimePickerModule, NgxMatNativeDateModule, NgxMatTimepickerModule } from '@angular-material-components/datetime-picker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatCardModule } from '@angular/material/card';
+import { CommonModule } from '@angular/common';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @NgModule({
   imports: [
@@ -21,7 +27,10 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatInputModule,
     MatSelectModule,
     MatSnackBarModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatFormFieldModule,
   ],
   exports: [
     MatButtonModule,
@@ -33,7 +42,10 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatInputModule,
     MatSelectModule,
     MatSnackBarModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatFormFieldModule,
   ]
 })
 export class AngularMaterialModule { }
