@@ -50,9 +50,9 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
         if (serviceResult.Model is not IQueryable<BodyWeight> bodyWeights)
             return EntryNotFound("Body weights");
 
-        var bodyWeightDTOs = bodyWeights.Select(m => mapper.Map<BodyWeightDTO>(m));
+        var bodyWeightDTOs = bodyWeights.AsEnumerable().Select(m => mapper.Map<BodyWeightDTO>(m));
         return await ApiResult<BodyWeightDTO>.CreateAsync(
-            bodyWeightDTOs,
+            bodyWeightDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,
@@ -116,7 +116,7 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
 
         bodyWeight = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetCurrentUserBodyWeightByIdAsync), new { id = bodyWeight.Id }, bodyWeight);
+        return CreatedAtAction(nameof(GetCurrentUserBodyWeightByIdAsync), new { bodyWeightId = bodyWeight.Id }, bodyWeight);
     }
 
     [HttpPut("{bodyWeightId}")]

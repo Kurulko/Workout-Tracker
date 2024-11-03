@@ -46,9 +46,9 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (serviceResult.Model is not IQueryable<Muscle> muscles)
             return EntryNotFound("Muscles");
 
-        var muscleDTOs = muscles.Select(m => mapper.Map<MuscleDTO>(m));
+        var muscleDTOs = muscles.AsEnumerable().Select(m => mapper.Map<MuscleDTO>(m));
         return await ApiResult<MuscleDTO>.CreateAsync(
-            muscleDTOs,
+            muscleDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,

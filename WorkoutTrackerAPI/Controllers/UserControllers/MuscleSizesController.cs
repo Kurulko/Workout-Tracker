@@ -64,9 +64,9 @@ public class MuscleSizesController : DbModelController<MuscleSizeDTO, MuscleSize
         if (serviceResult.Model is not IQueryable<MuscleSize> muscleSizes)
             return EntryNotFound("Muscle sizes");
 
-        var muscleSizeDTOs = muscleSizes.Select(m => mapper.Map<MuscleSizeDTO>(m));
+        var muscleSizeDTOs = muscleSizes.AsEnumerable().Select(m => mapper.Map<MuscleSizeDTO>(m));
         return await ApiResult<MuscleSizeDTO>.CreateAsync(
-            muscleSizeDTOs,
+            muscleSizeDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,
@@ -140,7 +140,7 @@ public class MuscleSizesController : DbModelController<MuscleSizeDTO, MuscleSize
 
         muscleSize = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetCurrentUserMuscleSizeByIdAsync), new { id = muscleSize.Id }, muscleSize);
+        return CreatedAtAction(nameof(GetCurrentUserMuscleSizeByIdAsync), new { muscleSizeId = muscleSize.Id }, muscleSize);
     }
 
     [HttpPut("{muscleSizeId}")]

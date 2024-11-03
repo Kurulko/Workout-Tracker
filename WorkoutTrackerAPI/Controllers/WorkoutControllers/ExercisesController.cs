@@ -61,9 +61,9 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (serviceResult.Model is not IQueryable<Exercise> exercises)
             return EntryNotFound("Exercises");
 
-        var exerciseDTOs = exercises.Select(m => mapper.Map<ExerciseDTO>(m));
+        var exerciseDTOs = exercises.AsEnumerable().Select(m => mapper.Map<ExerciseDTO>(m));
         return await ApiResult<ExerciseDTO>.CreateAsync(
-            exerciseDTOs,
+            exerciseDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,
@@ -94,9 +94,9 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (serviceResult.Model is not IQueryable<Exercise> exercises)
             return EntryNotFound("Exercises");
 
-        var exerciseDTOs = exercises.Select(m => mapper.Map<ExerciseDTO>(m));
+        var exerciseDTOs = exercises.AsEnumerable().Select(m => mapper.Map<ExerciseDTO>(m));
         return await ApiResult<ExerciseDTO>.CreateAsync(
-            exerciseDTOs,
+            exerciseDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,
@@ -168,7 +168,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
         exercise = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetExerciseByIdAsync), new { id = exercise.Id }, exercise);
+        return CreatedAtAction(nameof(GetExerciseByIdAsync), new { exerciseId = exercise.Id }, exercise);
     }
 
     [HttpPost("user-exercise")]
@@ -189,7 +189,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
         exercise = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetCurrentUserExerciseByIdAsync), new { id = exercise.Id }, exercise);
+        return CreatedAtAction(nameof(GetCurrentUserExerciseByIdAsync), new { exerciseId = exercise.Id }, exercise);
     }
 
     [HttpPut("{exerciseId}")]

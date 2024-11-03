@@ -52,9 +52,9 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
         if (serviceResult.Model is not IQueryable<Workout> workouts)
             return EntryNotFound("Workouts");
 
-        var workoutDTOs = workouts.Select(m => mapper.Map<WorkoutDTO>(m));
+        var workoutDTOs = workouts.AsEnumerable().Select(m => mapper.Map<WorkoutDTO>(m));
         return await ApiResult<WorkoutDTO>.CreateAsync(
-            workoutDTOs,
+            workoutDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,
@@ -103,7 +103,7 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
 
         workout = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetCurrentUserWorkoutByIdAsync), new { id = workout.Id }, workout);
+        return CreatedAtAction(nameof(GetCurrentUserWorkoutByIdAsync), new { workoutId = workout.Id }, workout);
     }
 
     [HttpPut("{workoutId}")]

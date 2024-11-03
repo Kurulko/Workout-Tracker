@@ -70,9 +70,9 @@ public class UsersController : APIController
             if (users is null)
                 return EntryNotFound("Users");
 
-            var userDTOs = users.Select(u => mapper.Map<UserDTO>(u));
+            var userDTOs = users.AsEnumerable().Select(u => mapper.Map<UserDTO>(u));
             return await ApiResult<UserDTO>.CreateAsync(
-                userDTOs,
+                userDTOs.AsQueryable(),
                 pageIndex,
                 pageSize,
                 sortColumn,
@@ -182,7 +182,7 @@ public class UsersController : APIController
             await userService.AddUserAsync(user);
 
             var userDTO = mapper.Map<UserDTO>(user);
-            return CreatedAtAction(nameof(GetUserByIdAsync), new { id = userDTO.UserId }, userDTO);
+            return CreatedAtAction(nameof(GetUserByIdAsync), new { userId = userDTO.UserId }, userDTO);
         }
         catch (Exception ex)
         {
@@ -207,7 +207,7 @@ public class UsersController : APIController
             return HandleIdentityResult(result);
 
         var userDTO = mapper.Map<UserDTO>(user);
-        return CreatedAtAction(nameof(GetUserByIdAsync), new { id = userDTO.UserId }, userDTO);
+        return CreatedAtAction(nameof(GetUserByIdAsync), new { userId = userDTO.UserId }, userDTO);
     }
 
     [HttpPut("{userId}")]

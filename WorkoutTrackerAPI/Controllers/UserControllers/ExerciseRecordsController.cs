@@ -62,9 +62,9 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
         if (serviceResult.Model is not IQueryable<ExerciseRecord> exerciseRecords)
             return EntryNotFound("Exercise records");
 
-        var exerciseRecordDTOs = exerciseRecords.Select(m => mapper.Map<ExerciseRecordDTO>(m));
+        var exerciseRecordDTOs = exerciseRecords.AsEnumerable().Select(m => mapper.Map<ExerciseRecordDTO>(m));
         return await ApiResult<ExerciseRecordDTO>.CreateAsync(
-            exerciseRecordDTOs,
+            exerciseRecordDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,
@@ -113,7 +113,7 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
 
         exerciseRecord = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetCurrentUserExerciseRecordByIdAsync), new { id = exerciseRecord.Id }, exerciseRecord);
+        return CreatedAtAction(nameof(GetCurrentUserExerciseRecordByIdAsync), new { exerciseRecordId = exerciseRecord.Id }, exerciseRecord);
     }
 
     [HttpPut("{exerciseRecordId}")]

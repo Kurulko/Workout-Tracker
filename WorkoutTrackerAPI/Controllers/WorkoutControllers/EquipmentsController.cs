@@ -55,9 +55,9 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
         if (serviceResult.Model is not IQueryable<Equipment> equipments)
             return EntryNotFound("Equipments");
 
-        var equipmentDTOs = equipments.Select(m => mapper.Map<EquipmentDTO>(m));
+        var equipmentDTOs = equipments.AsEnumerable().Select(m => mapper.Map<EquipmentDTO>(m));
         return await ApiResult<EquipmentDTO>.CreateAsync(
-            equipmentDTOs,
+            equipmentDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,
@@ -162,7 +162,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 
         equipment = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetEquipmentByIdAsync), new { id = equipment.Id }, equipment);
+        return CreatedAtAction(nameof(GetEquipmentByIdAsync), new { equipmentId = equipment.Id }, equipment);
     }
 
     [HttpPost("user-equipment")]
