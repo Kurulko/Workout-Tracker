@@ -51,11 +51,11 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<Workout>.Fail(ex.Message);
+            return ServiceResult<Workout>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<Workout>.Fail(FailedToActionStr("workout", "add", ex.Message));
+            return ServiceResult<Workout>.Fail(FailedToActionStr("workout", "add", ex));
         }
     }
 
@@ -78,7 +78,7 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult.Fail(ex.Message);
+            return ServiceResult.Fail(ex);
         }
         catch
         {
@@ -100,11 +100,11 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<Workout>.Fail(ex.Message);
+            return ServiceResult<Workout>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<Workout>.Fail(FailedToActionStr("workout", "get", ex.Message));
+            return ServiceResult<Workout>.Fail(FailedToActionStr("workout", "get", ex));
         }
     }
 
@@ -122,11 +122,11 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<Workout>.Fail(ex.Message);
+            return ServiceResult<Workout>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<Workout>.Fail(FailedToActionStr("workout by name", "get", ex.Message));
+            return ServiceResult<Workout>.Fail(FailedToActionStr("workout by name", "get", ex));
         }
     }
 
@@ -141,11 +141,11 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<IQueryable<Workout>>.Fail(ex.Message);
+            return ServiceResult<IQueryable<Workout>>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<Workout>>.Fail(FailedToActionStr("workouts", "get", ex.Message));
+            return ServiceResult<IQueryable<Workout>>.Fail(FailedToActionStr("workouts", "get", ex));
         }
     }
 
@@ -172,11 +172,11 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult.Fail(ex.Message);
+            return ServiceResult.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("workout", "update", ex.Message));
+            return ServiceResult.Fail(FailedToActionStr("workout", "update", ex));
         }
     }
 

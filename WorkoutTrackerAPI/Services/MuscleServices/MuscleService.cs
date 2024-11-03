@@ -34,7 +34,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
         catch (Exception ex)
         {
-            return ServiceResult<Muscle>.Fail(FailedToActionStr("muscle", "add", ex.Message));
+            return ServiceResult<Muscle>.Fail(FailedToActionStr("muscle", "add", ex));
         }
     }
 
@@ -71,7 +71,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
         catch (Exception ex)
         {
-            return ServiceResult<Muscle>.Fail(FailedToActionStr("muscle", "get", ex.Message));
+            return ServiceResult<Muscle>.Fail(FailedToActionStr("muscle", "get", ex));
         }
     }
 
@@ -87,7 +87,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
         catch (Exception ex)
         {
-            return ServiceResult<Muscle>.Fail(FailedToActionStr("muscle by name", "get", ex.Message));
+            return ServiceResult<Muscle>.Fail(FailedToActionStr("muscle by name", "get", ex));
         }
     }
 
@@ -100,7 +100,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<Muscle>>.Fail(FailedToActionStr("muscles", "get", ex.Message));
+            return ServiceResult<IQueryable<Muscle>>.Fail(FailedToActionStr("muscles", "get", ex));
         }
     }
 
@@ -141,7 +141,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("muscle", "update", ex.Message));
+            return ServiceResult.Fail(FailedToActionStr("muscle", "update", ex));
         }
     }
 }

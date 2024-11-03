@@ -23,10 +23,10 @@ public class UserRepository
         this.db = db;
     }
 
-    IQueryable<User> users => userManager.Users;
+    IQueryable<User> Users => userManager.Users;
 
-    static IdentityResult userNotFoundResult => IdentityResultExtentions.Failed("User not found.");
-    static IdentityResult userIDIsNullOrEmptyResult => IdentityResultExtentions.Failed("User ID cannot not be null or empty.");
+    static IdentityResult UserNotFoundResult => IdentityResultExtentions.Failed("User not found.");
+    static IdentityResult UserIDIsNullOrEmptyResult => IdentityResultExtentions.Failed("User ID cannot not be null or empty.");
 
     #region CRUD
 
@@ -52,7 +52,7 @@ public class UserRepository
     public virtual async Task<IdentityResult> UpdateUserAsync(User user)
     {
         if (string.IsNullOrEmpty(user.Id))
-            return userIDIsNullOrEmptyResult;
+            return UserIDIsNullOrEmptyResult;
 
         User? existingUser = await GetUserByIdAsync(user.Id);
 
@@ -67,20 +67,20 @@ public class UserRepository
             return await userManager.UpdateAsync(existingUser);
         }
 
-        return userNotFoundResult;
+        return UserNotFoundResult;
     }
 
     public virtual async Task<IdentityResult> DeleteUserAsync(string userId)
     {
         if (string.IsNullOrEmpty(userId))
-            return userIDIsNullOrEmptyResult;
+            return UserIDIsNullOrEmptyResult;
 
         User? user = await GetUserByIdAsync(userId);
 
         if (user is not null)
             return await userManager.DeleteAsync(user);
 
-        return userNotFoundResult;
+        return UserNotFoundResult;
     }
 
     public virtual async Task<User?> GetUserByUsernameAsync(string userName)
@@ -89,19 +89,19 @@ public class UserRepository
         => await userManager.FindByEmailAsync(email);
 
     public virtual async Task<IQueryable<User>> GetUsersAsync()
-        => await Task.FromResult(users);
+        => await Task.FromResult(Users);
 
     public virtual async Task<User?> GetUserByIdAsync(string userId)
         => await userManager.FindByIdAsync(userId);
 
     public virtual async Task<bool> UserExistsAsync(string userId)
-        => await users.AnyAsync(u => u.Id == userId);
+        => await Users.AnyAsync(u => u.Id == userId);
 
     public virtual async Task<bool> UserExistsByUsernameAsync(string userName)
-        => await users.AnyAsync(r => r.UserName.ToLower() == userName.ToLower());
+        => await Users.AnyAsync(r => r.UserName.ToLower() == userName.ToLower());
 
     public virtual async Task<bool> UserExistsByEmailAsync(string email)
-        => await users.AnyAsync(r => r.Email.ToLower() == email.ToLower());
+        => await Users.AnyAsync(r => r.Email.ToLower() == email.ToLower());
 
     #endregion
 
@@ -152,7 +152,7 @@ public class UserRepository
         User? user = await GetUserByIdAsync(userId);
 
         if (user is null)
-            return userNotFoundResult;
+            return UserNotFoundResult;
 
         return await userManager.ChangePasswordAsync(user, oldPassword, newPassword);
     }
@@ -162,7 +162,7 @@ public class UserRepository
         User? user = await GetUserByIdAsync(userId);
 
         if (user is null)
-            return userNotFoundResult;
+            return UserNotFoundResult;
 
         return await userManager.AddPasswordAsync(user, newPassword);
     }
@@ -196,7 +196,7 @@ public class UserRepository
         User? user = await GetUserByIdAsync(userId);
 
         if (user is null)
-            return userNotFoundResult;
+            return UserNotFoundResult;
 
         return await userManager.AddToRolesAsync(user, roles);
     }
@@ -206,7 +206,7 @@ public class UserRepository
         User? user = await GetUserByIdAsync(userId);
 
         if (user is null)
-            return userNotFoundResult;
+            return UserNotFoundResult;
 
         return await userManager.RemoveFromRoleAsync(user, roleName);
     }

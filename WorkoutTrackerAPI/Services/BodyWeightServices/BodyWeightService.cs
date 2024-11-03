@@ -41,7 +41,7 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         }
         catch (Exception ex)
         {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("body weight", "add", ex.Message));
+            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("body weight", "add", ex));
         }
     }
 
@@ -87,7 +87,7 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<BodyWeight>>.Fail(FailedToActionStr("body weights", "get", ex.Message));
+            return ServiceResult<IQueryable<BodyWeight>>.Fail(FailedToActionStr("body weights", "get", ex));
         }
     }
 
@@ -108,7 +108,7 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         }
         catch (Exception ex)
         {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("max body weight", "get", ex.Message));
+            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("max body weight", "get", ex));
         }
     }
 
@@ -128,7 +128,7 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         }
         catch (Exception ex)
         {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("min body weight", "get", ex.Message));
+            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("min body weight", "get", ex));
         }
     }
 
@@ -150,7 +150,7 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         }
         catch (Exception ex)
         {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("body weight by date", "get", ex.Message));
+            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("body weight by date", "get", ex));
         }
     }
 
@@ -172,7 +172,7 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         }
         catch (Exception ex)
         {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("body weight", "get", ex.Message));
+            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("body weight", "get", ex));
         }
     }
 
@@ -202,7 +202,7 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("body weight", "update", ex.Message));
+            return ServiceResult.Fail(FailedToActionStr("body weight", "update", ex));
         }
     }
 }

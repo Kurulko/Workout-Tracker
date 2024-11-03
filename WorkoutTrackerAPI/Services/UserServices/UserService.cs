@@ -58,7 +58,7 @@ public class UserService : BaseService<User>, IUserService
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToActionStr("user", "create", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("user", "create", ex));
         }
     }
 
@@ -75,11 +75,11 @@ public class UserService : BaseService<User>, IUserService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return IdentityResultExtentions.Failed(ex.Message);
+            return IdentityResultExtentions.Failed(ex);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToActionStr("user", "update", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("user", "update", ex));
         }
     }
 
@@ -93,11 +93,11 @@ public class UserService : BaseService<User>, IUserService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return IdentityResultExtentions.Failed(ex.Message);
+            return IdentityResultExtentions.Failed(ex);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToActionStr("user", "delete", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("user", "delete", ex));
         }
     }
 
@@ -222,11 +222,11 @@ public class UserService : BaseService<User>, IUserService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return IdentityResultExtentions.Failed(ex.Message);
+            return IdentityResultExtentions.Failed(ex);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToActionStr("user password", "change", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("user password", "change", ex));
         }
     }
 
@@ -243,11 +243,11 @@ public class UserService : BaseService<User>, IUserService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return IdentityResultExtentions.Failed(ex.Message);
+            return IdentityResultExtentions.Failed(ex);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToActionStr("user password", "add", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("user password", "add", ex));
         }
     }
 
@@ -308,11 +308,11 @@ public class UserService : BaseService<User>, IUserService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return IdentityResultExtentions.Failed(ex.Message);
+            return IdentityResultExtentions.Failed(ex);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToActionStr("roles to user", "add", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("roles to user", "add", ex));
         }
     }
 
@@ -331,11 +331,11 @@ public class UserService : BaseService<User>, IUserService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return IdentityResultExtentions.Failed(ex.Message);
+            return IdentityResultExtentions.Failed(ex);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToActionStr("role from user", "delete", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("role from user", "delete", ex));
         }
     }
 

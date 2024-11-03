@@ -39,11 +39,11 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult<Exercise>.Fail(ex.Message);
+            return ServiceResult<Exercise>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<Exercise>.Fail(FailedToActionStr("exercise", "add", ex.Message));
+            return ServiceResult<Exercise>.Fail(FailedToActionStr("exercise", "add", ex));
         }
     }
 
@@ -66,11 +66,11 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<Exercise>.Fail(ex.Message);
+            return ServiceResult<Exercise>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<Exercise>.Fail(FailedToActionStr("user exercise", "add", ex.Message));
+            return ServiceResult<Exercise>.Fail(FailedToActionStr("user exercise", "add", ex));
         }
     }
 
@@ -91,7 +91,7 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult.Fail(ex.Message);
+            return ServiceResult.Fail(ex);
         }
         catch
         {
@@ -118,7 +118,7 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult.Fail(ex.Message);
+            return ServiceResult.Fail(ex);
         }
         catch
         {
@@ -158,7 +158,7 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
         catch (Exception ex)
         {
-            return ServiceResult<Exercise>.Fail(FailedToActionStr("exercise", "get", ex.Message));
+            return ServiceResult<Exercise>.Fail(FailedToActionStr("exercise", "get", ex));
         }
     }
 
@@ -178,7 +178,7 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
         catch (Exception ex)
         {
-            return ServiceResult<Exercise>.Fail(FailedToActionStr("exercise by name", "get", ex.Message));
+            return ServiceResult<Exercise>.Fail(FailedToActionStr("exercise by name", "get", ex));
         }
     }
 
@@ -191,7 +191,7 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<Exercise>>.Fail(FailedToActionStr("exercises", "get", ex.Message));
+            return ServiceResult<IQueryable<Exercise>>.Fail(FailedToActionStr("exercises", "get", ex));
         }
     }
 
@@ -209,11 +209,11 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<Exercise>.Fail(ex.Message);
+            return ServiceResult<Exercise>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<Exercise>.Fail(FailedToActionStr("user exercise", "get", ex.Message));
+            return ServiceResult<Exercise>.Fail(FailedToActionStr("user exercise", "get", ex));
         }
     }
 
@@ -231,11 +231,11 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<Exercise>.Fail(ex.Message);
+            return ServiceResult<Exercise>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<Exercise>.Fail(FailedToActionStr("user exercise by name", "get", ex.Message));
+            return ServiceResult<Exercise>.Fail(FailedToActionStr("user exercise by name", "get", ex));
         }
     }
 
@@ -250,11 +250,11 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<IQueryable<Exercise>>.Fail(ex.Message);
+            return ServiceResult<IQueryable<Exercise>>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<Exercise>>.Fail(FailedToActionStr("user exercises", "get", ex.Message));
+            return ServiceResult<IQueryable<Exercise>>.Fail(FailedToActionStr("user exercises", "get", ex));
         }
     }
 
@@ -279,11 +279,11 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult.Fail(ex.Message);
+            return ServiceResult.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("exercise", "update", ex.Message));
+            return ServiceResult.Fail(FailedToActionStr("exercise", "update", ex));
         }
     }
 
@@ -310,11 +310,11 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult.Fail(ex.Message);
+            return ServiceResult.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("user exercise", "update", ex.Message));
+            return ServiceResult.Fail(FailedToActionStr("user exercise", "update", ex));
         }
     }
 

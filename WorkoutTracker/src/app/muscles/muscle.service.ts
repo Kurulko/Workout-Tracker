@@ -27,11 +27,11 @@ export class MuscleService extends ModelsService {
     }
 
     updateMuscle(muscle:Muscle): Observable<Object> {
-        return this.webClient.put(this.emptyPath, muscle);
+        return this.webClient.put(`/${muscle.id}`, muscle);
     }
 
     createMuscle(muscle:Muscle): Observable<Muscle>{
-        return this.webClient.post<Muscle>(this.emptyPath,muscle);
+        return this.webClient.post<Muscle>(this.emptyPath, muscle);
     }
 
     deleteMuscle(id: number): Observable<Object> {

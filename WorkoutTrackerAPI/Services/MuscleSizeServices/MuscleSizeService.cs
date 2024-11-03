@@ -41,11 +41,11 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<MuscleSize>.Fail(ex.Message);
+            return ServiceResult<MuscleSize>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("muscle size", "add", ex.Message));
+            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("muscle size", "add", ex));
         }
     }
 
@@ -68,7 +68,7 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult.Fail(ex.Message);
+            return ServiceResult.Fail(ex);
         }
         catch
         {
@@ -90,11 +90,11 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<IQueryable<MuscleSize>>.Fail(ex.Message);
+            return ServiceResult<IQueryable<MuscleSize>>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<MuscleSize>>.Fail(FailedToActionStr("muscle sizes", "get", ex.Message));
+            return ServiceResult<IQueryable<MuscleSize>>.Fail(FailedToActionStr("muscle sizes", "get", ex));
         }
     }
 
@@ -113,11 +113,11 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<MuscleSize>.Fail(ex.Message);
+            return ServiceResult<MuscleSize>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("max muscle size", "get", ex.Message));
+            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("max muscle size", "get", ex));
         }
     }
 
@@ -136,11 +136,11 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<MuscleSize>.Fail(ex.Message);
+            return ServiceResult<MuscleSize>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("min muscle size", "get", ex.Message));
+            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("min muscle size", "get", ex));
         }
     }
 
@@ -158,11 +158,11 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<MuscleSize>.Fail(ex.Message);
+            return ServiceResult<MuscleSize>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("muscle size by date", "get", ex.Message));
+            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("muscle size by date", "get", ex));
         }
     }
 
@@ -180,11 +180,11 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<MuscleSize>.Fail(ex.Message);
+            return ServiceResult<MuscleSize>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("muscle size", "get", ex.Message));
+            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("muscle size", "get", ex));
         }
     }
 
@@ -210,11 +210,11 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult.Fail(ex.Message);
+            return ServiceResult.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("muscle size", "update", ex.Message));
+            return ServiceResult.Fail(FailedToActionStr("muscle size", "update", ex));
         }
     }
 }

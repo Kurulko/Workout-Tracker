@@ -38,7 +38,7 @@ public abstract class APIController : Controller
 
             default:
                 // For any unexpected exception, return a 500 Internal Server Error
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.InnerException?.Message ?? ex.Message}");
         }
     }
 

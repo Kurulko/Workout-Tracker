@@ -40,11 +40,11 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult<Equipment>.Fail(ex.Message);
+            return ServiceResult<Equipment>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<Equipment>.Fail(FailedToActionStr("equipment", "add", ex.Message));
+            return ServiceResult<Equipment>.Fail(FailedToActionStr("equipment", "add", ex));
         }
     }
 
@@ -67,11 +67,11 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<Equipment>.Fail(ex.Message);
+            return ServiceResult<Equipment>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<Equipment>.Fail(FailedToActionStr("user equipment", "add", ex.Message));
+            return ServiceResult<Equipment>.Fail(FailedToActionStr("user equipment", "add", ex));
         }
     }
 
@@ -92,7 +92,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult.Fail(ex.Message);
+            return ServiceResult.Fail(ex);
         }
         catch
         {
@@ -119,7 +119,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult.Fail(ex.Message);
+            return ServiceResult.Fail(ex);
         }
         catch
         {
@@ -159,7 +159,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex)
         {
-            return ServiceResult<Equipment>.Fail(FailedToActionStr("equipment", "get", ex.Message));
+            return ServiceResult<Equipment>.Fail(FailedToActionStr("equipment", "get", ex));
         }
     }
 
@@ -179,7 +179,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex)
         {
-            return ServiceResult<Equipment>.Fail(FailedToActionStr("equipment by name", "get", ex.Message));
+            return ServiceResult<Equipment>.Fail(FailedToActionStr("equipment by name", "get", ex));
         }
     }
 
@@ -192,7 +192,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<Equipment>>.Fail(FailedToActionStr("equipments", "get", ex.Message));
+            return ServiceResult<IQueryable<Equipment>>.Fail(FailedToActionStr("equipments", "get", ex));
         }
     }
 
@@ -210,11 +210,11 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<Equipment>.Fail(ex.Message);
+            return ServiceResult<Equipment>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<Equipment>.Fail(FailedToActionStr("user equipment", "get", ex.Message));
+            return ServiceResult<Equipment>.Fail(FailedToActionStr("user equipment", "get", ex));
         }
     }
 
@@ -232,11 +232,11 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<Equipment>.Fail(ex.Message);
+            return ServiceResult<Equipment>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<Equipment>.Fail(FailedToActionStr("user equipment by name", "get", ex.Message));
+            return ServiceResult<Equipment>.Fail(FailedToActionStr("user equipment by name", "get", ex));
         }
     }
 
@@ -251,11 +251,11 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<IQueryable<Equipment>>.Fail(ex.Message);
+            return ServiceResult<IQueryable<Equipment>>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<Equipment>>.Fail(FailedToActionStr("user equipments", "get", ex.Message));
+            return ServiceResult<IQueryable<Equipment>>.Fail(FailedToActionStr("user equipments", "get", ex));
         }
     }
 
@@ -280,11 +280,11 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult.Fail(ex.Message);
+            return ServiceResult.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("equipment", "update", ex.Message));
+            return ServiceResult.Fail(FailedToActionStr("equipment", "update", ex));
         }
     }
 
@@ -311,11 +311,11 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult.Fail(ex.Message);
+            return ServiceResult.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("user equipment", "update", ex.Message));
+            return ServiceResult.Fail(FailedToActionStr("user equipment", "update", ex));
         }
     }
 

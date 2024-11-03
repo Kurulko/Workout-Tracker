@@ -22,8 +22,8 @@ public class BaseService<TModel> where TModel : class
 
         return result + ".";
     }
-    protected Exception FailedToActionException(string modelName, string action, string? message = null)
-        => new (FailedToActionStr(modelName, action, message));
+    protected string FailedToActionStr(string modelName, string action, Exception ex)
+        => FailedToActionStr(modelName, action, ex.InnerException?.Message ?? ex.Message);
 
     protected string InvalidEntryIDWhileAddingStr(string entryName, string modelName)
         => $"{entryName} ID must not be set when adding a new {modelName}.";

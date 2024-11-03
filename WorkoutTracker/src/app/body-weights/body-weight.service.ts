@@ -35,7 +35,7 @@ export class BodyWeightService extends ModelsService {
     }
 
     updateBodyWeight(bodyWeight:BodyWeight): Observable<Object> {
-        return this.webClient.put(this.emptyPath, bodyWeight);
+        return this.webClient.put(`/${bodyWeight.id}`, bodyWeight);
     }
 
     createBodyWeight(bodyWeight:BodyWeight): Observable<BodyWeight>{

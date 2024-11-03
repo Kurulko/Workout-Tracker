@@ -54,11 +54,11 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<ExerciseRecord>.Fail(ex.Message);
+            return ServiceResult<ExerciseRecord>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<ExerciseRecord>.Fail(FailedToActionStr("exercise record", "add", ex.Message));
+            return ServiceResult<ExerciseRecord>.Fail(FailedToActionStr("exercise record", "add", ex));
         }
     }
 
@@ -81,7 +81,7 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult.Fail(ex.Message);
+            return ServiceResult.Fail(ex);
         }
         catch
         {
@@ -100,11 +100,11 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<IQueryable<ExerciseRecord>>.Fail(ex.Message);
+            return ServiceResult<IQueryable<ExerciseRecord>>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<ExerciseRecord>>.Fail(FailedToActionStr("exercise records", "get", ex.Message));
+            return ServiceResult<IQueryable<ExerciseRecord>>.Fail(FailedToActionStr("exercise records", "get", ex));
         }
     }
 
@@ -123,11 +123,11 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<ExerciseRecord>.Fail(ex.Message);
+            return ServiceResult<ExerciseRecord>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<ExerciseRecord>.Fail(FailedToActionStr("exercise record by date", "get", ex.Message));
+            return ServiceResult<ExerciseRecord>.Fail(FailedToActionStr("exercise record by date", "get", ex));
         }
     }
 
@@ -146,11 +146,11 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return ServiceResult<ExerciseRecord>.Fail(ex.Message);
+            return ServiceResult<ExerciseRecord>.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult<ExerciseRecord>.Fail(FailedToActionStr("exercise record", "get", ex.Message));
+            return ServiceResult<ExerciseRecord>.Fail(FailedToActionStr("exercise record", "get", ex));
         }
     }
 
@@ -177,11 +177,11 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
         {
-            return ServiceResult.Fail(ex.Message);
+            return ServiceResult.Fail(ex);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("exercise record", "update", ex.Message));
+            return ServiceResult.Fail(FailedToActionStr("exercise record", "update", ex));
         }
     }
 }

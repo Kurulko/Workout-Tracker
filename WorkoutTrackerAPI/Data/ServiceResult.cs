@@ -20,7 +20,7 @@ public class ServiceResult
         => new ServiceResult(false, errorMessage);
 
     public static ServiceResult Fail(Exception ex)
-        => Fail(ex.Message);
+        => Fail(ex.InnerException?.Message ?? ex.Message);
 }
 
 public class ServiceResult<T> where T : class
@@ -43,6 +43,6 @@ public class ServiceResult<T> where T : class
         => new ServiceResult<T>(false, null, errorMessage);
 
     public static ServiceResult<T> Fail(Exception ex)
-        => Fail(ex.Message);
+        => Fail(ex.InnerException?.Message ?? ex.Message);
 }
 

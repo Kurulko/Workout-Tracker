@@ -45,11 +45,11 @@ public class RoleService : BaseService<User>, IRoleService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return IdentityResultExtentions.Failed(ex.Message);
+            return IdentityResultExtentions.Failed(ex);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToActionStr("role", "delete", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("role", "delete", ex));
         }
     }
 
@@ -85,11 +85,11 @@ public class RoleService : BaseService<User>, IRoleService
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
-            return IdentityResultExtentions.Failed(ex.Message);
+            return IdentityResultExtentions.Failed(ex);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtentions.Failed(FailedToActionStr("role", "update", ex.Message));
+            return IdentityResultExtentions.Failed(FailedToActionStr("role", "update", ex));
         }
     }
 

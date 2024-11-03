@@ -11,14 +11,17 @@ public class MuscleRepository : BaseWorkoutRepository<Muscle>
 
     }
 
+    IQueryable<Muscle> GetMuscles()
+        => DbSetAsNoTracking.Include(m => m.ParentMuscle).Include(m => m.ChildMuscles);
+
     public override Task<IQueryable<Muscle>> GetAllAsync()
-        => Task.FromResult((IQueryable<Muscle>)dbSet.Include(m => m.ParentMuscle).Include(m => m.ChildMuscles));
+        => Task.FromResult(GetMuscles());
 
     public override async Task<Muscle?> GetByIdAsync(long key)
-        => await dbSet.Include(m => m.ParentMuscle).Include(m => m.ChildMuscles).SingleOrDefaultAsync(m => m.Id == key);
+        => await GetMuscles().SingleOrDefaultAsync(m => m.Id == key);
 
     public override async Task<Muscle?> GetByNameAsync(string name)
-        => await dbSet.Include(m => m.ParentMuscle).Include(m => m.ChildMuscles).SingleOrDefaultAsync(m => m.Name == name);
+        => await GetMuscles().SingleOrDefaultAsync(m => m.Name == name);
 
     public override async Task<Muscle> AddAsync(Muscle model)
     {
@@ -26,7 +29,7 @@ public class MuscleRepository : BaseWorkoutRepository<Muscle>
         {
             var childMuscleIds = model.ChildMuscles.Select(c => c.Id).ToList();
 
-            var existingChildMuscles = await db.Muscles
+            var existingChildMuscles = await DbSetAsNoTracking
                 .Where(m => childMuscleIds.Contains(m.Id))
                 .ToListAsync();
 
