@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using WorkoutTrackerAPI.Data.Models;
+using WorkoutTrackerAPI.ValidationAttributes;
 
 namespace WorkoutTrackerAPI.Data.DTOs;
 
@@ -10,6 +11,8 @@ public class WorkoutCreationDTO
     [MaxLength(50, ErrorMessage = "{0} must be shorter than {1} characters")]
     public string Name { get; set; } = null!;
     public string? Description { get; set; }
+
+    [PositiveNumber]
     public double Weight { get; set; }
     public TimeSpan Time { get; set; }
 

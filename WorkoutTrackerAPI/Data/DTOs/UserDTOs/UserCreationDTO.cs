@@ -1,4 +1,5 @@
 ﻿using WorkoutTrackerAPI.Data.Models;
+using WorkoutTrackerAPI.ValidationAttributes;
 
 namespace WorkoutTrackerAPI.Data.DTOs;
 
@@ -6,6 +7,8 @@ public class UserCreationDTO : IEquatable<User>
 {
     public string UserName { get; set; } = null!;
     public string? Email { get; set; }
+
+    [DateNotInFuture]
     public DateTime? StartedWorkingOut { get; set; }
 
     public bool Equals(User? other)
