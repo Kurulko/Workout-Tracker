@@ -135,8 +135,12 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
             if (_muscle is null)
                 return ServiceResult.Fail(muscleNotFoundException);
 
-            await baseWorkoutRepository.UpdateAsync(muscle);
+            _muscle.Name = muscle.Name;
+            _muscle.Image = muscle.Image;
+            _muscle.ParentMuscleId = muscle.ParentMuscleId;
+            _muscle.ChildMuscles = muscle.ChildMuscles;
 
+            await baseWorkoutRepository.UpdateAsync(_muscle);
             return ServiceResult.Ok();
         }
         catch (Exception ex)

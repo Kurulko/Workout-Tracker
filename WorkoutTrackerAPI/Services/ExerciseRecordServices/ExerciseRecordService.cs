@@ -171,7 +171,17 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
             if (_exerciseRecord.UserId != userId)
                 throw UserNotHavePermissionException("update", "exercise record");
 
-            await baseRepository.UpdateAsync(exerciseRecord);
+            _exerciseRecord.Date = exerciseRecord.Date;
+            _exerciseRecord.CountOfTimes = exerciseRecord.CountOfTimes;
+            _exerciseRecord.Weight = exerciseRecord.Weight;
+            _exerciseRecord.Time = exerciseRecord.Time;
+            _exerciseRecord.Reps = exerciseRecord.Reps;
+            _exerciseRecord.SumOfWeight = exerciseRecord.SumOfWeight;
+            _exerciseRecord.SumOfTime = exerciseRecord.SumOfTime;
+            _exerciseRecord.SumOfReps = exerciseRecord.SumOfReps;
+            _exerciseRecord.ExerciseId = exerciseRecord.ExerciseId;
+
+            await baseRepository.UpdateAsync(_exerciseRecord);
 
             return ServiceResult.Ok();
         }

@@ -44,7 +44,7 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             }
             else
             {
-                await baseWorkoutRepository.UpdateAsync(workout);
+                await UpdateUserWorkoutAsync(userId, workout);
             }
 
             return ServiceResult<Workout>.Ok(workout);
@@ -166,7 +166,15 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             if (_workout.UserId != userId)
                 throw UserNotHavePermissionException("update", "workout");
 
-            await baseWorkoutRepository.UpdateAsync(workout);
+            _workout.Name = workout.Name;
+            _workout.CountOfTrainings = workout.CountOfTrainings;
+            _workout.Weight = workout.Weight;
+            _workout.Time = workout.Time;
+            _workout.SumOfWeight = workout.SumOfWeight;
+            _workout.SumOfTime = workout.SumOfTime;
+            _workout.Exercises = workout.Exercises;
+
+            await baseWorkoutRepository.UpdateAsync(_workout);
 
             return ServiceResult.Ok();
         }

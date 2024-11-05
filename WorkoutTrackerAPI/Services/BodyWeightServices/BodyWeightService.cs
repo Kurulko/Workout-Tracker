@@ -91,6 +91,40 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         }
     }
 
+    public async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInPoundsAsync(string userId)
+    {
+        var serviceResult = await GetUserBodyWeightsAsync(userId);
+
+        if (!serviceResult.Success)
+            return serviceResult;
+
+        var userBodyWeightsInPounds = serviceResult.Model!.AsEnumerable().Select(m =>
+        {
+            m.Weight = (float)Math.Round(BodyWeight.GetBodyWeightInPounds(m), 1);
+            m.WeightType = WeightType.Pound;
+            return m;
+        }).AsQueryable();
+
+        return ServiceResult<IQueryable<BodyWeight>>.Ok(userBodyWeightsInPounds);
+    }
+
+    public async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInKilogramsAsync(string userId)
+    {
+        var serviceResult = await GetUserBodyWeightsAsync(userId);
+
+        if (!serviceResult.Success)
+            return serviceResult;
+
+        var userBodyWeightsInKilograms = serviceResult.Model!.AsEnumerable().Select(m =>
+        {
+            m.Weight = (float)Math.Round(BodyWeight.GetBodyWeightInKilos(m), 1);
+            m.WeightType = WeightType.Kilogram;
+            return m;
+        }).AsQueryable();
+
+        return ServiceResult<IQueryable<BodyWeight>>.Ok(userBodyWeightsInKilograms);
+    }
+
     public async Task<ServiceResult<BodyWeight>> GetMaxUserBodyWeightAsync(string userId)
     {
         try
@@ -193,7 +227,11 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
             if (_bodyWeight.UserId != userId)
                 throw UserNotHavePermissionException("update", "body weight");
 
-            await baseRepository.UpdateAsync(bodyWeight);
+            _bodyWeight.Weight = bodyWeight.Weight;
+            _bodyWeight.WeightType = bodyWeight.WeightType;
+            _bodyWeight.Date = bodyWeight.Date;
+
+            await baseRepository.UpdateAsync(_bodyWeight);
             return ServiceResult.Ok();
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)

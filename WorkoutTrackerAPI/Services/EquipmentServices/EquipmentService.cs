@@ -15,19 +15,19 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
     public EquipmentService(EquipmentRepository baseWorkoutRepository, UserRepository userRepository) : base(baseWorkoutRepository)
         => this.userRepository = userRepository;
 
-    readonly EntryNullException equipmentIsNullException = new(nameof(Equipment));
-    readonly InvalidIDException invalidEquipmentIDException = new(nameof(Equipment));
-    readonly NotFoundException equipmentNotFoundException = new(nameof(Equipment));
-    readonly ArgumentNullOrEmptyException equipmentNameIsNullOrEmptyException = new("Equipment name");
+    readonly EntryNullException EquipmentIsNullException = new(nameof(Equipment));
+    readonly InvalidIDException InvalidEquipmentIDException = new(nameof(Equipment));
+    readonly NotFoundException EquipmentNotFoundException = new(nameof(Equipment));
+    readonly ArgumentNullOrEmptyException EquipmentNameIsNullOrEmptyException = new("Equipment name");
 
     ArgumentException InvalidEquipmentIDWhileAddingException => InvalidEntryIDWhileAddingException(nameof(Equipment), "equipment");
 
-    public async Task<ServiceResult<Equipment>> AddEquipmentAsync(Equipment equipment)
+    public async Task<ServiceResult<Equipment>> AddInternalEquipmentAsync(Equipment equipment)
     {
         try
         {
             if (equipment is null)
-                throw equipmentIsNullException;
+                throw EquipmentIsNullException;
 
             if (!string.IsNullOrEmpty(equipment.OwnedByUserId))
                 throw new UnauthorizedAccessException("Equipment entry cannot be created by user.");
@@ -44,7 +44,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex)
         {
-            return ServiceResult<Equipment>.Fail(FailedToActionStr("equipment", "add", ex));
+            return ServiceResult<Equipment>.Fail(FailedToActionStr("internal equipment", "add", ex));
         }
     }
 
@@ -55,7 +55,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
             await CheckUserIdAsync(userRepository, userId);
 
             if (equipment is null)
-                throw equipmentIsNullException;
+                throw EquipmentIsNullException;
 
             if (equipment.Id != 0)
                 throw InvalidEquipmentIDWhileAddingException;
@@ -75,17 +75,17 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
     }
 
-    public async Task<ServiceResult> DeleteEquipmentAsync(long equipmentId)
+    public async Task<ServiceResult> DeleteInternalEquipmentAsync(long equipmentId)
     {
         try
         {
             if (equipmentId < 1)
-                throw invalidEquipmentIDException;
+                throw InvalidEquipmentIDException;
 
-            var equipment = await baseWorkoutRepository.GetByIdAsync(equipmentId) ?? throw equipmentNotFoundException;
+            var equipment = await baseWorkoutRepository.GetByIdAsync(equipmentId) ?? throw EquipmentNotFoundException;
 
             if (!string.IsNullOrEmpty(equipment.OwnedByUserId))
-                throw UserNotHavePermissionException("delete", "equipment");
+                throw UserNotHavePermissionException("delete", "internal equipment");
 
             await baseWorkoutRepository.RemoveAsync(equipmentId);
             return ServiceResult.Ok();
@@ -96,7 +96,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch
         {
-            return ServiceResult.Fail(FailedToActionStr("equipment", "delete"));
+            return ServiceResult.Fail(FailedToActionStr("internal equipment", "delete"));
         }
     }
 
@@ -107,9 +107,9 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
             await CheckUserIdAsync(userRepository, userId);
 
             if (equipmentId < 1)
-                throw invalidEquipmentIDException;
+                throw InvalidEquipmentIDException;
 
-            var equipment = await baseWorkoutRepository.GetByIdAsync(equipmentId) ?? throw equipmentNotFoundException;
+            var equipment = await baseWorkoutRepository.GetByIdAsync(equipmentId) ?? throw EquipmentNotFoundException;
 
             if (equipment.OwnedByUserId != userId)
                 throw UserNotHavePermissionException("delete", "equipment");
@@ -127,30 +127,50 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
     }
 
-    public async Task<bool> EquipmentExistsAsync(long equipmentId)
+    public async Task<bool> InternalEquipmentExistsAsync(long equipmentId)
     {
         if (equipmentId < 1)
-            throw invalidEquipmentIDException;
+            throw InvalidEquipmentIDException;
 
-        return await baseWorkoutRepository.ExistsAsync(equipmentId);
+        var equipment = await baseWorkoutRepository.GetByIdAsync(equipmentId);
+
+        if (equipment is null)
+            return false;
+
+        if (equipment.OwnedByUserId != null)
+            throw UserNotHavePermissionException("get", "internal equipment");
+
+        return true;
     }
 
-    public async Task<bool> EquipmentExistsByNameAsync(string name)
+    public async Task<bool> InternalEquipmentExistsByNameAsync(string name)
     {
         if (string.IsNullOrEmpty(name))
-            throw equipmentNameIsNullOrEmptyException;
+            throw EquipmentNameIsNullOrEmptyException;
 
-        return await baseWorkoutRepository.ExistsByNameAsync(name);
+        var equipment = await baseWorkoutRepository.GetByNameAsync(name);
+
+        if (equipment is null)
+            return false;
+
+        if (equipment.OwnedByUserId != null)
+            throw UserNotHavePermissionException("get", "internal equipment  by name");
+
+        return true;
     }
 
-    public async Task<ServiceResult<Equipment>> GetEquipmentByIdAsync(long equipmentId)
+    public async Task<ServiceResult<Equipment>> GetInternalEquipmentByIdAsync(long equipmentId)
     {
         try
         {
             if (equipmentId < 1)
-                throw invalidEquipmentIDException;
+                throw InvalidEquipmentIDException;
 
             var equipmentById = await baseWorkoutRepository.GetByIdAsync(equipmentId);
+
+            if (equipmentById != null && equipmentById.OwnedByUserId != null)
+                throw UserNotHavePermissionException("get", "internal equipment");
+
             return ServiceResult<Equipment>.Ok(equipmentById);
         }
         catch (ArgumentException argEx)
@@ -159,18 +179,22 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex)
         {
-            return ServiceResult<Equipment>.Fail(FailedToActionStr("equipment", "get", ex));
+            return ServiceResult<Equipment>.Fail(FailedToActionStr("internal equipment", "get", ex));
         }
     }
 
-    public async Task<ServiceResult<Equipment>> GetEquipmentByNameAsync(string name)
+    public async Task<ServiceResult<Equipment>> GetInternalEquipmentByNameAsync(string name)
     {
         try
         {
             if (string.IsNullOrEmpty(name))
-                throw equipmentNameIsNullOrEmptyException;
+                throw EquipmentNameIsNullOrEmptyException;
 
             var equipmentByName = await baseWorkoutRepository.GetByNameAsync(name);
+
+            if (equipmentByName != null && equipmentByName.OwnedByUserId != null)
+                throw UserNotHavePermissionException("get", "internal equipment by name");
+
             return ServiceResult<Equipment>.Ok(equipmentByName);
         }
         catch (ArgumentException argEx)
@@ -179,20 +203,20 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
         catch (Exception ex)
         {
-            return ServiceResult<Equipment>.Fail(FailedToActionStr("equipment by name", "get", ex));
+            return ServiceResult<Equipment>.Fail(FailedToActionStr("internal equipment by name", "get", ex));
         }
     }
 
-    public async Task<ServiceResult<IQueryable<Equipment>>> GetEquipmentsAsync()
+    public async Task<ServiceResult<IQueryable<Equipment>>> GetInternalEquipmentsAsync()
     {
         try
         {
-            var equipments = await baseWorkoutRepository.GetAllAsync();
+            var equipments = await baseWorkoutRepository.FindAsync(e => e.OwnedByUserId == null);
             return ServiceResult<IQueryable<Equipment>>.Ok(equipments);
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<Equipment>>.Fail(FailedToActionStr("equipments", "get", ex));
+            return ServiceResult<IQueryable<Equipment>>.Fail(FailedToActionStr("internal equipments", "get", ex));
         }
     }
 
@@ -203,7 +227,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
             await CheckUserIdAsync(userRepository, userId);
 
             if (equipmentId < 1)
-                throw invalidEquipmentIDException;
+                throw InvalidEquipmentIDException;
 
             var userEquipmentById = await baseWorkoutRepository.GetByIdAsync(equipmentId);
             return ServiceResult<Equipment>.Ok(userEquipmentById);
@@ -225,7 +249,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
             await CheckUserIdAsync(userRepository, userId);
 
             if (string.IsNullOrEmpty(name))
-                throw equipmentNameIsNullOrEmptyException;
+                throw EquipmentNameIsNullOrEmptyException;
 
             var userEquipmentByName = await baseWorkoutRepository.GetByNameAsync(name);
             return ServiceResult<Equipment>.Ok(userEquipmentByName);
@@ -259,22 +283,44 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
     }
 
-    public async Task<ServiceResult> UpdateEquipmentAsync(Equipment equipment)
+    public async Task<ServiceResult<IQueryable<Equipment>>> GetAllEquipmentsAsync(string userId)
+    {
+        try
+        {
+            await CheckUserIdAsync(userRepository, userId);
+
+            var equipments = await baseWorkoutRepository.FindAsync(e => e.OwnedByUserId == userId || e.OwnedByUserId == null);
+            return ServiceResult<IQueryable<Equipment>>.Ok(equipments);
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<IQueryable<Equipment>>.Fail(ex);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<IQueryable<Equipment>>.Fail(FailedToActionStr("equipments", "get", ex));
+        }
+    }
+
+    public async Task<ServiceResult> UpdateInternalEquipmentAsync(Equipment equipment)
     {
         try
         {
             if (equipment is null)
-                throw equipmentIsNullException;
+                throw EquipmentIsNullException;
 
             if (equipment.Id < 1)
-                throw invalidEquipmentIDException;
+                throw InvalidEquipmentIDException;
 
-            var _equipment = await baseWorkoutRepository.GetByIdAsync(equipment.Id) ?? throw equipmentNotFoundException;
+            var _equipment = await baseWorkoutRepository.GetByIdAsync(equipment.Id) ?? throw EquipmentNotFoundException;
 
             if (!string.IsNullOrEmpty(_equipment.OwnedByUserId))
-                throw UserNotHavePermissionException("update", "equipment");
+                throw UserNotHavePermissionException("update", "internal equipment");
 
-            await baseWorkoutRepository.UpdateAsync(equipment);
+            _equipment.Name = equipment.Name;
+            _equipment.Image = equipment.Image;
+
+            await baseWorkoutRepository.UpdateAsync(_equipment);
 
             return ServiceResult.Ok();
         }
@@ -295,18 +341,20 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
             await CheckUserIdAsync(userRepository, userId);
 
             if (equipment is null)
-                throw equipmentIsNullException;
+                throw EquipmentIsNullException;
 
             if (equipment.Id < 1)
-                throw invalidEquipmentIDException;
+                throw InvalidEquipmentIDException;
 
-            var _equipment = await baseWorkoutRepository.GetByIdAsync(equipment.Id) ?? throw equipmentNotFoundException;
-
+            var _equipment = await baseWorkoutRepository.GetByIdAsync(equipment.Id) ?? throw EquipmentNotFoundException;
 
             if (_equipment.OwnedByUserId != userId)
                 throw UserNotHavePermissionException("update", "equipment");
 
-            await baseWorkoutRepository.UpdateAsync(equipment);
+            _equipment.Name = equipment.Name;
+            _equipment.Image = equipment.Image;
+
+            await baseWorkoutRepository.UpdateAsync(_equipment);
             return ServiceResult.Ok();
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
@@ -324,7 +372,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         await CheckUserIdAsync(userRepository, userId);
 
         if (equipmentId < 1)
-            throw invalidEquipmentIDException;
+            throw InvalidEquipmentIDException;
 
         return await baseWorkoutRepository.ExistsAsync(equipmentId);
     }
@@ -334,7 +382,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         await CheckUserIdAsync(userRepository, userId);
 
         if (string.IsNullOrEmpty(name))
-            throw equipmentNameIsNullOrEmptyException;
+            throw EquipmentNameIsNullOrEmptyException;
 
         return await baseWorkoutRepository.ExistsByNameAsync(name);
     }

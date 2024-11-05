@@ -11,6 +11,8 @@ public interface IBodyWeightService
     Task<ServiceResult<BodyWeight>> GetMinUserBodyWeightAsync(string userId);
     Task<ServiceResult<BodyWeight>> GetMaxUserBodyWeightAsync(string userId);
     Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsAsync(string userId);
+    Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInPoundsAsync(string userId);
+    Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInKilogramsAsync(string userId);
     Task<ServiceResult<BodyWeight>> AddBodyWeightToUserAsync(string userId, BodyWeight bodyWeight);
     Task<ServiceResult> UpdateUserBodyWeightAsync(string userId, BodyWeight bodyWeight);
     Task<ServiceResult> DeleteBodyWeightFromUserAsync(string userId, long bodyWeightId);
