@@ -1,20 +1,11 @@
 using WorkoutTrackerAPI.Providers;
-using Newtonsoft.Json.Converters;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 
 var services = builder.Services;
 
-services.AddControllers()
-     .AddNewtonsoftJson(options =>
-     {
-         options.SerializerSettings.Converters.Add(new StringEnumConverter());
-     });
-     //.AddJsonOptions(options =>
-     //{
-     //    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-     //});
+services.AddControllersWithOptions();
 
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
