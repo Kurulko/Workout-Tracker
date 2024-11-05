@@ -75,6 +75,80 @@ public class MuscleSizesController : DbModelController<MuscleSizeDTO, MuscleSize
             filterQuery
         );
     }
+    
+    [HttpGet("in-centimeters")]
+    public async Task<ActionResult<ApiResult<MuscleSizeDTO>>> GetCurrentUserMuscleSizesInCentimetersAsync(
+        long muscleId,
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? sortColumn = null,
+        string? sortOrder = null,
+        string? filterColumn = null,
+        string? filterQuery = null)
+    {
+        if (muscleId < 1)
+            return InvalidEntryID(nameof(Muscle));
+
+        if (pageIndex < 0 || pageSize <= 0)
+            return InvalidPageIndexOrPageSize();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await muscleSizeService.GetUserMuscleSizesInCentimetersAsync(userId, muscleId);
+
+        if (!serviceResult.Success)
+            return BadRequest(serviceResult.ErrorMessage);
+
+        if (serviceResult.Model is not IQueryable<MuscleSize> muscleSizes)
+            return EntryNotFound("Muscle sizes");
+
+        var muscleSizeDTOs = muscleSizes.AsEnumerable().Select(m => mapper.Map<MuscleSizeDTO>(m));
+        return await ApiResult<MuscleSizeDTO>.CreateAsync(
+            muscleSizeDTOs.AsQueryable(),
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
+    }
+    
+    [HttpGet("in-inches")]
+    public async Task<ActionResult<ApiResult<MuscleSizeDTO>>> GetCurrentUserMuscleSizesInInchesAsync(
+        long muscleId,
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? sortColumn = null,
+        string? sortOrder = null,
+        string? filterColumn = null,
+        string? filterQuery = null)
+    {
+        if (muscleId < 1)
+            return InvalidEntryID(nameof(Muscle));
+
+        if (pageIndex < 0 || pageSize <= 0)
+            return InvalidPageIndexOrPageSize();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await muscleSizeService.GetUserMuscleSizesInInchesAsync(userId, muscleId);
+
+        if (!serviceResult.Success)
+            return BadRequest(serviceResult.ErrorMessage);
+
+        if (serviceResult.Model is not IQueryable<MuscleSize> muscleSizes)
+            return EntryNotFound("Muscle sizes");
+
+        var muscleSizeDTOs = muscleSizes.AsEnumerable().Select(m => mapper.Map<MuscleSizeDTO>(m));
+        return await ApiResult<MuscleSizeDTO>.CreateAsync(
+            muscleSizeDTOs.AsQueryable(),
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
+    }
 
     [HttpGet("{muscleSizeId}")]
     [ActionName(nameof(GetCurrentUserMuscleSizeByIdAsync))]

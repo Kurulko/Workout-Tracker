@@ -98,6 +98,40 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         }
     }
 
+    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInCentimetersAsync(string userId, long muscleId)
+    {
+        var serviceResult = await GetUserMuscleSizesAsync(userId, muscleId);
+
+        if (!serviceResult.Success)
+            return serviceResult;
+
+        var userMuscleSizesInCentimeters = serviceResult.Model!.AsEnumerable().Select(m =>
+        {
+            m.Size = (float)Math.Round(MuscleSize.GetMuscleSizeInCentimeters(m), 1);
+            m.SizeType = SizeType.Centimeter;
+            return m;
+        }).AsQueryable();
+
+        return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizesInCentimeters);
+    }
+
+    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInInchesAsync(string userId, long muscleId)
+    {
+        var serviceResult = await GetUserMuscleSizesAsync(userId, muscleId);
+
+        if (!serviceResult.Success)
+            return serviceResult;
+
+        var userMuscleSizesInInches = serviceResult.Model!.AsEnumerable().Select(m =>
+        {
+            m.Size = (float)Math.Round(MuscleSize.GetMuscleSizeInInches(m), 1);
+            m.SizeType = SizeType.Inch;
+            return m;
+        }).AsQueryable();
+
+        return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizesInInches);
+    }
+
     public async Task<ServiceResult<MuscleSize>> GetMaxUserMuscleSizeAsync(string userId, long muscleId)
     {
         try
@@ -205,7 +239,12 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
             if (_muscleSize.UserId != userId)
                 throw UserNotHavePermissionException("update", "muscle size");
 
-            await baseRepository.UpdateAsync(muscleSize);
+            _muscleSize.Date = muscleSize.Date;
+            _muscleSize.Size = muscleSize.Size;
+            _muscleSize.SizeType = muscleSize.SizeType;
+            _muscleSize.MuscleId = muscleSize.MuscleId;
+
+            await baseRepository.UpdateAsync(_muscleSize);
             return ServiceResult.Ok();
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
