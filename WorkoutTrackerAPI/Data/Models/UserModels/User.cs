@@ -12,6 +12,9 @@ public class User : IdentityUser
     public DateTime Registered { get; set; }
     public DateTime? StartedWorkingOut { get; set; }
 
+    public WeightType PreferableWeightType { get; set; } = WeightType.Kilogram;
+    public SizeType PreferableSizeType { get; set; } = SizeType.Centimeter;
+
     public IEnumerable<BodyWeight>? BodyWeights { get; set; }
     public IEnumerable<MuscleSize>? MuscleSizes { get; set; }
     public IEnumerable<Workout>? Workouts { get; set; }
