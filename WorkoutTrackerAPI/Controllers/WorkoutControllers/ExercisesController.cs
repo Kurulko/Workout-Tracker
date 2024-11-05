@@ -41,8 +41,8 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
     ActionResult InvalidExerciseIDWhileAdding()
         => InvalidEntryIDWhileAdding(nameof(Exercise), "exercise");
 
-    [HttpGet("exercises")]
-    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetExercisesAsync(
+    [HttpGet("internal-exercises")]
+    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetInternalExercisesAsync(
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -53,7 +53,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
-        var serviceResult = await exerciseService.GetExercisesAsync();
+        var serviceResult = await exerciseService.GetInternalExercisesAsync();
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
@@ -106,14 +106,47 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         );
     }
 
-    [HttpGet("exercise/{exerciseId}")]
-    [ActionName(nameof(GetExerciseByIdAsync))]
-    public async Task<ActionResult<ExerciseDTO>> GetExerciseByIdAsync(long exerciseId)
+    [HttpGet("all-exercises")]
+    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetAllExercisesAsync(
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? sortColumn = null,
+        string? sortOrder = null,
+        string? filterColumn = null,
+        string? filterQuery = null)
+    {
+        if (pageIndex < 0 || pageSize <= 0)
+            return InvalidPageIndexOrPageSize();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await exerciseService.GetAllExercisesAsync(userId);
+
+        if (!serviceResult.Success)
+            return BadRequest(serviceResult.ErrorMessage);
+
+        if (serviceResult.Model is not IQueryable<Exercise> exercises)
+            return EntryNotFound("Exercises");
+
+        var exerciseDTOs = exercises.AsEnumerable().Select(m => mapper.Map<ExerciseDTO>(m));
+        return await ApiResult<ExerciseDTO>.CreateAsync(
+            exerciseDTOs.AsQueryable(),
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
+    }
+
+    [HttpGet("internal-exercise/{exerciseId}")]
+    [ActionName(nameof(GetInternalExerciseByIdAsync))]
+    public async Task<ActionResult<ExerciseDTO>> GetInternalExerciseByIdAsync(long exerciseId)
     {
         if (exerciseId < 1)
             return InvalidExerciseID();
 
-        var serviceResult = await exerciseService.GetExerciseByIdAsync(exerciseId);
+        var serviceResult = await exerciseService.GetInternalExerciseByIdAsync(exerciseId);
         return HandleExerciseDTOServiceResult(serviceResult);
     }
 
@@ -129,13 +162,13 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         return HandleDTOServiceResult(serviceResult, "User exercise not found.");
     }
 
-    [HttpGet("exercise/by-name/{name}")]
-    public async Task<ActionResult<ExerciseDTO>> GetExerciseByNameAsync(string name)
+    [HttpGet("internal-exercise/by-name/{name}")]
+    public async Task<ActionResult<ExerciseDTO>> GetInternalExerciseByNameAsync(string name)
     {
         if (string.IsNullOrEmpty(name))
             return ExerciseNameIsNullOrEmpty();
 
-        var serviceResult = await exerciseService.GetExerciseByNameAsync(name);
+        var serviceResult = await exerciseService.GetInternalExerciseByNameAsync(name);
         return HandleExerciseDTOServiceResult(serviceResult);
     }
 
@@ -150,9 +183,9 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         return HandleDTOServiceResult(serviceResult, "User exercise not found.");
     }
 
-    [HttpPost]
+    [HttpPost("internal-exercise")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddExerciseAsync(ExerciseDTO exerciseDTO)
+    public async Task<IActionResult> AddInternalExerciseAsync(ExerciseDTO exerciseDTO)
     {
         if (exerciseDTO is null)
             return ExerciseIsNull();
@@ -161,14 +194,14 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
             return InvalidExerciseIDWhileAdding();
 
         var exercise = mapper.Map<Exercise>(exerciseDTO);
-        var serviceResult = await exerciseService.AddExerciseAsync(exercise);
+        var serviceResult = await exerciseService.AddInternalExerciseAsync(exercise);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
 
         exercise = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetExerciseByIdAsync), new { exerciseId = exercise.Id }, exercise);
+        return CreatedAtAction(nameof(GetInternalExerciseByIdAsync), new { exerciseId = exercise.Id }, exercise);
     }
 
     [HttpPost("user-exercise")]
@@ -192,9 +225,9 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         return CreatedAtAction(nameof(GetCurrentUserExerciseByIdAsync), new { exerciseId = exercise.Id }, exercise);
     }
 
-    [HttpPut("{exerciseId}")]
+    [HttpPut("internal-exercise/{exerciseId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateExerciseAsync(long exerciseId, ExerciseDTO exerciseDTO)
+    public async Task<IActionResult> UpdateInternalExerciseAsync(long exerciseId, ExerciseDTO exerciseDTO)
     {
         if (exerciseId < 1)
             return InvalidExerciseID();
@@ -206,7 +239,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
             return ExerciseIDsNotMatch();
 
         var exercise = mapper.Map<Exercise>(exerciseDTO);
-        var serviceResult = await exerciseService.UpdateExerciseAsync(exercise);
+        var serviceResult = await exerciseService.UpdateInternalExerciseAsync(exercise);
         return HandleServiceResult(serviceResult);
     }
 
@@ -228,14 +261,14 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         return HandleServiceResult(serviceResult);
     }
 
-    [HttpDelete("{exerciseId}")]
+    [HttpDelete("internal-exercise/{exerciseId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> DeleteExerciseAsync(long exerciseId)
+    public async Task<IActionResult> DeleteInternalExerciseAsync(long exerciseId)
     {
         if (exerciseId < 1)
             return InvalidExerciseID();
 
-        var serviceResult = await exerciseService.DeleteExerciseAsync(exerciseId);
+        var serviceResult = await exerciseService.DeleteInternalExerciseAsync(exerciseId);
         return HandleServiceResult(serviceResult);
     }
 
@@ -250,15 +283,15 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         return HandleServiceResult(serviceResult);
     }
 
-    [HttpGet("exercise-exists/{exerciseId}")]
-    public async Task<ActionResult<bool>> ExerciseExistsAsync(long exerciseId)
+    [HttpGet("internal-exercise-exists/{exerciseId}")]
+    public async Task<ActionResult<bool>> InternalExerciseExistsAsync(long exerciseId)
     {
         if (exerciseId < 1)
             return InvalidExerciseID();
 
         try
         {
-            return await exerciseService.ExerciseExistsAsync(exerciseId);
+            return await exerciseService.InternalExerciseExistsAsync(exerciseId);
         }
         catch (Exception ex)
         {
@@ -283,15 +316,15 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         }
     }
 
-    [HttpGet("exercise-exists-by-name/{name}")]
-    public async Task<ActionResult<bool>> ExerciseExistsByNameAsync(string name)
+    [HttpGet("internal-exercise-exists-by-name/{name}")]
+    public async Task<ActionResult<bool>> InternalExerciseExistsByNameAsync(string name)
     {
         if (string.IsNullOrEmpty(name))
             return ExerciseNameIsNullOrEmpty();
 
         try
         {
-            return await exerciseService.ExerciseExistsByNameAsync(name);
+            return await exerciseService.InternalExerciseExistsByNameAsync(name);
         }
         catch (Exception ex)
         {
