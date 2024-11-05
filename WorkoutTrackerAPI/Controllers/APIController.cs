@@ -42,18 +42,18 @@ public abstract class APIController : Controller
         }
     }
 
-    protected IActionResult HandleInvalidModelState()
-    {
-        if (ModelState.IsValid)
-            throw new ArgumentException("Model state is valid!");
+    //protected IActionResult HandleInvalidModelState()
+    //{
+    //    if (ModelState.IsValid)
+    //        throw new ArgumentException("Model state is valid!");
 
-        string[] errors = ModelState.Values
-            .SelectMany(v => v.Errors)
-            .Select(e => e.ErrorMessage)
-            .ToArray();
+    //    string[] errors = ModelState.Values
+    //        .SelectMany(v => v.Errors)
+    //        .Select(e => e.ErrorMessage)
+    //        .ToArray();
 
-        return BadRequest(errors);
-    }
+    //    return BadRequest(errors);
+    //}
 
     protected IActionResult HandleIdentityResult(IdentityResult identityResult)
     {

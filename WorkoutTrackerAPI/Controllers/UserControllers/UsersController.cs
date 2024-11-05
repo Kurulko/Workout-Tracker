@@ -592,9 +592,6 @@ public class UsersController : APIController
         if (passwordModel is null)
             return EntryIsNull("Password");
 
-        if (!ModelState.IsValid)
-            return HandleInvalidModelState();
-
         string currentUserId = httpContextAccessor.GetUserId()!;
         var identityResult = await userService.ChangeUserPasswordAsync(currentUserId, passwordModel.OldPassword!, passwordModel.NewPassword);
         return HandleIdentityResult(identityResult);

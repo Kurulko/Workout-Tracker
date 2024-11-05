@@ -23,9 +23,6 @@ public class AccountController : APIController
         if (register is null)
             return EntryIsNull("Register");
 
-        if (!ModelState.IsValid)
-            return HandleInvalidModelState();
-
         var result = await accountService.RegisterAsync(register);
         return HandleAuthResult(result);
     }
@@ -35,9 +32,6 @@ public class AccountController : APIController
     {
         if (login is null)
             return EntryIsNull("Login");
-
-        if (!ModelState.IsValid)
-            return HandleInvalidModelState();
 
         var result = await accountService.LoginAsync(login);
         return HandleAuthResult(result);

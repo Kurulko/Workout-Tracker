@@ -62,6 +62,72 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
         );
     }
 
+    [HttpGet("in-kilograms")]
+    public async Task<ActionResult<ApiResult<BodyWeightDTO>>> GetCurrentUserBodyWeightsInKilogramsAsync(
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? sortColumn = null,
+        string? sortOrder = null,
+        string? filterColumn = null,
+        string? filterQuery = null)
+    {
+        if (pageIndex < 0 || pageSize <= 0)
+            return InvalidPageIndexOrPageSize();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await bodyWeightService.GetUserBodyWeightsInKilogramsAsync(userId);
+
+        if (!serviceResult.Success)
+            return BadRequest(serviceResult.ErrorMessage);
+
+        if (serviceResult.Model is not IQueryable<BodyWeight> bodyWeights)
+            return EntryNotFound("Body weights");
+
+        var bodyWeightDTOs = bodyWeights.AsEnumerable().Select(m => mapper.Map<BodyWeightDTO>(m));
+        return await ApiResult<BodyWeightDTO>.CreateAsync(
+            bodyWeightDTOs.AsQueryable(),
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
+    }
+    
+    [HttpGet("in-pounds")]
+    public async Task<ActionResult<ApiResult<BodyWeightDTO>>> GetCurrentUserBodyWeightsInPoundsAsync(
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? sortColumn = null,
+        string? sortOrder = null,
+        string? filterColumn = null,
+        string? filterQuery = null)
+    {
+        if (pageIndex < 0 || pageSize <= 0)
+            return InvalidPageIndexOrPageSize();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await bodyWeightService.GetUserBodyWeightsInPoundsAsync(userId);
+
+        if (!serviceResult.Success)
+            return BadRequest(serviceResult.ErrorMessage);
+
+        if (serviceResult.Model is not IQueryable<BodyWeight> bodyWeights)
+            return EntryNotFound("Body weights");
+
+        var bodyWeightDTOs = bodyWeights.AsEnumerable().Select(m => mapper.Map<BodyWeightDTO>(m));
+        return await ApiResult<BodyWeightDTO>.CreateAsync(
+            bodyWeightDTOs.AsQueryable(),
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
+    }
+
     [HttpGet("{bodyWeightId}")]
     [ActionName(nameof(GetCurrentUserBodyWeightByIdAsync))]
     public async Task<ActionResult<BodyWeightDTO>> GetCurrentUserBodyWeightByIdAsync(long bodyWeightId)
