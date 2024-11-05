@@ -1,11 +1,16 @@
 <base-app title="Body Weights">
   <p *ngIf="!data"><em>Loading...</em></p>
 
-  <button type="button" color="primary" class="btn btn-outline-primary" [routerLink]="['/body-weight']">
-    Add Body Weight
+  <button type="button" [hidden]="!data" color="primary" class="btn btn-outline-primary" [routerLink]="['/body-weight']">
+    Add
   </button>
-  <br/>
+  <br/><br/>
 
+  <mat-button-toggle-group [(ngModel)]="weightType" (change)="onToggleChange()">
+    <mat-button-toggle value="kg">Kg</mat-button-toggle>
+    <mat-button-toggle value="lbs">Lbs</mat-button-toggle>
+  </mat-button-toggle-group>
+  <br/><br/>
   <table mat-table [dataSource]="data"
       class="mat-elevation-z8"
       [hidden]="!data"
@@ -13,31 +18,20 @@
       [matSortActive]="defaultSortColumn"
       [matSortDirection]="defaultSortOrder">
 
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-        <td mat-cell *matCellDef="let bodyWeight"> 
-          <a [routerLink]="['/body-weight', bodyWeight.id]">{{ bodyWeight.id }}</a>  
-        </td>
-      </ng-container>
-
       <ng-container matColumnDef="date">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
-        <td mat-cell *matCellDef="let bodyWeight">{{ bodyWeight.date }}</td>
+        <td mat-cell *matCellDef="let bodyWeight">{{ bodyWeight.date | date:'d MMMM yyyy' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="weight">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight</th>
-        <td mat-cell *matCellDef="let bodyWeight"> {{ bodyWeight.weight }} </td>
+        <td mat-cell *matCellDef="let bodyWeight"> {{ bodyWeight.weight }} {{weightType}}</td>
       </ng-container>
 
-      <ng-container matColumnDef="weightType">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight Type</th>
-        <td mat-cell *matCellDef="let bodyWeight"> {{ bodyWeight.weightType }} </td>
-      </ng-container>
-      
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>Actions</th>
         <td mat-cell *matCellDef="let bodyWeight">
+          <button type="button" mat-button color="primary" [routerLink]="['/body-weight', bodyWeight.id]">Edit</button>
           <button type="button" mat-button color="warn" (click)="deleteBodyWeight(bodyWeight.id)">Delete</button>
         </td>
       </ng-container>

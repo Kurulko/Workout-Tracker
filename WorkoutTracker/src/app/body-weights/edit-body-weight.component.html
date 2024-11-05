@@ -1,9 +1,14 @@
 <base-app [title]="title">
     <p *ngIf="this.id && !bodyWeight"><em>Loading...</em></p>
 
-    <mat-error *ngIf="errorMessage">
-        <h4>{{errorMessage}}</h4>
-    </mat-error>
+    <div *ngFor="let fieldName of getObjectKeys(validationErrors)">
+      <h3>{{ fieldName }}:</h3>
+      <ul>
+        <li *ngFor="let error of validationErrors[fieldName]">
+          <mat-error>{{ error }}</mat-error>
+        </li>
+      </ul>
+    </div>
 
     <!-- Date -->
     <mat-form-field>
@@ -20,9 +25,12 @@
      <!-- Weight -->
      <mat-form-field>
       <mat-label>Weight:</mat-label>
-      <input matInput type="number" [(ngModel)]="bodyWeight.weight" required placeholder="Insert Weight" #weight="ngModel">
-      <mat-error [hidden]="weight.valid || weight.untouched">
-          Weight is required
+      <input matInput type="number" [(ngModel)]="bodyWeight.weight" min="0.1" required placeholder="Insert Weight" (input)="validateInput($event)" #weight="ngModel">
+      <mat-error *ngIf="weight.errors?.['required'] && weight.touched">
+          Weight is required.
+      </mat-error>
+      <mat-error *ngIf="weight.errors?.['min'] && weight.touched">
+          Weight must be a positive number.
       </mat-error>
     </mat-form-field>
     <br />
@@ -45,7 +53,7 @@
         <button type="button" mat-raised-button color="primary" (click)="onSubmit()" [disabled]="date.invalid || weight.invalid || weightType.invalid">
           {{ this.id ? "Save" : "Create" }}
         </button>
-        <button type="button" mat-flat-button color="secondary" [routerLink]="['/']">
+        <button type="button" mat-flat-button color="secondary" [routerLink]="['/body-weights']">
             Cancel
         </button>
     </div>

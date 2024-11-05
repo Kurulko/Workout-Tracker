@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatestWith, of, Observable, throwError } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 
 import { BodyWeight } from './body-weight';
 import { EditModelComponent } from '../shared/components/edit-model.component';
@@ -18,12 +17,27 @@ import { WeightType } from "./weight-type";
   templateUrl: './edit-body-weight.component.html',
 })
 export class BodyWeightEditComponent extends EditModelComponent<BodyWeight>{
-  bodyWeight: BodyWeight = <BodyWeight>{};
+  bodyWeight: BodyWeight = <BodyWeight>{ date : new Date() };
   weightTypes = Object.keys(WeightType).filter(key => isNaN(Number(key)));
   maxDate: Date = new Date();
 
   constructor(private activatedRoute: ActivatedRoute,  private router: Router,  private bodyWeightService: BodyWeightService, snackBar: MatSnackBar) {
     super(snackBar);
+  }
+
+  getObjectKeys(obj: any): string[] {
+    return Object.keys(obj);
+  }
+
+  validateInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+  
+    const regex = /^\d*\.?\d{0,1}$/;
+  
+    if (!regex.test(value)) {
+      input.value = value.slice(0, -1);
+    }
   }
 
   loadData() {
@@ -39,8 +53,7 @@ export class BodyWeightEditComponent extends EditModelComponent<BodyWeight>{
             this.router.navigate(['/body-weights']);
         }
 
-        this.errorMessage = errorResponse.message;
-        this.showSnackbar(this.errorMessage);
+        this.showSnackbar(errorResponse.message);
         return throwError(() => errorResponse);
       }))
       .subscribe(result => {
@@ -62,6 +75,7 @@ export class BodyWeightEditComponent extends EditModelComponent<BodyWeight>{
       this.bodyWeightService.updateBodyWeight(this.bodyWeight)
       .pipe(this.catchError())
       .subscribe(_ => {
+          this.modelUpdatedSuccessfully('Body Weight')
           console.log("BodyWeight " + this.bodyWeight!.id + " has been updated.");
           this.router.navigate(['/body-weights']);
       });
@@ -71,6 +85,7 @@ export class BodyWeightEditComponent extends EditModelComponent<BodyWeight>{
       this.bodyWeightService.createBodyWeight(this.bodyWeight)
       .pipe(this.catchError())
       .subscribe(result => {
+          this.modelAddedSuccessfully('Body Weight')
           console.log("BodyWeight " + result.id + " has been created.");
           this.router.navigate(['/body-weights']);
       });
