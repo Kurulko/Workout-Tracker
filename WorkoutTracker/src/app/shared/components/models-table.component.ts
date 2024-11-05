@@ -14,7 +14,7 @@ import { MatSnackBar  } from '@angular/material/snack-bar';
 @Component({
   template: ''
 })
-export abstract class ModelsTableComponent<T> extends BaseComponent implements OnInit {
+export abstract class ModelsTableComponent<T> extends BaseComponent {
     public data!: MatTableDataSource<T>;
   
     defaultPageIndex: number = 0;
@@ -36,10 +36,6 @@ export abstract class ModelsTableComponent<T> extends BaseComponent implements O
     }
 
     abstract getModels(pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null) : Observable<ApiResult<T>>;
-
-    ngOnInit() {
-      this.loadData();
-    }
   
     onFilterTextChanged(filterText: string) {
       if (this.filterTextChanged.closed) {

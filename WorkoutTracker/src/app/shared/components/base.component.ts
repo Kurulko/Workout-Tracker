@@ -14,6 +14,7 @@ import { INTERNAL_SERVER_ERROR, StatusCodes } from 'http-status-codes';
 export class BaseComponent {
     @Input() title?: string;
 
+    validationErrors: { [key: string]: string[] } = {};
     form!: FormGroup;
 
     constructor(private snackBar: MatSnackBar) {
@@ -63,6 +64,8 @@ export class BaseComponent {
 
         if(errorResponse.status === StatusCodes.INTERNAL_SERVER_ERROR)
           this.showSnackbar('Error occurred');
+        else if(typeof errorResponse.error.errors === 'object') 
+          this.validationErrors = errorResponse.error.errors;
         else
           this.showSnackbar(errorResponse.message);
 

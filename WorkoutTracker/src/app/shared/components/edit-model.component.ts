@@ -6,7 +6,6 @@ import { OnInit, Component } from '@angular/core';
     template: '',
 })
 export abstract class EditModelComponent<T> extends BaseComponent implements OnInit {
-    errorMessage?: string;
     id?: number;
 
     constructor(snackBar: MatSnackBar){
