@@ -41,8 +41,7 @@ export class MuscleEditComponent extends EditModelComponent<Muscle>{
             this.router.navigate(['/muscles']);
         }
 
-        this.errorMessage = errorResponse.message;
-        this.showSnackbar(this.errorMessage);
+        this.showSnackbar(errorResponse.message);
         return throwError(() => errorResponse);
       }))
       .subscribe(result => {

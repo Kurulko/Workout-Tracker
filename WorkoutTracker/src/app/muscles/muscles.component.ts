@@ -1,10 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatSnackBar  } from '@angular/material/snack-bar';
-import { catchError } from 'rxjs/operators';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { StatusCodes } from 'http-status-codes';
-
+import { Observable } from 'rxjs';
 
 import { Muscle } from './muscle';
 import { MuscleService } from './muscle.service';
@@ -16,10 +12,10 @@ import { ModelsTableComponent } from '../shared/components/models-table.componen
   templateUrl: './muscles.component.html',
   styleUrls: ['./muscles.component.css']
 })
-export class MusclesComponent extends ModelsTableComponent<Muscle> {
+export class MusclesComponent extends ModelsTableComponent<Muscle> implements OnInit {
   constructor(public muscleService: MuscleService, snackBar: MatSnackBar) {
       super(snackBar);
-      this.displayedColumns = ['id', 'name', 'parentMuscle', 'childMuscles', 'actions'];
+      this.displayedColumns = ['name', 'parentMuscle', 'childMuscles', 'actions'];
   }
 
   getChildrenMuscleNames(muscle: Muscle): string|undefined {
@@ -28,6 +24,10 @@ export class MusclesComponent extends ModelsTableComponent<Muscle> {
 
   getModels(pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Muscle>> {
     return this.muscleService.getMuscles(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+  }
+
+  ngOnInit() {
+    this.loadData();
   }
 
   deleteMuscle(id: number) {
