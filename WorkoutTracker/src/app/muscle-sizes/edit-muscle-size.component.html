@@ -1,0 +1,71 @@
+<base-app [title]="title">
+    <p *ngIf="this.id && !muscleSize"><em>Loading...</em></p>
+
+    <div *ngFor="let fieldName of getObjectKeys(validationErrors)">
+      <h3>{{ fieldName }}:</h3>
+      <ul>
+        <li *ngFor="let error of validationErrors[fieldName]">
+          <mat-error>{{ error }}</mat-error>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Date -->
+    <mat-form-field>
+      <mat-label>Date:</mat-label>
+      <input matInput [matDatepicker]="picker" [(ngModel)]="muscleSize.date" placeholder="Insert Date" required [max]="maxDate" #date="ngModel"/>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker />
+      <mat-error [hidden]="date.valid || date.untouched">
+        Date is required
+      </mat-error>
+    </mat-form-field>
+    <br />
+
+     <!-- Weight -->
+     <mat-form-field>
+      <mat-label>Size:</mat-label>
+      <input matInput type="number" [(ngModel)]="muscleSize.size" min="0.1" required placeholder="Insert Weight" (input)="validateInput($event)" #size="ngModel">
+      <mat-error *ngIf="size.errors?.['required'] && size.touched">
+        Size is required.
+      </mat-error>
+      <mat-error *ngIf="size.errors?.['min'] && size.touched">
+          Size must be a positive number.
+      </mat-error>
+    </mat-form-field>
+    <br />
+
+    <!-- Weight Type -->
+    <mat-form-field>
+      <mat-label>Select Size Type...</mat-label>
+      <mat-select [(ngModel)]="muscleSize.sizeType" required #sizeType="ngModel">
+        <mat-option *ngFor="let sizeType of sizeTypes" [value]="sizeType">
+          {{ sizeType }}
+        </mat-option>
+      </mat-select>
+      <mat-error [hidden]="sizeType.valid || sizeType.untouched">
+        Size Type is required.
+      </mat-error>
+    </mat-form-field>
+    <br />
+
+    <!-- Muscle Name -->
+    <mat-form-field *ngIf="muscles | async as result">
+      <mat-label>Select Muscle...</mat-label>
+      <mat-select [(ngModel)]="muscleSize.muscleId">
+        <mat-option *ngFor="let muscle of result" [value]="muscle.id">
+          {{muscle.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <br />
+
+    <div>
+        <button type="button" mat-raised-button color="primary" (click)="onSubmit()" [disabled]="date.invalid || size.invalid || sizeType.invalid">
+          {{ this.id ? "Save" : "Create" }}
+        </button>
+        <button type="button" mat-flat-button color="secondary" [routerLink]="['/body-weights']">
+            Cancel
+        </button>
+    </div>
+</base-app>
