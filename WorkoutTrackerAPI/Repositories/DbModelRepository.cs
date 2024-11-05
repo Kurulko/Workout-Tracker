@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using System.Linq.Expressions;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
@@ -86,6 +87,12 @@ public class DbModelRepository<T> : IDisposable, IBaseRepository<T>
         dbSet.Update(model);
         await SaveChangesAsync();
     }
+
+    public async Task<bool> AnyAsync(Expression<Func<T, bool>> expression)
+       => await dbSet.AnyAsync(expression);
+
+    public async Task<bool> AnyAsync()
+        => await dbSet.AnyAsync();
 
     public virtual async Task SaveChangesAsync()
         => await db.SaveChangesAsync();

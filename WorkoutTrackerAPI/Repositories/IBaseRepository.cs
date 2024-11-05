@@ -14,5 +14,7 @@ public interface IBaseRepository<T> where T : class, IDbModel
     Task RemoveAsync(long key);
     Task RemoveRangeAsync(IEnumerable<T> entities);
     Task<bool> ExistsAsync(long key);
+    Task<bool> AnyAsync(Expression<Func<T, bool>> expression);
+    Task<bool> AnyAsync();
     Task SaveChangesAsync();
 }

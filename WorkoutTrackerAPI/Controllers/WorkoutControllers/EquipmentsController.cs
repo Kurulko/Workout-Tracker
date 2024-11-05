@@ -88,9 +88,9 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
         if (serviceResult.Model is not IQueryable<Equipment> equipments)
             return EntryNotFound("Equipments");
 
-        var equipmentDTOs = equipments.Select(m => mapper.Map<EquipmentDTO>(m));
+        var equipmentDTOs = equipments.AsEnumerable().Select(m => mapper.Map<EquipmentDTO>(m));
         return await ApiResult<EquipmentDTO>.CreateAsync(
-            equipmentDTOs,
+            equipmentDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,
@@ -121,9 +121,9 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
         if (serviceResult.Model is not IQueryable<Equipment> equipments)
             return EntryNotFound("Equipments");
 
-        var equipmentDTOs = equipments.Select(m => mapper.Map<EquipmentDTO>(m));
+        var equipmentDTOs = equipments.AsEnumerable().Select(m => mapper.Map<EquipmentDTO>(m));
         return await ApiResult<EquipmentDTO>.CreateAsync(
-            equipmentDTOs,
+            equipmentDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,
@@ -216,7 +216,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 
         equipment = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetCurrentUserEquipmentByIdAsync), new { id = equipment.Id }, equipment);
+        return CreatedAtAction(nameof(GetCurrentUserEquipmentByIdAsync), new { equipmentId = equipment.Id }, equipment);
     }
 
     [HttpPut("internal-equipment/{equipmentId}")]

@@ -5,6 +5,7 @@ using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Initializers;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
+using WorkoutTrackerAPI.Repositories.WorkoutRepositories;
 using WorkoutTrackerAPI.Services.ExerciseServices;
 using WorkoutTrackerAPI.Services.MuscleServices;
 using WorkoutTrackerAPI.Services.RoleServices;
@@ -21,16 +22,24 @@ public static class InitializerProvider
         IServiceProvider serviceProvider = serviceScope.ServiceProvider;
 
         var roleRepository = serviceProvider.GetRequiredService<RoleRepository>();
-        await InitializeRolesAsync(roleRepository);
+        if (!(await roleRepository.AnyAsync()))
+            await InitializeRolesAsync(roleRepository);
 
         var userRepository = serviceProvider.GetRequiredService<UserRepository>();
-        await InitializeUsersAsync(userRepository, config);
+        if (!(await userRepository.AnyUsersAsync()))
+            await InitializeUsersAsync(userRepository, config);
 
         var muscleRepository = serviceProvider.GetRequiredService<MuscleRepository>();
-        await InitializeMusclesAsync(muscleRepository);
+        if(!(await muscleRepository.AnyAsync()))
+            await InitializeMusclesAsync(muscleRepository);
+
+        var equipmentRepository = serviceProvider.GetRequiredService<EquipmentRepository>();
+        if (!(await equipmentRepository.AnyAsync()))
+            await InitializeEquipmentsAsync(equipmentRepository);
 
         var exerciseRepository = serviceProvider.GetRequiredService<ExerciseRepository>();
-        await InitializeExercisesAsync(exerciseRepository, muscleRepository);
+        if (!(await exerciseRepository.AnyAsync()))
+            await InitializeExercisesAsync(exerciseRepository, muscleRepository);
     }
 
     static async Task InitializeRolesAsync(RoleRepository roleRepository)
@@ -60,6 +69,23 @@ public static class InitializerProvider
 
         foreach (var muscle in muscleData)
             await MusclesInitializer.InitializeAsync(muscleRepository, muscle, null);
+    }
+    
+    static async Task InitializeEquipmentsAsync(EquipmentRepository equipmentRepository)
+    {
+        string json = await File.ReadAllTextAsync("Data/Source/equipments.json");
+
+        // Parse the JSON
+        var jsonObject = JObject.Parse(json);
+
+        // Get the "Muscles" property as a JArray
+        var equipmentArray = (JArray)jsonObject["Equipments"]!;
+
+        // Deserialize the "Muscles" array into a list
+        var equipmentNames = equipmentArray.ToObject<List<string>>()!;
+
+        foreach (var equipmentName in equipmentNames)
+            await EquipmentInitializer.InitializeAsync(equipmentRepository, equipmentName);
     }
 
     static async Task InitializeExercisesAsync(ExerciseRepository exerciseRepository, MuscleRepository muscleRepository)

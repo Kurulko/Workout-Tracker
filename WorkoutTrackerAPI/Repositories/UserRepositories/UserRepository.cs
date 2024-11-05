@@ -94,6 +94,9 @@ public class UserRepository
     public virtual async Task<User?> GetUserByIdAsync(string userId)
         => await userManager.FindByIdAsync(userId);
 
+    public virtual async Task<bool> AnyUsersAsync()
+        => await Users.AnyAsync();
+
     public virtual async Task<bool> UserExistsAsync(string userId)
         => await Users.AnyAsync(u => u.Id == userId);
 

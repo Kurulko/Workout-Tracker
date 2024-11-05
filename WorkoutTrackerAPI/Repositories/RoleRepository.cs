@@ -72,6 +72,9 @@ public class RoleRepository
         return RoleNotFoundResult;
     }
 
+    public virtual async Task<bool> AnyAsync()
+        => await Roles.AnyAsync();
+
     public virtual async Task<bool> RoleExistsAsync(string roleId)
         => await Roles.AnyAsync(r => r.Id == roleId);
 
