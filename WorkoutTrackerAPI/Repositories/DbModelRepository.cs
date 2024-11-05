@@ -20,8 +20,6 @@ public class DbModelRepository<T> : IDisposable, IBaseRepository<T>
         dbSet = db.Set<T>();
     }
 
-    protected IQueryable<T> DbSetAsNoTracking => dbSet.AsNoTracking();
-
     public virtual async Task<T> AddAsync(T model)
     {
         if (model.Id != 0)
@@ -69,16 +67,16 @@ public class DbModelRepository<T> : IDisposable, IBaseRepository<T>
     }
 
     public virtual async Task<IQueryable<T>> GetAllAsync()
-        => await Task.FromResult(DbSetAsNoTracking);
+        => await Task.FromResult(dbSet);
 
     public virtual async Task<T?> GetByIdAsync(long key)
-        => await DbSetAsNoTracking.SingleOrDefaultAsync(m => m.Id == key);
+        => await (await GetAllAsync()).SingleOrDefaultAsync(m => m.Id == key);
 
     public virtual async Task<IQueryable<T>> FindAsync(Expression<Func<T, bool>> expression)
-        => await Task.FromResult(DbSetAsNoTracking.Where(expression));
+        => (await GetAllAsync()).Where(expression);
 
     public virtual async Task<bool> ExistsAsync(long key)
-        => await dbSet.AnyAsync(m => m.Id == key);
+        => await (await GetAllAsync()).AnyAsync(m => m.Id == key);
 
     public virtual async Task UpdateAsync(T model)
     {

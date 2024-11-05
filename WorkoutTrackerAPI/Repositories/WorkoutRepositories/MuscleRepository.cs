@@ -1,6 +1,8 @@
 ﻿using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using WorkoutTrackerAPI.Data.Models.UserModels;
 
 namespace WorkoutTrackerAPI.Repositories;
 
@@ -12,16 +14,10 @@ public class MuscleRepository : BaseWorkoutRepository<Muscle>
     }
 
     IQueryable<Muscle> GetMuscles()
-        => DbSetAsNoTracking.Include(m => m.ParentMuscle).Include(m => m.ChildMuscles);
+        => dbSet.Include(m => m.ParentMuscle).Include(m => m.ChildMuscles);
 
     public override Task<IQueryable<Muscle>> GetAllAsync()
         => Task.FromResult(GetMuscles());
-
-    public override async Task<Muscle?> GetByIdAsync(long key)
-        => await GetMuscles().SingleOrDefaultAsync(m => m.Id == key);
-
-    public override async Task<Muscle?> GetByNameAsync(string name)
-        => await GetMuscles().SingleOrDefaultAsync(m => m.Name == name);
 
     public override async Task<Muscle> AddAsync(Muscle model)
     {
@@ -29,7 +25,7 @@ public class MuscleRepository : BaseWorkoutRepository<Muscle>
         {
             var childMuscleIds = model.ChildMuscles.Select(c => c.Id).ToList();
 
-            var existingChildMuscles = await DbSetAsNoTracking
+            var existingChildMuscles = await dbSet
                 .Where(m => childMuscleIds.Contains(m.Id))
                 .ToListAsync();
 
