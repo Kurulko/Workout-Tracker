@@ -21,6 +21,10 @@ import { MusclesComponent } from './muscles/muscles.component';
 import { MuscleEditComponent } from './muscles/edit-muscle.component';
 import { BodyWeightsComponent } from './body-weights/body-weights.component';
 import { BodyWeightEditComponent } from './body-weights/edit-body-weight.component';
+import { MuscleSizesComponent } from './muscle-sizes/muscle-sizes.component';
+import { MuscleSizeEditComponent } from './muscle-sizes/edit-muscle-size.component';
+import { EquipmentsComponent } from './equipments/equipments.component';
+import { EquipmentEditComponent } from './equipments/edit-equipment.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +38,11 @@ import { BodyWeightEditComponent } from './body-weights/edit-body-weight.compone
     MusclesComponent,
     MuscleEditComponent,
     BodyWeightsComponent,
-    BodyWeightEditComponent
+    BodyWeightEditComponent,
+    MuscleSizesComponent,
+    MuscleSizeEditComponent,
+    EquipmentsComponent,
+    EquipmentEditComponent
   ],
   imports: [
     BrowserModule,
