@@ -1,14 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using System.Data;
-using System.Drawing;
+using System.Text.Json.Serialization;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Data.Settings;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
@@ -25,11 +22,30 @@ using WorkoutTrackerAPI.Services.MuscleSizeServices;
 using WorkoutTrackerAPI.Services.RoleServices;
 using WorkoutTrackerAPI.Services.UserServices;
 using WorkoutTrackerAPI.Services.WorkoutServices;
+using WorkoutTrackerAPI.ValidationAttributes;
 
 namespace WorkoutTrackerAPI.Providers;
 
 public static class ServiceProviders
 {
+    public static void AddControllersWithOptions(this IServiceCollection services)
+    {
+        services.Configure<ApiBehaviorOptions>(options =>
+        {
+            options.SuppressModelStateInvalidFilter = true;
+        });
+
+        services.AddControllers(options =>
+        {
+            options.Filters.Add<ValidateModelStateAttribute>();
+        })
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
+    }
+
     public static void AddMSSQLServer(this IServiceCollection services, IConfiguration configuration)
     {
         string connection = configuration.GetConnectionString("DefaultConnection")!;
