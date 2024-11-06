@@ -359,7 +359,7 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
             _exercise.Type = exercise.Type;
             _exercise.WorkingMuscles = exercise.WorkingMuscles;
 
-            await baseWorkoutRepository.UpdateAsync(exercise);
+            await baseWorkoutRepository.UpdateAsync(_exercise);
             return ServiceResult.Ok();
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
