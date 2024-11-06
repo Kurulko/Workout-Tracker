@@ -39,9 +39,14 @@ public static class ServiceProviders
         {
             options.Filters.Add<ValidateModelStateAttribute>();
         })
+        .AddNewtonsoftJson(options =>
+        {
+            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+        })
         .AddJsonOptions(options =>
         {
-            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            //options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            //options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
     }
