@@ -99,13 +99,11 @@
           ]
         },
         {
-          "Name": "Thighs",
+          "Name": "Hip flexors",
           "Children": [
-            { "Name": "Tensor fasciae latae" },
+            { "Name": "Iliopsoas" },
             { "Name": "Sartorius" },
-            { "Name": "Pectineus" },
-            { "Name": "Adductor longus" },
-            { "Name": "Gracilis" }
+            { "Name": "Rectus femoris" }
           ]
         },
         {
@@ -114,6 +112,16 @@
             { "Name": "Biceps femoris" },
             { "Name": "Semitendinosus" },
             { "Name": "Semimembranosus" }
+          ]
+        },
+        {
+          "Name": "Adductors",
+          "Children": [
+            { "Name": "Adductor longus" },
+            { "Name": "Adductor brevis" },
+            { "Name": "Adductor magnus" },
+            { "Name": "Pectineus" },
+            { "Name": "Gracilis" }
           ]
         },
         {
