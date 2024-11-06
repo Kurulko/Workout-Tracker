@@ -58,6 +58,70 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         );
     }
 
+    [HttpGet("parent-muscles")]
+    public async Task<ActionResult<ApiResult<MuscleDTO>>> GetParentMusclesAsync(
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? sortColumn = null,
+        string? sortOrder = null,
+        string? filterColumn = null,
+        string? filterQuery = null)
+    {
+        if (pageIndex < 0 || pageSize <= 0)
+            return InvalidPageIndexOrPageSize();
+
+        var serviceResult = await muscleService.GetParentMusclesAsync();
+
+        if (!serviceResult.Success)
+            return BadRequest(serviceResult.ErrorMessage);
+
+        if (serviceResult.Model is not IQueryable<Muscle> muscles)
+            return EntryNotFound("Muscles");
+
+        var muscleDTOs = muscles.AsEnumerable().Select(m => mapper.Map<MuscleDTO>(m));
+        return await ApiResult<MuscleDTO>.CreateAsync(
+            muscleDTOs.AsQueryable(),
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
+    }
+
+    [HttpGet("child-muscles")]
+    public async Task<ActionResult<ApiResult<MuscleDTO>>> GetChildMusclesAsync(
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? sortColumn = null,
+        string? sortOrder = null,
+        string? filterColumn = null,
+        string? filterQuery = null)
+    {
+        if (pageIndex < 0 || pageSize <= 0)
+            return InvalidPageIndexOrPageSize();
+
+        var serviceResult = await muscleService.GetChildMusclesAsync();
+
+        if (!serviceResult.Success)
+            return BadRequest(serviceResult.ErrorMessage);
+
+        if (serviceResult.Model is not IQueryable<Muscle> muscles)
+            return EntryNotFound("Muscles");
+
+        var muscleDTOs = muscles.AsEnumerable().Select(m => mapper.Map<MuscleDTO>(m));
+        return await ApiResult<MuscleDTO>.CreateAsync(
+            muscleDTOs.AsQueryable(),
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
+    }
+
     [HttpGet("{muscleId}")]
     [ActionName(nameof(GetMuscleByIdAsync))]
     public async Task<ActionResult<MuscleDTO>> GetMuscleByIdAsync(long muscleId)

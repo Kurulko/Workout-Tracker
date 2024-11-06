@@ -104,6 +104,32 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
     }
 
+    public async Task<ServiceResult<IQueryable<Muscle>>> GetParentMusclesAsync()
+    {
+        try
+        {
+            var muscles = await baseWorkoutRepository.FindAsync(m => m.ParentMuscleId == null);
+            return ServiceResult<IQueryable<Muscle>>.Ok(muscles);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<IQueryable<Muscle>>.Fail(FailedToActionStr("parent muscles", "get", ex));
+        }
+    }
+
+    public async Task<ServiceResult<IQueryable<Muscle>>> GetChildMusclesAsync()
+    {
+        try
+        {
+            var muscles = await baseWorkoutRepository.FindAsync(m => m.ParentMuscleId != null);
+            return ServiceResult<IQueryable<Muscle>>.Ok(muscles);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<IQueryable<Muscle>>.Fail(FailedToActionStr("child muscles", "get", ex));
+        }
+    }
+
     public async Task<bool> MuscleExistsAsync(long muscleId)
     {
         if (muscleId < 1)
