@@ -76,7 +76,26 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         }
     }
 
-    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesAsync(string userId, long muscleId)
+    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesAsync(string userId)
+    {
+        try
+        {
+            await CheckUserIdAsync(userRepository, userId);
+
+            var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId);
+            return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizes);
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<IQueryable<MuscleSize>>.Fail(ex);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<IQueryable<MuscleSize>>.Fail(FailedToActionStr("muscle sizes", "get", ex));
+        }
+    }
+    
+    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesByMuscleIdAsync(string userId, long muscleId)
     {
         try
         {
@@ -98,9 +117,9 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         }
     }
 
-    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInCentimetersAsync(string userId, long muscleId)
+    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInCentimetersAsync(string userId)
     {
-        var serviceResult = await GetUserMuscleSizesAsync(userId, muscleId);
+        var serviceResult = await GetUserMuscleSizesAsync(userId);
 
         if (!serviceResult.Success)
             return serviceResult;
@@ -115,9 +134,43 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizesInCentimeters);
     }
 
-    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInInchesAsync(string userId, long muscleId)
+    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInCentimetersByMuscleIdAsync(string userId, long muscleId)
     {
-        var serviceResult = await GetUserMuscleSizesAsync(userId, muscleId);
+        var serviceResult = await GetUserMuscleSizesByMuscleIdAsync(userId, muscleId);
+
+        if (!serviceResult.Success)
+            return serviceResult;
+
+        var userMuscleSizesInCentimeters = serviceResult.Model!.AsEnumerable().Select(m =>
+        {
+            m.Size = (float)Math.Round(MuscleSize.GetMuscleSizeInCentimeters(m), 1);
+            m.SizeType = SizeType.Centimeter;
+            return m;
+        }).AsQueryable();
+
+        return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizesInCentimeters);
+    }
+
+    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInInchesAsync(string userId)
+    {
+        var serviceResult = await GetUserMuscleSizesAsync(userId);
+
+        if (!serviceResult.Success)
+            return serviceResult;
+
+        var userMuscleSizesInInches = serviceResult.Model!.AsEnumerable().Select(m =>
+        {
+            m.Size = (float)Math.Round(MuscleSize.GetMuscleSizeInInches(m), 1);
+            m.SizeType = SizeType.Inch;
+            return m;
+        }).AsQueryable();
+
+        return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizesInInches);
+    }
+
+    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInInchesByMuscleIdAsync(string userId, long muscleId)
+    {
+        var serviceResult = await GetUserMuscleSizesByMuscleIdAsync(userId, muscleId);
 
         if (!serviceResult.Success)
             return serviceResult;
