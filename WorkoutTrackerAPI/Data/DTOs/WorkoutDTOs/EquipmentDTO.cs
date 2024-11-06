@@ -14,5 +14,5 @@ public class EquipmentDTO
 
     public byte[]? Image { get; set; }
     public bool IsOwnedByUser { get; set; }
-    public IEnumerable<Exercise>? Exercises { get; set; } = null!;
+    public IEnumerable<ExerciseDTO>? Exercises { get; set; } = null!;
 }

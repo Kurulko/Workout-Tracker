@@ -16,5 +16,5 @@ public class MuscleSizeDTO
     public SizeType SizeType { get; set; }
 
     public long MuscleId { get; set; }
-    public Muscle? Muscle { get; set; }
+    public MuscleDTO? Muscle { get; set; }
 }

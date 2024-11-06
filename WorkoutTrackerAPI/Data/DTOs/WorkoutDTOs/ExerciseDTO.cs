@@ -2,6 +2,7 @@
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Data.Models;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace WorkoutTrackerAPI.Data.DTOs;
 
@@ -20,5 +21,6 @@ public class ExerciseDTO
 
     public bool IsCreatedByUser { get; set; }
 
-    public IEnumerable<Muscle> WorkingMuscles { get; set; } = null!;
+    [JsonProperty("muscles")]
+    public IEnumerable<MuscleDTO> WorkingMuscles { get; set; } = null!;
 }

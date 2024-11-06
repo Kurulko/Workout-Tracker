@@ -16,6 +16,6 @@ public class MuscleDTO
     public byte[]? Image { get; set; }
 
     public long? ParentMuscleId { get; set; }
-    public Muscle? ParentMuscle { get; set; } = null!;
-    public IEnumerable<Muscle>? ChildMuscles { get; set; } = null!;
+    public MuscleDTO? ParentMuscle { get; set; } = null!;
+    public IEnumerable<MuscleDTO>? ChildMuscles { get; set; } = null!;
 }

@@ -16,5 +16,5 @@ public class WorkoutCreationDTO
     public double Weight { get; set; }
     public TimeSpan Time { get; set; }
 
-    public IEnumerable<Exercise> Exercises { get; set; } = null!;
+    public IEnumerable<ExerciseDTO> Exercises { get; set; } = null!;
 }
