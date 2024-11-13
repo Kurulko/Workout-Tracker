@@ -65,8 +65,7 @@ public class ApiResult<T>
         if (!string.IsNullOrEmpty(filterColumn) && !string.IsNullOrEmpty(filterQuery) && IsValidProperty(filterColumn))
         {
             source = source.Where(
-                string.Format("{0}.StartsWith(@0)",
-                filterColumn),
+                string.Format("{0}.ToLower().Contains(@0.ToLower())", filterColumn), 
                 filterQuery);
         }
 
@@ -110,14 +109,11 @@ public class ApiResult<T>
     /// </summary>
     public static bool IsValidProperty(string propertyName,  bool throwExceptionIfNotFound = true)
     {
-        var prop = typeof(T).GetProperty(
-            propertyName,
-            BindingFlags.IgnoreCase |
-            BindingFlags.Public |
-            BindingFlags.Instance);
+        var prop = typeof(T).GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+        
         if (prop == null && throwExceptionIfNotFound)
-            throw new NotSupportedException(
-                string.Format($"ERROR: Property '{propertyName}' doesn't exist."));
+            throw new NotSupportedException($"ERROR: Property '{propertyName}' doesn't exist.");
+        
         return prop != null;
     }
     #endregion
