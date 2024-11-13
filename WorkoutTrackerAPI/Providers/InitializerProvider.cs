@@ -97,10 +97,10 @@ public static class InitializerProvider
             "Latissimus dorsi", "Biceps brachii", "Teres minor");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Push Up", ExerciseType.Reps,
-            "Pectoralis major", "Triceps brachii", "Deltoids");
+            "Pectoralis major", "Triceps", "Deltoids");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Bench Press", ExerciseType.WeightAndReps,
-            "Pectoralis major", "Triceps brachii", "Deltoids");
+            "Pectoralis major", "Triceps", "Deltoids");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Squat", ExerciseType.WeightAndReps,
             "Quadriceps", "Gluteus maximus", "Hamstrings");
@@ -109,13 +109,13 @@ public static class InitializerProvider
             "Erector spinae", "Gluteus maximus", "Hamstrings", "Quadriceps");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Shoulder Press", ExerciseType.WeightAndReps,
-            "Deltoids", "Triceps brachii");
+            "Deltoids", "Triceps");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Lunges", ExerciseType.WeightAndReps,
             "Quadriceps", "Gluteus maximus", "Hamstrings", "Adductors");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Dips", ExerciseType.Reps,
-            "Triceps brachii", "Pectoralis major", "Deltoids");
+            "Triceps", "Pectoralis major", "Deltoids");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Leg Raise", ExerciseType.Reps,
             "Rectus abdominis", "Hip flexors");
@@ -133,14 +133,14 @@ public static class InitializerProvider
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Dumbbell Chest Fly", ExerciseType.WeightAndReps, "Pectoralis major", "Deltoids");
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Seated Overhead Extensions", ExerciseType.WeightAndReps,  "Triceps brachii");
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Seated Overhead Extensions", ExerciseType.WeightAndReps,  "Triceps");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Leg Extension", ExerciseType.WeightAndReps,
             "Quadriceps");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Single Arm Dumbbell Rows", ExerciseType.WeightAndReps, "Latissimus dorsi", "Biceps brachii", "Rhomboids");
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Dumbbell Squeeze Press", ExerciseType.WeightAndReps, "Pectoralis major", "Triceps brachii", "Deltoids");
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Dumbbell Squeeze Press", ExerciseType.WeightAndReps, "Pectoralis major", "Triceps", "Deltoids");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Seated Dumbbell Wrist Curl", ExerciseType.WeightAndReps, "Forearms");
 
@@ -170,21 +170,21 @@ public static class InitializerProvider
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Weighted Russian Twists (Legs Up)", ExerciseType.Reps, "External oblique", "Rectus abdominis", "Hip flexors");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Clap Push-Ups", ExerciseType.Reps,
-        "Pectoralis major", "Triceps brachii", "Deltoids");
+        "Pectoralis major", "Triceps", "Deltoids");
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Renegade Row Push-Ups", ExerciseType.WeightAndReps, "Latissimus dorsi", "Biceps brachii", "Pectoralis major", "Triceps brachii");
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Renegade Row Push-Ups", ExerciseType.WeightAndReps, "Latissimus dorsi", "Biceps brachii", "Pectoralis major", "Triceps");
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Weighted Push-Ups", ExerciseType.WeightAndReps, "Pectoralis major", "Triceps brachii", "Deltoids");
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Weighted Push-Ups", ExerciseType.WeightAndReps, "Pectoralis major", "Triceps", "Deltoids");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Elevated Push-Ups", ExerciseType.Reps,
-            "Pectoralis major", "Triceps brachii", "Deltoids");
+            "Pectoralis major", "Triceps", "Deltoids");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Weighted Pull-Ups", ExerciseType.WeightAndReps, "Latissimus dorsi", "Biceps brachii");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Wide Grip Pull-Ups", ExerciseType.Reps,
             "Latissimus dorsi", "Teres major", "Biceps brachii");
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Uneven Push-Ups on a Ball", ExerciseType.Reps, "Pectoralis major", "Triceps brachii", "Deltoids");
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Uneven Push-Ups on a Ball", ExerciseType.Reps, "Pectoralis major", "Triceps", "Deltoids");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Weighted Side Plank", ExerciseType.Time,
             "External oblique", "Core", "Gluteus medius");
@@ -216,7 +216,7 @@ public static class InitializerProvider
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Bent-Over Reverse Fly", ExerciseType.WeightAndReps, "Deltoids", "Rhomboids");
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Seated Overhead Press", ExerciseType.WeightAndReps, "Deltoids", "Triceps brachii");
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Seated Overhead Press", ExerciseType.WeightAndReps, "Deltoids", "Triceps");
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, "Reverse Dumbbell Wrist Curl", ExerciseType.WeightAndReps, "Forearm extensors");
 
