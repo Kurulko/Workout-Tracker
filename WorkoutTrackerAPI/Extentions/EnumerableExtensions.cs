@@ -12,4 +12,7 @@ public static class EnumerableExtensions
 
     public static IEnumerable<T> GetModelsOrEmpty<T>(this IEnumerable<T>? models)
         => models ?? Enumerable.Empty<T>();
+
+    public static bool Contains<T>(this IEnumerable<T> models, IEnumerable<T> containedModels)
+        => containedModels.All(containedModel => models.Contains(containedModel));
 }
