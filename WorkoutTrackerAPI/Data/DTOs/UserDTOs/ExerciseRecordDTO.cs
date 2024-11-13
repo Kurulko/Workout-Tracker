@@ -28,5 +28,5 @@ public class ExerciseRecordDTO
     public int? SumOfReps { get; set; }
 
     public long ExerciseId { get; set; }
-    public ExerciseDTO? Exercise { get; set; }
+    public string? ExerciseName { get; set; }
 }
