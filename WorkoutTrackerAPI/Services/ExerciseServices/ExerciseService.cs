@@ -207,11 +207,15 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
     }
 
-    public async Task<ServiceResult<IQueryable<Exercise>>> GetInternalExercisesAsync()
+    public async Task<ServiceResult<IQueryable<Exercise>>> GetInternalExercisesAsync(ExerciseType? exerciseType = null)
     {
         try
         {
             var exercises = await baseWorkoutRepository.FindAsync(e => e.CreatedByUserId == null);
+
+            if (exerciseType is ExerciseType _exerciseType)
+                exercises = exercises.Where(e => e.Type == exerciseType);
+
             return ServiceResult<IQueryable<Exercise>>.Ok(exercises);
         }
         catch (Exception ex)
@@ -264,13 +268,16 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
     }
 
-    public async Task<ServiceResult<IQueryable<Exercise>>> GetUserExercisesAsync(string userId)
+    public async Task<ServiceResult<IQueryable<Exercise>>> GetUserExercisesAsync(string userId, ExerciseType? exerciseType = null)
     {
         try
         {
             await CheckUserIdAsync(userRepository, userId);
-
             var userExercises = await baseWorkoutRepository.FindAsync(e => e.CreatedByUserId == userId);
+
+            if (exerciseType is ExerciseType _exerciseType)
+                userExercises = userExercises.Where(e => e.Type == exerciseType);
+
             return ServiceResult<IQueryable<Exercise>>.Ok(userExercises);
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
@@ -283,14 +290,17 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
     }
 
-    public async Task<ServiceResult<IQueryable<Exercise>>> GetAllExercisesAsync(string userId)
+    public async Task<ServiceResult<IQueryable<Exercise>>> GetAllExercisesAsync(string userId, ExerciseType? exerciseType = null)
     {
         try
         {
             await CheckUserIdAsync(userRepository, userId);
+            var allExercises = await baseWorkoutRepository.FindAsync(e => e.CreatedByUserId == userId || e.CreatedByUserId == null);
 
-            var exercises = await baseWorkoutRepository.FindAsync(e => e.CreatedByUserId == userId || e.CreatedByUserId == null);
-            return ServiceResult<IQueryable<Exercise>>.Ok(exercises);
+            if (exerciseType is ExerciseType _exerciseType)
+                allExercises = allExercises.Where(e => e.Type == exerciseType);
+
+            return ServiceResult<IQueryable<Exercise>>.Ok(allExercises);
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {

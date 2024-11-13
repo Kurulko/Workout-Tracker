@@ -8,6 +8,7 @@ using WorkoutTrackerAPI.Exceptions;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
 using WorkoutTrackerAPI.Services.MuscleSizeServices;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WorkoutTrackerAPI.Services;
 
@@ -75,36 +76,27 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
             return ServiceResult.Fail(FailedToActionStr("muscle size", "delete"));
         }
     }
-
-    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesAsync(string userId)
-    {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
-
-            var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId);
-            return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizes);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<IQueryable<MuscleSize>>.Fail(ex);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<IQueryable<MuscleSize>>.Fail(FailedToActionStr("muscle sizes", "get", ex));
-        }
-    }
     
-    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesByMuscleIdAsync(string userId, long muscleId)
+    async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesAsync(string userId, long? muscleId = null, DateTime? date = null)
     {
         try
         {
             await CheckUserIdAsync(userRepository, userId);
 
-            if (muscleId < 1)
+            if (date.HasValue && date.Value.Date > DateTime.Now.Date)
+                throw new ArgumentException("Incorrect date.");
+
+            if (muscleId.HasValue && muscleId < 1)
                 throw invalidMuscleSizeIDException;
 
-            var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId && ms.MuscleId == muscleId);
+            var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId);
+
+            if (date.HasValue)
+                userMuscleSizes = userMuscleSizes.Where(ms => ms.Date.Date == date.Value.Date); 
+
+            if (muscleId.HasValue)
+                userMuscleSizes = userMuscleSizes.Where(ms => ms.MuscleId == muscleId);
+
             return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizes);
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
@@ -117,43 +109,9 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         }
     }
 
-    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInCentimetersAsync(string userId)
+    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInInchesAsync(string userId, long? muscleId = null, DateTime? date = null)
     {
-        var serviceResult = await GetUserMuscleSizesAsync(userId);
-
-        if (!serviceResult.Success)
-            return serviceResult;
-
-        var userMuscleSizesInCentimeters = serviceResult.Model!.AsEnumerable().Select(m =>
-        {
-            m.Size = (float)Math.Round(MuscleSize.GetMuscleSizeInCentimeters(m), 1);
-            m.SizeType = SizeType.Centimeter;
-            return m;
-        }).AsQueryable();
-
-        return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizesInCentimeters);
-    }
-
-    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInCentimetersByMuscleIdAsync(string userId, long muscleId)
-    {
-        var serviceResult = await GetUserMuscleSizesByMuscleIdAsync(userId, muscleId);
-
-        if (!serviceResult.Success)
-            return serviceResult;
-
-        var userMuscleSizesInCentimeters = serviceResult.Model!.AsEnumerable().Select(m =>
-        {
-            m.Size = (float)Math.Round(MuscleSize.GetMuscleSizeInCentimeters(m), 1);
-            m.SizeType = SizeType.Centimeter;
-            return m;
-        }).AsQueryable();
-
-        return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizesInCentimeters);
-    }
-
-    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInInchesAsync(string userId)
-    {
-        var serviceResult = await GetUserMuscleSizesAsync(userId);
+        var serviceResult = await GetUserMuscleSizesAsync(userId, muscleId, date);
 
         if (!serviceResult.Success)
             return serviceResult;
@@ -168,21 +126,21 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizesInInches);
     }
 
-    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInInchesByMuscleIdAsync(string userId, long muscleId)
+    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInCentimetersAsync(string userId, long? muscleId = null, DateTime? date = null)
     {
-        var serviceResult = await GetUserMuscleSizesByMuscleIdAsync(userId, muscleId);
+        var serviceResult = await GetUserMuscleSizesAsync(userId, muscleId, date);
 
         if (!serviceResult.Success)
             return serviceResult;
 
-        var userMuscleSizesInInches = serviceResult.Model!.AsEnumerable().Select(m =>
+        var userMuscleSizesInCentimeter = serviceResult.Model!.AsEnumerable().Select(m =>
         {
-            m.Size = (float)Math.Round(MuscleSize.GetMuscleSizeInInches(m), 1);
-            m.SizeType = SizeType.Inch;
+            m.Size = (float)Math.Round(MuscleSize.GetMuscleSizeInCentimeters(m), 1);
+            m.SizeType = SizeType.Centimeter;
             return m;
         }).AsQueryable();
 
-        return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizesInInches);
+        return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizesInCentimeter);
     }
 
     public async Task<ServiceResult<MuscleSize>> GetMaxUserMuscleSizeAsync(string userId, long muscleId)
@@ -228,28 +186,6 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         catch (Exception ex)
         {
             return ServiceResult<MuscleSize>.Fail(FailedToActionStr("min muscle size", "get", ex));
-        }
-    }
-
-    public async Task<ServiceResult<MuscleSize>> GetUserMuscleSizeByDateAsync(string userId, long muscleId, DateOnly date)
-    {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
-
-            if (date > DateOnly.FromDateTime(DateTime.Now))
-                throw new ArgumentException("Incorrect date.");
-
-            var userMuscleSizeByDate = (await baseRepository.FindAsync(m => DateOnly.FromDateTime(m.Date) == date && m.UserId == userId && m.MuscleId == muscleId)).FirstOrDefault();
-            return ServiceResult<MuscleSize>.Ok(userMuscleSizeByDate);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<MuscleSize>.Fail(ex);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("muscle size by date", "get", ex));
         }
     }
 

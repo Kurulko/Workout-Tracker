@@ -1,4 +1,5 @@
-﻿using WorkoutTrackerAPI.Data;
+﻿using WorkoutTrackerAPI.Extentions;
+using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Exceptions;
@@ -91,11 +92,18 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
     }
 
-    public async Task<ServiceResult<IQueryable<Muscle>>> GetMusclesAsync()
+    public async Task<ServiceResult<IQueryable<Muscle>>> GetMusclesAsync(long? parentMuscleId = null)
     {
         try
         {
+            if (parentMuscleId.HasValue && parentMuscleId < 1)
+                throw invalidMuscleIDException;
+
             var muscles = await baseWorkoutRepository.GetAllAsync();
+
+            if (parentMuscleId.HasValue)
+                muscles = muscles.Where(m => m.ParentMuscleId == parentMuscleId);
+            
             return ServiceResult<IQueryable<Muscle>>.Ok(muscles);
         }
         catch (Exception ex)
@@ -108,7 +116,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
     {
         try
         {
-            var muscles = await baseWorkoutRepository.FindAsync(m => m.ParentMuscleId == null);
+            var muscles = await baseWorkoutRepository.FindAsync(m => m.ChildMuscles != null && m.ChildMuscles.Count() != 0);
             return ServiceResult<IQueryable<Muscle>>.Ok(muscles);
         }
         catch (Exception ex)

@@ -12,9 +12,9 @@ public interface IExerciseService
     Task<ServiceResult<Exercise>> GetInternalExerciseByNameAsync(string name);
     Task<ServiceResult<Exercise>> GetUserExerciseByNameAsync(string userId, string name);
 
-    Task<ServiceResult<IQueryable<Exercise>>> GetInternalExercisesAsync();
-    Task<ServiceResult<IQueryable<Exercise>>> GetUserExercisesAsync(string userId);
-    Task<ServiceResult<IQueryable<Exercise>>> GetAllExercisesAsync(string userId);
+    Task<ServiceResult<IQueryable<Exercise>>> GetInternalExercisesAsync(ExerciseType? exerciseType = null);
+    Task<ServiceResult<IQueryable<Exercise>>> GetUserExercisesAsync(string userId, ExerciseType? exerciseType = null);
+    Task<ServiceResult<IQueryable<Exercise>>> GetAllExercisesAsync(string userId, ExerciseType? exerciseType = null);
 
     Task<ServiceResult<Exercise>> AddInternalExerciseAsync(Exercise model);
     Task<ServiceResult<Exercise>> AddUserExerciseAsync(string userId, Exercise model);

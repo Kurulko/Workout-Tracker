@@ -72,13 +72,20 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         }
     }
 
-    public async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsAsync(string userId)
+    async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsAsync(string userId, DateTime? date = null)
     {
         try
         {
             await CheckUserIdAsync(userRepository, userId);
 
-            var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId);
+            if (date is DateTime _date && _date.Date > DateTime.Now.Date)
+                throw new ArgumentException("Incorrect date.");
+
+            var userBodyWeights = await baseRepository.FindAsync(ms => ms.UserId == userId);
+
+            if (date.HasValue)
+                userBodyWeights = userBodyWeights.Where(bw => bw.Date.Date == date.Value.Date);
+
             return ServiceResult<IQueryable<BodyWeight>>.Ok(userBodyWeights);
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
@@ -91,9 +98,9 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         }
     }
 
-    public async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInPoundsAsync(string userId)
+    public async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInPoundsAsync(string userId, DateTime? date = null)
     {
-        var serviceResult = await GetUserBodyWeightsAsync(userId);
+        var serviceResult = await GetUserBodyWeightsAsync(userId, date);
 
         if (!serviceResult.Success)
             return serviceResult;
@@ -108,9 +115,9 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         return ServiceResult<IQueryable<BodyWeight>>.Ok(userBodyWeightsInPounds);
     }
 
-    public async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInKilogramsAsync(string userId)
+    public async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInKilogramsAsync(string userId, DateTime? date = null)
     {
-        var serviceResult = await GetUserBodyWeightsAsync(userId);
+        var serviceResult = await GetUserBodyWeightsAsync(userId, date);
 
         if (!serviceResult.Success)
             return serviceResult;
@@ -163,28 +170,6 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         catch (Exception ex)
         {
             return ServiceResult<BodyWeight>.Fail(FailedToActionStr("min body weight", "get", ex));
-        }
-    }
-
-    public async Task<ServiceResult<BodyWeight>> GetUserBodyWeightByDateAsync(string userId, DateOnly date)
-    {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
-
-            if (date > DateOnly.FromDateTime(DateTime.Now))
-                throw new ArgumentException("Incorrect date.");
-
-            var userBodyWeightByDate = (await baseRepository.FindAsync(bw => DateOnly.FromDateTime(bw.Date) == date && bw.UserId == userId)).FirstOrDefault();
-            return ServiceResult<BodyWeight>.Ok(userBodyWeightByDate);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<BodyWeight>.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("body weight by date", "get", ex));
         }
     }
 
