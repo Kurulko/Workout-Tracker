@@ -43,6 +43,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
     [HttpGet("internal-exercises")]
     public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetInternalExercisesAsync(
+        ExerciseType? type = null,
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -53,7 +54,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
-        var serviceResult = await exerciseService.GetInternalExercisesAsync();
+        var serviceResult = await exerciseService.GetInternalExercisesAsync(type);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
@@ -75,6 +76,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
     [HttpGet("user-exercises")]
     public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetCurrentUserExercisesAsync(
+        ExerciseType? type = null,
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -86,7 +88,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await exerciseService.GetUserExercisesAsync(userId);
+        var serviceResult = await exerciseService.GetUserExercisesAsync(userId, type);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
@@ -108,6 +110,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
     [HttpGet("all-exercises")]
     public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetAllExercisesAsync(
+        ExerciseType? type = null,
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -119,7 +122,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await exerciseService.GetAllExercisesAsync(userId);
+        var serviceResult = await exerciseService.GetAllExercisesAsync(userId, type);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);

@@ -29,41 +29,9 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
     ActionResult BodyWeightIsNull()
         => EntryIsNull("Body weight");
 
-    [HttpGet]
-    public async Task<ActionResult<ApiResult<BodyWeightDTO>>> GetCurrentUserBodyWeightsAsync(
-        int pageIndex = 0,
-        int pageSize = 10,
-        string? sortColumn = null,
-        string? sortOrder = null,
-        string? filterColumn = null,
-        string? filterQuery = null)
-    {
-        if (pageIndex < 0 || pageSize <= 0)
-            return InvalidPageIndexOrPageSize();
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await bodyWeightService.GetUserBodyWeightsAsync(userId);
-
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
-
-        if (serviceResult.Model is not IQueryable<BodyWeight> bodyWeights)
-            return EntryNotFound("Body weights");
-
-        var bodyWeightDTOs = bodyWeights.AsEnumerable().Select(m => mapper.Map<BodyWeightDTO>(m));
-        return await ApiResult<BodyWeightDTO>.CreateAsync(
-            bodyWeightDTOs.AsQueryable(),
-            pageIndex,
-            pageSize,
-            sortColumn,
-            sortOrder,
-            filterColumn,
-            filterQuery
-        );
-    }
-
     [HttpGet("in-kilograms")]
     public async Task<ActionResult<ApiResult<BodyWeightDTO>>> GetCurrentUserBodyWeightsInKilogramsAsync(
+        DateTime? date = null,
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -71,11 +39,14 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
         string? filterColumn = null,
         string? filterQuery = null)
     {
+        if (date.HasValue && date.Value.Date > DateTime.Now.Date)
+            return BadRequest("Incorrect date.");
+
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await bodyWeightService.GetUserBodyWeightsInKilogramsAsync(userId);
+        var serviceResult = await bodyWeightService.GetUserBodyWeightsInKilogramsAsync(userId, date);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
@@ -97,6 +68,7 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
     
     [HttpGet("in-pounds")]
     public async Task<ActionResult<ApiResult<BodyWeightDTO>>> GetCurrentUserBodyWeightsInPoundsAsync(
+        DateTime? date = null,
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -104,11 +76,14 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
         string? filterColumn = null,
         string? filterQuery = null)
     {
+        if (date.HasValue && date.Value.Date > DateTime.Now.Date)
+            return BadRequest("Incorrect date.");
+
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await bodyWeightService.GetUserBodyWeightsInPoundsAsync(userId);
+        var serviceResult = await bodyWeightService.GetUserBodyWeightsInPoundsAsync(userId, date);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
@@ -137,14 +112,6 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
 
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await bodyWeightService.GetUserBodyWeightByIdAsync(userId, bodyWeightId);
-        return HandleDTOServiceResult(serviceResult);
-    }
-
-    [HttpGet("by-date")]
-    public async Task<ActionResult<BodyWeightDTO>> GetCurrentUserBodyWeightByDateAsync(DateTime date)
-    {
-        string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await bodyWeightService.GetUserBodyWeightByDateAsync(userId, DateOnly.FromDateTime(date));
         return HandleDTOServiceResult(serviceResult);
     }
 

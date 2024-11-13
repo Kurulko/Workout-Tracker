@@ -28,17 +28,21 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
 
     [HttpGet]
     public async Task<ActionResult<ApiResult<MuscleDTO>>> GetMusclesAsync(
-        int pageIndex = 0,
-        int pageSize = 10,
-        string? sortColumn = null,
-        string? sortOrder = null,
-        string? filterColumn = null,
-        string? filterQuery = null)
+        [FromQuery] long? parentMuscleId = null,
+        [FromQuery] int pageIndex = 0,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? sortColumn = null,
+        [FromQuery] string? sortOrder = null,
+        [FromQuery] string? filterColumn = null,
+        [FromQuery] string? filterQuery = null)
     {
+        if (parentMuscleId.HasValue && parentMuscleId < 1)
+            return InvalidMuscleID();
+
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
-        var serviceResult = await muscleService.GetMusclesAsync();
+        var serviceResult = await muscleService.GetMusclesAsync(parentMuscleId);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
