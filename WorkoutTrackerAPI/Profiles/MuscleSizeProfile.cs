@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using WorkoutTrackerAPI.Data.DTOs;
+using WorkoutTrackerAPI.Data.DTOs.UserDTOs;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 
@@ -9,6 +10,14 @@ public class MuscleSizeProfile : Profile
 {
     public MuscleSizeProfile()
     {
-        CreateMap<MuscleSizeDTO, MuscleSize>().ReverseMap();
+        CreateMap<MuscleSize, MuscleSizeDTO>()
+            .ForMember(
+                dest => dest.MuscleName,
+                opt => opt.MapFrom(src => src.Muscle != null ? src.Muscle.Name : null)
+            )
+            .ReverseMap();
+
+        CreateMap<MuscleSize, MuscleSizeCreationDTO>()
+            .ReverseMap();
     }
 }

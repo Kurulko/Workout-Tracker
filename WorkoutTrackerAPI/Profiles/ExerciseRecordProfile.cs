@@ -8,7 +8,13 @@ public class ExerciseRecordProfile : Profile
 {
     public ExerciseRecordProfile()
     {
-        CreateMap<ExerciseRecordDTO, ExerciseRecord>().ReverseMap();
+        CreateMap<ExerciseRecord, ExerciseRecordDTO>()
+            .ForMember(
+                dest => dest.ExerciseName,
+                opt => opt.MapFrom(src => src.Exercise != null ? src.Exercise.Name : null)
+            )
+            .ReverseMap();
+
         CreateMap<ExerciseRecordCreationDTO, ExerciseRecord>().ReverseMap();
     }
 }

@@ -8,6 +8,11 @@ public class MuscleProfile : Profile
 {
     public MuscleProfile()
     {
-        CreateMap<MuscleDTO, Muscle>().ReverseMap();
+        CreateMap<Muscle, MuscleDTO>()
+            .ForMember(
+                dest => dest.ParentMuscleName,
+                opt => opt.MapFrom(src => src.ParentMuscle != null ? src.ParentMuscle.Name : null)
+            )
+            .ReverseMap();
     }
 }
