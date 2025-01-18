@@ -1,21 +1,22 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using WorkoutTrackerAPI.Data.Models.UserModels;
+﻿using WorkoutTrackerAPI.Data.Models.UserModels;
+using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 
 namespace WorkoutTrackerAPI.Data.Models;
 
 public class Exercise : WorkoutModel
 {
-    public byte[]? Image { get; set; }
+    public string? Image { get; set; }
     public string? Description { get; set; }
     public ExerciseType Type { get; set; }
 
     public string? CreatedByUserId { get; set; }
     public User? CreatedByUser { get; set; }
 
+    public IEnumerable<Equipment> Equipments { get; set; } = null!;
     public IEnumerable<Muscle> WorkingMuscles { get; set; } = null!;
-    public ICollection<ExerciseRecord>? ExerciseRecords { get; set; }
-    public IEnumerable<Workout>? Workouts { get; set; }
+    public IEnumerable<ExerciseRecord>? ExerciseRecords { get; set; }
+    public IEnumerable<ExerciseRecordGroup>? ExerciseRecordGroups { get; set; }
+    public IEnumerable<ExerciseSetGroup>? ExerciseSetGroups { get; set; }
 }
 
 public enum ExerciseType

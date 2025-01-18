@@ -12,13 +12,12 @@ public class User : IdentityUser
     public DateTime Registered { get; set; }
     public DateTime? StartedWorkingOut { get; set; }
 
-    public WeightType PreferableWeightType { get; set; } = WeightType.Kilogram;
-    public SizeType PreferableSizeType { get; set; } = SizeType.Centimeter;
-
+    public UserDetails? UserDetails { get; set; }
     public IEnumerable<BodyWeight>? BodyWeights { get; set; }
     public IEnumerable<MuscleSize>? MuscleSizes { get; set; }
     public IEnumerable<Workout>? Workouts { get; set; }
     public IEnumerable<ExerciseRecord>? ExerciseRecords { get; set; }
+    public IEnumerable<WorkoutRecord>? WorkoutRecords { get; set; }
     public IEnumerable<Exercise>? CreatedExercises { get; set; }
     public IEnumerable<Equipment>? UserEquipments { get; set; }
 }

@@ -4,11 +4,12 @@ namespace WorkoutTrackerAPI.Data.Models;
 
 public class Muscle : WorkoutModel
 {
-    public byte[]? Image { get; set; }
+    public string? Image { get; set; }
+    public bool IsMeasurable { get; set; }
 
     public long? ParentMuscleId { get; set; }
-    public Muscle? ParentMuscle { get; set; } = null!;
-    public IEnumerable<Muscle>? ChildMuscles { get; set; } = null!;
-    public IEnumerable<Exercise>? Exercises { get; set; } = null!;
-    public IEnumerable<MuscleSize>? MuscleSizes { get; set; } = null!;
+    public Muscle? ParentMuscle { get; set; }
+    public ICollection<Muscle>? ChildMuscles { get; set; }
+    public IEnumerable<Exercise>? Exercises { get; set; }
+    public IEnumerable<MuscleSize>? MuscleSizes { get; set; }
 }
