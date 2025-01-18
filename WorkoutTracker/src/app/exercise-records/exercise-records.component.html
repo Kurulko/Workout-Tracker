@@ -1,0 +1,49 @@
+<main-app title="Exercise Records">
+  <button type="button" [hidden]="!data" color="primary" mat-flat-button [routerLink]="['/exercise-record']">
+    <mat-icon>add</mat-icon><mat-icon>sports_gymnastics</mat-icon> Add
+  </button>
+  <br/><br/>
+
+  <ng-container *ngIf="!data; else exerciseRecordsTemplate">
+    <mat-spinner diameter="60" />
+  </ng-container>
+  <ng-template #exerciseRecordsTemplate>
+    <ng-template #noExerciseRecordsTemplate>
+      <h3><i>You have not added your exercise records yet...</i></h3>
+    </ng-template>
+    <ng-container *ngIf="totalCount || date || exerciseId; else noExerciseRecordsTemplate">
+      <div class="row">
+        <div class="col-md-4">
+          <app-exercise-selector [(ngModel)]="exerciseId" (ngModelChange)="onExerciseSelected()" [required]="false" width="100%" />
+          <br />
+          <app-exercise-type-selector [(ngModel)]="exerciseType" (ngModelChange)="onExerciseTypeSelected()" [required]="false" width="100%" />
+          <br />
+          <app-date-input [(ngModel)]="date" (ngModelChange)="loadData()" [maxDate]="maxDate" [required]="false" width="100%" />
+          <button *ngIf="date" mat-button color="accent" type="button" (click)="clearDate()">Clear Date</button>
+      </div>
+      <div class="col-md-8">
+        <app-exercise-record-chart *ngIf="!date && data!.length > 1 && exerciseType != null && exerciseType != undefined"
+          width="100%"
+          [exerciseType]="exerciseType"
+          [pageIndex]="pageIndex"
+          [pageSize]="pageSize"
+          [totalCount]="totalCount"
+          [data]="data"
+          [isPaginator]="false"
+          (pageChange)="onPageChange($event)" />
+      </div>
+    </div>
+    <br><br>
+    <app-exercise-record-table 
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [totalCount]="totalCount"
+      [sortColumn]="sortColumn"
+      [sortOrder]="sortOrder"
+      [data]="data"
+      (sortChange)="onSortChange($event)"
+      (pageChange)="onPageChange($event)"
+      (deleteItem)="onDeleteItem($event)" />
+    </ng-container>
+  </ng-template>
+</main-app>

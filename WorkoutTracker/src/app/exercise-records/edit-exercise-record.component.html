@@ -1,0 +1,40 @@
+<main-app [title]="title">
+    <button type="button" mat-flat-button color="secondary" [routerLink]="[exerciseRecordsPath]">
+        <mat-icon>reply</mat-icon> Back
+    </button>
+    <br/><br/>
+    <ng-container *ngIf="this.id && !exerciseRecord; else editExerciseRecordTemplate">
+        <mat-spinner diameter="60" />
+    </ng-container>
+    <ng-template #editExerciseRecordTemplate>
+        <app-show-validation-errors [validationErrors]="validationErrors"/>
+        <!-- Date -->
+        <app-short-card title="Date" width="40%">
+            <app-date-input 
+                [(ngModel)]="exerciseRecord.date" 
+                [maxDate]="maxDate" 
+                [required]="true" 
+                #dateInput="ngModel" 
+                width="100%"/>
+        </app-short-card>
+        <br />
+
+        <!-- Exercise Record -->
+        <app-exercise-set-editor 
+            [(ngModel)]="exerciseRecord" 
+            width="40%" 
+            [required]="true"  
+            #exerciseRecordInput="ngModel" />
+        <br />
+
+        <div>
+            <button type="button" color="primary" mat-flat-button (click)="onSubmit()" 
+            [disabled]="dateInput.invalid || exerciseRecordInput.invalid">
+                <mat-icon>{{ this.id ? "edit" : "add_box" }}</mat-icon> {{ this.id ? "Save" : "Create" }}
+            </button>
+            <button type="button" mat-flat-button color="secondary" [routerLink]="[exerciseRecordsPath]">
+                <mat-icon>cancel</mat-icon> Cancel
+            </button>
+        </div>
+    </ng-template>
+</main-app>
