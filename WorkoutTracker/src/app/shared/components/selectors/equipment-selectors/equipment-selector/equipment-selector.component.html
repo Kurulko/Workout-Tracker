@@ -1,0 +1,15 @@
+<mat-spinner diameter="30" *ngIf="!equipments" />
+<mat-form-field *ngIf="equipments | async as result" [style.width]="width">
+    <mat-label>{{ label ?? "Select Equipment..." }}</mat-label>
+    <mat-select [(ngModel)]="selectedEquipmentId" (selectionChange)="onEquipmentIdSelected()" [required]="required" #equipment="ngModel">
+      <mat-option *ngIf="selectedEquipmentId == undefined || !required" class="none-option">--None--</mat-option>
+        <mat-option *ngFor="let equipment of result" [value]="equipment.id">
+            <img src="{{ envProduction.baseUrl + 'resources/' + equipment.image }}" aria-label="Photo"
+                width="10%" height="10%" *ngIf="equipment.image" />
+            {{ equipment.name }}
+        </mat-option>
+    </mat-select>
+    <mat-error [hidden]="!required || equipment.valid || equipment.untouched">
+        {{ errorMessage ?? 'Equipment is required.' }} 
+    </mat-error>
+</mat-form-field>

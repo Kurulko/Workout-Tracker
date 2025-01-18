@@ -1,0 +1,17 @@
+<mat-spinner diameter="30" *ngIf="!exercises" />
+<mat-form-field *ngIf="exercises | async as result" [style.width]="width">
+    <mat-label>{{ label ?? "Select Exercises..." }}</mat-label>
+    <mat-select [(ngModel)]="selectedExercises" (selectionChange)="onExercisesSelected()" multiple [compareWith]="compareWithById" [required]="required" #exercises="ngModel">
+        <mat-option (onSelectionChange)="noneOptionSelected()" *ngIf="!required" class="none-option" [disabled]="isDisabledNoneOption()">
+            --None--
+        </mat-option>          
+        <mat-option *ngFor="let exercise of result" [value]="exercise">
+            <img src="{{ envProduction.baseUrl + 'resources/' + exercise.image }}" aria-label="Photo"
+                width="10%" height="10%" *ngIf="exercise.image" />
+            {{ exercise.name }}
+        </mat-option>
+    </mat-select>
+    <mat-error [hidden]="!required || exercises.valid || exercises.untouched">
+        {{ errorMessage ?? 'Exercises are required.' }} 
+    </mat-error>
+</mat-form-field>

@@ -1,0 +1,12 @@
+<mat-form-field [style.width]="width">
+    <mat-label>{{ label ?? 'Select Weight Type...' }}</mat-label>
+    <mat-select [(ngModel)]="selectedWeightType" (selectionChange)="onWeightTypeSelected()" [required]="required" #weightType="ngModel">
+      <mat-option *ngIf="!required" class="none-option">--None--</mat-option>
+      <mat-option *ngFor="let weightType of weightTypes" [value]="weightType">
+        {{ isShortForm ? showWeightTypeShort(weightType) : showWeightType(weightType) }}
+      </mat-option>
+    </mat-select>
+    <mat-error [hidden]="!required || weightType.valid || weightType.untouched">
+      {{ errorMessage ?? 'Weight Type is required.' }} 
+    </mat-error>
+</mat-form-field>

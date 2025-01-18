@@ -1,0 +1,12 @@
+<mat-form-field [style.width]="width">
+    <mat-label>{{ label ?? 'Select Gender...' }}</mat-label>
+    <mat-select [(ngModel)]="selectedGender" (selectionChange)="onGenderSelected()" [required]="required" #gender="ngModel">
+      <mat-option *ngIf="gender == undefined || !required" class="none-option">--None--</mat-option>
+      <mat-option *ngFor="let gender of genders" [value]="gender">
+        {{ showGender(gender) }}
+      </mat-option>
+    </mat-select>
+    <mat-error [hidden]="!required || gender.valid || gender.untouched">
+      {{ errorMessage ?? 'Gender is required.' }} 
+    </mat-error>
+</mat-form-field>

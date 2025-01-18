@@ -1,0 +1,17 @@
+<mat-spinner diameter="30" *ngIf="!muscles" />
+<mat-form-field *ngIf="muscles | async as result" [style.width]="width">
+    <mat-label>{{ label ?? "Select Muscle..." }}</mat-label>
+    <mat-select [(ngModel)]="selectedMuscles" (selectionChange)="onMusclesSelected()" multiple [compareWith]="compareWithById" #muscles="ngModel">
+        <mat-option (onSelectionChange)="noneOptionSelected()" *ngIf="!required" class="none-option" [disabled]="isDisabledNoneOption()">
+            --None--
+        </mat-option>   
+        <mat-option *ngFor="let muscle of result" [value]="muscle" [disabled]="isNoneOptionSelected">
+            <img src="{{ envProduction.baseUrl + 'resources/' + muscle.image }}" aria-label="Photo"
+                width="10%" height="10%" *ngIf="muscle.image" />
+            {{ muscle.name }}
+        </mat-option>
+    </mat-select>
+    <mat-error [hidden]="!required || muscles.valid || muscles.untouched">
+        {{ errorMessage ?? 'Muscles are required.' }} 
+    </mat-error>
+</mat-form-field>
