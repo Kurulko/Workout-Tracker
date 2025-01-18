@@ -24,7 +24,6 @@ public class AuthResult
         Token = token;
     }
 
-
     public static AuthResult Ok(string message, TokenModel token)
         => new AuthResult(true, message, token);
 
