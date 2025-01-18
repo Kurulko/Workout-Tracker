@@ -1,0 +1,66 @@
+<mat-spinner diameter="70" *ngIf="!data" />
+<table mat-table [dataSource]="data" [hidden]="!isData"
+    class="mat-elevation-z8"
+    matSort (matSortChange)="onSortChange()"
+    [matSortActive]="sortColumn"
+    [matSortDirection]="sortOrder">
+
+  <ng-container matColumnDef="index">
+    <th mat-header-cell *matHeaderCellDef>№</th>
+    <td mat-cell *matCellDef="let i = index">{{ i + 1 + pageIndex * pageSize }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+      <td mat-cell *matCellDef="let exerciseRecord">{{ exerciseRecord.date | date:'d MMMM yyyy' }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="exerciseName">
+    <th mat-header-cell *matHeaderCellDef  mat-sort-header>Exercise</th>
+    <td mat-cell *matCellDef="let exerciseRecord">{{ exerciseRecord.exerciseName }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="exerciseType">
+    <th mat-header-cell *matHeaderCellDef  mat-sort-header>Type</th>
+    <td mat-cell *matCellDef="let exerciseRecord">{{ showExerciseType(exerciseRecord.exerciseType) }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="exercisePhoto">
+    <th mat-header-cell *matHeaderCellDef>Photo</th>
+    <td mat-cell *matCellDef="let exerciseRecord">
+      <img src="{{ envProduction.baseUrl + 'resources/' + exerciseRecord.exercisePhoto }}" aria-label="Photo" 
+          height="50%" width="50%" class="table-photo" *ngIf="exerciseRecord.exercisePhoto" />
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="sum">
+    <th mat-header-cell *matHeaderCellDef>Sum</th>
+    <td mat-cell *matCellDef="let exerciseRecord">{{ showExerciseRecordSumValue(exerciseRecord) }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="value">
+    <th mat-header-cell *matHeaderCellDef>Value</th>
+    <td mat-cell *matCellDef="let exerciseRecord"> {{ showExerciseValue(exerciseRecord) }} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef>Actions</th>
+    <td mat-cell *matCellDef="let exerciseRecord">
+      <button type="button" mat-button color="primary" [routerLink]="['/exercise-record', exerciseRecord.id]">
+        <mat-icon>edit</mat-icon> Edit
+      </button>
+      <delete-button dialogTitle="Delete Exercise Record" [deleteFn]="deleteExerciseRecord" [itemId]="exerciseRecord.id"/>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
+
+<mat-paginator [hidden]="!isPaginator || !isData"
+  (page)="onPageChange()"
+  [pageIndex]="pageIndex"
+  [pageSize]="pageSize"
+  [length]="totalCount"
+  [pageSizeOptions]="pageSizeOptions"
+  showFirstLastButtons />
