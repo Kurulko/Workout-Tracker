@@ -7,6 +7,10 @@ using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Services.EquipmentServices;
 using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Extentions;
+using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs;
+using WorkoutTrackerAPI.Data.Models;
+using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs.EquipmentDTOs;
+using WorkoutTrackerAPI.Services.FileServices;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
@@ -14,15 +18,27 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 {
     readonly IEquipmentService equipmentService;
     readonly IHttpContextAccessor httpContextAccessor;
-    public EquipmentsController(IEquipmentService equipmentService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+    readonly IFileService fileService;
+    public EquipmentsController(IEquipmentService equipmentService, IFileService fileService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         : base(mapper)
     {
         this.equipmentService = equipmentService;
+        this.fileService = fileService;
         this.httpContextAccessor = httpContextAccessor;
     }
 
+
+    const string equipmentNotFoundStr = "Equipment not found.";
     ActionResult<EquipmentDTO> HandleEquipmentDTOServiceResult(ServiceResult<Equipment> serviceResult)
-        => HandleDTOServiceResult(serviceResult, "Equipment not found.");
+        => HandleDTOServiceResult<Equipment, EquipmentDTO>(serviceResult, equipmentNotFoundStr);
+    ActionResult<EquipmentDetailsDTO> HandleEquipmentDetailsDTOServiceResult(ServiceResult<Equipment> serviceResult)
+        => HandleDTOServiceResult<Equipment, EquipmentDetailsDTO>(serviceResult, equipmentNotFoundStr);
+
+    const string userEquipmentNotFoundStr = "User equipment not found.";
+    ActionResult<EquipmentDTO> HandleUserEquipmentDTOServiceResult(ServiceResult<Equipment> serviceResult)
+        => HandleDTOServiceResult<Equipment, EquipmentDTO>(serviceResult, userEquipmentNotFoundStr);
+    ActionResult<EquipmentDetailsDTO> HandleUserEquipmentDetailsDTOServiceResult(ServiceResult<Equipment> serviceResult)
+        => HandleDTOServiceResult<Equipment, EquipmentDetailsDTO>(serviceResult, userEquipmentNotFoundStr);
 
     ActionResult InvalidEquipmentID()
         => InvalidEntryID(nameof(Equipment));
@@ -133,6 +149,44 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
         );
     }
 
+    [HttpGet("{equipmentId}/equipments")]
+    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetExercisesByEquipmentIdAsync(
+        int equipmentId,
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? sortColumn = null,
+        string? sortOrder = null,
+        string? filterColumn = null,
+        string? filterQuery = null)
+    {
+        if (pageIndex < 0 || pageSize <= 0)
+            return InvalidPageIndexOrPageSize();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await equipmentService.GetEquipmentByIdAsync(userId, equipmentId);
+
+        if (!serviceResult.Success)
+            return BadRequest(serviceResult.ErrorMessage);
+
+        if (serviceResult.Model is not Equipment equipment)
+            return EntryNotFound("Equipment");
+
+        if (equipment.Exercises is not IEnumerable<Exercise> exercises)
+            return EntryNotFound("Exercises");
+
+        var exerciseDTOs = exercises.AsEnumerable().Select(m => mapper.Map<ExerciseDTO>(m));
+        return await ApiResult<ExerciseDTO>.CreateAsync(
+            exerciseDTOs.AsQueryable(),
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
+    }
+
+
     [HttpGet("internal-equipment/{equipmentId}")]
     [ActionName(nameof(GetInternalEquipmentByIdAsync))]
     public async Task<ActionResult<EquipmentDTO>> GetInternalEquipmentByIdAsync(long equipmentId)
@@ -143,6 +197,18 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
         var serviceResult = await equipmentService.GetInternalEquipmentByIdAsync(equipmentId);
         return HandleEquipmentDTOServiceResult(serviceResult);
     }
+    
+    [HttpGet("internal-equipment/{equipmentId}/details")]
+    [ActionName(nameof(GetInternalEquipmentDetailsByIdAsync))]
+    public async Task<ActionResult<EquipmentDetailsDTO>> GetInternalEquipmentDetailsByIdAsync(long equipmentId)
+    {
+        if (equipmentId < 1)
+            return InvalidEquipmentID();
+
+        var serviceResult = await equipmentService.GetInternalEquipmentByIdAsync(equipmentId);
+        return HandleEquipmentDetailsDTOServiceResult(serviceResult);
+    }
+
 
     [HttpGet("user-equipment/{equipmentId}")]
     [ActionName(nameof(GetCurrentUserEquipmentByIdAsync))]
@@ -153,8 +219,21 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await equipmentService.GetUserEquipmentByIdAsync(userId, equipmentId);
-        return HandleDTOServiceResult(serviceResult, "User equipment not found.");
+        return HandleUserEquipmentDTOServiceResult(serviceResult);
     }
+
+    [HttpGet("user-equipment/{equipmentId}/details")]
+    [ActionName(nameof(GetCurrentUserEquipmentByIdAsync))]
+    public async Task<ActionResult<EquipmentDetailsDTO>> GetCurrentUserEquipmentDetailsByIdAsync(long equipmentId)
+    {
+        if (equipmentId < 1)
+            return InvalidEquipmentID();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await equipmentService.GetUserEquipmentByIdAsync(userId, equipmentId);
+        return HandleUserEquipmentDetailsDTOServiceResult(serviceResult);
+    }
+
 
     [HttpGet("internal-equipment/by-name/{name}")]
     public async Task<ActionResult<EquipmentDTO>> GetInternalEquipmentByNameAsync(string name)
@@ -165,6 +244,17 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
         var serviceResult = await equipmentService.GetInternalEquipmentByNameAsync(name);
         return HandleEquipmentDTOServiceResult(serviceResult);
     }
+    
+    [HttpGet("internal-equipment/by-name/{name}/details")]
+    public async Task<ActionResult<EquipmentDetailsDTO>> GetInternalEquipmentDetailsByNameAsync(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return EquipmentNameIsNullOrEmpty();
+
+        var serviceResult = await equipmentService.GetInternalEquipmentByNameAsync(name);
+        return HandleEquipmentDetailsDTOServiceResult(serviceResult);
+    }
+
 
     [HttpGet("user-equipment/by-name/{name}")]
     public async Task<ActionResult<EquipmentDTO>> GetCurrentUserEquipmentByNameAsync(string name)
@@ -174,85 +264,145 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await equipmentService.GetUserEquipmentByNameAsync(userId, name);
-        return HandleDTOServiceResult(serviceResult, "User equipment not found.");
+        return HandleUserEquipmentDTOServiceResult(serviceResult);
     }
+
+    [HttpGet("user-equipment/by-name/{name}/details")]
+    public async Task<ActionResult<EquipmentDetailsDTO>> GetCurrentUserEquipmentDetailsByNameAsync(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return EquipmentNameIsNullOrEmpty();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await equipmentService.GetUserEquipmentByNameAsync(userId, name);
+        return HandleUserEquipmentDetailsDTOServiceResult(serviceResult);
+    }
+
+    readonly string equipmentPhotosDirectory = Path.Combine("photos", "equipments");
+    const int maxEquipmentImageSizeInMB = 3;
 
     [HttpPost("internal-equipment")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddInternalEquipmentAsync(EquipmentDTO equipmentDTO)
+    public async Task<IActionResult> AddInternalEquipmentAsync([FromForm] EquipmentCreationDTO equipmentCreationDTO)
     {
-        if (equipmentDTO is null)
+        if (equipmentCreationDTO is null)
             return EquipmentIsNull();
 
-        if (equipmentDTO.Id != 0)
-            return InvalidEquipmentIDWhileAdding();
+        try
+        {
+            string? image = await fileService.GetImage(equipmentCreationDTO.ImageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB);
+            var equipment = mapper.Map<Equipment>(equipmentCreationDTO);
+            equipment.Image = image;
 
-        var equipment = mapper.Map<Equipment>(equipmentDTO);
-        var serviceResult = await equipmentService.AddInternalEquipmentAsync(equipment);
+            var serviceResult = await equipmentService.AddInternalEquipmentAsync(equipment);
 
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
+            if (!serviceResult.Success)
+                return BadRequest(serviceResult.ErrorMessage);
 
-        equipment = serviceResult.Model!;
+            equipment = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetInternalEquipmentByIdAsync), new { equipmentId = equipment.Id }, equipment);
+            return CreatedAtAction(nameof(GetInternalEquipmentByIdAsync), new { equipmentId = equipment.Id }, equipment);
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
     }
 
     [HttpPost("user-equipment")]
-    public async Task<IActionResult> AddCurrentUserEquipmentAsync(EquipmentDTO equipmentDTO)
+    public async Task<IActionResult> AddCurrentUserEquipmentAsync([FromForm] EquipmentCreationDTO equipmentCreationDTO)
     {
-        if (equipmentDTO is null)
+        if (equipmentCreationDTO is null)
             return EquipmentIsNull();
 
-        if (equipmentDTO.Id != 0)
-            return InvalidEquipmentIDWhileAdding();
+        try
+        {
+            string? image = await fileService.GetImage(equipmentCreationDTO.ImageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB);
+            var equipment = mapper.Map<Equipment>(equipmentCreationDTO);
+            equipment.Image = image;
 
-        string userId = httpContextAccessor.GetUserId()!;
-        var equipment = mapper.Map<Equipment>(equipmentDTO);
-        var serviceResult = await equipmentService.AddUserEquipmentAsync(userId, equipment);
+            string userId = httpContextAccessor.GetUserId()!;
+            var serviceResult = await equipmentService.AddUserEquipmentAsync(userId, equipment);
 
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
+            if (!serviceResult.Success)
+                return BadRequest(serviceResult.ErrorMessage);
 
-        equipment = serviceResult.Model!;
+            equipment = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetCurrentUserEquipmentByIdAsync), new { equipmentId = equipment.Id }, equipment);
+            return CreatedAtAction(nameof(GetCurrentUserEquipmentByIdAsync), new { equipmentId = equipment.Id }, equipment);
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
     }
 
     [HttpPut("internal-equipment/{equipmentId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateInternalEquipmentAsync(long equipmentId, EquipmentDTO equipmentDTO)
+    public async Task<IActionResult> UpdateInternalEquipmentAsync(long equipmentId, [FromForm] EquipmentUpdateDTO equipmentUpdateDTO)
     {
         if (equipmentId < 1)
             return InvalidEquipmentID();
 
-        if (equipmentDTO is null)
+        if (equipmentUpdateDTO is null)
             return EquipmentIsNull();
 
-        if (equipmentId != equipmentDTO.Id)
+        if (equipmentId != equipmentUpdateDTO.Id)
             return EquipmentIDsNotMatch();
 
-        var equipment = mapper.Map<Equipment>(equipmentDTO);
-        var serviceResult = await equipmentService.UpdateInternalEquipmentAsync(equipment);
-        return HandleServiceResult(serviceResult);
+        try
+        {
+            string? image = await fileService.GetImage(equipmentUpdateDTO.ImageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB);
+            var equipment = mapper.Map<Equipment>(equipmentUpdateDTO);
+            equipment.Image = image ?? equipmentUpdateDTO.Image;
+
+            var serviceResult = await equipmentService.UpdateInternalEquipmentAsync(equipment);
+
+            if (serviceResult.Success && equipmentUpdateDTO.ImageFile != null && equipmentUpdateDTO.Image is string oldImage)
+            {
+                fileService.DeleteFile(oldImage);
+            }
+
+            return HandleServiceResult(serviceResult);
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
     }
 
     [HttpPut("user-equipment/{equipmentId}")]
-    public async Task<IActionResult> UpdateCurrentUserEquipmentAsync(long equipmentId, EquipmentDTO equipmentDTO)
+    public async Task<IActionResult> UpdateCurrentUserEquipmentAsync(long equipmentId, [FromForm] EquipmentUpdateDTO equipmentUpdateDTO)
     {
         if (equipmentId < 1)
             return InvalidEquipmentID();
 
-        if (equipmentDTO is null)
+        if (equipmentUpdateDTO is null)
             return EquipmentIsNull();
 
-        if (equipmentId != equipmentDTO.Id)
+        if (equipmentId != equipmentUpdateDTO.Id)
             return EquipmentIDsNotMatch();
 
-        string userId = httpContextAccessor.GetUserId()!;
-        var equipment = mapper.Map<Equipment>(equipmentDTO);
-        var serviceResult = await equipmentService.UpdateUserEquipmentAsync(userId, equipment);
-        return HandleServiceResult(serviceResult);
+        try
+        {
+            string? image = await fileService.GetImage(equipmentUpdateDTO.ImageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB);
+            var equipment = mapper.Map<Equipment>(equipmentUpdateDTO);
+            equipment.Image = image ?? equipmentUpdateDTO.Image;
+
+            string userId = httpContextAccessor.GetUserId()!;
+            var serviceResult = await equipmentService.UpdateUserEquipmentAsync(userId, equipment);
+
+            if (serviceResult.Success && equipmentUpdateDTO.ImageFile != null && equipmentUpdateDTO.Image is string oldImage)
+            {
+                fileService.DeleteFile(oldImage);
+            }
+
+            return HandleServiceResult(serviceResult);
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
     }
 
     [HttpDelete("internal-equipment/{equipmentId}")]

@@ -4,19 +4,32 @@ using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Services.MuscleServices;
 using Microsoft.AspNetCore.Authorization;
 using WorkoutTrackerAPI.Data.DTOs;
-using WorkoutTrackerAPI.Data.Models.UserModels;
 using AutoMapper;
+using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs;
+using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs.MuscleDTOs;
+using WorkoutTrackerAPI.Services.FileServices;
+using WorkoutTrackerAPI.Extentions;
+using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs.ExerciseDTOs;
+using WorkoutTrackerAPI.Services;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
 public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
 {
     readonly IMuscleService muscleService;
-    public MusclesController(IMuscleService muscleService, IMapper mapper) : base(mapper)
-        => this.muscleService = muscleService;
+    readonly IFileService fileService;
+    public MusclesController(IFileService fileService, IMuscleService muscleService, IMapper mapper) : base(mapper)
+    {
+        this.muscleService = muscleService;
+        this.fileService = fileService;
+    }
 
+
+    const string muscleNotFoundStr = "Muscle not found.";
     ActionResult<MuscleDTO> HandleMuscleDTOServiceResult(ServiceResult<Muscle> serviceResult)
-        => HandleDTOServiceResult(serviceResult, "Muscle not found.");
+        => HandleDTOServiceResult<Muscle, MuscleDTO>(serviceResult, muscleNotFoundStr);
+    ActionResult<MuscleDetailsDTO> HandleMuscleDetailsDTOServiceResult(ServiceResult<Muscle> serviceResult)
+        => HandleDTOServiceResult<Muscle, MuscleDetailsDTO>(serviceResult, muscleNotFoundStr);
 
     ActionResult InvalidMuscleID()
         => InvalidEntryID(nameof(Muscle));
@@ -29,6 +42,7 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
     [HttpGet]
     public async Task<ActionResult<ApiResult<MuscleDTO>>> GetMusclesAsync(
         [FromQuery] long? parentMuscleId = null,
+        [FromQuery] bool? isMeasurable = null,
         [FromQuery] int pageIndex = 0,
         [FromQuery] int pageSize = 10,
         [FromQuery] string? sortColumn = null,
@@ -42,7 +56,7 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
-        var serviceResult = await muscleService.GetMusclesAsync(parentMuscleId);
+        var serviceResult = await muscleService.GetMusclesAsync(parentMuscleId, isMeasurable);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
@@ -126,6 +140,46 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         );
     }
 
+
+    [HttpGet("{muscleId}/exercises")]
+    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetExercisesByMuscleIdAsync(
+        long muscleId,
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? sortColumn = null,
+        string? sortOrder = null,
+        string? filterColumn = null,
+        string? filterQuery = null)
+    {
+        if (muscleId < 1)
+            return InvalidMuscleID();
+
+        if (pageIndex < 0 || pageSize <= 0)
+            return InvalidPageIndexOrPageSize();
+
+        var serviceResult = await muscleService.GetMuscleByIdAsync(muscleId);
+
+        if (!serviceResult.Success)
+            return BadRequest(serviceResult.ErrorMessage);
+
+        if (serviceResult.Model is not Muscle muscle)
+            return EntryNotFound("Muscle");
+
+        if (muscle.Exercises is not IEnumerable<Exercise> exercises)
+            return EntryNotFound("Exercises");
+
+        var exerciseDTOs = exercises.AsEnumerable().Select(m => mapper.Map<ExerciseDTO>(m));
+        return await ApiResult<ExerciseDTO>.CreateAsync(
+            exerciseDTOs.AsQueryable(),
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
+    }
+
     [HttpGet("{muscleId}")]
     [ActionName(nameof(GetMuscleByIdAsync))]
     public async Task<ActionResult<MuscleDTO>> GetMuscleByIdAsync(long muscleId)
@@ -137,6 +191,18 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         return HandleMuscleDTOServiceResult(serviceResult);
     }
 
+    [HttpGet("{muscleId}/details")]
+    [ActionName(nameof(GetMuscleDetailsByIdAsync))]
+    public async Task<ActionResult<MuscleDetailsDTO>> GetMuscleDetailsByIdAsync(long muscleId)
+    {
+        if (muscleId < 1)
+            return InvalidMuscleID();
+
+        var serviceResult = await muscleService.GetMuscleByIdAsync(muscleId);
+        return HandleMuscleDetailsDTOServiceResult(serviceResult);
+    }
+
+
     [HttpGet("by-name/{name}")]
     public async Task<ActionResult<MuscleDTO>> GetMuscleByNameAsync(string name)
     {
@@ -147,43 +213,92 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         return HandleMuscleDTOServiceResult(serviceResult);
     }
 
+    [HttpGet("by-name/{name}/details")]
+    public async Task<ActionResult<MuscleDetailsDTO>> GetMuscleDetailsByNameAsync(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return MuscleNameIsNullOrEmpty();
+
+        var serviceResult = await muscleService.GetMuscleByNameAsync(name);
+        return HandleMuscleDetailsDTOServiceResult(serviceResult);
+    }
+
+    readonly string musclePhotosDirectory = Path.Combine("photos", "muscles");
+    const int maxMuscleImageSizeInMB = 3;
+
     [HttpPost]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddMuscleAsync(MuscleDTO muscleDTO)
+    public async Task<IActionResult> AddMuscleAsync([FromForm] MuscleCreationDTO muscleCreationDTO)
     {
-        if (muscleDTO is null)
+        if (muscleCreationDTO is null)
             return MuscleIsNull();
 
-        if (muscleDTO.Id != 0)
-            return InvalidEntryIDWhileAdding(nameof(Muscle), "muscle");
+        try
+        {
+            string? image = await fileService.GetImage(muscleCreationDTO.ImageFile, musclePhotosDirectory, maxMuscleImageSizeInMB);
+            var muscle = mapper.Map<Muscle>(muscleCreationDTO);
+            muscle.Image = image;
 
-        var muscle = mapper.Map<Muscle>(muscleDTO);
-        var serviceResult = await muscleService.AddMuscleAsync(muscle);
+            var serviceResult = await muscleService.AddMuscleAsync(muscle);
 
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
+            if (!serviceResult.Success)
+                return BadRequest(serviceResult.ErrorMessage);
 
-        muscle = serviceResult.Model!;
+            muscle = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetMuscleByIdAsync), new { muscleId = muscle.Id }, muscle);
+            return CreatedAtAction(nameof(GetMuscleByIdAsync), new { muscleId = muscle.Id }, muscle);
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
     }
 
     [HttpPut("{muscleId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateMuscleAsync(long muscleId, MuscleDTO muscleDTO)
+    public async Task<IActionResult> UpdateMuscleAsync(long muscleId, [FromForm] MuscleUpdateDTO muscleUpdateDTO)
     {
         if (muscleId < 1)
             return InvalidMuscleID();
 
-        if (muscleDTO is null)
+        if (muscleUpdateDTO is null)
             return MuscleIsNull();
 
-        if (muscleId != muscleDTO.Id)
+        if (muscleId != muscleUpdateDTO.Id)
             return EntryIDsNotMatch(nameof(Muscle));
 
+        try
+        {
+            string? image = await fileService.GetImage(muscleUpdateDTO.ImageFile, musclePhotosDirectory, maxMuscleImageSizeInMB);
+            var muscle = mapper.Map<Muscle>(muscleUpdateDTO);
+            muscle.Image = image ?? muscleUpdateDTO.Image;
 
-        var muscle = mapper.Map<Muscle>(muscleDTO);
-        var serviceResult = await muscleService.UpdateMuscleAsync(muscle);
+            var serviceResult = await muscleService.UpdateMuscleAsync(muscle);
+
+            if (serviceResult.Success && muscleUpdateDTO.ImageFile != null && muscleUpdateDTO.Image is string oldImage)
+            {
+                fileService.DeleteFile(oldImage);
+            }
+
+            return HandleServiceResult(serviceResult);
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
+    }
+
+    [HttpPut("{muscleId}/children")]
+    [Authorize(Roles = Roles.AdminRole)]
+    public async Task<IActionResult> UpdateMuscleChildrenAsync(long muscleId, IEnumerable<long>? muscleChildIDs)
+    {
+        if (muscleId < 1)
+            return InvalidMuscleID();
+
+        if (muscleChildIDs is null)
+            return EntryIsNull("Muscle child's Ids");
+
+        var serviceResult = await muscleService.UpdateMuscleChildrenAsync(muscleId, muscleChildIDs);
         return HandleServiceResult(serviceResult);
     }
 

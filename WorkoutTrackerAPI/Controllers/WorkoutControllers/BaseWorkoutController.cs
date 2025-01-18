@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Services.WorkoutServices;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 

@@ -6,29 +6,41 @@ using WorkoutTrackerAPI;
 using WorkoutTrackerAPI.Controllers.WorkoutControllers;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.DTOs;
+using WorkoutTrackerAPI.Data.DTOs.UserDTOs;
+using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs;
+using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs.ExerciseDTOs;
 using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Extentions;
-using WorkoutTrackerAPI.Services;
-using WorkoutTrackerAPI.Services.ExerciseRecordServices;
 using WorkoutTrackerAPI.Services.ExerciseServices;
-using WorkoutTrackerAPI.Services.WorkoutServices;
+using WorkoutTrackerAPI.Services.FileServices;
 
 namespace ExerciseTrackerAPI.Controllers.ExerciseControllers;
 
 public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDTO>
 {
     readonly IExerciseService exerciseService;
+    readonly IFileService fileService;
     readonly IHttpContextAccessor httpContextAccessor;
-    public ExercisesController(IExerciseService exerciseService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+    public ExercisesController(IExerciseService exerciseService, IFileService fileService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         : base(mapper)
     {
+        this.fileService = fileService;
         this.exerciseService = exerciseService;
         this.httpContextAccessor = httpContextAccessor;
     }
 
+
+    const string exerciseNotFoundStr = "Exercise not found.";
     ActionResult<ExerciseDTO> HandleExerciseDTOServiceResult(ServiceResult<Exercise> serviceResult)
-        => HandleDTOServiceResult(serviceResult, "Exercise not found.");
+        => HandleDTOServiceResult<Exercise, ExerciseDTO>(serviceResult, exerciseNotFoundStr);
+    ActionResult<ExerciseDetailsDTO> HandleExerciseDetailsDTOServiceResult(ServiceResult<Exercise> serviceResult)
+        => HandleDTOServiceResult<Exercise, ExerciseDetailsDTO>(serviceResult, exerciseNotFoundStr);
+
+    const string userExerciseNotFoundStr = "User exercise not found.";
+    ActionResult<ExerciseDTO> HandleUserExerciseDTOServiceResult(ServiceResult<Exercise> serviceResult)
+        => HandleDTOServiceResult<Exercise, ExerciseDTO>(serviceResult, userExerciseNotFoundStr);
+    ActionResult<ExerciseDetailsDTO> HandleUserExerciseDetailsDTOServiceResult(ServiceResult<Exercise> serviceResult)
+        => HandleDTOServiceResult<Exercise, ExerciseDetailsDTO>(serviceResult, userExerciseNotFoundStr);
 
     ActionResult InvalidExerciseID()
         => InvalidEntryID(nameof(Exercise));
@@ -153,6 +165,18 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         return HandleExerciseDTOServiceResult(serviceResult);
     }
 
+    [HttpGet("internal-exercise/{exerciseId}/details")]
+    [ActionName(nameof(GetInternalExerciseDetailsByIdAsync))]
+    public async Task<ActionResult<ExerciseDetailsDTO>> GetInternalExerciseDetailsByIdAsync(long exerciseId)
+    {
+        if (exerciseId < 1)
+            return InvalidExerciseID();
+
+        var serviceResult = await exerciseService.GetInternalExerciseByIdAsync(exerciseId);
+        return HandleExerciseDetailsDTOServiceResult(serviceResult);
+    }
+
+
     [HttpGet("user-exercise/{exerciseId}")]
     [ActionName(nameof(GetCurrentUserExerciseByIdAsync))]
     public async Task<ActionResult<ExerciseDTO>> GetCurrentUserExerciseByIdAsync(long exerciseId)
@@ -162,8 +186,21 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await exerciseService.GetUserExerciseByIdAsync(userId, exerciseId);
-        return HandleDTOServiceResult(serviceResult, "User exercise not found.");
+        return HandleUserExerciseDTOServiceResult(serviceResult);
     }
+
+    [HttpGet("user-exercise/{exerciseId}/details")]
+    [ActionName(nameof(GetCurrentUserExerciseDetailsByIdAsync))]
+    public async Task<ActionResult<ExerciseDetailsDTO>> GetCurrentUserExerciseDetailsByIdAsync(long exerciseId)
+    {
+        if (exerciseId < 1)
+            return InvalidExerciseID();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await exerciseService.GetUserExerciseByIdAsync(userId, exerciseId);
+        return HandleUserExerciseDetailsDTOServiceResult(serviceResult);
+    }
+
 
     [HttpGet("internal-exercise/by-name/{name}")]
     public async Task<ActionResult<ExerciseDTO>> GetInternalExerciseByNameAsync(string name)
@@ -175,6 +212,17 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         return HandleExerciseDTOServiceResult(serviceResult);
     }
 
+    [HttpGet("internal-exercise/by-name/{name}/details")]
+    public async Task<ActionResult<ExerciseDetailsDTO>> GetInternalExerciseDetailsByNameAsync(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return ExerciseNameIsNullOrEmpty();
+
+        var serviceResult = await exerciseService.GetInternalExerciseByNameAsync(name);
+        return HandleExerciseDetailsDTOServiceResult(serviceResult);
+    }
+
+
     [HttpGet("user-exercise/by-name/{name}")]
     public async Task<ActionResult<ExerciseDTO>> GetCurrentUserExerciseByNameAsync(string name)
     {
@@ -183,86 +231,206 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await exerciseService.GetUserExerciseByNameAsync(userId, name);
-        return HandleDTOServiceResult(serviceResult, "User exercise not found.");
+        return HandleUserExerciseDTOServiceResult(serviceResult);
     }
+
+    [HttpGet("user-exercise/by-name/{name}/details")]
+    public async Task<ActionResult<ExerciseDetailsDTO>> GetCurrentUserExerciseDetailsByNameAsync(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return ExerciseNameIsNullOrEmpty();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await exerciseService.GetUserExerciseByNameAsync(userId, name);
+        return HandleUserExerciseDetailsDTOServiceResult(serviceResult);
+    }
+
+    readonly string exercisePhotosDirectory = Path.Combine("photos", "exercises");
+    const int maxExerciseImageSizeInMB = 3;
 
     [HttpPost("internal-exercise")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddInternalExerciseAsync(ExerciseDTO exerciseDTO)
+    public async Task<IActionResult> AddInternalExerciseAsync([FromForm] ExerciseCreationDTO exerciseCreationDTO)
     {
-        if (exerciseDTO is null)
+        if (exerciseCreationDTO is null)
             return ExerciseIsNull();
 
-        if (exerciseDTO.Id != 0)
-            return InvalidExerciseIDWhileAdding();
+        try
+        {
+            string? image = await fileService.GetImage(exerciseCreationDTO.ImageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB);
+            var exercise = mapper.Map<Exercise>(exerciseCreationDTO);
+            exercise.Image = image;
 
-        var exercise = mapper.Map<Exercise>(exerciseDTO);
-        var serviceResult = await exerciseService.AddInternalExerciseAsync(exercise);
+            var serviceResult = await exerciseService.AddInternalExerciseAsync(exercise);
 
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
+            if (!serviceResult.Success)
+                return BadRequest(serviceResult.ErrorMessage);
 
-        exercise = serviceResult.Model!;
+            exercise = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetInternalExerciseByIdAsync), new { exerciseId = exercise.Id }, exercise);
+            return CreatedAtAction(nameof(GetInternalExerciseByIdAsync), new { exerciseId = exercise.Id }, exercise);
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
     }
 
     [HttpPost("user-exercise")]
-    public async Task<IActionResult> AddCurrentUserExerciseAsync(ExerciseDTO exerciseDTO)
+    public async Task<IActionResult> AddCurrentUserExerciseAsync([FromForm] ExerciseCreationDTO exerciseCreationDTO)
     {
-        if (exerciseDTO is null)
+        if (exerciseCreationDTO is null)
             return ExerciseIsNull();
 
-        if (exerciseDTO.Id != 0)
-            return InvalidExerciseIDWhileAdding();
+        try
+        {
+            string? image = await fileService.GetImage(exerciseCreationDTO.ImageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB);
+            var exercise = mapper.Map<Exercise>(exerciseCreationDTO);
+            exercise.Image = image;
 
-        string userId = httpContextAccessor.GetUserId()!;
-        var exercise = mapper.Map<Exercise>(exerciseDTO);
-        var serviceResult = await exerciseService.AddUserExerciseAsync(userId, exercise);
+            string userId = httpContextAccessor.GetUserId()!;
+            var serviceResult = await exerciseService.AddUserExerciseAsync(userId, exercise);
 
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
+            if (!serviceResult.Success)
+                return BadRequest(serviceResult.ErrorMessage);
 
-        exercise = serviceResult.Model!;
+            exercise = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetCurrentUserExerciseByIdAsync), new { exerciseId = exercise.Id }, exercise);
+            return CreatedAtAction(nameof(GetCurrentUserExerciseByIdAsync), new { exerciseId = exercise.Id }, exercise);
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
     }
+
 
     [HttpPut("internal-exercise/{exerciseId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateInternalExerciseAsync(long exerciseId, ExerciseDTO exerciseDTO)
+    public async Task<IActionResult> UpdateInternalExerciseAsync(long exerciseId, [FromForm] ExerciseUpdateDTO exerciseUpdateDTO)
     {
         if (exerciseId < 1)
             return InvalidExerciseID();
 
-        if (exerciseDTO is null)
+        if (exerciseUpdateDTO is null)
             return ExerciseIsNull();
 
-        if (exerciseId != exerciseDTO.Id)
+        if (exerciseId != exerciseUpdateDTO.Id)
             return ExerciseIDsNotMatch();
 
-        var exercise = mapper.Map<Exercise>(exerciseDTO);
-        var serviceResult = await exerciseService.UpdateInternalExerciseAsync(exercise);
-        return HandleServiceResult(serviceResult);
+        try
+        {
+            string? image = await fileService.GetImage(exerciseUpdateDTO.ImageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB);
+            var exercise = mapper.Map<Exercise>(exerciseUpdateDTO);
+            exercise.Image = image ?? exerciseUpdateDTO.Image;
+
+            var serviceResult = await exerciseService.UpdateInternalExerciseAsync(exercise);
+
+            if (serviceResult.Success && exerciseUpdateDTO.ImageFile != null && exerciseUpdateDTO.Image is string oldImage)
+            {
+                fileService.DeleteFile(oldImage);
+            }
+
+            return HandleServiceResult(serviceResult);
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
     }
 
     [HttpPut("user-exercise/{exerciseId}")]
-    public async Task<IActionResult> UpdateCurrentUserExerciseAsync(long exerciseId, ExerciseDTO exerciseDTO)
+    public async Task<IActionResult> UpdateCurrentUserExerciseAsync(long exerciseId, [FromForm] ExerciseUpdateDTO exerciseUpdateDTO)
     {
         if (exerciseId < 1)
             return InvalidExerciseID();
 
-        if (exerciseDTO is null)
+        if (exerciseUpdateDTO is null)
             return ExerciseIsNull();
 
-        if (exerciseId != exerciseDTO.Id)
+        if (exerciseId != exerciseUpdateDTO.Id)
             return ExerciseIDsNotMatch();
 
-        string userId = httpContextAccessor.GetUserId()!;
-        var exercise = mapper.Map<Exercise>(exerciseDTO);
-        var serviceResult = await exerciseService.UpdateUserExerciseAsync(userId, exercise);
+        try
+        {
+            string? image = await fileService.GetImage(exerciseUpdateDTO.ImageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB);
+            var exercise = mapper.Map<Exercise>(exerciseUpdateDTO);
+            exercise.Image = image ?? exerciseUpdateDTO.Image;
+
+            string userId = httpContextAccessor.GetUserId()!;
+            var serviceResult = await exerciseService.UpdateUserExerciseAsync(userId, exercise);
+
+            if (serviceResult.Success && exerciseUpdateDTO.ImageFile != null && exerciseUpdateDTO.Image is string oldImage)
+            {
+                fileService.DeleteFile(oldImage);
+            }
+
+            return HandleServiceResult(serviceResult);
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
+    }
+
+
+    [HttpPut("internal-exercise/{exerciseId}/muscles")]
+    [Authorize(Roles = Roles.AdminRole)]
+    public async Task<IActionResult> UpdateInternalExerciseMusclesAsync(long exerciseId, IEnumerable<long> muscleIds)
+    {
+        if (exerciseId < 1)
+            return InvalidExerciseID();
+
+        if (muscleIds is null)
+            return EntryIsNull("Muscle's Ids");
+
+        var serviceResult = await exerciseService.UpdateInternalExerciseMusclesAsync(exerciseId, muscleIds);
         return HandleServiceResult(serviceResult);
     }
+
+    [HttpPut("user-exercise/{exerciseId}/muscles")]
+    public async Task<IActionResult> UpdateCurrentUserExerciseMusclesAsync(long exerciseId, IEnumerable<long> muscleIds)
+    {
+        if (exerciseId < 1)
+            return InvalidExerciseID();
+
+        if (muscleIds is null)
+            return EntryIsNull("Muscle's Ids");
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await exerciseService.UpdateUserExerciseMusclesAsync(userId, exerciseId, muscleIds);
+        return HandleServiceResult(serviceResult);
+    }
+
+
+    [HttpPut("internal-exercise/{exerciseId}/equipments")]
+    [Authorize(Roles = Roles.AdminRole)]
+    public async Task<IActionResult> UpdateInternalExerciseEquipmentsAsync(long exerciseId, IEnumerable<long> equipmentsIds)
+    {
+        if (exerciseId < 1)
+            return InvalidExerciseID();
+
+        if (equipmentsIds is null)
+            return EntryIsNull("Equipment's Ids");
+
+        var serviceResult = await exerciseService.UpdateInternalExerciseEquipmentsAsync(exerciseId, equipmentsIds);
+        return HandleServiceResult(serviceResult);
+    }
+
+    [HttpPut("user-exercise/{exerciseId}/equipments")]
+    public async Task<IActionResult> UpdateCurrentUserExerciseEquipmentsAsync(long exerciseId, IEnumerable<long> equipmentsIds)
+    {
+        if (exerciseId < 1)
+            return InvalidExerciseID();
+
+        if (equipmentsIds is null)
+            return EntryIsNull("Equipment's Ids");
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await exerciseService.UpdateUserExerciseEquipmentsAsync(userId, exerciseId, equipmentsIds);
+        return HandleServiceResult(serviceResult);
+    }
+
 
     [HttpDelete("internal-exercise/{exerciseId}")]
     [Authorize(Roles = Roles.AdminRole)]
@@ -285,6 +453,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         var serviceResult = await exerciseService.DeleteExerciseFromUserAsync(userId, exerciseId);
         return HandleServiceResult(serviceResult);
     }
+
 
     [HttpGet("internal-exercise-exists/{exerciseId}")]
     public async Task<ActionResult<bool>> InternalExerciseExistsAsync(long exerciseId)
@@ -318,6 +487,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
             return HandleException(ex);
         }
     }
+
 
     [HttpGet("internal-exercise-exists-by-name/{name}")]
     public async Task<ActionResult<bool>> InternalExerciseExistsByNameAsync(string name)
