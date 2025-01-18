@@ -3,14 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WorkoutTrackerAPI.Data.DTOs;
-using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Services.RoleServices;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using Microsoft.EntityFrameworkCore;
-using WorkoutTrackerAPI.Services;
-using WorkoutTrackerAPI.Services.UserServices;
-using Microsoft.IdentityModel.Tokens;
 using System.Data;
 
 namespace WorkoutTrackerAPI.Controllers;
@@ -19,8 +13,12 @@ namespace WorkoutTrackerAPI.Controllers;
 public class RolesController : APIController
 {
     readonly IRoleService roleService;
-    public RolesController(IRoleService roleService)
-        => this.roleService = roleService;
+    readonly IMapper mapper;
+    public RolesController(IRoleService roleService, IMapper mapper)
+    {
+        this.roleService = roleService;
+        this.mapper = mapper;
+    }
 
     ActionResult RoleIDIsNullOrEmpty()
         => BadRequest("Role ID is null or empty.");
@@ -33,7 +31,7 @@ public class RolesController : APIController
 
 
     [HttpGet]
-    public async Task<ActionResult<ApiResult<IdentityRole>>> GetRolesAsync(
+    public async Task<ActionResult<ApiResult<RoleDTO>>> GetRolesAsync(
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -51,8 +49,9 @@ public class RolesController : APIController
             if (roles is null)
                 return EntryNotFound("Roles");
 
-            return await ApiResult<IdentityRole>.CreateAsync(
-                roles,
+            var roleDTOs = roles.AsEnumerable().Select(u => mapper.Map<RoleDTO>(u));
+            return await ApiResult<RoleDTO>.CreateAsync(
+                roleDTOs.AsQueryable(),
                 pageIndex,
                 pageSize,
                 sortColumn,
@@ -69,7 +68,7 @@ public class RolesController : APIController
 
     [HttpGet("{roleId}")]
     [ActionName(nameof(GetRoleByIdAsync))]
-    public async Task<ActionResult<IdentityRole>> GetRoleByIdAsync(string roleId)
+    public async Task<ActionResult<RoleDTO>> GetRoleByIdAsync(string roleId)
     {
         if (string.IsNullOrEmpty(roleId))
             return RoleIDIsNullOrEmpty();
@@ -81,7 +80,7 @@ public class RolesController : APIController
             if (role is null)
                 return RoleNotFound();
 
-            return role;
+            return mapper.Map<RoleDTO>(role);
         }
         catch (Exception ex)
         {
@@ -90,7 +89,7 @@ public class RolesController : APIController
     }
 
     [HttpGet("by-name/{name}")]
-    public async Task<ActionResult<IdentityRole>> GetRoleByNameAsync(string name)
+    public async Task<ActionResult<RoleDTO>> GetRoleByNameAsync(string name)
     {
         if (string.IsNullOrEmpty(name))
             return RoleNameIsNullOrEmpty();
@@ -102,7 +101,7 @@ public class RolesController : APIController
             if (role is null)
                 return RoleNotFound();
 
-            return role;
+            return mapper.Map<RoleDTO>(role);
         }
         catch (Exception ex)
         {
@@ -111,15 +110,18 @@ public class RolesController : APIController
     }
 
     [HttpPost]
-    public async Task<ActionResult<IdentityRole>> AddRoleAsync(IdentityRole role)
+    public async Task<ActionResult<RoleDTO>> AddRoleAsync(RoleCreationDTO roleCreationDTO)
     {
-        if (role is null)
+        if (roleCreationDTO is null)
             return RoleIsNull();
 
         try
         {
+            var role = mapper.Map<IdentityRole>(roleCreationDTO);
             role = await roleService.AddRoleAsync(role);
-            return CreatedAtAction(nameof(GetRoleByIdAsync), new { id = role.Id }, role);
+
+            var roleDTO = mapper.Map<RoleDTO>(role);
+            return CreatedAtAction(nameof(GetRoleByIdAsync), new { roleId = roleDTO.Id }, roleDTO);
         }
         catch (Exception ex)
         {
@@ -128,17 +130,18 @@ public class RolesController : APIController
     }
 
     [HttpPut("{roleId}")]
-    public async Task<IActionResult> UpdateRoleAsync(string roleId, IdentityRole role)
+    public async Task<IActionResult> UpdateRoleAsync(string roleId, RoleDTO roleDTO)
     {
         if (string.IsNullOrEmpty(roleId))
             return RoleIDIsNullOrEmpty();
 
-        if (role is null)
+        if (roleDTO is null)
             return RoleIsNull();
 
-        if (roleId != role.Id)
+        if (roleId != roleDTO.Id)
             return EntryIDsNotMatch("Role");
 
+        var role = mapper.Map<IdentityRole>(roleDTO);
         var identityResult = await roleService.UpdateRoleAsync(role);
         return HandleIdentityResult(identityResult);
     }

@@ -30,10 +30,10 @@ public abstract class APIController : Controller
             case SecurityTokenException or UnauthorizedAccessException:
                 return Unauthorized(ex.Message); // 401 Unauthorized
 
-            case ArgumentException:
+            case ArgumentException or InvalidOperationException:
                 return BadRequest(ex.Message); // 400 Bad Request
 
-            case NotFoundException:
+            case NotFoundException or FileNotFoundException:
                 return NotFound(ex.Message); // 404 Not Found
 
             default:
@@ -41,19 +41,6 @@ public abstract class APIController : Controller
                 return StatusCode(500, $"Internal server error: {ex.InnerException?.Message ?? ex.Message}");
         }
     }
-
-    //protected IActionResult HandleInvalidModelState()
-    //{
-    //    if (ModelState.IsValid)
-    //        throw new ArgumentException("Model state is valid!");
-
-    //    string[] errors = ModelState.Values
-    //        .SelectMany(v => v.Errors)
-    //        .Select(e => e.ErrorMessage)
-    //        .ToArray();
-
-    //    return BadRequest(errors);
-    //}
 
     protected IActionResult HandleIdentityResult(IdentityResult identityResult)
     {

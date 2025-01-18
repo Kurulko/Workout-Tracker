@@ -15,18 +15,19 @@ public abstract class DbModelController<TDTO, TCreationDTO> : APIController
     public DbModelController(IMapper mapper)
         => this.mapper = mapper;
 
-    protected ActionResult<TDTO> HandleDTOServiceResult<T>(ServiceResult<T> serviceResult, string? notFoundMessage = null)
+    protected ActionResult<T_DTO> HandleDTOServiceResult<T, T_DTO>(ServiceResult<T> serviceResult, string? notFoundMessage = null)
         where T : class, IDbModel 
+        where T_DTO : class 
     {
-        ServiceResult<TDTO> serviceResultDTO;
+        ServiceResult<T_DTO> serviceResultDTO;
         if (serviceResult.Success)
         {
-            var modelDTO = mapper.Map<TDTO>(serviceResult.Model);
-            serviceResultDTO = ServiceResult<TDTO>.Ok(modelDTO);
+            var modelDTO = mapper.Map<T_DTO>(serviceResult.Model);
+            serviceResultDTO = ServiceResult<T_DTO>.Ok(modelDTO);
         }
         else
         {
-            serviceResultDTO = ServiceResult<TDTO>.Fail(serviceResult.ErrorMessage!);
+            serviceResultDTO = ServiceResult<T_DTO>.Fail(serviceResult.ErrorMessage!);
         }
 
         return HandleServiceResult(serviceResultDTO, notFoundMessage);
