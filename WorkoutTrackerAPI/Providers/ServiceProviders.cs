@@ -19,8 +19,10 @@ using WorkoutTrackerAPI.Services.ExerciseServices;
 using WorkoutTrackerAPI.Services.ImpersonationServices;
 using WorkoutTrackerAPI.Services.MuscleServices;
 using WorkoutTrackerAPI.Services.MuscleSizeServices;
+using WorkoutTrackerAPI.Services.ProgressServices;
 using WorkoutTrackerAPI.Services.RoleServices;
 using WorkoutTrackerAPI.Services.UserServices;
+using WorkoutTrackerAPI.Services.WorkoutRecordServices;
 using WorkoutTrackerAPI.Services.WorkoutServices;
 using WorkoutTrackerAPI.ValidationAttributes;
 
@@ -87,6 +89,13 @@ public static class ServiceProviders
         .AddJwtBearer(options =>
             options.TokenValidationParameters = (TokenValidationParameters)jwtSettings
         );
+
+        services.AddCors(options =>
+            options.AddDefaultPolicy(builder =>
+                builder.WithOrigins("*")
+                       .AllowAnyHeader()
+                       .AllowAnyMethod()
+        ));
     }
 
     public static void AddAccountServices(this IServiceCollection services)
@@ -103,20 +112,27 @@ public static class ServiceProviders
 
     public static void AddWorkoutModelServices(this IServiceCollection services)
     {
+        services.AddScoped<UserDetailsRepository>();
         services.AddScoped<BodyWeightRepository>();
         services.AddScoped<ExerciseRepository>();
         services.AddScoped<EquipmentRepository>();
         services.AddScoped<MuscleRepository>();
         services.AddScoped<MuscleSizeRepository>();
-        services.AddScoped<WorkoutRepository>();
+        services.AddScoped<ExerciseSetRepository>();
+        services.AddScoped<ExerciseSetGroupRepository>();
         services.AddScoped<ExerciseRecordRepository>();
+        services.AddScoped<ExerciseRecordGroupRepository>();
+        services.AddScoped<WorkoutRecordRepository>();
+        services.AddScoped<WorkoutRepository>();
 
         services.AddScoped<IBodyWeightService, BodyWeightService>();
         services.AddScoped<IExerciseService, ExerciseService>();
         services.AddScoped<IEquipmentService, EquipmentService>();
         services.AddScoped<IMuscleService, MuscleService>();
         services.AddScoped<IMuscleSizeService, MuscleSizeService>();
-        services.AddScoped<IWorkoutService, WorkoutService>();
         services.AddScoped<IExerciseRecordService, ExerciseRecordService>();
+        services.AddScoped<IUserProgressService, UserProgressService>();
+        services.AddScoped<IWorkoutRecordService, WorkoutRecordService>();
+        services.AddScoped<IWorkoutService, WorkoutService>();
     }
 }
