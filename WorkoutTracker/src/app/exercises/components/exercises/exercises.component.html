@@ -1,0 +1,43 @@
+<main-app title="Exercises">
+  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center" (selectedTabChange)="onExerciseTabChange($event)">
+    <mat-tab label="All" />
+    <mat-tab label="Yours"  />
+    <mat-tab label="Internal" />
+  </mat-tab-group>
+
+  <button type="button" [hidden]="exercisePageType === 'all'" color="primary" mat-flat-button
+      [routerLink]="[exercisePageType === 'yours' ? '/your-exercise' : '/exercise']" *ngIf="exercisePageType !== 'internal' || isAdmin">
+    <mat-icon>add</mat-icon><mat-icon>sports_gymnastics</mat-icon> Add
+  </button>
+  <br/><br/>
+  
+  <ng-container *ngIf="!data; else workoutsTemplate">
+    <mat-spinner diameter="60" />
+  </ng-container>
+  <ng-template #workoutsTemplate>
+    <ng-template #noExercisesTemplate>
+      <h3><i>
+        {{exercisePageType === 'yours' ? 'You have not added your exercises yet...' : 'There are no exercises yet...'}}
+      </i></h3>
+    </ng-template>
+    <ng-container *ngIf="totalCount || filterQuery || (exerciseType != null && exerciseType != undefined); else noExercisesTemplate">
+      <app-exercise-type-selector [(ngModel)]="exerciseType" (ngModelChange)="loadData()" noneOptionStr="--All--" [required]="false" />
+      <br />
+      <mat-form-field>
+        <input matInput #filter (keyup)="onFilterTextChanged(filter.value)"
+              placeholder="Filter by name (or part of it)...">
+      </mat-form-field>
+
+      <app-exercise-table 
+        [pageIndex]="pageIndex"
+        [pageSize]="pageSize"
+        [totalCount]="totalCount"
+        [displayedColumns]="['index', 'name', 'photo', 'type', 'muscles', 'equipments', 'actions']"
+        [data]="data"
+        (sortChange)="onSortChange($event)"
+        (pageChange)="onPageChange($event)"
+        (deleteItem)="onDeleteItem($event)" 
+      />
+    </ng-container>
+  </ng-template>
+</main-app>

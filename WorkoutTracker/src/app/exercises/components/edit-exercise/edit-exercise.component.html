@@ -1,0 +1,55 @@
+<main-app [title]="title">
+  <button type="button" mat-flat-button color="secondary" [routerLink]="[exercisesPath]">
+    <mat-icon>reply</mat-icon> Back
+  </button>
+  <br/><br/>
+  <ng-container *ngIf="this.id && !exercise; else editExerciseTemplate">
+    <mat-spinner diameter="60" />
+  </ng-container>
+  <ng-template #editExerciseTemplate>
+    <app-show-validation-errors [validationErrors]="validationErrors"/>
+    <div class="row">
+      <div class="col">
+        <app-short-card title="Name" width="80%">
+          <app-name-input [(ngModel)]="exercise.name" [required]="true" width="100%" [minlength]="3" hintStr="Min 3 characters" #name="ngModel" />
+        </app-short-card>
+        <br />
+        <app-short-card title="Type" width="80%">
+          <app-exercise-type-selector [(ngModel)]="exercise.type" [required]="true" width="100%" #exerciseType="ngModel" />
+        </app-short-card>
+        <br>
+        <app-short-card title="Description" width="80%">
+          <app-description-input [(ngModel)]="exercise.description" [required]="false" width="100%"  [minlength]="10" hintStr="Min 10 characters" #description="ngModel" />
+        </app-short-card>
+      </div>
+      <div class="col">
+        <app-short-card title="Photo" width="80%">
+          <app-photo-input [(ngModel)]="exercise.imageFile" (ngModelChange)="onPhotoUpload()" [previewUrl]="previewUrl" [required]="false" width="80%"/>
+        </app-short-card>
+      </div>
+    </div>
+    <br><br>
+    <app-short-card title="Others">
+      <div class="row">
+        <div class="col">
+          <h3>Muscles:</h3>
+          <app-multiple-muscle-selector [(ngModel)]="muscles" [required]="true" width="75%"/>
+        </div>
+        <div class="col">
+          <h3>Equipments:</h3>
+          <app-multiple-equipment-selector [(ngModel)]="equipments" [required]="true" width="75%"/>
+        </div>
+      </div>
+    </app-short-card>
+    <br /><br />
+    <div>
+        <button type="button" color="primary" mat-flat-button (click)="onSubmit()" 
+            [disabled]="name.invalid || exerciseType.invalid">
+          <mat-icon>{{ this.id ? "edit" : "add_box" }}</mat-icon> {{ this.id ? "Save" : "Create" }}
+        </button>
+        <button type="button" mat-flat-button color="secondary" [routerLink]="['/exercises']">
+          <mat-icon>cancel</mat-icon> Cancel
+        </button>
+    </div>
+  </ng-template>
+</main-app>
