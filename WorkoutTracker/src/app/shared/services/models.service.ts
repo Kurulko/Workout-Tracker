@@ -1,12 +1,9 @@
-import { TokenManager } from '../helpers/token-manager';
 import { BaseService } from './base.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
 export abstract class ModelsService extends BaseService {
-    protected readonly emptyPath:string = '';
-
-    constructor(httpClient: HttpClient, tokenManager: TokenManager, controllerName: string) {
-        super(httpClient, tokenManager, controllerName);
+    constructor(httpClient: HttpClient, controllerName: string) {
+        super(httpClient, controllerName);
     }
 
     protected getApiResultHttpParams(pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null) : HttpParams
