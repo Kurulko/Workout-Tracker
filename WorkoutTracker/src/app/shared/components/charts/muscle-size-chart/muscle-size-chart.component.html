@@ -1,0 +1,16 @@
+<mat-spinner diameter="70" *ngIf="!data" />
+<div [hidden]="!isData" [style.width]="width">
+    <canvas
+      baseChart
+      [data]="lineChartData"
+      [options]="lineChartOptions"
+      [type]="chartType"
+    ></canvas>
+</div>
+<mat-paginator [hidden]="!isPaginator || !isData"
+  (page)="onPageChange()"
+  [pageIndex]="pageIndex"
+  [pageSize]="pageSize"
+  [length]="totalCount"
+  [pageSizeOptions]="pageSizeOptions"
+  showFirstLastButtons />

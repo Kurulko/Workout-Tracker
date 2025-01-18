@@ -1,0 +1,20 @@
+<div [style.width]="width">
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Workouts:</th>
+                <td>{{showCountOfDays(workoutDays)}} ({{getPercentageFromValue(workoutDays)}}%)</td>
+            </tr>
+            <tr>
+                <th>Rest:</th>
+                <td>{{showCountOfDays(restDays)}} ({{getPercentageFromValue(restDays)}}%)</td>
+            </tr>
+        </tbody>
+    </table>
+    <canvas
+        baseChart 
+        [data]="workoutsChartData" 
+        [options]="workoutsChartOptions"
+        type="pie">
+    </canvas>
+</div>
