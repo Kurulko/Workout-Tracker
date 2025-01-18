@@ -2,6 +2,8 @@
   "Muscles": [
     {
       "Name": "Neck",
+      "IsMeasurable": true,
+      "Image": "photos\\muscles\\neck.png",
       "Children": [
         { "Name": "Omohyoid" },
         { "Name": "Sternohyoid" },
@@ -11,6 +13,7 @@
     },
     {
       "Name": "Back",
+      "IsMeasurable": true,
       "Children": [
         { "Name": "Latissimus dorsi" },
         { "Name": "Teres major" },
@@ -22,6 +25,8 @@
     },
     {
       "Name": "Deltoids",
+      "Image": "photos\\muscles\\shoulders.jpg",
+      "IsMeasurable": true,
       "Children": [
         { "Name": "Deltoid anterior" },
         { "Name": "Deltoid middle" },
@@ -30,6 +35,8 @@
     },
     {
       "Name": "Arms",
+      "Image": "photos\\muscles\\biceps.jpg",
+      "IsMeasurable": true,
       "Children": [
         {
           "Name": "Biceps",
@@ -49,6 +56,8 @@
         },
         {
           "Name": "Forearms",
+          "Image": "photos\\muscles\\forearms.jpg",
+          "IsMeasurable": true,
           "Children": [
             { "Name": "Brachioradialis" },
             { "Name": "Palmaris longus" },
@@ -61,6 +70,8 @@
     },
     {
       "Name": "Chest",
+      "Image": "photos\\muscles\\chest.jpg",
+      "IsMeasurable": true,
       "Children": [
         { "Name": "Pectoralis major" },
         { "Name": "Pectoralis minor" }
@@ -68,6 +79,7 @@
     },
     {
       "Name": "Core",
+      "IsMeasurable": true,
       "Children": [
         {
           "Name": "Abs",
@@ -86,9 +98,11 @@
         }
       ]
     },
-    
+
     {
       "Name": "Legs",
+      "Image": "photos\\muscles\\legs.jpg",
+      "IsMeasurable": true,
       "Children": [
         {
           "Name": "Quadriceps",
@@ -126,6 +140,8 @@
         },
         {
           "Name": "Calves",
+          "Image": "photos\\muscles\\calves.jpg",
+          "IsMeasurable": true,
           "Children": [
             { "Name": "Gastrocnemius" },
             { "Name": "Soleus" },
