@@ -1,58 +1,52 @@
-<base-app title="Muscle Sizes">
-  <p *ngIf="!data && !muscles"><em>Loading...</em></p>
-
-  <button type="button" [hidden]="!data && !muscles" color="primary" class="btn btn-outline-primary" [routerLink]="['/muscle-size']">
-    Add
+<main-app title="Muscle Sizes">
+  <button type="button" color="primary" mat-flat-button [routerLink]="['/muscle-size']">
+    <mat-icon>add</mat-icon> Add
   </button>
   <br/><br/>
+  <ng-container *ngIf="!data; else muscleSizesTemplate">
+    <mat-spinner diameter="60" />
+  </ng-container>
+  <ng-template #muscleSizesTemplate>
+    <ng-template #noMuscleSizesTemplate>
+      <h3><i>You have not added your muscle sizes yet...</i></h3>
+    </ng-template>
+    <ng-container *ngIf="totalCount || date || muscleId; else noMuscleSizesTemplate">
+      <!-- Muscle -->
+      <app-muscle-selector [(ngModel)]="muscleId" [isMeasurable]="true" (ngModelChange)="loadData()" [required]="false" />
+      <br />
 
-  <mat-form-field *ngIf="muscles | async as result">
-    <mat-label>Select Muscle...</mat-label>
-    <mat-select [(ngModel)]="muscleId" (selectionChange)="onSelectedMuscle()">
-      <mat-option *ngFor="let muscle of result" [value]="muscle.id">
-        {{muscle.name}}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-  <br />
+      <!-- Date -->
+      <app-date-input [(ngModel)]="date" [maxDate]="maxDate" (ngModelChange)="loadData()" [required]="false" />
+      <button *ngIf="date" mat-button color="accent" type="button" (click)="clearDate()">Clear Date</button>
+      <br />
 
-  <mat-button-toggle-group *ngIf="data" [(ngModel)]="sizeType" (change)="loadData()">
-    <mat-button-toggle value="cm">Cm</mat-button-toggle>
-    <mat-button-toggle value="inches">Inches</mat-button-toggle>
-  </mat-button-toggle-group>
-  <br/><br/>
-  <table mat-table [dataSource]="data"
-      class="mat-elevation-z8"
-      [hidden]="!data"
-      matSort (matSortChange)="loadData()"
-      [matSortActive]="defaultSortColumn"
-      [matSortDirection]="defaultSortOrder">
+      <mat-button-toggle-group [(ngModel)]="sizeType" (change)="loadData()" *ngIf="totalCount">
+        <mat-button-toggle value="cm">Cm</mat-button-toggle>
+        <mat-button-toggle value="inches">Inches</mat-button-toggle>
+      </mat-button-toggle-group>
+      <br/><br/>
 
-      <ng-container matColumnDef="date">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
-        <td mat-cell *matCellDef="let muscleSize">{{ muscleSize.date | date:'d MMMM yyyy' }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="size">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Size</th>
-        <td mat-cell *matCellDef="let muscleSize"> {{ muscleSize.size }} {{sizeType}}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let muscleSize">
-          <button type="button" mat-button color="primary" [routerLink]="['/muscle-size', muscleSize.id]">Edit</button>
-          <button type="button" mat-button color="warn" (click)="deleteMuscleSize(muscleSize.id)">Delete</button>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
-
-  <mat-paginator [hidden]="!data"
-              (page)="getData($event)"
-              [pageSize]="10"
-              [pageSizeOptions]="[10, 20, 50]"
-              showFirstLastButtons />
-</base-app>
+      <div class="row">
+        <div class="col" *ngIf="muscleId && !date && data!.length > 1">
+          <app-muscle-size-chart
+            [pageIndex]="pageIndex"
+            [pageSize]="pageSize"
+            [totalCount]="totalCount"
+            [data]="data"
+            [isPaginator]="false"
+            (pageChange)="onPageChange($event)" />
+        </div>
+        <div class="col">
+          <app-muscle-size-table 
+            [pageIndex]="pageIndex"
+            [pageSize]="pageSize"
+            [totalCount]="totalCount"
+            [data]="data"
+            (sortChange)="onSortChange($event)"
+            (pageChange)="onPageChange($event)"
+            (deleteItem)="onDeleteItem($event)" />
+        </div>
+      </div>
+    </ng-container>
+  </ng-template>
+</main-app>

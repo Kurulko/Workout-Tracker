@@ -1,12 +1,11 @@
-import { Muscle } from "../muscles/muscle";
-import { DbModel } from "../shared/models/db-model.model";
-import { SizeType } from "./size-type";
+import { DbModel } from "../shared/models/db-model";
+import { ModelSize } from "../shared/models/model-size";
 
 export interface MuscleSize extends DbModel {
     date: Date;
-    size: number;
-    sizeType: SizeType;
+    size: ModelSize;
     muscleId: number;
-    muscle: Muscle;
+    muscleName: string;
+    musclePhoto: string|null;
 }
 
