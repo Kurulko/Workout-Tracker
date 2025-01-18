@@ -1,0 +1,56 @@
+
+<mat-card [style.width]="width">
+    <mat-card-header>
+        <mat-card-title>{{ label ??  "Exercise Sets"}}</mat-card-title>
+        <mat-card-subtitle *ngIf="exerciseSetGroups">{{ showCountOfExercisesStr(exerciseSetGroups.length) }}</mat-card-subtitle>
+        <button *ngIf="!isAddingNewExercise" type="button" mat-button color="primary" class="mt-3" (click)="addNewExercise()" >
+            <mat-icon>add</mat-icon> Add Exercise
+        </button>
+        <app-exercise-selector *ngIf="isAddingNewExercise" (exerciseIdChange)="onExerciseIdSelected($event)" 
+            [required]="true" width="500px" />
+    </mat-card-header>
+    <mat-card-content>
+        <br>
+        <ng-container *ngIf="!exerciseSetGroups; else exerciseSetGroupsTemplate">
+            <mat-spinner diameter="60" />
+        </ng-container>
+        <ng-template #exerciseSetGroupsTemplate>
+            <div *ngIf="exerciseSetGroups && exerciseSetGroups.length !== 0">
+                <div *ngIf="exerciseSetGroups.length > 1">
+                    <button mat-button color="primary" (click)="expandAll()">Expand All</button>
+                    <button mat-button color="warn" (click)="collapseAll()">Collapse All</button>
+                </div>
+                <br />
+                <mat-accordion multi>
+                    <mat-expansion-panel *ngFor="let exerciseSetGroup of exerciseSetGroups; let i = index" class="mt-3">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            Exercise {{ i + 1 }}: {{ exerciseSetGroup.exerciseName }} ({{ showCountOfSetsStr(exerciseSetGroup.exerciseSets.length) }})
+                        </mat-panel-title>
+                        <mat-panel-description>
+                            <delete-button 
+                                title="Delete Exercise"
+                                dialogTitle="Delete Exercise" 
+                                dialogContent="Exercise №{{ i + 1 }}: '{{ exerciseSetGroup.exerciseName }}' will be deleted."
+                                [deleteFn]="deleteExerciseSetGroup" 
+                                [itemId]="i" />
+                        </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <app-exercise-sets-edit [value]="exerciseSetGroup" (ngModelChange)="onExerciseSetGroupUpdated($event, i)"
+                            [weightTypeValue]="weightTypeValue" (validityChange)="onExerciseSetGroupValidityChange($event, i)" [required]="required" />
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
+        </ng-template>
+    </mat-card-content>
+    <mat-card-actions>
+        <delete-button 
+            title="Delete All Exercises"
+            dialogTitle="Delete All Exercises" 
+            dialogContent="All {{exerciseSetGroups.length}} exercises will be deleted."
+            deleteMatIcon="delete_forever"
+            [deleteFn]="deleteAllExerciseSetGroups" 
+            [itemId]="null"
+            *ngIf="exerciseSetGroups && exerciseSetGroups.length > 1"/>
+    </mat-card-actions>
+</mat-card>
