@@ -1,6 +1,8 @@
-import { WorkoutModel } from "../shared/models/workout-model.model";
+import { WorkoutModel } from "../shared/models/workout-model";
 
 export interface Equipment extends WorkoutModel {
-    image: number[]|null;
+    image: string|null;
+    imageFile: File|null;
+    
     isOwnedByUser: boolean;
 }
