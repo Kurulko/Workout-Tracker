@@ -1,0 +1,82 @@
+<main-app title="Workouts">
+  <button type="button" color="primary" mat-flat-button [routerLink]="['/workout']">
+    <mat-icon>add</mat-icon><mat-icon>fitness_center</mat-icon> Add
+  </button>
+  <br/><br/>
+  <ng-container *ngIf="!data; else workoutsTemplate">
+    <mat-spinner diameter="60" />
+  </ng-container>
+  <ng-template #workoutsTemplate>
+    <ng-template #noWorkoutsTemplate>
+      <h3><i>You have not added your workouts yet...</i></h3>
+    </ng-template>
+    <ng-container *ngIf="totalCount || filterQuery; else noWorkoutsTemplate">
+      <mat-form-field>
+        <input matInput #filter (keyup)="onFilterTextChanged(filter.value)"
+              placeholder="Filter by name (or part of it)...">
+      </mat-form-field>
+
+      <div *ngFor="let workout of data" class="card-container">
+        <mat-card class="card" [ngClass]="workout.isPinned ? 'pinned-card' : 'card'">
+          <mat-card-header>
+            <mat-card-title>{{ workout.name }}</mat-card-title>
+            <mat-card-subtitle>{{ showCountOfExercisesStr(workout.exercises.length, 'exercise', 'exercises') }}</mat-card-subtitle>
+            <button type="button" class="text-success" mat-button (click)="openWorkoutCompleteDialog(workout.id)">
+              <mat-icon>task_alt</mat-icon> Completed
+            </button>
+            <button type="button" color="accent" mat-button (click)="workout.isPinned ? unpinWorkout(workout.id) : pinWorkout(workout.id)">
+              <mat-icon>{{ workout.isPinned ? 'turned_in' : 'turned_in_not' }}</mat-icon> {{ workout.isPinned ? "Unpin" : "Pin" }}
+            </button>
+          </mat-card-header>
+          <mat-card-content>
+            <ul>
+                <li *ngFor="let exercise of getSomeExercises(workout.exercises, countOfExercisesShown)">
+                    {{exercise.name}}
+                </li>
+            </ul>
+            <p>{{ showCountOfExercisesLeftStr(workout.exercises, countOfExercisesShown) }}</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button type="button" mat-button color="primary" [routerLink]="['/workout-details', workout.id]">
+              <mat-icon>info</mat-icon> Details
+            </button>
+            <button type="button" mat-button color="secondary" [routerLink]="['/workouts', workout.id, 'workout-records']">
+              <mat-icon>analytics</mat-icon> Records
+            </button>
+            <button type="button" mat-button color="accent" [routerLink]="['/workout', workout.id ]">
+              <mat-icon>edit</mat-icon> Edit
+            </button>
+            <delete-button dialogTitle="Delete Workout" [deleteFn]="deleteItem" [itemId]="workout.id"/>
+          </mat-card-actions>
+        </mat-card>
+        <br>
+      </div>
+
+      <mat-paginator [hidden]="!data"
+        (page)="getData($event)"
+        [pageIndex]="pageIndex"
+        [pageSize]="pageSize"
+        [length]="totalCount"
+        [pageSizeOptions]="[5, 10, 15]"
+        showFirstLastButtons />
+    </ng-container>
+  </ng-template>
+</main-app>
+
+<ng-template #dialogTemplate>
+  <h2 mat-dialog-title>Time Taken and When:</h2>
+  <mat-dialog-content>
+    <h3>Date:</h3>
+    <app-date-input [(ngModel)]="currentWorkoutDate" [maxDate]="maxDate" [required]="true" #date="ngModel" width="100%" />
+    <br />
+    <app-time-span-input [(ngModel)]="currentWorkoutTime" [required]="true" #time="ngModel" width="100%"/>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button type="button" color="primary" mat-flat-button (click)="completeCurrentWorkout()" mat-dialog-close [disabled]="time.invalid && time.touched">
+        <mat-icon>save</mat-icon> Save
+    </button>
+    <button type="button" mat-flat-button color="secondary" mat-dialog-close>
+        <mat-icon>cancel</mat-icon> Cancel
+    </button>
+  </mat-dialog-actions>
+</ng-template>

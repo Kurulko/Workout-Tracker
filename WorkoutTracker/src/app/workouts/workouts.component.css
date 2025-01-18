@@ -1,0 +1,8 @@
+.pinned-card {
+    background: #e8e8e8;
+    border: 1px solid #ddd;
+}
+
+.card {
+    width: 50%
+}

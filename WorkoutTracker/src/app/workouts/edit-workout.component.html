@@ -1,0 +1,58 @@
+<main-app [title]="title">
+    <button type="button" mat-flat-button color="secondary" [routerLink]="[workoutsPath]">
+        <mat-icon>reply</mat-icon> Back
+    </button>
+    <br/><br/>
+    <ng-container *ngIf="this.id && !workout; else editWorkoutTemplate">
+        <mat-spinner diameter="60" />
+    </ng-container>
+    <ng-template #editWorkoutTemplate>
+        <app-show-validation-errors [validationErrors]="validationErrors"/>
+        <div class="row">
+            <div class="col-md-4">
+                <!-- Name -->
+                <app-short-card title="Name" width="100%">
+                    <app-name-input 
+                        [(ngModel)]="workout.name" 
+                        [required]="true" 
+                        [minlength]="3" 
+                        hintStr="Min 3 characters" 
+                        #nameInput="ngModel" 
+                        width="100%" />
+                </app-short-card>
+                <br />
+
+                <!-- Description -->
+                <app-short-card title="Description" width="100%">
+                    <app-description-input 
+                        [(ngModel)]="workout.description" 
+                        [required]="false" 
+                        [minlength]="10" 
+                        hintStr="Min 10 characters" 
+                        #descriptionInput="ngModel" 
+                        width="100%" />
+                </app-short-card>
+                <br />
+                
+                <div>
+                    <button type="button" color="primary" mat-flat-button (click)="onSubmit()" 
+                            [disabled]="nameInput.invalid || descriptionInput.invalid || !isExerciseSetGroupsValid">
+                        <mat-icon>{{ this.id ? "edit" : "add_box" }}</mat-icon> {{ this.id ? "Save" : "Create" }}
+                    </button>
+                    <button type="button" mat-flat-button color="secondary" [routerLink]="[workoutsPath]">
+                        <mat-icon>cancel</mat-icon> Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <!-- Exercise Sets -->
+                <app-exercise-set-groups-editor 
+                    [(ngModel)]="exerciseSetGroups" 
+                    (validityChange)="onExerciseSetGroupsValidityChange($event)"
+                    [required]="true" 
+                    [weightTypeValue]="preferableWeightType" 
+                    width="100%" />
+            </div>
+        </div>
+    </ng-template>
+</main-app>
