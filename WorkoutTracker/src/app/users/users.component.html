@@ -1,0 +1,32 @@
+<main-app title="Users">
+  <button type="button" color="primary" mat-flat-button [routerLink]="['/user']">
+    <mat-icon>person_add</mat-icon> Add
+  </button>
+  <br/><br/>
+
+  <ng-container *ngIf="!data; else usersTemplate">
+    <mat-spinner diameter="60" />
+  </ng-container>
+  <ng-template #usersTemplate>
+    <ng-template #noUsersTemplate>
+      <h3><i>There are no users yet...</i></h3>
+    </ng-template>
+    <ng-container *ngIf="totalCount || filterQuery; else noUsersTemplate">
+      <mat-form-field>
+        <input matInput #filter (keyup)="onFilterTextChanged(filter.value)"
+          placeholder="Filter by name (or part of it)...">
+      </mat-form-field>
+
+      <app-user-table 
+        [pageIndex]="pageIndex"
+        [pageSize]="pageSize"
+        [totalCount]="totalCount"
+        [data]="data"
+        (sortChange)="onSortChange($event)"
+        (pageChange)="onPageChange($event)"
+        (deleteItem)="onDeleteItem($event)" 
+        (impersonate)="impersonateUser($event)" 
+      />
+    </ng-container>
+  </ng-template>
+</main-app>

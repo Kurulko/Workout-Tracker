@@ -1,0 +1,80 @@
+<main-app [title]="title">
+    <button type="button" mat-flat-button color="secondary" [routerLink]="[usersPath]">
+        <mat-icon>reply</mat-icon> Back
+    </button>
+    <br/><br/>
+    <ng-container *ngIf="this.id && !user; else editUserTemplate">
+        <mat-spinner diameter="60" />
+    </ng-container>
+    <ng-template #editUserTemplate>
+        <app-show-validation-errors [validationErrors]="validationErrors"/>
+        <div class="row">
+            <div class="col">
+                <!-- ID -->
+                <app-short-card title="ID" width="90%">
+                    <mat-form-field *ngIf="id" [style.width]="'100%'">
+                        <mat-label>ID:</mat-label>
+                        <input matInput [value]="user.userId" disabled placeholder="ID"/>
+                    </mat-form-field>
+                </app-short-card>
+                <br />
+
+                <!-- Name -->
+                <app-short-card title="Name" width="90%">
+                    <app-name-input 
+                        [(ngModel)]="user.userName" 
+                        [required]="true" 
+                        [minlength]="3" 
+                        hintStr="Min 3 characters" 
+                        #nameInput="ngModel" 
+                        width="100%" />
+                </app-short-card>
+                <br />
+
+                <!-- Email -->
+                <app-short-card title="Email" width="90%">
+                    <app-email-input 
+                        [(ngModel)]="user.email" 
+                        [required]="false" 
+                        #emailInput="ngModel"
+                        width="100%" />
+                </app-short-card>
+            </div>
+            <div class="col">
+                <!-- Registered -->
+                <app-short-card title="Registered" width="90%">
+                    <app-date-input 
+                        label="Registered" 
+                        [(ngModel)]="user.registered" 
+                        [maxDate]="maxDate" 
+                        [required]="true" 
+                        #registeredInput="ngModel" 
+                        width="100%" />
+                </app-short-card>
+                <br />
+                
+                <!-- Started Working Out -->
+                <app-short-card title="Started Working Out" width="90%">
+                    <app-date-input 
+                        label="Started Working Out" 
+                        [(ngModel)]="user.startedWorkingOut" 
+                        [maxDate]="maxDate" 
+                        [required]="true" 
+                        #startedWorkingOutInput="ngModel" 
+                        width="100%" />
+                </app-short-card>
+            </div>
+        </div>
+        <br />
+
+        <div>
+            <button type="button" color="primary" mat-flat-button (click)="onSubmit()" 
+                    [disabled]="nameInput.invalid || emailInput.invalid || registeredInput.invalid || startedWorkingOutInput.invalid">
+                <mat-icon>{{ this.id ? "edit" : "add" }}</mat-icon> {{ this.id ? "Save" : "Create" }}
+            </button>
+            <button type="button" mat-flat-button color="secondary" [routerLink]="[usersPath]">
+                <mat-icon>cancel</mat-icon> Cancel
+            </button>
+        </div>
+    </ng-template>
+</main-app>
