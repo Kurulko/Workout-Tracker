@@ -1,6 +1,6 @@
-﻿using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data;
+﻿using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models.WorkoutModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace WorkoutTrackerAPI.Repositories.WorkoutRepositories;
 
@@ -10,4 +10,10 @@ public class EquipmentRepository : BaseWorkoutRepository<Equipment>
     {
 
     }
+
+    IQueryable<Equipment> GetEquipments()
+       => dbSet.Include(m => m.Exercises)!.ThenInclude(e => e.WorkingMuscles);
+
+    public override Task<IQueryable<Equipment>> GetAllAsync()
+        => Task.FromResult(GetEquipments());
 }

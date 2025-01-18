@@ -13,24 +13,10 @@ public class ExerciseRepository : BaseWorkoutRepository<Exercise>
     }
 
     IQueryable<Exercise> GetExercises()
-        => dbSet.Include(m => m.WorkingMuscles);
+        => dbSet.Include(m => m.WorkingMuscles)
+        .Include(m => m.Equipments)
+        .Include(m => m.ExerciseRecords);
 
     public override Task<IQueryable<Exercise>> GetAllAsync()
         => Task.FromResult(GetExercises());
-
-    public override async Task<Exercise> AddAsync(Exercise model)
-    {
-        if (model.WorkingMuscles is not null)
-        {
-            var muscleIds = model.WorkingMuscles.Select(c => c.Id).ToList();
-
-            var existingMuscles = await db.Muscles
-                .Where(m => muscleIds.Contains(m.Id))
-                .ToListAsync();
-
-            model.WorkingMuscles = existingMuscles;
-        }
-
-        return await base.AddAsync(model);
-    }
 }

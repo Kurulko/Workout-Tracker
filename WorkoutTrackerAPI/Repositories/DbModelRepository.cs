@@ -52,7 +52,7 @@ public class DbModelRepository<T> : IDisposable, IBaseRepository<T>
         if (key <= 0)
             throw new DbUpdateException($"Entity of type {typeof(T).Name} must have a positive ID to be removed.");
 
-        T? model = await GetByIdAsync(key) ?? throw new NotFoundException(typeof(T).Name);
+        T? model = await GetByIdAsync(key) ?? throw NotFoundException.NotFoundExceptionByID(typeof(T).Name, key);
 
         dbSet.Remove(model);
         await SaveChangesAsync();

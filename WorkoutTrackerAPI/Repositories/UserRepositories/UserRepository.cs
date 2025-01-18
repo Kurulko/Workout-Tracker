@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Options;
 using System.Data;
 using System.Security.Claims;
@@ -25,7 +26,11 @@ public class UserRepository
 
     IQueryable<User> Users => userManager.Users;
 
-    static IdentityResult UserNotFoundResult => IdentityResultExtentions.Failed("User not found.");
+    static IdentityResult UserNotFoundByIDResult(string userId)
+        => IdentityResultExtentions.Failed($"User (ID '{userId}') not found.");
+    static IdentityResult UserNotFoundByNameResult(string name)
+        => IdentityResultExtentions.Failed($"User (Name '{name}') not found.");
+
     static IdentityResult UserIDIsNullOrEmptyResult => IdentityResultExtentions.Failed("User ID cannot not be null or empty.");
 
     #region CRUD
@@ -64,10 +69,13 @@ public class UserRepository
             if (existingUser.Email != user.Email)
                 await userManager.SetEmailAsync(existingUser, user.Email);
 
+            existingUser.CountOfTrainings = user.CountOfTrainings;
+            existingUser.Registered = user.Registered;
+            existingUser.StartedWorkingOut = user.StartedWorkingOut;
             return await userManager.UpdateAsync(existingUser);
         }
 
-        return UserNotFoundResult;
+        return UserNotFoundByIDResult(user.Id);
     }
 
     public virtual async Task<IdentityResult> DeleteUserAsync(string userId)
@@ -80,7 +88,7 @@ public class UserRepository
         if (user is not null)
             return await userManager.DeleteAsync(user);
 
-        return UserNotFoundResult;
+        return UserNotFoundByIDResult(userId);
     }
 
     public virtual async Task<User?> GetUserByUsernameAsync(string userName)
@@ -110,6 +118,12 @@ public class UserRepository
 
     #region User Models
 
+    public virtual async Task<UserDetails?> GetUserDetailsFromUserAsync(string userId)
+    {
+        User userWithUserDetails = await db.Users.Include(u => u.UserDetails).SingleAsync(u => u.Id == userId);
+        return userWithUserDetails.UserDetails;
+    }
+
     public virtual async Task<IQueryable<ExerciseRecord>?> GetUserExerciseRecordsAsync(string userId)
     {
         User userWithExerciseRecords = await db.Users.Include(u => u.ExerciseRecords).SingleAsync(u => u.Id == userId);
@@ -130,8 +144,23 @@ public class UserRepository
 
     public virtual async Task<IQueryable<Workout>?> GetUserWorkoutsAsync(string userId)
     {
-        User userWithWorkouts = await db.Users.Include(u => u.Workouts).SingleAsync(u => u.Id == userId);
+        User userWithWorkouts = await db.Users
+            .Include(u => u.Workouts)!
+            .ThenInclude(u => u.WorkoutRecords)!
+            .ThenInclude(u => u.ExerciseRecordGroups)
+            .ThenInclude(u => u.ExerciseRecords)
+            .SingleAsync(u => u.Id == userId);
         return userWithWorkouts.Workouts?.AsQueryable();
+    }
+
+    public virtual async Task<IQueryable<WorkoutRecord>?> GetUserWorkoutRecordsAsync(string userId)
+    {
+        User userWithWorkoutRecords = await db.Users
+            .Include(u => u.WorkoutRecords)!
+            .ThenInclude(u => u.ExerciseRecordGroups)
+            .ThenInclude(u => u.ExerciseRecords)
+            .SingleAsync(u => u.Id == userId);
+        return userWithWorkoutRecords.WorkoutRecords?.AsQueryable();
     }
 
     public virtual async Task<IQueryable<Exercise>?> GetUserCreatedExercisesAsync(string userId)
@@ -155,7 +184,7 @@ public class UserRepository
         User? user = await GetUserByIdAsync(userId);
 
         if (user is null)
-            return UserNotFoundResult;
+            return UserNotFoundByIDResult(userId);
 
         return await userManager.ChangePasswordAsync(user, oldPassword, newPassword);
     }
@@ -165,7 +194,7 @@ public class UserRepository
         User? user = await GetUserByIdAsync(userId);
 
         if (user is null)
-            return UserNotFoundResult;
+            return UserNotFoundByIDResult(userId);
 
         return await userManager.AddPasswordAsync(user, newPassword);
     }
@@ -175,7 +204,7 @@ public class UserRepository
         User? user = await GetUserByIdAsync(userId);
 
         if (user is null)
-           throw new NotFoundException(nameof(User));
+           throw NotFoundException.NotFoundExceptionByID(nameof(User), userId);
 
         return await userManager.HasPasswordAsync(user);
     }
@@ -189,7 +218,7 @@ public class UserRepository
         User? user = await GetUserByIdAsync(userId);
 
         if (user is null)
-            throw new NotFoundException(nameof(User));
+            throw NotFoundException.NotFoundExceptionByID(nameof(User), userId);
 
         return await userManager.GetRolesAsync(user);
     }
@@ -199,7 +228,7 @@ public class UserRepository
         User? user = await GetUserByIdAsync(userId);
 
         if (user is null)
-            return UserNotFoundResult;
+            return UserNotFoundByIDResult(userId);
 
         return await userManager.AddToRolesAsync(user, roles);
     }
@@ -209,7 +238,7 @@ public class UserRepository
         User? user = await GetUserByIdAsync(userId);
 
         if (user is null)
-            return UserNotFoundResult;
+            return UserNotFoundByIDResult(userId);
 
         return await userManager.RemoveFromRoleAsync(user, roleName);
     }

@@ -67,7 +67,10 @@ public class RoleRepository
         IdentityRole? existingRole = await GetRoleByIdAsync(role.Id);
 
         if (existingRole is not null)
+        {
+            existingRole.Name = role.Name;
             return await roleManager.UpdateAsync(existingRole);
+        }
 
         return RoleNotFoundResult;
     }
