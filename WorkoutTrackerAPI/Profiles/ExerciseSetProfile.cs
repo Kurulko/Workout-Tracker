@@ -1,15 +1,15 @@
 ﻿using AutoMapper;
 using WorkoutTrackerAPI.Data.DTOs;
-using WorkoutTrackerAPI.Data.Models.UserModels;
+using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs;
 using WorkoutTrackerAPI.Extentions;
 
 namespace WorkoutTrackerAPI.Profiles;
 
-public class ExerciseRecordProfile : Profile
+public class ExerciseSetProfile : Profile
 {
-    public ExerciseRecordProfile()
+    public ExerciseSetProfile()
     {
-        CreateMap<ExerciseRecord, ExerciseRecordDTO>()
+        CreateMap<ExerciseSet, ExerciseSetDTO>()
             .ForMember(
                 dest => dest.ExerciseName,
                 opt => opt.MapFrom(src => src.Exercise!.Name)
@@ -32,7 +32,7 @@ public class ExerciseRecordProfile : Profile
             )
             .ForMember(
                 dest => dest.ExerciseType,
-                opt => opt.MapFrom(src => src.Exercise!.Type )
+                opt => opt.MapFrom(src => src.Exercise!.Type)
             )
             .ForMember(
                 dest => dest.ExercisePhoto,
@@ -40,23 +40,18 @@ public class ExerciseRecordProfile : Profile
             )
             .ReverseMap();
 
-        CreateMap<ExerciseRecordDTO, ExerciseRecord>()
+        CreateMap<ExerciseSetDTO, ExerciseSet>()
             .ForMember(
                 dest => dest.Time,
                 opt => opt.MapFrom(src => src.Time.HasValue ? (TimeSpan?)src.Time.Value : null)
             );
 
-        CreateMap<ExerciseRecord, ExerciseRecordCreationDTO>()
+
+        CreateMap<ExerciseSetCreationDTO, ExerciseSet>()
             .ForMember(
                 dest => dest.Time,
-                opt => opt.MapFrom(src => src.Time.HasValue ? (TimeSpanModel?)src.Time.Value : null)
+                opt => opt.MapFrom(src => src.Time.HasValue ? (TimeSpan?)src.Time.Value : null)
             )
             .ReverseMap();
-
-        CreateMap<ExerciseRecordCreationDTO, ExerciseRecord>()
-           .ForMember(
-               dest => dest.Time,
-               opt => opt.MapFrom(src => src.Time.HasValue ? (TimeSpan?)src.Time.Value : null)
-           );
     }
 }

@@ -15,6 +15,10 @@ public class MuscleSizeProfile : Profile
                 dest => dest.MuscleName,
                 opt => opt.MapFrom(src => src.Muscle != null ? src.Muscle.Name : null)
             )
+            .ForMember(
+                dest => dest.MusclePhoto,
+                opt => opt.MapFrom(src => src.Muscle != null ? src.Muscle.Image : null)
+            )
             .ReverseMap();
 
         CreateMap<MuscleSize, MuscleSizeCreationDTO>()

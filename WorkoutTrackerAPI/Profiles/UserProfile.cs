@@ -40,6 +40,11 @@ public class UserProfile : Profile
                 opt => opt.MapFrom(src => src.StartedWorkingOut)
             );
 
-        CreateMap<UserDTO, User>().ReverseMap();
+        CreateMap<UserDTO, User>()
+            .ForMember(
+                dest => dest.Id,
+                opt => opt.MapFrom(src => src.UserId)
+            )
+            .ReverseMap();
     }
 }
