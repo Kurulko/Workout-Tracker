@@ -1,8 +1,12 @@
-import { WorkoutModel } from "../shared/models/workout-model.model";
+import { WorkoutModel } from "../shared/models/workout-model";
+import { ChildMuscle } from "./child-muscle";
 
 export interface Muscle extends WorkoutModel {
-    image: number[]|null;
+    image: string|null;
+    imageFile: File|null;
+    
+    isMeasurable: boolean;
     parentMuscleId: number|null;
-    parentMuscle: Muscle|null;
-    childMuscles: Muscle[]|null;
+    parentMuscleName: string|null;
+    childMuscles: ChildMuscle[]|null;
 }

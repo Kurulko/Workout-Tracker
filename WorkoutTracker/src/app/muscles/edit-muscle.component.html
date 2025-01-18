@@ -1,45 +1,69 @@
-<base-app [title]="title">
-    <p *ngIf="this.id && !muscle"><em>Loading...</em></p>
-
-
-    <!-- Name -->
-    <mat-form-field>
-        <mat-label>Name:</mat-label>
-        <input matInput [(ngModel)]="muscle.name" required minlength="3" placeholder="Insert Name" #name="ngModel">
-        <mat-error [hidden]="name.valid || name.untouched">
-            Name must be at least 3 characters long
-        </mat-error>
-    </mat-form-field>
-    <br />
-
-    <!-- Parent Muscle -->
-    <mat-form-field *ngIf="parentMuscles | async as result">
-      <mat-label>Select Parent Muscles...</mat-label>
-      <mat-select [(ngModel)]="muscle.parentMuscleId">
-        <mat-option *ngFor="let parentMuscle of result" [value]="parentMuscle.id" (onSelectionChange)="selectedParentMuscle()">
-          {{parentMuscle.name}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <br />
-
-    <!-- Child Muscles -->
-    <mat-form-field *ngIf="childMuscles | async as result">
-      <mat-label>Select Child Muscles...</mat-label>
-      <mat-select [(ngModel)]="muscle.childMuscles" multiple>
-        <mat-option *ngFor="let childMuscle of result" [value]="childMuscle">
-          {{childMuscle.name}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <br />
+<main-app [title]="title">
+  <button type="button" mat-flat-button color="secondary" [routerLink]="[musclesPath]">
+      <mat-icon>reply</mat-icon> Back
+  </button>
+  <br/><br/>
+  <ng-container *ngIf="this.id && !muscle; else editMuscleTemplate">
+    <mat-spinner diameter="60" />
+  </ng-container>
+  <ng-template #editMuscleTemplate>
+    <app-show-validation-errors [validationErrors]="validationErrors"/>
+    <div class="row">
+      <div class="col">
+        <app-short-card title="Name" width="80%">
+          <app-name-input 
+            [(ngModel)]="muscle.name" 
+            [required]="true" 
+            [minlength]="3" 
+            hintStr="Min 3 characters" 
+            #nameInput="ngModel"
+            width="100%" />
+        </app-short-card>
+        <br /><br />
+        <app-short-card title="Parent" width="80%">
+          <app-muscle-selector 
+            label="Select Parent Muscle" 
+            [(ngModel)]="muscle.parentMuscleId" 
+            (ngModelChange)="updateAccessibleChildMuscles()"
+            [required]="false" 
+            #parentMuscleIdInput="ngModel" 
+            width="100%" />
+        </app-short-card>
+        <br><br>
+        <app-short-card title="Children" width="80%">
+          <!-- <app-multiple-muscle-selector [(ngModel)]="childMuscles" [parentMuscleId]="muscle.parentMuscleId" [required]="false" #childMusclesInput="ngModel" width="100%"/> -->
+          <mat-spinner diameter="30" *ngIf="!accessibleChildMuscles" />
+          <mat-form-field [hidden]="!accessibleChildMuscles" [style.width]="'100%'">
+              <mat-label>Select Child Muscle...</mat-label>
+              <mat-select [(ngModel)]="childMuscles" multiple [compareWith]="compareMusclesById" #childMusclesInput="ngModel">
+                  <mat-option (onSelectionChange)="noneOptionSelected()" class="none-option" [disabled]="isDisabledNoneOption()">
+                      --None--
+                  </mat-option>   
+                  <mat-option *ngFor="let muscle of accessibleChildMuscles" [value]="muscle" [disabled]="isNoneOptionSelected">
+                      <img src="{{ envProduction.baseUrl + 'resources/' + muscle.image }}" aria-label="Photo"
+                          width="10%" height="10%" *ngIf="muscle.image" />
+                      {{ muscle.name }}
+                  </mat-option>
+              </mat-select>
+          </mat-form-field>
+        </app-short-card>
+      </div>
+      <div class="col">
+        <app-short-card title="Photo" width="80%">
+          <app-photo-input [(ngModel)]="muscle.imageFile" (ngModelChange)="onPhotoUpload()" [previewUrl]="previewUrl" [required]="false" width="100%" />
+        </app-short-card>
+      </div>
+    </div>
+    <br /> <br />
 
     <div>
-        <button type="button" mat-raised-button color="primary" (click)="onSubmit()" [disabled]="name.invalid">
-          {{ this.id ? "Save" : "Create" }}
-        </button>
-        <button type="button" mat-flat-button color="secondary" [routerLink]="['/muscles']">
-            Cancel
-        </button>
+      <button type="button" color="primary" mat-flat-button (click)="onSubmit()" 
+            [disabled]="nameInput.invalid || parentMuscleIdInput.invalid || childMusclesInput.invalid">
+          <mat-icon>{{ this.id ? "edit" : "add_box" }}</mat-icon> {{ this.id ? "Save" : "Create" }}
+      </button>
+      <button type="button" mat-flat-button color="secondary" [routerLink]="[musclesPath]">
+          <mat-icon>cancel</mat-icon> Cancel
+      </button>
     </div>
-</base-app>
+  </ng-template>
+</main-app>

@@ -1,88 +1,106 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatestWith, of, Observable, throwError } from 'rxjs';
-import { map } from 'rxjs/operators';
-
-import { Muscle } from './muscle';
-import { EditModelComponent } from '../shared/components/edit-model.component';
-import { MuscleService } from './muscle.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { catchError } from 'rxjs/operators';
-import { HttpErrorResponse } from '@angular/common/http';
-import { StatusCodes } from 'http-status-codes';
+import { Muscle } from './muscle';
+import { EditModelComponent } from '../shared/components/base/edit-model.component';
+import { MuscleService } from './muscle.service';
+import { ChildMuscle } from './child-muscle';
+import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../shared/helpers/managers/token-manager';
+import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-muscle-edit',
   templateUrl: './edit-muscle.component.html',
 })
-export class MuscleEditComponent extends EditModelComponent<Muscle>{
-  muscle: Muscle = <Muscle>{};
+export class MuscleEditComponent extends EditModelComponent<Muscle> implements OnInit {
+  muscle!: Muscle;
+  previewUrl: string|null = null;
 
-  childMuscles!: Observable<Muscle[]>;
-  parentMuscles!: Observable<Muscle[]>;
+  childMuscles: ChildMuscle[]|null = null; 
 
-  constructor(private activatedRoute: ActivatedRoute,  private router: Router,  private muscleService: MuscleService, snackBar: MatSnackBar) {
-    super(snackBar);
+  allMuscles!: Muscle[];
+  accessibleChildMuscles!: ChildMuscle[];
+
+  readonly musclesPath = "/muscles";
+
+  constructor(private activatedRoute: ActivatedRoute,  
+    private muscleService: MuscleService, 
+    router: Router,  
+    impersonationManager: ImpersonationManager, 
+    tokenManager: TokenManager,
+    preferencesManager: PreferencesManager,
+    snackBar: MatSnackBar) 
+  {
+    super(router, impersonationManager, tokenManager, preferencesManager, snackBar);
   }
 
-  loadData() {
-    this.loadMuscles();
+  ngOnInit(): void {
+    this.loadData();
+  }
 
+  envProduction = environment;
+  
+  loadData() {
     var idParam = this.activatedRoute.snapshot.paramMap.get('id');
     this.id = idParam ? +idParam : 0;
     if (this.id) {
       // Edit mode
       this.muscleService.getMuscleById(this.id)
-      .pipe(catchError((errorResponse: HttpErrorResponse) => {
-        console.error(`Error occurred: ${errorResponse.message} - ${errorResponse.status}`);
-
-        if (errorResponse.status === StatusCodes.NOT_FOUND) {
-            this.router.navigate(['/muscles']);
-        }
-
-        this.showSnackbar(errorResponse.message);
-        return throwError(() => errorResponse);
-      }))
+      .pipe(this.catchLoadDataError(this.musclesPath))
       .subscribe(result => {
         this.muscle = result;
+        this.childMuscles = result.childMuscles;
 
-        if(this.muscle.childMuscles)
-          this.childMuscles = this.childMuscles.pipe(
-            combineLatestWith(of(this.muscle.childMuscles)),
-            map(([muscles, additionalMuscles]) => [...muscles, ...additionalMuscles]));
+        if(this.muscle.image)
+          this.previewUrl = this.envProduction.baseUrl + 'resources/' + this.muscle.image;
 
         this.title = `Edit Muscle '${this.muscle.name}'`;
+        this.loadAllMuscles();
       });
     }
     else {
       // Add mode
       this.title = "Create new Muscle";
+      this.muscle = <Muscle>{};
+      this.loadAllMuscles();
     }
   }
 
-  loadMuscles(){
-    this.parentMuscles = this.muscleService.getMuscles(0, 9999, "name", "asc", null, null).pipe(map(x => x.data));
-    this.childMuscles = this.parentMuscles
-      .pipe(map(muscles => muscles.filter(muscle => muscle.parentMuscle === null && muscle.id !== this.muscle.parentMuscleId)));
+  loadAllMuscles() {
+    this.muscleService.getMuscles(null, null, 0, 9999, "name", "asc", null, null)
+      .pipe(this.catchError())
+      .subscribe(result => {
+        this.allMuscles = result.data;
+        this.updateAccessibleChildMuscles();
+      });
+  }
+
+  updateAccessibleChildMuscles() {
+    if(this.muscle.parentMuscleId) {
+      this.accessibleChildMuscles = this.allMuscles
+        .filter(d => (d.parentMuscleId == null || d.parentMuscleId == this.muscle.id) && d.id !== this.muscle.parentMuscleId && d.id !== this.muscle.id);
+    }
+    else {
+      this.accessibleChildMuscles = this.allMuscles.filter(d => d.id !== this.muscle.id);
+    }
+
+    if(this.childMuscles) {
+      this.childMuscles = this.childMuscles.filter(cm => this.accessibleChildMuscles.map(acm => acm.id).includes(cm.id))
+    }
   }
 
   onSubmit() {
-    if(this.muscle.childMuscles){
-      this.muscle.childMuscles = this.muscle.childMuscles.map(childMuscle => {
-        childMuscle.parentMuscleId = this.muscle.id;
-        childMuscle.childMuscles = null;
-        return childMuscle;
-      })
-    }
-
     if (this.id) {
       // Edit mode
       this.muscleService.updateMuscle(this.muscle)
       .pipe(this.catchError())
       .subscribe(_ => {
-          console.log("Muscle " + this.muscle!.id + " has been updated.");
-          this.router.navigate(['/muscles']);
+        console.log("Muscle " + this.muscle!.id + " has been updated.");
+        this.updateChildMuscles();
+        this.router.navigate([this.musclesPath]);
       });
     }
     else {
@@ -90,18 +108,45 @@ export class MuscleEditComponent extends EditModelComponent<Muscle>{
       this.muscleService.createMuscle(this.muscle)
       .pipe(this.catchError())
       .subscribe(result => {
-          console.log("Muscle " + result.id + " has been created.");
-          this.router.navigate(['/muscles']);
+        this.muscle = result;
+        console.log("Muscle " + result.id + " has been created.");
+
+        this.updateChildMuscles();
+        this.router.navigate([this.musclesPath]);
       });
     }
   }
 
-  getChildrenMuscleNames(): string|undefined {
-    return this.muscle.childMuscles?.map(child => child.name).join(', ');
+  onPhotoUpload() {
+    if(!this.muscle.imageFile){
+      this.muscle.image = null;
+    }
+  }
+  
+  updateChildMuscles() {
+    if(!this.isNoneOptionSelected && this.childMuscles) {
+      var childMuscleIds = this.childMuscles.map(m => m.id);
+      this.muscleService.updateMuscleChildren(this.muscle.id, childMuscleIds)
+      .pipe(this.catchError())
+      .subscribe(_ => {
+        console.log("Child muscles have been updated.");
+      });
+    }
   }
 
-  selectedParentMuscle(){
-    this.childMuscles = this.parentMuscles
-      .pipe(map(muscles => muscles.filter(muscle => muscle.parentMuscle === null && muscle.id !== this.muscle.parentMuscleId)));
+  isDisabledNoneOption(): boolean {
+    if(!this.muscle.childMuscles)
+      return false;
+
+    return this.muscle.childMuscles.length > 0 && !this.isNoneOptionSelected;
+  }
+
+  isNoneOptionSelected = false;
+  noneOptionSelected() {
+    this.isNoneOptionSelected = !this.isNoneOptionSelected;
+  }
+
+  compareMusclesById(muscle1: Muscle, muscle2: Muscle): boolean {
+    return muscle1 && muscle2 ? muscle1.id === muscle2.id : muscle1 === muscle2;
   }
 }
