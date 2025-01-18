@@ -1,0 +1,19 @@
+<mat-form-field [style.width]="width">
+    <mat-label>{{ label ?? 'Date' }}</mat-label>
+    <input matInput 
+        [(ngModel)]="date" 
+        [matDatepicker]="picker" 
+        placeholder="Insert Date" 
+        [max]="maxDate"
+        [required]="required" 
+        #dateInput="ngModel" />
+    <mat-datepicker-toggle matSuffix [for]="picker" />
+    <mat-datepicker #picker />
+    <mat-hint *ngIf="hintStr">{{ hintStr }}</mat-hint>
+    <mat-error *ngIf="dateInput.errors?.['required'] && dateInput.touched">
+        {{modelName}} is required.
+    </mat-error>
+    <mat-error *ngIf="dateInput.errors?.['max'] && dateInput.touched">
+       Max {{modelName}} is {{ maxDate | date:'d MMMM yyyy' }}
+    </mat-error>
+</mat-form-field>

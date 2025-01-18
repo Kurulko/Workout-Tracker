@@ -1,0 +1,25 @@
+<app-short-card [title]="label ?? 'Size:'" [width]="width">
+   <!-- Size -->
+   <app-size-input
+      [(ngModel)]="modelSize.size" 
+      (ngModelChange)="updateModelSize()"
+      [label]="sizeLabel"
+      [errorMessage]="sizeErrorMessage"
+      [width]="sizeWidth"
+      [sizeType]="modelSize.sizeType" 
+      [required]="required" 
+      [minValue]="sizeMinValue"
+      [maxValue]="sizeMaxValue"
+      [isShortSizeType]="sizeIsShortSizeType"
+      [hintStr]="sizeHintStr" />
+
+   <!-- Size Type -->
+   <app-size-type-selector 
+      [(ngModel)]="modelSize.sizeType"
+      (ngModelChange)="updateModelSize()"
+      [required]="true" 
+      [label]="sizeTypeLabel"
+      [errorMessage]="sizeTypeErrorMessage"
+      [width]="sizeTypeWidth"
+      [isShortForm]="sizeTypeIsShortForm" />
+</app-short-card>

@@ -1,0 +1,25 @@
+<app-short-card [title]="label ?? 'Weight:'" [width]="width">
+   <!-- Weight -->
+   <app-weight-input
+      [(ngModel)]="modelWeight.weight" 
+      (ngModelChange)="updateModelWeight()"
+      [label]="weightLabel"
+      [errorMessage]="weightErrorMessage"
+      [width]="weightWidth"
+      [weightType]="modelWeight.weightType" 
+      [required]="required" 
+      [minValue]="weightMinValue"
+      [maxValue]="weightMaxValue"
+      [isShortWeightType]="weightIsShortWeightType"
+      [hintStr]="weightHintStr" />
+
+   <!-- Weight Type -->
+   <app-weight-type-selector 
+      [(ngModel)]="modelWeight.weightType"
+      (ngModelChange)="updateModelWeight()"
+      [required]="true" 
+      [label]="weightTypeLabel"
+      [errorMessage]="weightTypeErrorMessage"
+      [width]="weightTypeWidth"
+      [isShortForm]="weightTypeIsShortForm" />
+</app-short-card>

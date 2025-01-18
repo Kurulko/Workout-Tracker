@@ -1,0 +1,18 @@
+<mat-form-field [style.width]="width">
+    <mat-label>{{ label ?? 'Name' }}</mat-label>
+    <input matInput placeholder="Insert Name" 
+        [(ngModel)]="name"
+        type="text" 
+        [required]="required" 
+        [minlength]="minlength"
+        [pattern]="pattern"
+        (blur)="onTouched()"
+        #nameInput="ngModel" />
+    <mat-hint *ngIf="hintStr">{{ hintStr }}</mat-hint>
+    <mat-error *ngIf="nameInput.errors?.['required'] && nameInput.touched">
+        {{modelName}} is required.
+    </mat-error>
+    <mat-error *ngIf="nameInput.errors?.['minlength'] && nameInput.touched">
+        {{modelName}} must be at least {{minlength}} characters long.
+    </mat-error>
+</mat-form-field>

@@ -1,0 +1,35 @@
+<app-short-card [title]="label ?? 'Time'" [width]="width">
+    <form [formGroup]="timeSpanForm">
+        <mat-form-field [style.width]="'100%'">
+            <mat-label>Hours:</mat-label>
+            <input matInput type="number" [(ngModel)]="timeSpan.hours" (ngModelChange)="updateTimeSpan()" formControlName="hours" placeholder="Insert Hours" required [min]="0" />
+        </mat-form-field>
+        <br>
+        <mat-form-field [style.width]="'100%'">
+            <mat-label>Minutes:</mat-label>
+            <input matInput type="number" [(ngModel)]="timeSpan.minutes" (ngModelChange)="updateTimeSpan()" formControlName="minutes" placeholder="Insert Minutes" required [min]="0" [max]="60" />
+            <mat-error *ngIf="timeSpanForm.get('minutes')?.touched && timeSpanForm.get('minutes')?.errors?.['max']">
+                Max 60 minutes
+            </mat-error>
+        </mat-form-field>
+        <br *ngIf="isWithSeconds">
+        <mat-form-field *ngIf="isWithSeconds" [style.width]="'100%'">
+            <mat-label>Seconds:</mat-label>
+            <input matInput type="number" [(ngModel)]="timeSpan.seconds" (ngModelChange)="updateTimeSpan()" formControlName="seconds" placeholder="Insert Seconds" required [min]="0" [max]="60" />
+            <mat-error *ngIf="timeSpanForm.get('seconds')?.touched && timeSpanForm.get('seconds')?.errors?.['max']">
+                Max 60 seconds
+            </mat-error>
+        </mat-form-field>
+        <br *ngIf="isWithMilliseconds">
+        <mat-form-field *ngIf="isWithSeconds && isWithMilliseconds" [style.width]="'100%'">
+            <mat-label>Milliseconds:</mat-label>
+            <input matInput type="number" [(ngModel)]="timeSpan.milliseconds" (ngModelChange)="updateTimeSpan()" formControlName="milliseconds" placeholder="Insert Milliseconds" required [min]="0" [max]="1000" />
+            <mat-error *ngIf="timeSpanForm.get('milliseconds')?.touched && timeSpanForm.get('milliseconds')?.errors?.['max']">
+                Max 1000 milliseconds
+            </mat-error>
+        </mat-form-field>
+        <mat-error *ngIf="timeSpanForm.errors?.['notValid']">
+            {{modelName}} is required.
+        </mat-error>
+    </form>
+</app-short-card>

@@ -1,0 +1,13 @@
+<div class="photo-container" [style.width]="width">
+    <div *ngIf="imageFile || previewUrl">
+      <h3 *ngIf="imageFile"><strong>Selected File:</strong> {{ imageFile.name }}</h3>
+      <img [src]="previewUrl" *ngIf="previewUrl" class="photo-preview" alt="Preview" />
+      <br><br>
+    </div>
+    <button mat-button color="primary" (click)="openUploadPhotoDialog()">
+      {{ previewUrl ? 'Upload New Photo' : 'Upload Photo' }}
+    </button>
+    <button mat-button color="warn" (click)="deletePhoto()" *ngIf="(imageFile || previewUrl) && !required">
+      Delete Photo
+    </button>
+</div>

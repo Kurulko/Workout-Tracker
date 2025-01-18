@@ -1,0 +1,23 @@
+<mat-form-field [style.width]="width">
+    <mat-label>{{ label ?? 'Size' }}</mat-label>
+    <input matInput 
+        placeholder="Insert Size"
+        type="number" 
+        [(ngModel)]="size" 
+        [min]="minValue" 
+        [max]="maxValue" 
+        [required]="required" 
+        (input)="validateSizeInput($event)" 
+        #sizeInput="ngModel">
+    <span *ngIf="sizeType != undefined" matTextSuffix>{{ isShortSizeType ? showSizeTypeShort(sizeType) :  showSizeType(sizeType) }}</span>
+    <mat-hint *ngIf="hintStr">{{ hintStr }}</mat-hint>
+    <mat-error *ngIf="sizeInput.errors?.['required'] && sizeInput.touched">
+        {{modelName}} is required.
+    </mat-error>
+    <mat-error *ngIf="sizeInput.errors?.['min'] && sizeInput.touched">
+        {{modelName}} must be above {{ minValue }}.
+    </mat-error>
+    <mat-error *ngIf="sizeInput.errors?.['max'] && sizeInput.touched">
+        {{modelName}} must be less than {{ maxValue }}.
+    </mat-error>
+</mat-form-field>

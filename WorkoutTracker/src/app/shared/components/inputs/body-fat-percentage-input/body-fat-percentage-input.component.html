@@ -1,0 +1,20 @@
+<mat-form-field [style.width]="width">
+    <mat-label>{{ label ?? 'Body Fat Percentage (%):' }}</mat-label>
+    <input matInput 
+        placeholder="Insert Weight"
+        type="number" 
+        [(ngModel)]="bodyFatPercentage" 
+        [min]="0"
+        [max]="100" 
+        [required]="required" 
+        (input)="validateBodyFatPercentageInput($event)" 
+        #bodyFatPercentageInput="ngModel">
+    <span matSuffix>%</span>
+    <mat-hint *ngIf="hintStr">{{ hintStr }}</mat-hint>
+    <mat-error *ngIf="bodyFatPercentageInput.errors?.['required'] && bodyFatPercentageInput.touched">
+        {{modelName}} is required.
+    </mat-error>
+    <mat-error *ngIf="(bodyFatPercentageInput.errors?.['min'] || bodyFatPercentageInput.errors?.['max']) && bodyFatPercentageInput.touched">
+       Value must be between 0% and 100%.
+    </mat-error>
+</mat-form-field>

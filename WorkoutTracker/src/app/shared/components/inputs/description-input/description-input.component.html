@@ -1,0 +1,18 @@
+<mat-form-field [style.width]="width">
+    <mat-label>{{ label ?? 'Description' }}</mat-label>
+    <textarea matInput 
+        placeholder="Insert Description"
+        [(ngModel)]="description" 
+        [required]="required" 
+        [minlength]="minlength" 
+        (blur)="onTouched()"
+        #descriptionInput="ngModel">
+    </textarea>
+    <mat-hint *ngIf="hintStr">{{ hintStr }}</mat-hint>
+    <mat-error *ngIf="descriptionInput.errors?.['required'] && descriptionInput.touched">
+        {{modelName}} is required.
+    </mat-error>
+    <mat-error *ngIf="descriptionInput.errors?.['minlength'] && descriptionInput.touched">
+        {{modelName}} must be at least {{minlength}} characters long.
+    </mat-error>
+</mat-form-field>
