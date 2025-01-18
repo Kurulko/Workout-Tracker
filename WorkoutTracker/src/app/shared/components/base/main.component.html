@@ -1,0 +1,10 @@
+<br />
+<ng-container *ngIf="!title; else titleTemplate">
+    <mat-progress-bar mode="buffer" [style.width.%]="25"/>
+</ng-container>
+<ng-template #titleTemplate>
+    <h1>{{ title }}</h1>
+</ng-template>
+<hr />
+<br />
+<ng-content />
