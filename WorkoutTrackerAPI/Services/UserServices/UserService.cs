@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.IO;
 using System.Security.Claims;
+using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
@@ -16,17 +17,23 @@ namespace WorkoutTrackerAPI.Services;
 
 public class UserService : BaseService<User>, IUserService
 {
-    readonly RoleRepository roleRepository;
     readonly UserRepository userRepository;
-    public UserService(UserRepository userRepository, RoleRepository roleRepository)
+    readonly UserDetailsRepository userDetailsRepository;
+    readonly RoleRepository roleRepository;
+    public UserService(UserRepository userRepository, UserDetailsRepository userDetailsRepository, RoleRepository roleRepository)
     {
         this.userRepository = userRepository;
+        this.userDetailsRepository = userDetailsRepository;
         this.roleRepository = roleRepository;
     }
 
     readonly EntryNullException userIsNullException = new EntryNullException(nameof(User));
     readonly ArgumentNullOrEmptyException userNameIsNullOrEmptyException = new("User name");
-    readonly NotFoundException roleNotFoundException = new("Role");
+
+    NotFoundException RoleNotFoundByIDException(string id)
+        => NotFoundException.NotFoundExceptionByID("Role", id);
+    NotFoundException RoleNotFoundByNameException(string name)
+        => NotFoundException.NotFoundExceptionByName("Role", name);
 
     ArgumentException InvalidUserIDWhileAdding => InvalidEntryIDWhileAddingException(nameof(User), "user");
 
@@ -38,7 +45,7 @@ public class UserService : BaseService<User>, IUserService
         if (user is null)
             throw userIsNullException;
 
-        if (await UserExistsAsync(user.Id))
+        if (await UserExistsAsync(user.Id) || await UserExistsByUsernameAsync(user.UserName))
             throw new Exception("User already exists.");
 
         return await userRepository.AddUserAsync(user);
@@ -160,6 +167,80 @@ public class UserService : BaseService<User>, IUserService
             throw userNameIsNullOrEmptyException;
 
         return await userRepository.UserExistsByUsernameAsync(userName);
+    }
+
+    #endregion
+
+    #region User Details
+
+    readonly EntryNullException userDetailsIsNullException = new("User details");
+    readonly InvalidIDException invalidUserDetailsIDException = new(nameof(UserDetails));
+    readonly NotFoundException userDetailsNotFoundException = new("User details");
+
+    public async Task<UserDetails?> GetUserDetailsFromUserAsync(string userId)
+    {
+        await CheckUserIdAsync(userId);
+        return await userRepository.GetUserDetailsFromUserAsync(userId);
+    }
+
+    public async Task<ServiceResult> AddUserDetailsToUserAsync(string userId, UserDetails userDetails)
+    {
+        try
+        {
+            await CheckUserIdAsync(userId);
+
+            if (userDetails is null)
+                throw userDetailsIsNullException;
+
+            if (userDetails.Id != 0)
+                throw InvalidEntryIDWhileAddingException(nameof(UserDetails), "user details");
+
+            userDetails.UserId = userId;
+            await userDetailsRepository.AddAsync(userDetails);
+
+            return ServiceResult.Ok();
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult.Fail(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult.Fail(FailedToActionStr("user details", "add", ex));
+        }
+    }
+
+    public async Task<ServiceResult> UpdateUserDetailsFromUserAsync(string userId, UserDetails userDetails)
+    {
+        try
+        {
+            await CheckUserIdAsync(userId);
+
+            if (userDetails is null)
+                throw userDetailsIsNullException;
+
+            var _userDetails = await userRepository.GetUserDetailsFromUserAsync(userId) ?? throw userDetailsNotFoundException;
+
+            if (_userDetails.UserId != userId)
+                throw UserNotHavePermissionException("update", "user details");
+
+            _userDetails.Gender = userDetails.Gender;
+            _userDetails.Weight = userDetails.Weight;
+            _userDetails.Height = userDetails.Height;
+            _userDetails.DateOfBirth = userDetails.DateOfBirth;
+            _userDetails.BodyFatPercentage = userDetails.BodyFatPercentage;
+
+            await userDetailsRepository.UpdateAsync(_userDetails);
+            return ServiceResult.Ok();
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult.Fail(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult.Fail(FailedToActionStr("user details", "update", ex));
+        }
     }
 
     #endregion
@@ -301,7 +382,7 @@ public class UserService : BaseService<User>, IUserService
             {
                 var roleExists = await roleRepository.RoleExistsByNameAsync(roleStr);
                 if (!roleExists)
-                    throw new NotFoundException($"Role '{roleStr}'");
+                    throw RoleNotFoundByNameException(roleStr);
             }
 
             return await userRepository.AddRolesToUserAsync(userId, roles);
@@ -351,6 +432,6 @@ public class UserService : BaseService<User>, IUserService
 
         bool roleExists = await roleRepository.RoleExistsByNameAsync(roleName);
         if (!roleExists)
-            throw roleNotFoundException;
+            throw RoleNotFoundByNameException(roleName);
     }
 }

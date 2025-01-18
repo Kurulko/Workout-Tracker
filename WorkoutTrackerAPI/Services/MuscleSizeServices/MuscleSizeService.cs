@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
+using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Exceptions;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
@@ -20,8 +21,9 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
 
     readonly EntryNullException muscleSizeIsNullException = new("Muscle size");
     readonly InvalidIDException invalidMuscleSizeIDException = new(nameof(MuscleSize));
-    readonly NotFoundException muscleSizeNotFoundException = new("Muscle size");
 
+    NotFoundException MuscleSizeNotFoundByIDException(long id)
+        => NotFoundException.NotFoundExceptionByID("Muscle size", id);
 
     public async Task<ServiceResult<MuscleSize>> AddMuscleSizeToUserAsync(string userId, MuscleSize muscleSize)
     {
@@ -59,7 +61,7 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
             if (muscleSizeId < 1)
                 throw invalidMuscleSizeIDException;
 
-            var muscleSize = await baseRepository.GetByIdAsync(muscleSizeId) ?? throw muscleSizeNotFoundException;
+            var muscleSize = await baseRepository.GetByIdAsync(muscleSizeId) ?? throw MuscleSizeNotFoundByIDException(muscleSizeId);
 
             if (muscleSize.UserId != userId)
                 throw UserNotHavePermissionException("delete", "muscle size");
@@ -87,7 +89,7 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
                 throw new ArgumentException("Incorrect date.");
 
             if (muscleId.HasValue && muscleId < 1)
-                throw invalidMuscleSizeIDException;
+                throw new InvalidIDException(nameof(Muscle));
 
             var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId);
 
@@ -118,8 +120,7 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
 
         var userMuscleSizesInInches = serviceResult.Model!.AsEnumerable().Select(m =>
         {
-            m.Size = (float)Math.Round(MuscleSize.GetMuscleSizeInInches(m), 1);
-            m.SizeType = SizeType.Inch;
+            m.Size = ModelSize.GetModelSizeInInches(m.Size);
             return m;
         }).AsQueryable();
 
@@ -135,8 +136,7 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
 
         var userMuscleSizesInCentimeter = serviceResult.Model!.AsEnumerable().Select(m =>
         {
-            m.Size = (float)Math.Round(MuscleSize.GetMuscleSizeInCentimeters(m), 1);
-            m.SizeType = SizeType.Centimeter;
+            m.Size = ModelSize.GetModelSizeInCentimeters(m.Size);
             return m;
         }).AsQueryable();
 
@@ -153,7 +153,7 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
                 throw invalidMuscleSizeIDException;
 
             var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId && ms.MuscleId == muscleId);
-            var userMaxMuscleSize = userMuscleSizes?.ToList().MaxBy(bw => MuscleSize.GetMuscleSizeInCentimeters(bw));
+            var userMaxMuscleSize = userMuscleSizes?.ToList().MaxBy(bw => bw.Size);
             return ServiceResult<MuscleSize>.Ok(userMaxMuscleSize);
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
@@ -176,7 +176,7 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
                 throw invalidMuscleSizeIDException;
 
             var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId && ms.MuscleId == muscleId);
-            var userMinMuscleSize = userMuscleSizes?.ToList().MinBy(bw => MuscleSize.GetMuscleSizeInCentimeters(bw));
+            var userMinMuscleSize = userMuscleSizes?.ToList().MinBy(bw => bw.Size);
             return ServiceResult<MuscleSize>.Ok(userMinMuscleSize);
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
@@ -223,14 +223,13 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
             if (muscleSize.Id < 1)
                 throw invalidMuscleSizeIDException;
 
-            var _muscleSize = await baseRepository.GetByIdAsync(muscleSize.Id) ?? throw muscleSizeNotFoundException;
+            var _muscleSize = await baseRepository.GetByIdAsync(muscleSize.Id) ?? throw MuscleSizeNotFoundByIDException(muscleSize.Id);
 
             if (_muscleSize.UserId != userId)
                 throw UserNotHavePermissionException("update", "muscle size");
 
             _muscleSize.Date = muscleSize.Date;
             _muscleSize.Size = muscleSize.Size;
-            _muscleSize.SizeType = muscleSize.SizeType;
             _muscleSize.MuscleId = muscleSize.MuscleId;
 
             await baseRepository.UpdateAsync(_muscleSize);

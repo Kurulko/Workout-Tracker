@@ -55,9 +55,12 @@ public class AccountService : IAccountService
         if (existingUserByName is not null)
             return AuthResult.Fail("Name already registered.");
 
-        var existingUserByEmail = await userRepository.GetUserByEmailAsync(register.Email!);
-        if (existingUserByEmail is not null)
-            return AuthResult.Fail("Email already registered.");
+        if (!string.IsNullOrEmpty(register.Email))
+        {
+            var existingUserByEmail = await userRepository.GetUserByEmailAsync(register.Email!);
+            if (existingUserByEmail is not null)
+                return AuthResult.Fail("Email already registered.");
+        }
 
         try
         {

@@ -1,24 +1,32 @@
 ﻿using WorkoutTrackerAPI.Extentions;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Exceptions;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
 using WorkoutTrackerAPI.Services.MuscleServices;
+using WorkoutTrackerAPI.Services.FileServices;
 
 namespace WorkoutTrackerAPI.Services;
 
 public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
 {
     readonly UserRepository userRepository;
-    public MuscleService(MuscleRepository baseWorkoutRepository, UserRepository userRepository) : base(baseWorkoutRepository)
-        => this.userRepository = userRepository;
+    readonly IFileService fileService;
+    public MuscleService(MuscleRepository baseWorkoutRepository, UserRepository userRepository, IFileService fileService) : base(baseWorkoutRepository)
+    {
+        this.userRepository = userRepository;
+        this.fileService = fileService;
+    }
 
     readonly EntryNullException muscleIsNullException = new (nameof(Muscle));
     readonly InvalidIDException invalidMuscleIDException = new (nameof(Muscle));
-    readonly NotFoundException muscleNotFoundException = new (nameof(Muscle));
     readonly ArgumentNullOrEmptyException muscleNameIsNullOrEmptyException = new("Muscle name");
+
+    NotFoundException MuscleNotFoundByIDException(long id)
+        => NotFoundException.NotFoundExceptionByID(nameof(Muscle), id);
+    NotFoundException MuscleNotFoundByNameException(string name)
+        => NotFoundException.NotFoundExceptionByName(nameof(Muscle), name);
 
     public async Task<ServiceResult<Muscle>> AddMuscleAsync(Muscle muscle)
     {
@@ -27,6 +35,9 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
 
         if (muscle.Id != 0)
             return ServiceResult<Muscle>.Fail(InvalidEntryIDWhileAddingStr(nameof(Muscle), "muscle"));
+
+        if (await baseWorkoutRepository.ExistsByNameAsync(muscle.Name))
+            throw EntryNameMustBeUnique(nameof(Muscle));
 
         try
         {
@@ -47,11 +58,19 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         Muscle? muscle = await baseWorkoutRepository.GetByIdAsync(muscleId);
 
         if (muscle is null)
-            return ServiceResult.Fail(muscleNotFoundException);
+            return ServiceResult.Fail(MuscleNotFoundByIDException(muscleId));
+
+        string? muscleImage = muscle.Image;
 
         try
         {
             await baseWorkoutRepository.RemoveAsync(muscleId);
+
+            if (!string.IsNullOrEmpty(muscleImage))
+            {
+                fileService.DeleteFile(muscleImage);
+            }
+
             return ServiceResult.Ok();
         }
         catch
@@ -92,7 +111,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
     }
 
-    public async Task<ServiceResult<IQueryable<Muscle>>> GetMusclesAsync(long? parentMuscleId = null)
+    public async Task<ServiceResult<IQueryable<Muscle>>> GetMusclesAsync(long? parentMuscleId = null, bool? isMeasurable = null)
     {
         try
         {
@@ -103,7 +122,10 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
 
             if (parentMuscleId.HasValue)
                 muscles = muscles.Where(m => m.ParentMuscleId == parentMuscleId);
-            
+
+            if (isMeasurable.HasValue)
+                muscles = muscles.Where(m => m.IsMeasurable == isMeasurable);
+
             return ServiceResult<IQueryable<Muscle>>.Ok(muscles);
         }
         catch (Exception ex)
@@ -167,14 +189,32 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
             Muscle? _muscle = await baseWorkoutRepository.GetByIdAsync(muscle.Id);
 
             if (_muscle is null)
-                return ServiceResult.Fail(muscleNotFoundException);
+                return ServiceResult.Fail(MuscleNotFoundByIDException(muscle.Id));
 
             _muscle.Name = muscle.Name;
             _muscle.Image = muscle.Image;
             _muscle.ParentMuscleId = muscle.ParentMuscleId;
-            _muscle.ChildMuscles = muscle.ChildMuscles;
 
             await baseWorkoutRepository.UpdateAsync(_muscle);
+            return ServiceResult.Ok();
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult.Fail(FailedToActionStr("muscle", "update", ex));
+        }
+    }
+
+    public async Task<ServiceResult> UpdateMuscleChildrenAsync(long muscleId, IEnumerable<long>? muscleChildIDs)
+    {
+        if (muscleId < 1)
+            return ServiceResult.Fail(invalidMuscleIDException);
+
+        try
+        {
+            var muscle = await baseWorkoutRepository.GetByIdAsync(muscleId) ?? throw MuscleNotFoundByIDException(muscleId);
+            muscle.ChildMuscles = muscleChildIDs is null ? null : (await baseWorkoutRepository.FindAsync(m => muscleChildIDs.Contains(m.Id))).ToList();
+
+            await baseWorkoutRepository.UpdateAsync(muscle);
             return ServiceResult.Ok();
         }
         catch (Exception ex)

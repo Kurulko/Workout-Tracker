@@ -8,9 +8,11 @@ public interface IExerciseService
 {
     Task<ServiceResult<Exercise>> GetInternalExerciseByIdAsync(long exerciseId);
     Task<ServiceResult<Exercise>> GetUserExerciseByIdAsync(string userId, long exerciseId);
+    Task<ServiceResult<Exercise>> GetExerciseByIdAsync(string userId, long exerciseId);
 
     Task<ServiceResult<Exercise>> GetInternalExerciseByNameAsync(string name);
     Task<ServiceResult<Exercise>> GetUserExerciseByNameAsync(string userId, string name);
+    Task<ServiceResult<Exercise>> GetExerciseByNameAsync(string userId, string name);
 
     Task<ServiceResult<IQueryable<Exercise>>> GetInternalExercisesAsync(ExerciseType? exerciseType = null);
     Task<ServiceResult<IQueryable<Exercise>>> GetUserExercisesAsync(string userId, ExerciseType? exerciseType = null);
@@ -21,6 +23,12 @@ public interface IExerciseService
 
     Task<ServiceResult> UpdateInternalExerciseAsync(Exercise model);
     Task<ServiceResult> UpdateUserExerciseAsync(string userId, Exercise model);
+
+    Task<ServiceResult> UpdateInternalExerciseMusclesAsync(long exerciseId, IEnumerable<long> muscleIDs);
+    Task<ServiceResult> UpdateUserExerciseMusclesAsync(string userId, long exerciseId, IEnumerable<long> muscleIDs);
+
+    Task<ServiceResult> UpdateInternalExerciseEquipmentsAsync(long exerciseId, IEnumerable<long> equipmentIDs);
+    Task<ServiceResult> UpdateUserExerciseEquipmentsAsync(string userId, long exerciseId, IEnumerable<long> equipmentIDs);
 
     Task<ServiceResult> DeleteInternalExerciseAsync(long exerciseId);
     Task<ServiceResult> DeleteExerciseFromUserAsync(string userId, long exerciseId);

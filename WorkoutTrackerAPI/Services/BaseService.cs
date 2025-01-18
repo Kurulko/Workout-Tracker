@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data.Models.UserModels;
+﻿using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Exceptions;
-using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
 
 namespace WorkoutTrackerAPI.Services;
@@ -11,7 +7,11 @@ namespace WorkoutTrackerAPI.Services;
 public class BaseService<TModel> where TModel : class
 {
     protected readonly ArgumentNullOrEmptyException userIdIsNullOrEmptyException = new ("User ID");
-    protected readonly NotFoundException userNotFoundException = new (nameof(User));
+    
+    protected NotFoundException UserNotFoundByIDException(string userId) 
+        => NotFoundException.NotFoundExceptionByID(nameof(User), userId);
+    protected NotFoundException UserNotFoundByNameException(string userName) 
+        => NotFoundException.NotFoundExceptionByName(nameof(User), userName);
 
     protected string FailedToActionStr(string modelName, string action, string? message = null)
     {
@@ -22,6 +22,7 @@ public class BaseService<TModel> where TModel : class
 
         return result + ".";
     }
+
     protected string FailedToActionStr(string modelName, string action, Exception ex)
         => FailedToActionStr(modelName, action, ex.InnerException?.Message ?? ex.Message);
 
@@ -42,6 +43,6 @@ public class BaseService<TModel> where TModel : class
 
         bool userExists = await userRepository.UserExistsAsync(userId);
         if (!userExists)
-            throw userNotFoundException;
+            throw UserNotFoundByIDException(userId);
     }
 }

@@ -9,4 +9,7 @@ public class BaseWorkoutService<TModel> : BaseService<TModel>
     protected readonly BaseWorkoutRepository<TModel> baseWorkoutRepository;
     public BaseWorkoutService(BaseWorkoutRepository<TModel> baseWorkoutRepository)
         => this.baseWorkoutRepository = baseWorkoutRepository;
+
+    protected ArgumentException EntryNameMustBeUnique(string entryName)
+        => new ($"{entryName} name must be unique.");
 }

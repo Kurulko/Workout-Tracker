@@ -31,6 +31,15 @@ public interface IUserService
 
     #endregion
 
+    #region User Details
+
+    Task<UserDetails?> GetUserDetailsFromUserAsync(string userId);
+    Task<ServiceResult> AddUserDetailsToUserAsync(string userId, UserDetails userDetails);
+    Task<ServiceResult> UpdateUserDetailsFromUserAsync(string userId, UserDetails userDetails);
+
+    #endregion
+
+
     #region User Models
 
     Task<IQueryable<ExerciseRecord>?> GetUserExerciseRecordsAsync(string userId);

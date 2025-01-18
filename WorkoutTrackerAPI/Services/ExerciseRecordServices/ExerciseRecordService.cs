@@ -1,11 +1,9 @@
-﻿using System;
-using WorkoutTrackerAPI.Data;
+﻿using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Exceptions;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Services.ExerciseRecordServices;
 
 namespace WorkoutTrackerAPI.Services.ExerciseRecordServices;
 
@@ -15,9 +13,10 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
     public ExerciseRecordService(ExerciseRecordRepository baseRepository, UserRepository userRepository) : base(baseRepository)
         => this.userRepository = userRepository;
 
-    readonly EntryNullException exerciseRecordIsNullException = new ("Exercise record");
-    readonly InvalidIDException invalidExerciseRecordIDException = new (nameof(ExerciseRecord));
-    readonly NotFoundException exerciseRecordNotFoundException = new ("Exercise record");
+    readonly EntryNullException exerciseRecordIsNullException = new("Exercise record");
+    readonly InvalidIDException invalidExerciseRecordIDException = new(nameof(ExerciseRecord));
+    NotFoundException ExerciseRecordNotFoundByIDException(long id)
+        => NotFoundException.NotFoundExceptionByID("Exercise record", id);
 
     public async Task<ServiceResult<ExerciseRecord>> AddExerciseRecordToUserAsync(string userId, ExerciseRecord exerciseRecord)
     {
@@ -28,27 +27,13 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
             if (exerciseRecord is null)
                 throw exerciseRecordIsNullException;
 
-            exerciseRecord.CountOfTimes++;
+            if (exerciseRecord.Id != 0)
+                throw InvalidEntryIDWhileAddingException(nameof(ExerciseRecord), "exercise record");
+
             exerciseRecord.UserId = userId;
             exerciseRecord.Date = DateTime.Now;
 
-            if (exerciseRecord.Reps is not null)
-                exerciseRecord.SumOfReps += exerciseRecord.Reps;
-
-            if (exerciseRecord.Time is not null)
-                exerciseRecord.SumOfTime = exerciseRecord.SumOfTime + exerciseRecord.Time!;
-
-            if (exerciseRecord.Weight is not null)
-                exerciseRecord.SumOfWeight += exerciseRecord.Weight;
-
-            if (exerciseRecord.Id == 0)
-            {
-                await baseRepository.AddAsync(exerciseRecord);
-            }
-            else
-            {
-                await baseRepository.UpdateAsync(exerciseRecord);
-            }
+            await baseRepository.AddAsync(exerciseRecord);
 
             return ServiceResult<ExerciseRecord>.Ok(exerciseRecord);
         }
@@ -71,7 +56,7 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
             if (exerciseRecordId < 1)
                 throw invalidExerciseRecordIDException;
 
-            ExerciseRecord? exerciseRecord = await baseRepository.GetByIdAsync(exerciseRecordId) ?? throw exerciseRecordNotFoundException;
+            ExerciseRecord? exerciseRecord = await baseRepository.GetByIdAsync(exerciseRecordId) ?? throw ExerciseRecordNotFoundByIDException(exerciseRecordId);
 
             if (exerciseRecord.UserId != userId)
                 throw UserNotHavePermissionException("delete", "exercise record");
@@ -89,13 +74,28 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
         }
     }
 
-    public async Task<ServiceResult<IQueryable<ExerciseRecord>>> GetUserExerciseRecordsAsync(string userId, long exerciseId)
+    public async Task<ServiceResult<IQueryable<ExerciseRecord>>> GetUserExerciseRecordsAsync(string userId, long? exerciseId = null, ExerciseType? exerciseType = null, DateTime? date = null)
     {
         try
         {
             await CheckUserIdAsync(userRepository, userId);
 
-            var userExerciseRecords = await baseRepository.FindAsync(m => m.UserId == userId && m.ExerciseId == exerciseId);
+            if (date.HasValue && date.Value.Date > DateTime.Now.Date)
+                throw new ArgumentException("Incorrect date.");
+
+            if (exerciseId.HasValue && exerciseId < 1)
+                throw new InvalidIDException(nameof(Exercise));
+
+            var userExerciseRecords = await baseRepository.FindAsync(ms => ms.UserId == userId);
+
+            if (date.HasValue)
+                userExerciseRecords = userExerciseRecords.Where(ms => ms.Date.Date == date.Value.Date);
+
+            if (exerciseId.HasValue)
+                userExerciseRecords = userExerciseRecords.Where(ms => ms.ExerciseId == exerciseId);
+            else if(exerciseType.HasValue)
+                userExerciseRecords = userExerciseRecords.Where(ms => ms.Exercise!.Type == exerciseType);
+
             return ServiceResult<IQueryable<ExerciseRecord>>.Ok(userExerciseRecords);
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
@@ -105,29 +105,6 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
         catch (Exception ex)
         {
             return ServiceResult<IQueryable<ExerciseRecord>>.Fail(FailedToActionStr("exercise records", "get", ex));
-        }
-    }
-
-    public async Task<ServiceResult<ExerciseRecord>> GetUserExerciseRecordByDateAsync(string userId, long exerciseId, DateOnly date)
-    {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
-
-            if (date > DateOnly.FromDateTime(DateTime.Now))
-                throw new ArgumentException("Incorrect date.");
-
-
-            var userExerciseRecordByDate = (await baseRepository.FindAsync(m => DateOnly.FromDateTime(m.Date) == date && m.UserId == userId && m.ExerciseId == exerciseId)).FirstOrDefault();
-            return ServiceResult<ExerciseRecord>.Ok(userExerciseRecordByDate);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<ExerciseRecord>.Fail(ex);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<ExerciseRecord>.Fail(FailedToActionStr("exercise record by date", "get", ex));
         }
     }
 
@@ -166,19 +143,15 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
             if (exerciseRecord.Id < 1)
                 throw invalidExerciseRecordIDException;
 
-            var _exerciseRecord = await baseRepository.GetByIdAsync(exerciseRecord.Id) ?? throw exerciseRecordNotFoundException;
+            var _exerciseRecord = await baseRepository.GetByIdAsync(exerciseRecord.Id) ?? throw ExerciseRecordNotFoundByIDException(exerciseRecord.Id);
 
             if (_exerciseRecord.UserId != userId)
                 throw UserNotHavePermissionException("update", "exercise record");
 
             _exerciseRecord.Date = exerciseRecord.Date;
-            _exerciseRecord.CountOfTimes = exerciseRecord.CountOfTimes;
             _exerciseRecord.Weight = exerciseRecord.Weight;
             _exerciseRecord.Time = exerciseRecord.Time;
             _exerciseRecord.Reps = exerciseRecord.Reps;
-            _exerciseRecord.SumOfWeight = exerciseRecord.SumOfWeight;
-            _exerciseRecord.SumOfTime = exerciseRecord.SumOfTime;
-            _exerciseRecord.SumOfReps = exerciseRecord.SumOfReps;
             _exerciseRecord.ExerciseId = exerciseRecord.ExerciseId;
 
             await baseRepository.UpdateAsync(_exerciseRecord);

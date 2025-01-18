@@ -1,8 +1,10 @@
-﻿namespace WorkoutTrackerAPI.Services.ImpersonationServices;
+﻿using WorkoutTrackerAPI.Data.Account;
+
+namespace WorkoutTrackerAPI.Services.ImpersonationServices;
 
 public interface IImpersonationService
 {
-    Task ImpersonateAsync(string userId);
-    Task RevertAsync();
+    Task<TokenModel> ImpersonateAsync(string userId);
+    Task<TokenModel> RevertAsync();
     bool IsImpersonating();
 }

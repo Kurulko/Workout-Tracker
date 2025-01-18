@@ -1,4 +1,5 @@
 ﻿using WorkoutTrackerAPI.Data;
+using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Exceptions;
 using WorkoutTrackerAPI.Repositories;
@@ -15,8 +16,9 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
 
     readonly EntryNullException bodyWeightIsNullException = new("Body weight");
     readonly InvalidIDException invalidBodyWeightIDException = new(nameof(BodyWeight));
-    readonly NotFoundException bodyWeightNotFoundException = new("Body weight");
 
+    NotFoundException BodyWeightNotFoundByIDException(long id)
+        => NotFoundException.NotFoundExceptionByID("Body weight", id);
 
     public async Task<ServiceResult<BodyWeight>> AddBodyWeightToUserAsync(string userId, BodyWeight bodyWeight)
     {
@@ -54,7 +56,7 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
             if (bodyWeightId < 1)
                 throw invalidBodyWeightIDException;
 
-            BodyWeight? bodyWeight = await baseRepository.GetByIdAsync(bodyWeightId) ?? throw bodyWeightNotFoundException;
+            BodyWeight? bodyWeight = await baseRepository.GetByIdAsync(bodyWeightId) ?? throw BodyWeightNotFoundByIDException(bodyWeightId);
             
             if (bodyWeight.UserId != userId)
                 throw UserNotHavePermissionException("delete", "body weight");
@@ -107,8 +109,7 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
 
         var userBodyWeightsInPounds = serviceResult.Model!.AsEnumerable().Select(m =>
         {
-            m.Weight = (float)Math.Round(BodyWeight.GetBodyWeightInPounds(m), 1);
-            m.WeightType = WeightType.Pound;
+            m.Weight = ModelWeight.GetModelWeightInPounds(m.Weight);
             return m;
         }).AsQueryable();
 
@@ -124,8 +125,7 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
 
         var userBodyWeightsInKilograms = serviceResult.Model!.AsEnumerable().Select(m =>
         {
-            m.Weight = (float)Math.Round(BodyWeight.GetBodyWeightInKilos(m), 1);
-            m.WeightType = WeightType.Kilogram;
+            m.Weight = ModelWeight.GetModelWeightInKilos(m.Weight);
             return m;
         }).AsQueryable();
 
@@ -139,7 +139,7 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
             await CheckUserIdAsync(userRepository, userId);
 
             var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId);
-            var userMaxBodyWeight = userBodyWeights?.ToList().MaxBy(bw => BodyWeight.GetBodyWeightInKilos(bw));
+            var userMaxBodyWeight = userBodyWeights?.ToList().MaxBy(bw => bw.Weight);
 
             return ServiceResult<BodyWeight>.Ok(userMaxBodyWeight);
         }
@@ -160,7 +160,7 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
             await CheckUserIdAsync(userRepository, userId);
 
             var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId);
-            var userMinBodyWeight = userBodyWeights?.ToList().MinBy(bw => BodyWeight.GetBodyWeightInKilos(bw));
+            var userMinBodyWeight = userBodyWeights?.ToList().MinBy(bw => bw.Weight);
             return ServiceResult<BodyWeight>.Ok(userMinBodyWeight);
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
@@ -207,13 +207,12 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
             if (bodyWeight.Id < 1)
                 throw invalidBodyWeightIDException;
 
-            var _bodyWeight = await baseRepository.GetByIdAsync(bodyWeight.Id) ?? throw bodyWeightNotFoundException;
+            var _bodyWeight = await baseRepository.GetByIdAsync(bodyWeight.Id) ?? throw BodyWeightNotFoundByIDException(bodyWeight.Id);
             
             if (_bodyWeight.UserId != userId)
                 throw UserNotHavePermissionException("update", "body weight");
 
             _bodyWeight.Weight = bodyWeight.Weight;
-            _bodyWeight.WeightType = bodyWeight.WeightType;
             _bodyWeight.Date = bodyWeight.Date;
 
             await baseRepository.UpdateAsync(_bodyWeight);

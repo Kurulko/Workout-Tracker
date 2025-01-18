@@ -8,9 +8,11 @@ public interface IEquipmentService
 {
     Task<ServiceResult<Equipment>> GetInternalEquipmentByIdAsync(long equipmentId);
     Task<ServiceResult<Equipment>> GetUserEquipmentByIdAsync(string userId, long equipmentId);
+    Task<ServiceResult<Equipment>> GetEquipmentByIdAsync(string userId, long equipmentId);
 
     Task<ServiceResult<Equipment>> GetInternalEquipmentByNameAsync(string name);
     Task<ServiceResult<Equipment>> GetUserEquipmentByNameAsync(string userId, string name);
+    Task<ServiceResult<Equipment>> GetEquipmentByNameAsync(string userId, string name);
 
     Task<ServiceResult<IQueryable<Equipment>>> GetInternalEquipmentsAsync();
     Task<ServiceResult<IQueryable<Equipment>>> GetUserEquipmentsAsync(string userId);
