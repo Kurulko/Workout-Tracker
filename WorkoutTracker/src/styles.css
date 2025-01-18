@@ -1,7 +1,49 @@
+@import 'node_modules/ngx-multiple-dates/prebuilt-themes/indigo-pink.css';
+
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 mat-form-field {
     width: 50%;
     margin-bottom: 16px;
+}
+
+.mat-button-toggle-checked {
+    background-color: rgb(76, 76, 224) !important;
+    color: white !important;
+}
+
+.none-option {
+    color: gray !important;
+    font-style: italic !important;
+}
+
+.image {
+    max-width: 40%;
+    height: auto;
+    object-fit: contain;
+}
+
+.table-layout-fixed {
+    table-layout: fixed; 
+    width: 100%;
+}
+
+.table-photo {
+    max-width: 500px;
+    max-height: 200px;
+}
+
+.photo-preview {
+    max-width: 50%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-left: 25%;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+}
+
+mat-option img {
+    margin-right: 10px;
+    vertical-align: middle;
 }
