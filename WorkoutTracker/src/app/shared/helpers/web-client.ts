@@ -23,7 +23,12 @@ export class WebClient {
     post<T>(url: string, body?: any, params?: HttpParams): Observable<T>;
 
     post<T>(url: string, body?: any, params?: HttpParams): Observable<T> {
-        return this.httpClient.post<T>(`${this.pathBase}/${url}`, body, { params });
+        const formattedData = this.formatDates(body);
+        return this.httpClient.post<T>(`${this.pathBase}/${url}`, formattedData, { params });
+    }
+
+    postText<T>(url: string, text?: any, params?: HttpParams): Observable<T> {
+        return this.httpClient.post<T>(`${this.pathBase}/${url}`, JSON.stringify(text), { params });
     }
 
     patch(url: string, body?: any, params?: HttpParams): Observable<Object>;
@@ -37,6 +42,23 @@ export class WebClient {
     put<T>(url: string, body?: any, params?: HttpParams): Observable<T>;
 
     put<T>(url: string, body?: any, params?: HttpParams): Observable<T> {
-        return this.httpClient.put<T>(`${this.pathBase}/${url}`, body, { params });
+        const formattedData = this.formatDates(body);
+        return this.httpClient.put<T>(`${this.pathBase}/${url}`, formattedData, { params });
+    }
+
+    putText<T>(url: string, text?: any, params?: HttpParams): Observable<T> {
+        return this.httpClient.put<T>(`${this.pathBase}/${url}`, JSON.stringify(text), { params });
+    }
+
+    private formatDates(obj: any): any {
+        const formattedObj = obj;
+
+        for (const key in formattedObj) {
+            if (formattedObj[key] instanceof Date) {
+                formattedObj[key] = formattedObj[key].toDateString();
+            }
+        }
+
+        return formattedObj;
     }
 }
