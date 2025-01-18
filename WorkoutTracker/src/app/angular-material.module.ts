@@ -13,6 +13,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDividerModule } from '@angular/material/divider';
 
 @NgModule({
   imports: [
@@ -29,7 +38,16 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
     MatDatepickerModule,
     MatNativeDateModule,
     MatFormFieldModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    MatCardModule,
+    MatDialogModule,
+    MatExpansionModule,
+    MatTabsModule,
+    MatProgressSpinnerModule,
+    MatStepperModule,
+    MatGridListModule,
+    MatProgressBarModule,
+    MatDividerModule
   ],
   exports: [
     MatButtonModule,
@@ -45,7 +63,16 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
     MatDatepickerModule,
     MatNativeDateModule,
     MatFormFieldModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    MatCardModule,
+    MatDialogModule,
+    MatExpansionModule ,
+    MatTabsModule,
+    MatProgressSpinnerModule,
+    MatStepperModule,
+    MatGridListModule,
+    MatProgressBarModule,
+    MatDividerModule
   ]
 })
 export class AngularMaterialModule { }
