@@ -1,0 +1,64 @@
+<main-app [title]="title">
+    <button type="button" mat-flat-button color="secondary" [routerLink]="[getWorkoutRecordsPath()]">
+        <mat-icon>reply</mat-icon> Back
+    </button>
+    <br/><br/>
+    <ng-container *ngIf="this.id && !workoutRecord; else editWorkoutRecordTemplate">
+        <mat-spinner diameter="60" />
+    </ng-container>
+    <ng-template #editWorkoutRecordTemplate>
+        <app-show-validation-errors [validationErrors]="validationErrors"/>
+        <div class="row">
+            <div class="col-md-4">
+                <!-- Date -->
+                <app-short-card title="Date" width="100%">
+                    <app-date-input 
+                        [(ngModel)]="workoutRecord.date" 
+                        [maxDate]="maxDate" 
+                        [required]="true" 
+                        #dateInput="ngModel" 
+                        width="100%" />
+                </app-short-card>
+                <br />
+
+                <!-- Workout -->
+                <app-short-card title="Workout" width="100%">
+                    <app-workout-selector 
+                        [(ngModel)]="workoutRecord.workoutId" 
+                        [required]="true" 
+                        #workoutInput="ngModel"
+                        width="100%" />
+                </app-short-card>
+                <br />
+
+                <!-- Time -->
+                <app-time-span-input 
+                    label="Time Taken"
+                    [(ngModel)]="workoutRecord.time" 
+                    [required]="true" 
+                    #timeInput="ngModel" 
+                    width="100%"/>
+                <br />
+                
+                <div>
+                    <button type="button" color="primary" mat-flat-button (click)="onSubmit()" 
+                            [disabled]="dateInput.invalid || workoutInput.invalid || timeInput.invalid || !isExerciseSetGroupsValid">
+                        <mat-icon>{{ this.id ? "edit" : "add_box" }}</mat-icon> {{ this.id ? "Save" : "Create" }}
+                    </button>
+                    <button type="button" mat-flat-button color="secondary" [routerLink]="['/workouts', workoutId, 'workout-records']">
+                        <mat-icon>cancel</mat-icon> Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <!-- Exercise Sets -->
+                <app-exercise-set-groups-editor 
+                    [(ngModel)]="exerciseSetGroups" 
+                    [required]="true"
+                    [weightTypeValue]="preferableWeightType" 
+                    (validityChange)="onExerciseSetGroupsValidityChange($event)"
+                    width="100%" />
+            </div>
+        </div>
+    </ng-template>
+</main-app>

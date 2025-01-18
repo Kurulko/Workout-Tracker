@@ -1,0 +1,88 @@
+<main-app title="Workout Records">
+  <button type="button" [hidden]="!data" color="primary" mat-flat-button
+        [routerLink]="workoutId ? ['/workouts', workoutId , 'workout-record'] : ['/workout-record']">
+    <mat-icon>add</mat-icon><mat-icon>fitness_center</mat-icon> Add
+  </button>
+  <br/><br/>
+
+  <ng-container *ngIf="!data; else workoutRecordsTemplate">
+    <mat-spinner diameter="60" />
+  </ng-container>
+  <ng-template #workoutRecordsTemplate>
+    <ng-template #noWorkoutRecordsTemplate>
+        <h3><i>You have not added your workout records yet...</i></h3>
+    </ng-template>
+    <ng-container *ngIf="totalCount || date; else noWorkoutRecordsTemplate">
+        <app-workout-selector [(ngModel)]="workoutId" (ngModelChange)="loadData()" [required]="false" />
+        <br />
+        <app-date-input [(ngModel)]="date" [max]="maxDate" (ngModelChange)="loadData()" [required]="false" />
+        <button *ngIf="date" mat-button color="accent" type="button" (click)="clearDate()">Clear Date</button>
+        <br />
+
+        <div class="row">
+            <div class="col" *ngIf="!date && data!.length > 1">
+                <app-workout-record-chart 
+                    chartType="bar"
+                    [pageIndex]="pageIndex"
+                    [pageSize]="pageSize"
+                    [totalCount]="totalCount"
+                    [data]="data"
+                    [isPaginator]="false"
+                    (pageChange)="onPageChange($event)" />
+            </div>
+            <div class="col">
+                <div class="card-container" *ngFor="let workoutRecord of data">
+                    <mat-card>
+                        <mat-card-header>
+                            <mat-card-title>{{ workoutRecord.date | date:'d MMMM yyyy, h:mm a' }}</mat-card-title>
+                            <mat-card-subtitle>{{ showCountOfExercisesStr(workoutRecord.exercises.length, "exercise", "exercises") }}</mat-card-subtitle>
+                        </mat-card-header>
+                        <mat-card-content>
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <th>Time:</th>
+                                        <td>{{ showTime(workoutRecord.time) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Weight:</th>
+                                        <td>{{ roundWeight(workoutRecord.weight.weight) }} {{ showWeightTypeShort(workoutRecord.weight.weightType) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Exercises:</th>
+                                        <td>
+                                            <ul>
+                                                <li *ngFor="let exercise of getSomeExercises(workoutRecord.exercises, countOfExercisesShown)">
+                                                    {{exercise.name}}
+                                                </li>
+                                            </ul>
+                                            <p>{{ showCountOfExercisesLeftStr(workoutRecord.exercises, countOfExercisesShown) }}</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </mat-card-content>
+                        <mat-card-actions>
+                            <button type="button" mat-button color="primary" [routerLink]="['/workouts', workoutRecord.workoutId , 'workout-record-details', workoutRecord.id]">
+                                <mat-icon>info</mat-icon> Details
+                            </button>
+                            <button type="button" mat-button color="primary" [routerLink]="['/workouts', workoutRecord.workoutId , 'workout-record', workoutRecord.id]">
+                                <mat-icon>edit</mat-icon> Edit
+                            </button>
+                            <delete-button dialogTitle="Delete workout record" [deleteFn]="deleteItem" [itemId]="workoutRecord.id"/>
+                        </mat-card-actions>
+                    </mat-card>
+                    <br>
+                </div>
+            </div>
+        </div>
+        <mat-paginator [hidden]="!data"
+            (page)="getData($event)"
+            [pageIndex]="pageIndex"
+            [pageSize]="pageSize"
+            [length]="totalCount"
+            [pageSizeOptions]="[5, 10, 15]"
+            showFirstLastButtons />
+    </ng-container>
+  </ng-template>
+</main-app>

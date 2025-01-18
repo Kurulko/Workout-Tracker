@@ -1,0 +1,83 @@
+<main-app title="Workout Record">
+    <ng-container *ngIf="!workoutRecord; else workoutRecordTemplate">
+        <mat-spinner diameter="60" />
+    </ng-container>
+    <ng-template #workoutRecordTemplate>
+        <button type="button" mat-flat-button color="secondary" [routerLink]="['/workouts', workoutRecord.workoutId , 'workout-records']">
+            <mat-icon>reply</mat-icon> Back
+        </button>
+        <br/><br/>
+        <mat-card class="card">
+            <mat-card-header>
+                <mat-card-title>{{ workoutRecord.date | date:'d MMMM yyyy' }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <br>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>Workout:</th>
+                            <td>{{ workoutRecord.workoutName }}</td>
+                        </tr>
+                        <tr>
+                            <th>Time:</th>
+                            <td>{{ showTime(workoutRecord.time) }}</td>
+                        </tr>
+                        <tr>
+                            <th>Weight:</th>
+                            <td>{{ roundWeight(workoutRecord.weight.weight) }} {{ showWeightTypeShort(workoutRecord.weight.weightType) }}</td>
+                        </tr>
+                        <tr>
+                            <th>Records:</th>
+                            <td>
+                                <table class="table ">
+                                    <thead>
+                                        <tr>
+                                            <th>№</th>
+                                            <th>Exercise</th>
+                                            <th>Sets</th>
+                                            <th>Values</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <ng-container *ngFor="let exerciseRecordGroup of workoutRecord.exerciseRecordGroups, let group = index">
+                                            <tr *ngFor="let exerciseRecord of exerciseRecordGroup.exerciseRecords, let set = index">
+                                                <td  *ngIf="set === 0" [attr.rowspan]="exerciseRecordGroup.sets">
+                                                    {{ group + 1 }}
+                                                </td>
+                                                <td  *ngIf="set === 0" [attr.rowspan]="exerciseRecordGroup.sets">
+                                                    {{ exerciseRecordGroup.exerciseName }}
+                                                </td>
+                                                <td  *ngIf="set === 0" [attr.rowspan]="exerciseRecordGroup.sets">
+                                                    {{ showCountOfSomethingStr(exerciseRecordGroup.sets, 'set', 'sets') }} ({{ roundWeight(exerciseRecordGroup.weight.weight) }} {{ showWeightTypeShort(exerciseRecordGroup.weight.weightType) }})
+                                                </td>
+                                                <td>
+                                                    {{ exerciseRecordGroup.sets === 1 ? '' : (set + 1) + ')' }} {{ showExerciseValue(exerciseRecord) }}
+                                                </td>     
+                                                <td>
+                                                    <button type="button" mat-button color="primary" [routerLink]="['/exercise-record', exerciseRecord.id]">
+                                                        <mat-icon>edit</mat-icon> Edit
+                                                    </button>
+                                                    <delete-button dialogTitle="Delete Exercise Record" [deleteFn]="deleteExerciseRecord" [itemId]="exerciseRecord.id"/>
+                                                </td>                                      
+                                            </tr>
+                                        </ng-container>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </mat-card-content>
+            <mat-card-actions>
+                <button type="button" mat-button color="primary" [routerLink]="['/workouts', workoutRecord.workoutId , 'workout-record', workoutRecord.id]">
+                    <mat-icon>edit</mat-icon> Edit
+                </button>
+                <button type="button" mat-button color="warn" (click)="deleteWorkoutRecord()">
+                    <mat-icon>delete</mat-icon> Delete
+                </button>
+            </mat-card-actions>
+        </mat-card>
+    </ng-template>
+</main-app>
