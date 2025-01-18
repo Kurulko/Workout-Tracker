@@ -1,0 +1,26 @@
+
+<div [style.width]="width">
+    <h2 mat-dialog-title>{{ label }}</h2>
+    <mat-dialog-content>
+        <input class="form-control" placeholder="Insert Photo"
+            [required]="required"
+            [(ngModel)]="selectedFile"
+            type="file"
+            (change)="onFileSelected($event)"
+            accept="image/*"
+            #photoInput="ngModel"
+        />
+        <div [hidden]="photoInput.valid || photoInput.untouched" class="alert alert-danger">
+            {{modelName}} is required.
+        </div>
+        <div *ngIf="selectedFile">
+            <br>
+            <h3><strong>Selected File:</strong> {{ selectedFile.name }}</h3>
+            <img [src]="previewUrl" *ngIf="previewUrl" class="photo-preview" alt="Preview" />
+        </div>
+    </mat-dialog-content>
+    <mat-dialog-actions [align]="'end'">
+        <button mat-flat-button mat-dialog-close (click)="onCancel()">Cancel</button>
+        <button mat-flat-button mat-dialog-close [disabled]="!selectedFile" (click)="onSave()" color="accent" cdkFocusInitial>Save</button>
+    </mat-dialog-actions>
+</div>
