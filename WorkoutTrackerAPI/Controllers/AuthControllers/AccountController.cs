@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Win32;
-using Serilog;
 using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Services.AccountServices;
 

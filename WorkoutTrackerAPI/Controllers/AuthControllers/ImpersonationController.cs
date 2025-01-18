@@ -13,15 +13,15 @@ public class ImpersonationController : APIController
 
     [HttpPost("impersonate")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> ImpersonateAsync(string userId)
+    public async Task<ActionResult> ImpersonateAsync([FromBody] string userId)
     {
        if(string.IsNullOrEmpty(userId))
            return BadRequest("User ID is null or empty.");
 
         try
         {
-            await impersonationService.ImpersonateAsync(userId);
-            return Ok();
+            var token = await impersonationService.ImpersonateAsync(userId);
+            return Ok(token);
         }
         catch (Exception ex)
         {
@@ -30,13 +30,13 @@ public class ImpersonationController : APIController
     }
 
     [HttpPost("revert")]
-    [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> RevertAsync()
+    [Authorize]
+    public async Task<ActionResult> RevertAsync()
     {
         try
         {
-            await impersonationService.RevertAsync();
-            return Ok();
+            var token = await impersonationService.RevertAsync();
+            return Ok(token);
         }
         catch (Exception ex)
         {
@@ -45,7 +45,7 @@ public class ImpersonationController : APIController
     }
 
     [HttpGet("is-impersonating")]
-    [Authorize(Roles = Roles.AdminRole)]
+    [Authorize]
     public ActionResult<bool>  IsImpersonating()
         => impersonationService.IsImpersonating();
 }
