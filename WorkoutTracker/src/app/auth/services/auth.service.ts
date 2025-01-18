@@ -1,7 +1,6 @@
 import { BaseService } from "../../shared/services/base.service";
 import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
-import { TokenManager } from "../../shared/helpers/token-manager";
 import { Observable } from "rxjs";
 import { RegisterModel } from "../models/register.model";
 import { LoginModel } from "../models/login.model";
@@ -9,15 +8,15 @@ import { AuthModel } from '../models/auth.model';
 import { AuthResult } from '../models/auth-result.model';
 import { TokenModel } from "../../shared/models/token.model";
 import { TokenViewModel } from "../../shared/models/token.view-model";
-import { toTokenModel } from "../../shared/helpers/toTokenModel";
+import { toTokenModel } from "../../shared/helpers/functions/toTokenModel";
 import { map } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService extends BaseService {
-    constructor(httpClient: HttpClient, tokenManager: TokenManager) {
-        super(httpClient, tokenManager, 'account');
+    constructor(httpClient: HttpClient) {
+        super(httpClient, 'account');
     }
     
     private account(path:string, authModel: AuthModel): Observable<AuthResult> {

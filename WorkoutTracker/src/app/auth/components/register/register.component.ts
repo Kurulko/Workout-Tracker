@@ -1,12 +1,16 @@
 import { Component, OnInit } from '@angular/core';import { ActivatedRoute, Router } from '@angular/router';
+import { FormGroup, FormControl, Validators, AbstractControl, ValidationErrors, FormBuilder } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { RegisterModel } from '../../models/register.model';
 import { AuthResult } from '../../models/auth-result.model';
-import { TokenManager } from '../../../shared/helpers/token-manager';
 import { AuthComponent } from '../auth.component';
 import { Observable } from "rxjs";
 import { MatSnackBar  } from '@angular/material/snack-bar';
-import { FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
+import { UserDetailsService } from 'src/app/account/services/user-details.service';
+import { UserDetails } from 'src/app/account/models/user-details';
+import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
+import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
 
 @Component({
   selector: 'app-register',
@@ -14,45 +18,91 @@ import { FormGroup, FormControl, Validators, AbstractControl, ValidationErrors }
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent extends AuthComponent implements OnInit {
-  passwordFieldType: string = 'password';
-  confirmPasswordFieldType: string = 'password';
+  maxDate: Date = new Date();
 
-  constructor(tokenManager: TokenManager, router: Router, route: ActivatedRoute,  authService: AuthService, snackBar: MatSnackBar){
-      super(tokenManager, router, route, authService, snackBar);
+  constructor(private fb: FormBuilder,
+    private userDetailsService: UserDetailsService,
+    router: Router, 
+    route: ActivatedRoute, 
+    authService: AuthService, 
+    impersonationManager: ImpersonationManager, 
+    tokenManager: TokenManager,
+    preferencesManager: PreferencesManager,
+    snackBar: MatSnackBar) 
+  {
+    super(router, route, authService, impersonationManager, tokenManager, preferencesManager, snackBar);
   }
+
+  registerForm!: FormGroup;
+  personalDataForm!: FormGroup;
+  rememberMeForm!: FormGroup;
 
   ngOnInit() {
-    this.form = new FormGroup({
-      rememberMe: new FormControl(''),
-      name: new FormControl('', [Validators.required, Validators.minLength(3)]),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(8)]),
-      passwordConfirmation: new FormControl('', [Validators.required, Validators.minLength(8)])
-    }, { validators: this.passwordsMatchValidator });
+    this.initForm();
   }
+
+  initForm(): void {
+    this.registerForm = new FormGroup({
+      name: new FormControl(null, [ Validators.required, Validators.minLength(3)] ),
+      email: new FormControl(null, [ Validators.email ]),
+      password: new FormControl(null, [ Validators.required, Validators.minLength(8) ]),
+      passwordConfirm: new FormControl(null, [ Validators.required, Validators.minLength(8) ])
+    }, { validators: this.passwordsMatchValidator });
+
+    this.personalDataForm = this.fb.group({
+      birthday: [null, [ Validators.required ]],
+      gender: [null, [ Validators.required ]],
+      height: [null, [ Validators.required ]],
+      weight: [null, [ Validators.required ]],
+      bodyFatPercentage: [null, [ Validators.required ]],
+    });
+
+    this.rememberMeForm = new FormGroup({
+      rememberMe: new FormControl(false),
+    });
+  };
 
   passwordsMatchValidator(formGroup: AbstractControl): ValidationErrors | null {
     const password = formGroup.get('password')?.value;
-    const passwordConfirmation = formGroup.get('passwordConfirmation')?.value;
+    const passwordConfirm = formGroup.get('passwordConfirm')?.value;
    
-    return (password && passwordConfirmation && password === passwordConfirmation) ? null : { notMatching: true };
+    return (password && passwordConfirm && password === passwordConfirm) ? null : { notMatching: true };
   }
   
-  togglePasswordVisibility(): void {
-    this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
-  }
-
-  toggleConfirmPasswordVisibility(): void {
-    this.confirmPasswordFieldType = this.confirmPasswordFieldType === 'password' ? 'text' : 'password';
-  }
-
   getAuthResult() : Observable<AuthResult> {
-      var registerModel = <RegisterModel>{};
-      registerModel.name = this.form.controls['name'].value;
-      registerModel.email = this.form.controls['email'].value;
-      registerModel.password = this.form.controls['password'].value;
-      registerModel.passwordConfirm = this.form.controls['passwordConfirmation'].value;
+    const registerModel: RegisterModel = this.registerForm.value;
+    registerModel.rememberMe = this.rememberMeForm.controls['rememberMe'].value;
 
-      return this.authService.register(registerModel);
+    return this.authService.register(registerModel);
+  }
+
+  register(): void{
+    this.pipeAuthResult()
+    .subscribe((authResult: AuthResult) => {
+      this.authResult = authResult;
+      this.addPersonalData();
+
+      this.showSnackbar(authResult.message)
+      this.tokenManager.setToken(authResult.token!);
+
+      const redirectUrl = this.returnUrl || '/';
+      this.router.navigateByUrl(redirectUrl);
+    })
+  }
+
+  addPersonalData() {
+    if (this.personalDataForm.valid) {
+      var userDetails = <UserDetails>{};
+
+      userDetails.gender = this.personalDataForm.controls['gender'].value;
+      userDetails.dateOfBirth = this.personalDataForm.controls['birthday'].value;
+      userDetails.bodyFatPercentage = this.personalDataForm.controls['bodyFatPercentage'].value;
+      userDetails.height = this.personalDataForm.controls['height'].value;
+      userDetails.weight = this.personalDataForm.controls['weight'].value;
+
+      this.userDetailsService.addUserDetails(userDetails)
+        .pipe(this.catchError())
+        .subscribe();
+    }
   }
 }

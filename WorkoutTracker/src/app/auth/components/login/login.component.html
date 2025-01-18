@@ -1,42 +1,21 @@
-<base-app title="Login">
-    <mat-error *ngIf="authResult && !authResult.success">
-        <h4>{{authResult.message}}</h4>
-    </mat-error>
+<main-app title="Login">
+    <app-show-auth-result-errors [authResult]="authResult" />
 
-    <!-- Name -->
-    <mat-form-field>
-        <mat-label>Name:</mat-label>
-        <input matInput [(ngModel)]="loginModel.name" required minlength="3" placeholder="Insert Name" #name="ngModel">
-        <mat-error [hidden]="name.valid || name.untouched">
-            User Name must be at least 3 characters long
-        </mat-error>
-    </mat-form-field>
+    <app-short-card title="Name" width="40%">
+        <app-name-input [(ngModel)]="loginModel.name" width="100%" [required]="true" hintStr="Min 3 characters" #name="ngModel" />
+    </app-short-card>
     <br />
-
-    <!-- Password -->
-    <mat-form-field>
-        <mat-label>Password:</mat-label>
-        <input matInput type="password" [(ngModel)]="loginModel.password" required minlength="8" [type]="passwordFieldType" 
-            placeholder="Insert Password" #password="ngModel">
-        <mat-error [hidden]="password.valid || password.untouched">
-            Password must be at least 8 characters long
-        </mat-error>
-    </mat-form-field>
-    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="togglePasswordVisibility()" aria-label="Toggle password visibility">
-        <i class="fas" [ngClass]="passwordFieldType === 'password' ? 'fa-eye' : 'fa-eye-slash'"></i>
-    </button>
+    <app-short-card title="Password" width="40%">
+        <app-password-input [(ngModel)]="loginModel.password" width="100%" label="Password" [required]="true" [minlength]="8" hintStr="Min 8 characters" #password="ngModel" />
+    </app-short-card>
     <br />
-
-    <!-- Remember Me -->
-    <mat-checkbox [(ngModel)]="loginModel.rememberMe">Remember Me</mat-checkbox>
+    <app-short-card title="Remember Me" width="40%">
+        <mat-checkbox [(ngModel)]="loginModel.rememberMe">Remember Me</mat-checkbox>
+    </app-short-card>
     <br /><br />
-
     <div>
-        <button type="button" mat-raised-button color="primary" (click)="account()"  [disabled]="name.invalid || password.invalid">
-            Login
-        </button>
-        <button type="button" mat-flat-button color="secondary" [routerLink]="['/']">
-            Cancel
+        <button type="submit" color="primary" mat-flat-button (click)="login()"  [disabled]="name.invalid || password.invalid">
+            <mat-icon>send</mat-icon> Login
         </button>
     </div>
-</base-app>
+</main-app>

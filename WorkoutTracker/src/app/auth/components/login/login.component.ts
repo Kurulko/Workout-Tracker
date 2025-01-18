@@ -2,11 +2,13 @@ import { Component } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { LoginModel } from '../../models/login.model';
 import { AuthResult } from '../../models/auth-result.model';
-import { TokenManager } from '../../../shared/helpers/token-manager';
 import { AuthComponent } from '../auth.component';
 import { Observable } from "rxjs";
 import { MatSnackBar  } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
+import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
+import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
 
 @Component({
   selector: 'app-login',
@@ -16,17 +18,34 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class LoginComponent extends AuthComponent {
   loginModel: LoginModel = <LoginModel>{};
-  passwordFieldType: string = 'password';
 
-  constructor(tokenManager: TokenManager, router: Router, route: ActivatedRoute, authService: AuthService, snackBar: MatSnackBar){
-    super(tokenManager, router, route, authService, snackBar);
+  constructor(
+    router: Router, 
+    route: ActivatedRoute, 
+    authService: AuthService, 
+    impersonationManager: ImpersonationManager, 
+    tokenManager: TokenManager,
+    preferencesManager: PreferencesManager,
+    snackBar: MatSnackBar) 
+  {
+    super(router, route, authService, impersonationManager, tokenManager, preferencesManager, snackBar);
   }
 
-  togglePasswordVisibility(): void {
-    this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
-  }
   
   getAuthResult() : Observable<AuthResult> {
-      return this.authService.login(this.loginModel);
+    return this.authService.login(this.loginModel);
+  }
+
+  login(): void{
+    this.pipeAuthResult()
+    .subscribe((authResult: AuthResult) => {
+      this.authResult = authResult;
+
+      this.showSnackbar(authResult.message)
+      this.tokenManager.setToken(authResult.token!);
+
+      const redirectUrl = this.returnUrl || '/';
+      this.router.navigateByUrl(redirectUrl);
+    })
   }
 }

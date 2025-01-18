@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { TokenManager } from '../../shared/helpers/token-manager';
+import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
 
 @Component({
     selector: 'app-logout',
