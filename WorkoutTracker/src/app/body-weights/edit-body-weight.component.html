@@ -1,60 +1,42 @@
-<base-app [title]="title">
-    <p *ngIf="this.id && !bodyWeight"><em>Loading...</em></p>
+<main-app [title]="title">
+    <button type="button" mat-flat-button color="secondary" [routerLink]="[bodyWeightsPath]">
+        <mat-icon>reply</mat-icon> Back
+    </button>
+    <br/><br/>
+    <ng-container *ngIf="this.id && !bodyWeight; else editBodyWeightTemplate">
+        <mat-spinner diameter="60" />
+    </ng-container>
+    <ng-template #editBodyWeightTemplate>
+        <app-show-validation-errors [validationErrors]="validationErrors"/>
+        <!-- Date -->
+        <app-short-card title="Date" width="40%">
+            <app-date-input 
+                [(ngModel)]="bodyWeight.date" 
+                [maxDate]="maxDate" 
+                [required]="true" 
+                #date="ngModel" 
+                width="100%"/>
+        </app-short-card>
+        <br />
 
-    <div *ngFor="let fieldName of getObjectKeys(validationErrors)">
-      <h3>{{ fieldName }}:</h3>
-      <ul>
-        <li *ngFor="let error of validationErrors[fieldName]">
-          <mat-error>{{ error }}</mat-error>
-        </li>
-      </ul>
-    </div>
-
-    <!-- Date -->
-    <mat-form-field>
-      <mat-label>Date:</mat-label>
-      <input matInput [matDatepicker]="picker" [(ngModel)]="bodyWeight.date" placeholder="Insert Date" required [max]="maxDate" #date="ngModel"/>
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker />
-      <mat-error [hidden]="date.valid || date.untouched">
-        Date is required
-      </mat-error>
-    </mat-form-field>
-    <br />
-
-     <!-- Weight -->
-     <mat-form-field>
-      <mat-label>Weight:</mat-label>
-      <input matInput type="number" [(ngModel)]="bodyWeight.weight" min="0.1" required placeholder="Insert Weight" (input)="validateInput($event)" #weight="ngModel">
-      <mat-error *ngIf="weight.errors?.['required'] && weight.touched">
-          Weight is required.
-      </mat-error>
-      <mat-error *ngIf="weight.errors?.['min'] && weight.touched">
-          Weight must be a positive number.
-      </mat-error>
-    </mat-form-field>
-    <br />
-
-    <!-- Weight Type -->
-    <mat-form-field>
-      <mat-label>Select Weight Type...</mat-label>
-      <mat-select [(ngModel)]="bodyWeight.weightType" required #weightType="ngModel">
-        <mat-option *ngFor="let weightType of weightTypes" [value]="weightType">
-          {{ weightType }}
-        </mat-option>
-      </mat-select>
-      <mat-error [hidden]="weightType.valid || weightType.untouched">
-        Weight Type is required.
-      </mat-error>
-    </mat-form-field>
-    <br />
-
-    <div>
-        <button type="button" mat-raised-button color="primary" (click)="onSubmit()" [disabled]="date.invalid || weight.invalid || weightType.invalid">
-          {{ this.id ? "Save" : "Create" }}
-        </button>
-        <button type="button" mat-flat-button color="secondary" [routerLink]="['/body-weights']">
-            Cancel
-        </button>
-    </div>
-</base-app>
+        <!-- Weight -->
+        <app-model-weight-input 
+            [(ngModel)]="bodyWeight.weight" 
+            [weightTypeValue]="preferableWeightType"
+            [weightMaxValue]="1000" 
+            width="40%" 
+            [required]="true" 
+            #weight="ngModel" />
+        <br>
+        
+        <div>
+            <button type="button" color="primary" mat-flat-button (click)="onSubmit()" 
+                    [disabled]="date.invalid || weight.invalid">
+                <mat-icon>{{ this.id ? "edit" : "add_box" }}</mat-icon> {{ this.id ? "Save" : "Create" }}
+            </button>
+            <button type="button" mat-flat-button color="secondary" [routerLink]="[bodyWeightsPath]">
+                <mat-icon>cancel</mat-icon> Cancel
+            </button>
+        </div>
+    </ng-template>
+</main-app>

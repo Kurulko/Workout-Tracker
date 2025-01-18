@@ -1,48 +1,60 @@
-<base-app title="Body Weights">
-  <p *ngIf="!data"><em>Loading...</em></p>
-
-  <button type="button" [hidden]="!data" color="primary" class="btn btn-outline-primary" [routerLink]="['/body-weight']">
-    Add
+<main-app title="Body Weights">
+  <button type="button" [hidden]="!data" color="primary" mat-flat-button [routerLink]="['/body-weight']">
+    <mat-icon>add</mat-icon> Add
   </button>
   <br/><br/>
 
-  <mat-button-toggle-group [(ngModel)]="weightType" (change)="onToggleChange()">
-    <mat-button-toggle value="kg">Kg</mat-button-toggle>
-    <mat-button-toggle value="lbs">Lbs</mat-button-toggle>
-  </mat-button-toggle-group>
-  <br/><br/>
-  <table mat-table [dataSource]="data"
-      class="mat-elevation-z8"
-      [hidden]="!data"
-      matSort (matSortChange)="loadData()"
-      [matSortActive]="defaultSortColumn"
-      [matSortDirection]="defaultSortOrder">
+  <ng-container *ngIf="!data; else bodyWeightsTemplate">
+    <mat-spinner diameter="60" />
+  </ng-container>
+  <ng-template #bodyWeightsTemplate>
+    <ng-template #noBodyWeightsTemplate>
+      <h3><i>You have not added your body weights yet...</i></h3>
+    </ng-template>
+    <ng-container *ngIf="totalCount || date; else noBodyWeightsTemplate">
+      <app-date-input [(ngModel)]="date" (ngModelChange)="loadData()" [maxDate]="maxDate" [required]="false" />
+      <button *ngIf="date" mat-button color="accent" type="button" (click)="clearDate()">Clear Date</button>
+      <br />
 
-      <ng-container matColumnDef="date">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
-        <td mat-cell *matCellDef="let bodyWeight">{{ bodyWeight.date | date:'d MMMM yyyy' }}</td>
+      <mat-button-toggle-group [(ngModel)]="weightType" (change)="loadData()" *ngIf="totalCount">
+        <mat-button-toggle value="kg">Kg</mat-button-toggle>
+        <mat-button-toggle value="lbs">Lbs</mat-button-toggle>
+      </mat-button-toggle-group>
+      <br/><br/>
+      
+      <ng-container *ngIf="!date && data!.length > 1; else onlyTableTemplate">
+        <div class="row">
+          <div class="col">
+            <app-body-weight-chart
+              [pageIndex]="pageIndex"
+              [pageSize]="pageSize"
+              [totalCount]="totalCount"
+              [data]="data"
+              [isPaginator]="false"
+              (pageChange)="onPageChange($event)" />
+          </div>
+          <div class="col">
+            <app-body-weight-table 
+              [pageIndex]="pageIndex"
+              [pageSize]="pageSize"
+              [totalCount]="totalCount"
+              [data]="data"
+              (sortChange)="onSortChange($event)"
+              (pageChange)="onPageChange($event)"
+              (deleteItem)="onDeleteItem($event)" />
+          </div>
+        </div>
       </ng-container>
-
-      <ng-container matColumnDef="weight">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Weight</th>
-        <td mat-cell *matCellDef="let bodyWeight"> {{ bodyWeight.weight }} {{weightType}}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let bodyWeight">
-          <button type="button" mat-button color="primary" [routerLink]="['/body-weight', bodyWeight.id]">Edit</button>
-          <button type="button" mat-button color="warn" (click)="deleteBodyWeight(bodyWeight.id)">Delete</button>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
-
-  <mat-paginator [hidden]="!data"
-              (page)="getData($event)"
-              [pageSize]="10"
-              [pageSizeOptions]="[10, 20, 50]"
-              showFirstLastButtons />
-</base-app>
+      <ng-template #onlyTableTemplate>
+        <app-body-weight-table 
+          [pageIndex]="pageIndex"
+          [pageSize]="pageSize"
+          [totalCount]="totalCount"
+          [data]="data"
+          (sortChange)="onSortChange($event)"
+          (pageChange)="onPageChange($event)"
+          (deleteItem)="onDeleteItem($event)" />
+      </ng-template>
+    </ng-container>
+  </ng-template>
+</main-app>

@@ -1,43 +1,39 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { throwError } from 'rxjs';
-
-import { BodyWeight } from './body-weight';
-import { EditModelComponent } from '../shared/components/edit-model.component';
-import { BodyWeightService } from './body-weight.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { catchError } from 'rxjs/operators';
-import { HttpErrorResponse } from '@angular/common/http';
-import { StatusCodes } from 'http-status-codes';
-import { WeightType } from "./weight-type";
+import { BodyWeight } from './body-weight';
+import { EditModelComponent } from '../shared/components/base/edit-model.component';
+import { BodyWeightService } from './body-weight.service';
+import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { ModelWeight } from '../shared/models/model-weight';
+import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../shared/helpers/managers/token-manager';
 
 @Component({
   selector: 'app-body-weight-edit',
   templateUrl: './edit-body-weight.component.html',
 })
-export class BodyWeightEditComponent extends EditModelComponent<BodyWeight>{
-  bodyWeight: BodyWeight = <BodyWeight>{ date : new Date() };
-  weightTypes = Object.keys(WeightType).filter(key => isNaN(Number(key)));
+export class BodyWeightEditComponent extends EditModelComponent<BodyWeight> implements OnInit {
+  bodyWeight!: BodyWeight;
   maxDate: Date = new Date();
 
-  constructor(private activatedRoute: ActivatedRoute,  private router: Router,  private bodyWeightService: BodyWeightService, snackBar: MatSnackBar) {
-    super(snackBar);
+  readonly bodyWeightsPath = "/body-weights";
+
+  constructor(
+    private activatedRoute: ActivatedRoute,  
+    private bodyWeightService: BodyWeightService, 
+    router: Router,  
+    impersonationManager: ImpersonationManager, 
+    tokenManager: TokenManager,
+    preferencesManager: PreferencesManager,
+    snackBar: MatSnackBar) 
+  {
+    super(router, impersonationManager, tokenManager, preferencesManager, snackBar);
   }
 
-  getObjectKeys(obj: any): string[] {
-    return Object.keys(obj);
-  }
-
-  validateInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const value = input.value;
-  
-    const regex = /^\d*\.?\d{0,1}$/;
-  
-    if (!regex.test(value)) {
-      input.value = value.slice(0, -1);
-    }
+  ngOnInit(): void {
+    this.loadData();
   }
 
   loadData() {
@@ -46,28 +42,21 @@ export class BodyWeightEditComponent extends EditModelComponent<BodyWeight>{
     if (this.id) {
       // Edit mode
       this.bodyWeightService.getBodyWeightById(this.id)
-      .pipe(catchError((errorResponse: HttpErrorResponse) => {
-        console.error(`Error occurred: ${errorResponse.message} - ${errorResponse.status}`);
-
-        if (errorResponse.status === StatusCodes.NOT_FOUND) {
-            this.router.navigate(['/body-weights']);
-        }
-
-        this.showSnackbar(errorResponse.message);
-        return throwError(() => errorResponse);
-      }))
+      .pipe(this.catchLoadDataError(this.bodyWeightsPath))
       .subscribe(result => {
         this.bodyWeight = result;
-
-        this.title = `Edit BodyWeight ('${this.bodyWeight.id}')`;
+        this.title = `Edit Body Weight `;
       });
     }
     else {
       // Add mode
-      this.title = "Create new BodyWeight";
+      this.title = "Create new Body Weight";
+      this.bodyWeight = <BodyWeight>{ date : new Date(), weight: <ModelWeight>{} };
+
+      if(this.preferencesManager.hasPreferableWeightType())
+        this.bodyWeight.weight.weightType = this.preferencesManager.getPreferableWeightType()!;
     }
   }
-
 
   onSubmit() {
     if (this.id) {
@@ -77,7 +66,7 @@ export class BodyWeightEditComponent extends EditModelComponent<BodyWeight>{
       .subscribe(_ => {
           this.modelUpdatedSuccessfully('Body Weight')
           console.log("BodyWeight " + this.bodyWeight!.id + " has been updated.");
-          this.router.navigate(['/body-weights']);
+          this.router.navigate([this.bodyWeightsPath]);
       });
     }
     else {
@@ -87,7 +76,7 @@ export class BodyWeightEditComponent extends EditModelComponent<BodyWeight>{
       .subscribe(result => {
           this.modelAddedSuccessfully('Body Weight')
           console.log("BodyWeight " + result.id + " has been created.");
-          this.router.navigate(['/body-weights']);
+          this.router.navigate([this.bodyWeightsPath]);
       });
     }
   }

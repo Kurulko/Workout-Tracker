@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar  } from '@angular/material/snack-bar';
-import { catchError } from 'rxjs/operators';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { StatusCodes } from 'http-status-codes';
+import { Observable } from 'rxjs';
 
 import { BodyWeight } from './body-weight';
 import { BodyWeightService } from './body-weight.service';
-import { ApiResult } from '../shared/models/api-result.model';
-import { ModelsTableComponent } from '../shared/components/models-table.component';
+import { ApiResult } from '../shared/models/api-result';
+import { ModelsTableComponent } from '../shared/components/base/models-table.component';
+import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { WeightType } from '../shared/models/weight-type';
+import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../shared/helpers/managers/token-manager';
 
 @Component({
   selector: 'app-body-weights',
@@ -16,37 +17,50 @@ import { ModelsTableComponent } from '../shared/components/models-table.componen
   styleUrls: ['./body-weights.component.css']
 })
 export class BodyWeightsComponent extends ModelsTableComponent<BodyWeight> implements OnInit {
-  constructor(public bodyWeightService: BodyWeightService, snackBar: MatSnackBar) {
-      super(snackBar);
+  constructor(
+    public bodyWeightService: BodyWeightService, 
+    impersonationManager: ImpersonationManager, 
+    tokenManager: TokenManager,
+    preferencesManager: PreferencesManager,
+    snackBar: MatSnackBar) 
+  {
+    super(impersonationManager, tokenManager, preferencesManager, snackBar);
 
-      this.displayedColumns = ['date', 'weight', 'actions'];
-      this.defaultSortColumn = "date";
-      this.defaultSortOrder = "desc";
+    this.displayedColumns = ['date', 'weight', 'actions'];
+    this.sortColumn = "date";
+    this.sortOrder = "desc";
   }
 
   weightType: "kg" | "lbs" = "kg";
+  
+  date: Date|null = null;
+  maxDate: Date = new Date();
 
   getModels(pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<BodyWeight>> {
     if(this.weightType === 'kg')
-      return this.bodyWeightService.getBodyWeightsInKilograms(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+      return this.bodyWeightService.getBodyWeightsInKilograms(this.date, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
     else
-      return this.bodyWeightService.getBodyWeightsInPounds(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+      return this.bodyWeightService.getBodyWeightsInPounds(this.date, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
   }
 
-  onToggleChange(): void {
+  ngOnInit() {
+    if(this.preferableWeightType != undefined)
+      this.weightType = (this.preferableWeightType == WeightType.Kilogram) ? "kg" : "lbs";
+
     this.loadData();
   }
   
-  ngOnInit() {
+  clearDate(){
+    this.date = null;
     this.loadData();
   }
 
-  deleteBodyWeight(id: number) {
+  deleteItem(id: number) {
     this.bodyWeightService.deleteBodyWeight(id)
-    .pipe(this.catchError())
-    .subscribe(() => {
-          this.loadData();
-          this.modelDeletedSuccessfully("Body Weight");
-        })
-  }
+      .pipe(this.catchError())
+      .subscribe(() => {
+        this.loadData();
+        this.modelDeletedSuccessfully("Body Weight");
+      })
+  };
 }

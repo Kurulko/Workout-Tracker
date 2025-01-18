@@ -1,9 +1,8 @@
-import { DbModel } from "../shared/models/db-model.model";
-import { WeightType } from "./weight-type";
+import { DbModel } from "../shared/models/db-model";
+import { ModelWeight } from "../shared/models/model-weight";
 
-export interface BodyWeight extends DbModel{
+export interface BodyWeight extends DbModel {
     date: Date;
-    weight: number;
-    weightType: WeightType;
+    weight: ModelWeight;
 }
 
