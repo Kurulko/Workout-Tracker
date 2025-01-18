@@ -1,0 +1,49 @@
+<ng-container *ngIf="!exerciseSets; else exerciseSetsTemplate">
+  <mat-spinner diameter="60" />
+</ng-container>
+<ng-template #exerciseSetsTemplate>
+  <div [style.width]="width">
+    <button type="button" mat-button color="primary" (click)="addNewExerciseSet()">
+      <mat-icon>add</mat-icon> Add Set
+    </button>
+    <br>
+    <table mat-table [dataSource]="exerciseSets">
+      <ng-container matColumnDef="set">
+        <th mat-header-cell *matHeaderCellDef>Set</th>
+        <td mat-cell *matCellDef="let element; let i = index"> №{{ i + 1 }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="value">
+        <th mat-header-cell *matHeaderCellDef>Value</th>
+        <td mat-cell *matCellDef="let exerciseSet; let i = index">
+          <app-exercise-set-editor [value]="exerciseSet" (ngModelChange)="onExerciseSetUpdated($event, i)" 
+            [weightTypeValue]="weightTypeValue" (validityChange)="onExerciseSetValidityChange($event, i)" [required]="required" />
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Actions </th>
+        <td mat-cell *matCellDef="let exerciseSet; let i = index">
+          <delete-button 
+            title="Delete Set"
+            dialogTitle="Delete Set" 
+            dialogContent="Set №{{ i + 1 }} will be deleted."
+            [deleteFn]="deleteExerciseSet" 
+            [itemId]="i"/>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+    <br>
+    <delete-button 
+      title="Delete All Sets"
+      dialogTitle="Delete All Sets" 
+      dialogContent="All {{exerciseSets.length}} sets will be deleted."
+      deleteMatIcon="delete_forever"
+      [deleteFn]="deleteAllExerciseSets" 
+      [itemId]="null"
+      *ngIf="exerciseSets && exerciseSets.length > 1"/>
+  </div>
+</ng-template>
