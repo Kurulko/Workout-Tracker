@@ -1,8 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Linq.Dynamic.Core;
 using WorkoutTrackerAPI.Extentions;
-using System.Collections;
 
 namespace WorkoutTrackerAPI.Data;
 
@@ -17,7 +15,7 @@ public class ApiResult<T>
         int pageIndex, 
         int pageSize, 
         string? sortColumn, 
-        OrderBy? sortOrder, 
+        string? sortOrder, 
         string? filterColumn, 
         string? filterQuery)
     {
@@ -93,7 +91,7 @@ public class ApiResult<T>
             pageIndex,
             pageSize,
             sortColumn,
-            sortOrder?.ParseToOrderBy(),
+            sortOrder,
             filterColumn,
             filterQuery
         );
@@ -176,7 +174,7 @@ public class ApiResult<T>
     /// <summary>
     /// Sorting Order ("ASC", "DESC" or null if none set)
     /// </summary>
-    public OrderBy? SortOrder { get; set; }
+    public string? SortOrder { get; set; }
 
     /// <summary>
     /// Filter Column name (or null if none set)
