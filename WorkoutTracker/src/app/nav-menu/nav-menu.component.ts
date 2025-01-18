@@ -1,25 +1,29 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
-import { TokenManager } from '../../app/shared/helpers/token-manager';
 import { AuthService } from '../auth/services/auth.service';
+import { ImpersonationService } from '../shared/services/impersonation.service';
+import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../shared/helpers/managers/token-manager';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MainComponent } from '../shared/components/base/main.component';
+import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
 
 @Component({
   selector: 'app-nav-menu',
   templateUrl: './nav-menu.component.html',
   styleUrls: ['./nav-menu.component.scss']
 })
-export class NavMenuComponent implements OnInit, OnDestroy {
-
-  private destroySubject = new Subject();
-  isLoggedIn: boolean = false;
-
-  constructor(private tokenManager: TokenManager, private authService: AuthService, private router: Router) {
-    this.tokenManager.isAuthenticationChanged()
-      .pipe(takeUntil(this.destroySubject))
-      .subscribe(result => {
-        this.isLoggedIn = result;
-      })
+export class NavMenuComponent extends MainComponent {
+  constructor(
+    private authService: AuthService, 
+    private impersonationService: ImpersonationService, 
+    private router: Router,
+    impersonationManager: ImpersonationManager, 
+    tokenManager: TokenManager,
+    preferencesManager: PreferencesManager,
+    snackBar: MatSnackBar) 
+  {
+    super(impersonationManager, tokenManager, preferencesManager, snackBar);
   }
 
   onLogout(): void {
@@ -28,12 +32,13 @@ export class NavMenuComponent implements OnInit, OnDestroy {
     this.router.navigate(["/login"]);
   }
 
-  ngOnInit(): void {
-    this.isLoggedIn = this.tokenManager.isAuthenticated();
-  }
-
-  ngOnDestroy() {
-    this.destroySubject.next(true);
-    this.destroySubject.complete();
+  stopImpersonating(): void {
+    this.impersonationService.revert()
+      .subscribe((token) => {
+        this.tokenManager.setToken(token);
+        this.impersonationManager.finishImpersonating();
+        this.operationDoneSuccessfully("Impersonating", 'stopped');
+        this.router.navigate(["/"]);
+      })
   }
 }

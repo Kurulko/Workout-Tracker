@@ -1,31 +1,59 @@
 <header>
-    <mat-toolbar color="primary">
-      <button *ngIf="isLoggedIn" type="button" mat-icon-button [routerLink]="['/']">
-        <mat-icon>
-          home
-        </mat-icon>
-      </button>
-      <a *ngIf="isLoggedIn" mat-flat-button color="primary" [routerLink]="['/muscles']">
-        Muscles
-      </a>
-      <a *ngIf="isLoggedIn" mat-flat-button color="primary" [routerLink]="['/body-weights']">
-        Body Weights
-      </a>
-      <a *ngIf="isLoggedIn" mat-flat-button color="primary" [routerLink]="['/muscle-sizes']">
-        Muscle Sizes
-      </a>
-      <a *ngIf="isLoggedIn" mat-flat-button color="primary" [routerLink]="['/all-equipments']">
-       Equipments
-      </a>
-      <span class="separator"></span>
-      <a *ngIf="!isLoggedIn" mat-flat-button color="primary" [routerLink]="['/login']">
-        Login
-      </a>
-      <a *ngIf="!isLoggedIn" mat-flat-button color="primary" [routerLink]="['/register']">
-        Register
-      </a>
-      <a *ngIf="isLoggedIn" mat-flat-button color="primary" (click)="onLogout()">
-        Logout
-      </a>
-    </mat-toolbar>
+  <mat-toolbar color="primary">
+    <button *ngIf="isLoggedIn" type="button" mat-icon-button [routerLink]="['/workouts']">
+      <mat-icon>home</mat-icon>
+    </button>
+    
+    <a *ngIf="isLoggedIn" mat-flat-button color="primary" [routerLink]="['/workouts']">
+      <mat-icon>fitness_center</mat-icon> Workouts
+    </a>
+
+    <a *ngIf="isLoggedIn" mat-flat-button color="primary" [routerLink]="['/progress']">
+      <mat-icon>timeline</mat-icon> Progress
+    </a>
+    
+    <a *ngIf="isLoggedIn" mat-flat-button color="primary" [routerLink]="['/exercises']">
+      <mat-icon>sports_gymnastics</mat-icon> Exercises
+    </a>
+
+    <a *ngIf="isLoggedIn" mat-flat-button color="primary" [routerLink]="['/equipments']">
+      <mat-icon>construction</mat-icon> Equipments
+    </a>
+
+    <a *ngIf="isLoggedIn" mat-flat-button color="primary" [routerLink]="['/muscles']">
+      <mat-icon>accessibility</mat-icon> Muscles
+    </a>
+
+    <span class="spacer"></span>
+    
+    <a *ngIf="isLoggedIn" mat-icon-button [routerLink]="['/account']">
+      <mat-icon>account_circle</mat-icon>
+    </a>
+
+
+    <a *ngIf="isLoggedIn" mat-flat-button color="primary" [routerLink]="['/users']">
+      <mat-icon>group</mat-icon> Users
+    </a>
+
+    <a *ngIf="isAdmin" mat-flat-button color="primary" [routerLink]="['/roles']">
+      <mat-icon>admin_panel_settings</mat-icon> Roles
+    </a>
+
+
+    <a *ngIf="!isLoggedIn" mat-flat-button color="primary" [routerLink]="['/login']">
+      <mat-icon>login</mat-icon> Login
+    </a>
+
+    <a *ngIf="!isLoggedIn" mat-flat-button color="primary" [routerLink]="['/register']">
+      <mat-icon>login</mat-icon> Register
+    </a>
+
+    <a *ngIf="isLoggedIn" mat-flat-button color="primary" (click)="onLogout()">
+      <mat-icon>logout</mat-icon>
+    </a>
+
+    <a *ngIf="isImpersonating" mat-flat-button color="primary" (click)="stopImpersonating()">
+      <mat-icon>stop_circle</mat-icon> Impersonate
+    </a>
+  </mat-toolbar>
 </header>
