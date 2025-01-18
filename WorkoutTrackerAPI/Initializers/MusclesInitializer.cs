@@ -18,6 +18,8 @@ public class MusclesInitializer
         muscle = new Muscle()
         {
             Name = muscleData.Name,
+            IsMeasurable = muscleData.IsMeasurable,
+            Image = muscleData.Image,
             ParentMuscle = parentMuscle
         };
 
@@ -38,5 +40,7 @@ public class MusclesInitializer
 public class MuscleData
 {
     public string Name { get; set; } = null!;
+    public string? Image { get; set; }
+    public bool IsMeasurable { get; set; }
     public List<MuscleData>? Children { get; set; }
 }
