@@ -14,7 +14,7 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
 {
     readonly IHttpContextAccessor httpContextAccessor;
     readonly IBodyWeightService bodyWeightService;
-    public BodyWeightsController(IBodyWeightService bodyWeightService, IMapper mapper, IHttpContextAccessor httpContextAccessor) 
+    public BodyWeightsController(IBodyWeightService bodyWeightService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         : base(mapper)
     {
         this.bodyWeightService = bodyWeightService;
@@ -22,7 +22,7 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
     }
 
     ActionResult<BodyWeightDTO> HandleBodyWeightDTOServiceResult(ServiceResult<BodyWeight> serviceResult)
-        => HandleDTOServiceResult(serviceResult, "Body weight not found.");
+        => HandleDTOServiceResult<BodyWeight, BodyWeightDTO>(serviceResult, "Body weight not found.");
 
     ActionResult InvalidBodyWeightID()
         => InvalidEntryID(nameof(BodyWeight));
@@ -65,7 +65,7 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
             filterQuery
         );
     }
-    
+
     [HttpGet("in-pounds")]
     public async Task<ActionResult<ApiResult<BodyWeightDTO>>> GetCurrentUserBodyWeightsInPoundsAsync(
         DateTime? date = null,
@@ -112,7 +112,7 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
 
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await bodyWeightService.GetUserBodyWeightByIdAsync(userId, bodyWeightId);
-        return HandleDTOServiceResult(serviceResult);
+        return HandleBodyWeightDTOServiceResult(serviceResult);
     }
 
     [HttpGet("min-body-weight")]
@@ -120,7 +120,7 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
     {
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await bodyWeightService.GetMinUserBodyWeightAsync(userId);
-        return HandleDTOServiceResult(serviceResult);
+        return HandleBodyWeightDTOServiceResult(serviceResult);
     }
 
     [HttpGet("max-body-weight")]
@@ -128,7 +128,7 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
     {
         string userId = httpContextAccessor.GetUserId()!;
         var serviceResult = await bodyWeightService.GetMaxUserBodyWeightAsync(userId);
-        return HandleDTOServiceResult(serviceResult);
+        return HandleBodyWeightDTOServiceResult(serviceResult);
     }
 
     [HttpPost]

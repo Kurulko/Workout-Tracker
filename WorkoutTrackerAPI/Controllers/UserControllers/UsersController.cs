@@ -12,11 +12,13 @@ using System.Security.Principal;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Account;
 using WorkoutTrackerAPI.Data.DTOs;
+using WorkoutTrackerAPI.Data.DTOs.UserDTOs;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Extentions;
 using WorkoutTrackerAPI.Services;
+using WorkoutTrackerAPI.Services.BodyWeightServices;
 using WorkoutTrackerAPI.Services.MuscleSizeServices;
 using WorkoutTrackerAPI.Services.RoleServices;
 using WorkoutTrackerAPI.Services.UserServices;
@@ -211,15 +213,15 @@ public class UsersController : APIController
     }
 
     [HttpPut("{userId}")]
-    public async Task<IActionResult> UpdateUserAsync(string userId, User user)
+    public async Task<IActionResult> UpdateUserAsync(string userId, UserDTO userDTO)
     {
         if (string.IsNullOrEmpty(userId))
             return UserIDIsNullOrEmpty();
 
-        if (user is null)
+        if (userDTO is null)
             return UserIsNull();
 
-        if (userId != user.Id)
+        if (userId != userDTO.UserId)
             return EntryIDsNotMatch("User");
 
         try
@@ -228,10 +230,11 @@ public class UsersController : APIController
             var roles = await userService.GetUserRolesAsync(currentUserId);
             bool isAdmin = roles.Contains(Roles.AdminRole);
 
-            bool isCurrentUserUpdating = user.Id == currentUserId;
+            bool isCurrentUserUpdating = userDTO.UserId == currentUserId;
 
             if (isAdmin || isCurrentUserUpdating)
             {
+                var user = mapper.Map<User>(userDTO);
                 var identityResult = await userService.UpdateUserAsync(user);
                 return HandleIdentityResult(identityResult);
             }
@@ -337,6 +340,54 @@ public class UsersController : APIController
         }
     }
 
+
+    #endregion
+
+    #region User Details
+
+    ActionResult UserDetailsIsNull()
+        => EntryIsNull("UserDetails");
+
+    [HttpGet("user-details")]
+    public async Task<ActionResult<UserDetailsDTO>> GetCurrentUserDetailsAsync()
+    {
+        try
+        {
+            string userId = httpContextAccessor.GetUserId()!;
+            var currentUserDetails = await userService.GetUserDetailsFromUserAsync(userId);
+            return mapper.Map<UserDetailsDTO>(currentUserDetails);
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
+    }
+
+    [HttpPost("user-details")]
+    public async Task<IActionResult> AddUserDetailsToCurrentUserAsync([FromBody] UserDetailsDTO userDetailsDTO)
+    {
+        if (userDetailsDTO is null)
+            return UserDetailsIsNull();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var userDetails = mapper.Map<UserDetails>(userDetailsDTO);
+        var serviceResult = await userService.AddUserDetailsToUserAsync(userId, userDetails);
+
+        return HandleServiceResult(serviceResult);
+    }
+
+    [HttpPut("user-details")]
+    public async Task<IActionResult> UpdateCurrentUserUserDetailsAsync([FromBody] UserDetailsDTO userDetailsDTO)
+    {
+        if (userDetailsDTO is null)
+            return UserDetailsIsNull();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var userDetails = mapper.Map<UserDetails>(userDetailsDTO);
+        var serviceResult = await userService.UpdateUserDetailsFromUserAsync(userId, userDetails);
+
+        return HandleServiceResult(serviceResult);
+    }
 
     #endregion
 
@@ -615,13 +666,30 @@ public class UsersController : APIController
 
     #region Roles
 
-    [HttpGet("user-roles")]
+    [HttpGet("current-user-roles")]
     public async Task<ActionResult<IEnumerable<string>>> GetCurrentUserRolesAsync()
     {
         try
         {
             string currentUserId = httpContextAccessor.GetUserId()!;
             var userRoles = await userService.GetUserRolesAsync(currentUserId);
+            return userRoles.ToList();
+        }
+        catch (Exception ex)
+        {
+            return HandleException(ex);
+        }
+    }
+
+    [HttpGet("user-roles/{userId}")]
+    public async Task<ActionResult<IEnumerable<string>>> GetUserRolesAsync(string userId)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(userId))
+                return UserIDIsNullOrEmpty();
+
+            var userRoles = await userService.GetUserRolesAsync(userId);
             return userRoles.ToList();
         }
         catch (Exception ex)

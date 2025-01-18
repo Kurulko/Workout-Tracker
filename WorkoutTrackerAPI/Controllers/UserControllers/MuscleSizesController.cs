@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Data;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.DTOs;
@@ -9,11 +7,7 @@ using WorkoutTrackerAPI.Data.DTOs.UserDTOs;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Extentions;
-using WorkoutTrackerAPI.Services;
-using WorkoutTrackerAPI.Services.BodyWeightServices;
-using WorkoutTrackerAPI.Services.ExerciseServices;
 using WorkoutTrackerAPI.Services.MuscleSizeServices;
-using WorkoutTrackerAPI.Services.WorkoutServices;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
@@ -30,7 +24,7 @@ public class MuscleSizesController : DbModelController<MuscleSizeDTO, MuscleSize
     }
 
     ActionResult<MuscleSizeDTO> HandleMuscleSizeDTOServiceResult(ServiceResult<MuscleSize> serviceResult)
-        => HandleDTOServiceResult(serviceResult, "Muscle size not found.");
+        => HandleDTOServiceResult<MuscleSize, MuscleSizeDTO>(serviceResult, "Muscle size not found.");
 
     ActionResult InvalidMuscleSizeID()
         => InvalidEntryID(nameof(MuscleSize));

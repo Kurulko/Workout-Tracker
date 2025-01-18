@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WorkoutTrackerAPI.Controllers.WorkoutControllers;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Services.ExerciseRecordServices;
-using Microsoft.AspNetCore.Authorization;
 using System.Data;
-using WorkoutTrackerAPI.Services;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Extentions;
 using WorkoutTrackerAPI.Data.DTOs;
@@ -27,7 +24,7 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
     }
 
     ActionResult<ExerciseRecordDTO> HandleExerciseRecordDTOServiceResult(ServiceResult<ExerciseRecord> serviceResult)
-        => HandleDTOServiceResult(serviceResult, "Exercise record not found.");
+        => HandleDTOServiceResult<ExerciseRecord, ExerciseRecordDTO>(serviceResult, "Exercise record not found.");
 
     ActionResult InvalidExerciseRecordID()
         => InvalidEntryID(nameof(ExerciseRecord));
@@ -39,22 +36,27 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
 
     [HttpGet]
     public async Task<ActionResult<ApiResult<ExerciseRecordDTO>>> GetCurrentUserExerciseRecordsAsync(
-        long exerciseId,
-        int pageIndex = 0,
-        int pageSize = 10,
-        string? sortColumn = null,
-        string? sortOrder = null,
-        string? filterColumn = null,
-        string? filterQuery = null)
+        [FromQuery] long? exerciseId = null,
+        [FromQuery] ExerciseType? exerciseType = null,
+        [FromQuery] DateTime? date = null,
+        [FromQuery] int pageIndex = 0,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? sortColumn = null,
+        [FromQuery] string? sortOrder = null,
+        [FromQuery] string? filterColumn = null,
+        [FromQuery]  string? filterQuery = null)
     {
-        if (exerciseId < 1)
-            return InvalidExerciseID();
+        if (date.HasValue && date.Value.Date > DateTime.Now.Date)
+            return BadRequest("Incorrect date.");
+
+        if (exerciseId.HasValue && exerciseId < 1)
+            return InvalidEntryID(nameof(Exercise));
 
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await exerciseRecordService.GetUserExerciseRecordsAsync(userId, exerciseId);
+        var serviceResult = await exerciseRecordService.GetUserExerciseRecordsAsync(userId, exerciseId, exerciseType, date);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
@@ -85,18 +87,6 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
         var serviceResult = await exerciseRecordService.GetUserExerciseRecordByIdAsync(userId, exerciseRecordId);
         return HandleExerciseRecordDTOServiceResult(serviceResult);
     }
-
-    [HttpGet("by-date")]
-    public async Task<ActionResult<ExerciseRecordDTO>> GetCurrentUserExerciseRecordByDateAsync(long exerciseId, DateTime date)
-    {
-        if (exerciseId < 1)
-            return InvalidExerciseID();
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await exerciseRecordService.GetUserExerciseRecordByDateAsync(userId, exerciseId, DateOnly.FromDateTime(date));
-        return HandleExerciseRecordDTOServiceResult(serviceResult);
-    }
-
 
     [HttpPost]
     public async Task<IActionResult> AddExerciseRecordToCurrentUserAsync(ExerciseRecordCreationDTO exerciseRecordCreationDTO)
