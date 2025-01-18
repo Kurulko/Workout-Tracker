@@ -9,9 +9,6 @@ public class UserCreationDTO : IEquatable<User>
     public string UserName { get; set; } = null!;
     public string? Email { get; set; }
 
-    public WeightType PreferableWeightType { get; set; }
-    public SizeType PreferableSizeType { get; set; }
-
     [DateNotInFuture]
     public DateTime? StartedWorkingOut { get; set; }
 
@@ -30,5 +27,4 @@ public class UserCreationDTO : IEquatable<User>
 
     public override int GetHashCode()
         => HashCode.Combine(UserName, Email);
-
 }

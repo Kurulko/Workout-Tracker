@@ -11,9 +11,5 @@ public class BodyWeightDTO
 
     [DateNotInFuture]
     public DateTime Date { get; set; }
-
-    [PositiveNumber(ErrorMessage = "Weight must be a positive number.")]
-    public float Weight { get; set; }
-
-    public WeightType WeightType { get; set; }
+    public ModelWeight Weight { get; set; }
 }

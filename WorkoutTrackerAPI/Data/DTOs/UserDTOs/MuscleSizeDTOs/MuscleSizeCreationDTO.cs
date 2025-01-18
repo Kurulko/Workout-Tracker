@@ -10,9 +10,6 @@ public class MuscleSizeCreationDTO
     [DateNotInFuture]
     public DateTime Date { get; set; }
 
-    [PositiveNumber]
-    public float Size { get; set; }
-    public SizeType SizeType { get; set; }
-
+    public ModelSize Size { get; set; }
     public long MuscleId { get; set; }
 }

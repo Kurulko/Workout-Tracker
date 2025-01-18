@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using WorkoutTrackerAPI.Data.Models;
 
-namespace WorkoutTrackerAPI.Data.DTOs;
+namespace WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs.MuscleDTOs;
 
-public class EquipmentDTO
+public class MuscleUpdateDTO
 {
     public long Id { get; set; }
 
@@ -12,7 +11,8 @@ public class EquipmentDTO
     [MaxLength(50, ErrorMessage = "{0} must be shorter than {1} characters")]
     public string Name { get; set; } = null!;
 
-    public byte[]? Image { get; set; }
-    public bool IsOwnedByUser { get; set; }
-    public IEnumerable<ExerciseDTO>? Exercises { get; set; } = null!;
+    public string? Image { get; set; }
+    public IFormFile? ImageFile { get; set; }
+
+    public long? ParentMuscleId { get; set; }
 }

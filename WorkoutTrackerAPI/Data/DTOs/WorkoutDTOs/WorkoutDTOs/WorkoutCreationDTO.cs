@@ -1,5 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WorkoutTrackerAPI.Data.DTOs.UserDTOs;
+using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs;
 using WorkoutTrackerAPI.Data.Models;
+using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.ValidationAttributes;
 
 namespace WorkoutTrackerAPI.Data.DTOs;
@@ -12,9 +15,5 @@ public class WorkoutCreationDTO
     public string Name { get; set; } = null!;
     public string? Description { get; set; }
 
-    [PositiveNumber]
-    public double Weight { get; set; }
-    public TimeSpan Time { get; set; }
-
-    public IEnumerable<ExerciseDTO> Exercises { get; set; } = null!;
+    public IEnumerable<ExerciseSetGroupDTO> ExerciseSetGroups { get; set; } = null!;
 }

@@ -1,12 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Data.Models;
+﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+using WorkoutTrackerAPI.Data.Models;
 
-namespace WorkoutTrackerAPI.Data.DTOs;
+namespace WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs.ExerciseDTOs;
 
-public class ExerciseDTO
+public class ExerciseUpdateDTO
 {
     public long Id { get; set; }
 
@@ -15,12 +13,8 @@ public class ExerciseDTO
     [MaxLength(50, ErrorMessage = "{0} must be shorter than {1} characters")]
     public string Name { get; set; } = null!;
 
-    public byte[]? Image { get; set; }
+    public string? Image { get; set; }
+    public IFormFile? ImageFile { get; set; }
     public string? Description { get; set; }
     public ExerciseType Type { get; set; }
-
-    public bool IsCreatedByUser { get; set; }
-
-    [JsonProperty("muscles")]
-    public IEnumerable<MuscleDTO> WorkingMuscles { get; set; } = null!;
 }
