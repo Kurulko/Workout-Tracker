@@ -1,0 +1,46 @@
+<main-app title="Account">
+    <mat-toolbar color="primary">
+        <a mat-flat-button color="primary" [routerLink]="['/profile']">
+            <mat-icon>badge</mat-icon> Profile
+        </a>
+        <a mat-flat-button color="primary" [routerLink]="['/personal-data']">
+            <mat-icon>person_edit</mat-icon> Personal Data
+        </a>
+        <a mat-flat-button color="primary" [routerLink]="['/muscle-sizes']">
+            <mat-icon>fitness_center</mat-icon> Your Muscle Sizes
+        </a>
+        <a mat-flat-button color="primary" [routerLink]="['/body-weights']">
+            <mat-icon>accessibility</mat-icon> Your Body Weights
+        </a>
+        <a mat-flat-button color="primary" [routerLink]="['/exercise-records']">
+            <mat-icon>checklist</mat-icon><mat-icon>sports_gymnastics</mat-icon> All Exercise Records
+        </a>
+        <a mat-flat-button color="primary" [routerLink]="['/workout-records']">
+            <mat-icon>checklist</mat-icon><mat-icon>fitness_center</mat-icon> All Workout Records
+        </a>
+    </mat-toolbar>
+    <br /><br />
+
+    <!-- Preferable Weight Type -->
+     <app-short-card title="Preferable Weight Type"  width="40%">
+        <app-weight-type-selector
+            label="Select Preferable Weight Type..."
+            [isShortForm]="false"
+            [value]="preferableWeightType"
+            (weightTypeChange)="changePreferableWeightType($event)"
+            [required]="false" 
+            width="100%" />
+    </app-short-card>
+    <br />
+
+    <!-- Preferable Size Type -->
+    <app-short-card title="Preferable Size Type"  width="40%">
+        <app-size-type-selector
+            label="Select Preferable Size Type..."
+            [isShortForm]="false"
+            [value]="preferableSizeType"
+            (sizeTypeChange)="changePreferableSizeType($event)"
+            [required]="false" 
+            width="100%" />
+    </app-short-card>
+</main-app>

@@ -1,0 +1,72 @@
+<main-app title="Personal Data">
+    <button type="button" mat-flat-button color="secondary" [routerLink]="[accountPath]">
+        <mat-icon>reply</mat-icon> Back
+    </button>
+    <br/><br/>
+    <ng-container *ngIf="isLoading; else userDetailsTemplate">
+        <mat-spinner diameter="60" />
+    </ng-container>
+    <ng-template #userDetailsTemplate>
+        <form [formGroup]="userDetailsForm" (ngSubmit)="onSubmit()">
+            <div class="row">
+                <div class="col">
+                    <!-- Birthday -->
+                    <app-short-card title="Birthday" width="80%">
+                        <app-date-input 
+                            formControlName="birthday" 
+                            label="Birthday" 
+                            modelName="Birthday"
+                            [maxDate]="maxDate" 
+                            [required]="true" 
+                            width="100%" />
+                    </app-short-card>
+                    <br />
+                     <!-- Weight -->
+                    <app-model-weight-input 
+                        [weightTypeValue]="preferableWeightType" 
+                        [weightMaxValue]="1000"
+                        formControlName="weight" 
+                        width="80%"
+                        [required]="true" />
+                    <br />
+                     <!-- Body Fat Percentage -->
+                    <app-short-card title="Body Fat Percentage" width="80%">
+                        <app-body-fat-percentage-input 
+                            formControlName="bodyFatPercentage"
+                            width="100%" 
+                            [required]="true"/>
+                    </app-short-card>
+                </div>
+                <div class="col">
+                    <!-- Gender -->
+                    <app-short-card title="Gender" width="80%">
+                        <app-gender-selector 
+                            formControlName="gender" 
+                            width="100%" 
+                            [required]="true" />
+                    </app-short-card>
+                    <br />
+                        <!-- Height -->
+                        <app-model-size-input 
+                            [sizeTypeValue]="preferableSizeType" 
+                            modelName="Height"
+                            [sizeMaxValue]="300"
+                            label="Height:" 
+                            sizeLabel="Height"
+                            formControlName="height" 
+                            width="80%"
+                            [required]="true" />
+                </div>
+            </div>
+            <br>
+            <div>
+                <button type="submit" color="primary" mat-flat-button [disabled]="userDetailsForm.invalid">
+                    <mat-icon>save</mat-icon> Save
+                </button>
+                <button type="button" mat-flat-button color="secondary" [routerLink]="[accountPath]">
+                    <mat-icon>cancel</mat-icon> Cancel
+                </button>
+            </div>
+        </form>
+    </ng-template>
+</main-app>
