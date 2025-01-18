@@ -1,0 +1,9 @@
+<div [style.width]="width" class="readonly-calendar">
+    <mat-form-field hidden>
+      <ngx-multiple-dates
+        [matDatepicker]="picker"
+        [value]="selectedDates" 
+        [disabled]="true" />
+    </mat-form-field>
+    <mat-calendar #picker [dateFilter]="dateFilter" class="readonly-calendar"/>
+</div>

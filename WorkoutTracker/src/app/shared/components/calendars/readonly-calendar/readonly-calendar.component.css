@@ -1,0 +1,4 @@
+.readonly-calendar ::ng-deep .mat-calendar-body-cell {
+    pointer-events: none;
+    cursor: default;
+}
