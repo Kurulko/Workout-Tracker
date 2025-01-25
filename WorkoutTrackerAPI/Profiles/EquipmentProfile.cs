@@ -26,6 +26,10 @@ public class EquipmentProfile : Profile
                 dest => dest.Equipment,
                 opt => opt.MapFrom(src => src)
             )
+            .ForMember(
+                dest => dest.Muscles,
+                opt => opt.MapFrom(src => src.Exercises.GetModelsOrEmpty().SelectMany(e => e.WorkingMuscles).DistinctBy(m => m.Id).Select(m => new ChildMuscleDTO() { Id = m.Id, Name = m.Name }))
+            )
             .ReverseMap();
 
         CreateMap<EquipmentCreationDTO, Equipment>().ReverseMap();

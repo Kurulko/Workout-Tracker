@@ -26,32 +26,32 @@ public class WorkoutProfile : Profile
             )
             .ReverseMap();
 
-        CreateMap<Workout, WorkoutDetailsDTO>()
-            .ForMember(
-                dest => dest.Workout,
-                opt => opt.MapFrom(src => src)
-            )
-            .ForMember(
-                dest => dest.CountOfTrainings,
-                opt => opt.MapFrom(src => src.WorkoutRecords!.Count())
-            )
-            .ForMember(
-                dest => dest.SumOfWeight,
-                opt => opt.MapFrom(src => src.WorkoutRecords!.GetTotalWeightValue())
-            )
-            .ForMember(
-                dest => dest.SumOfTime,
-                opt => opt.MapFrom(src => (TimeSpanModel)src.WorkoutRecords!.GetTotalTimeValue()!)
-            )
-            .ForMember(
-                dest => dest.Muscles,
-                opt => opt.MapFrom(src => src.ExerciseSetGroups!.GetMuscles())
-            )
-            .ForMember(
-                dest => dest.Equipments,
-                opt => opt.MapFrom(src => src.ExerciseSetGroups!.GetEquipments())
-            )
-          .ReverseMap();
+        //CreateMap<Workout, WorkoutDetailsDTO>()
+        //    .ForMember(
+        //        dest => dest.Workout,
+        //        opt => opt.MapFrom(src => src)
+        //    )
+        //    .ForMember(
+        //        dest => dest.TotalWorkouts,
+        //        opt => opt.MapFrom(src => src.WorkoutRecords!.Count())
+        //    )
+        //    .ForMember(
+        //        dest => dest.TotalWeight,
+        //        opt => opt.MapFrom(src => src.WorkoutRecords!.GetTotalWeightValue())
+        //    )
+        //    .ForMember(
+        //        dest => dest.TotalDuration,
+        //        opt => opt.MapFrom(src => (TimeSpanModel)src.WorkoutRecords!.GetTotalTimeValue()!)
+        //    )
+        //    .ForMember(
+        //        dest => dest.Muscles,
+        //        opt => opt.MapFrom(src => src.ExerciseSetGroups!.GetMuscles())
+        //    )
+        //    .ForMember(
+        //        dest => dest.Equipments,
+        //        opt => opt.MapFrom(src => src.ExerciseSetGroups!.GetEquipments())
+        //    )
+        //  .ReverseMap();
 
         CreateMap<WorkoutCreationDTO, Workout>().ReverseMap();
     }

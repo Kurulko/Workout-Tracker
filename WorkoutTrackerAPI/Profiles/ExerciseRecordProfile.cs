@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using WorkoutTrackerAPI.Data.DTOs;
+using WorkoutTrackerAPI.Data.DTOs.UserDTOs.ExerciseRecordDTOs;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Extentions;
 
@@ -58,5 +59,11 @@ public class ExerciseRecordProfile : Profile
                dest => dest.Time,
                opt => opt.MapFrom(src => src.Time.HasValue ? (TimeSpan?)src.Time.Value : null)
            );
+        
+        CreateMap<ExerciseRecordUpdateDTO, ExerciseRecord>()
+           .ForMember(
+               dest => dest.Time,
+               opt => opt.MapFrom(src => src.Time.HasValue ? (TimeSpan?)src.Time.Value : null)
+           ).ReverseMap(); 
     }
 }
