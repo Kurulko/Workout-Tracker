@@ -38,18 +38,18 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>Actions</th>
       <td mat-cell *matCellDef="let user">
-        <button type="button" mat-button color="primary" [routerLink]="['/user', user.userId]">
+        <button type="button" mat-button color="primary" [routerLink]="['/user', user.userId]" *ngIf="isActionButtons">
           <mat-icon>person</mat-icon> Edit
         </button>
         <button type="button" mat-button color="primary" (click)="openImpersonateButtonDialog(user.userId)" *ngIf="user.userId !== currentUserId">
           <mat-icon>person_search</mat-icon> Impersonate
         </button>
-        <delete-button dialogTitle="Remove User" title="Remove" deleteMatIcon="person_remove" [deleteFn]="deleteUser" [itemId]="user.id"
-            *ngIf="user.userId !== currentUserId" />
+        <delete-button dialogTitle="Remove User" title="Remove" deleteMatIcon="person_remove" [deleteFn]="deleteUser" [itemId]="user.userId"
+            *ngIf="user.userId !== currentUserId && isActionButtons" />
         <ng-template #impersonateButtonDialogTemplate>
             <h2 mat-dialog-title class="text-danger">Impersonate User</h2>
             <mat-dialog-content>You will impersonate this person.</mat-dialog-content>
-            <mat-dialog-actions>
+            <mat-dialog-actions [align]="'end'">
                 <button mat-button mat-dialog-close>Cancel</button>
                 <button mat-button mat-dialog-close (click)="impersonateUser()" color="primary">Impersonate</button>
             </mat-dialog-actions>

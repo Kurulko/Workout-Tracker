@@ -20,11 +20,13 @@
         <td mat-cell *matCellDef="let role">
             <button type="button" mat-button color="primary" [routerLink]="['/role', role.id, 'details']">
                 <mat-icon>info</mat-icon> Details
-              </button>
-            <button type="button" mat-button color="warn" [routerLink]="['roles']">
-                <mat-icon>edit</mat-icon> Edit
             </button>
-            <delete-button dialogTitle="Delete Role" [deleteFn]="deleteRole" [itemId]="role.id"/>
+            <div *ngIf="isActionButtons">
+                <button type="button" mat-button color="warn" [routerLink]="['roles']">
+                    <mat-icon>edit</mat-icon> Edit
+                </button>
+                <delete-button dialogTitle="Delete Role" [deleteFn]="deleteRole" [itemId]="role.id"/>
+            </div>
         </td>
     </ng-container>
 

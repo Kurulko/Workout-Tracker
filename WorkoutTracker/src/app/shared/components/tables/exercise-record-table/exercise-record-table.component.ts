@@ -17,7 +17,7 @@ import { environment } from 'src/environments/environment.prod';
   templateUrl: './exercise-record-table.component.html',
   styleUrls: ['./exercise-record-table.component.css']
 })
-export class ExerciseRecordTableComponent  extends BaseTableComponent<ExerciseRecord> {
+export class ExerciseRecordTableComponent extends BaseTableComponent<ExerciseRecord> {
   constructor(
     impersonationManager: ImpersonationManager, 
     tokenManager: TokenManager,

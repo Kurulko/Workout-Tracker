@@ -31,10 +31,12 @@
       <button type="button" mat-button color="primary" [routerLink]="[equipment.isOwnedByUser ? '/your-equipment' : '/equipment', equipment.id, 'details']">
           <mat-icon>info</mat-icon> Details
       </button>
-      <button type="button" mat-button color="warn" [routerLink]="['equipments']" *ngIf="equipment.isOwnedByUser || isAdmin">
-        <mat-icon>edit</mat-icon> Edit
-      </button>
-      <delete-button dialogTitle="Delete Equipment" [deleteFn]="deleteEquipment" [itemId]="equipment.id"  *ngIf="equipment.isOwnedByUser || isAdmin"/>
+      <div *ngIf="isActionButtons">
+        <button type="button" mat-button color="warn" [routerLink]="['equipments']" *ngIf="equipment.isOwnedByUser || isAdmin">
+          <mat-icon>edit</mat-icon> Edit
+        </button>
+        <delete-button dialogTitle="Delete Equipment" [deleteFn]="deleteEquipment" [itemId]="equipment.id"  *ngIf="equipment.isOwnedByUser || isAdmin"/>
+      </div>
     </td>
   </ng-container>
 

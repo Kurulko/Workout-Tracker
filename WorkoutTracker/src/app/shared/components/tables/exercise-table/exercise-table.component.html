@@ -49,11 +49,13 @@
         <button type="button" mat-button color="primary" [routerLink]="[exercise.isCreatedByUser ? '/your-exercise' : '/exercise', exercise.id, 'details']">
             <mat-icon>info</mat-icon> Details
         </button>
-        <button type="button" mat-button color="primary" *ngIf="exercise.isOwnedByUser || isAdmin"
-            [routerLink]="[exercise.isCreatedByUser ? '/your-exercise' : '/exercise', exercise.id]">
-          <mat-icon>edit</mat-icon> Edit
-        </button>
-        <delete-button dialogTitle="Delete Exercise" *ngIf="exercise.isOwnedByUser || isAdmin" [deleteFn]="deleteExercise" [itemId]="exercise.id"/>
+        <div *ngIf="isActionButtons">
+          <button type="button" mat-button color="primary" *ngIf="exercise.isCreatedByUser || isAdmin"
+              [routerLink]="[exercise.isCreatedByUser ? '/your-exercise' : '/exercise', exercise.id]">
+            <mat-icon>edit</mat-icon> Edit
+          </button>
+          <delete-button dialogTitle="Delete Exercise" *ngIf="exercise.isCreatedByUser || isAdmin" [deleteFn]="deleteExercise" [itemId]="exercise.id"/>
+        </div>
       </td>
     </ng-container>
 

@@ -36,10 +36,12 @@
   <ng-container matColumnDef="actions">
     <th mat-header-cell *matHeaderCellDef>Actions</th>
     <td mat-cell *matCellDef="let muscleSize">
-      <button type="button" mat-button color="primary" [routerLink]="['/muscle-size', muscleSize.id]">
-        <mat-icon>edit</mat-icon> Edit
-      </button>
-      <delete-button dialogTitle="Delete muscle size" [deleteFn]="deleteMuscleSize" [itemId]="muscleSize.id"/>
+      <div *ngIf="isActionButtons">
+        <button type="button" mat-button color="primary" [routerLink]="['/muscle-size', muscleSize.id]">
+          <mat-icon>edit</mat-icon> Edit
+        </button>
+        <delete-button dialogTitle="Delete muscle size" [deleteFn]="deleteMuscleSize" [itemId]="muscleSize.id"/>
+      </div>
     </td>
   </ng-container>
 

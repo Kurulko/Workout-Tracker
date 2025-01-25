@@ -38,6 +38,9 @@ export abstract class BaseTableComponent<T> extends MainComponent implements OnI
     @Input()
     displayedColumns!: string[];
 
+    @Input()
+    isActionButtons: boolean = true;
+
     @Output() sortChange = new EventEmitter<{ sortColumn: string; sortOrder: string }>();
     @Output() pageChange = new EventEmitter<{ pageIndex: number; pageSize: number }>();
     @Output() deleteItem = new EventEmitter<any>();

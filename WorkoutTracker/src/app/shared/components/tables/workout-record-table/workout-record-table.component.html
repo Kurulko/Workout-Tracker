@@ -36,10 +36,12 @@
       <button type="button" mat-button color="primary" [routerLink]="['workout-record', workoutRecord.id, 'details']">
           <mat-icon>info</mat-icon> Details
       </button>
-      <button type="button" mat-button color="primary" [routerLink]="['/workout-record', workoutRecord.id]">
-        <mat-icon>edit</mat-icon> Edit
-      </button>
-      <delete-button dialogTitle="Delete Workout Record" [deleteFn]="deleteWorkoutRecord" [itemId]="workoutRecord.id"/>
+      <div *ngIf="isActionButtons">
+        <button type="button" mat-button color="primary" [routerLink]="['/workout-record', workoutRecord.id]">
+          <mat-icon>edit</mat-icon> Edit
+        </button>
+        <delete-button dialogTitle="Delete Workout Record" [deleteFn]="deleteWorkoutRecord" [itemId]="workoutRecord.id"/>
+      </div>
     </td>
   </ng-container>
 
