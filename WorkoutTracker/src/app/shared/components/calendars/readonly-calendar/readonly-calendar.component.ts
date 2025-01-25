@@ -10,6 +10,12 @@ export class ReadonlyCalendarComponent {
   width?: string;
   
   @Input()
+  minDate: Date|null = null; 
+
+  @Input()
+  maxDate: Date|null = null; 
+
+  @Input()
   selectedDates!: Date[]; 
 
   dateFilter = (_: Date | null): boolean => {

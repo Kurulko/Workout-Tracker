@@ -5,5 +5,5 @@
         [value]="selectedDates" 
         [disabled]="true" />
     </mat-form-field>
-    <mat-calendar #picker [dateFilter]="dateFilter" class="readonly-calendar"/>
+    <mat-calendar #picker [dateFilter]="dateFilter" [maxDate]="maxDate" [minDate]="minDate" class="readonly-calendar"/>
 </div>

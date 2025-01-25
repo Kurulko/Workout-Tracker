@@ -10,6 +10,7 @@ import { TokenManager } from '../../helpers/managers/token-manager';
 import { BaseComponent } from 'src/app/base.component';
 import { getErrors } from '../../helpers/functions/getFunctions/getErrors';
 import { PreferencesManager } from '../../helpers/managers/preferences-manager';
+import { showBigNumberStr } from '../../helpers/functions/showFunctions/showBigNumberStr';
 
 @Component({
     selector: 'main-app',
@@ -30,6 +31,7 @@ export class MainComponent extends BaseComponent {
   }
 
   getErrors = getErrors;
+  showBigNumberStr = showBigNumberStr;
 
   protected errorOccured(error:string) {
     this.showSnackbar(`ERROR: ${error}`)
