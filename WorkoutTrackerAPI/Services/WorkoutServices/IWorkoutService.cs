@@ -6,8 +6,8 @@ namespace WorkoutTrackerAPI.Services.WorkoutServices;
 
 public interface IWorkoutService
 {
-    Task<ServiceResult<Workout>> GetUserWorkoutByIdAsync(string userId, long workoutId);
-    Task<ServiceResult<Workout>> GetUserWorkoutByNameAsync(string userId, string name);
+    Task<ServiceResult<Workout>> GetUserWorkoutByIdAsync(string userId, long workoutId, bool withDetails = false);
+    Task<ServiceResult<Workout>> GetUserWorkoutByNameAsync(string userId, string name, bool withDetails = false);
     Task<ServiceResult<IQueryable<Workout>>> GetUserWorkoutsAsync(string userId, long? exerciseId = null);
 
     Task<ServiceResult<Workout>> AddUserWorkoutAsync(string userId, Workout model);

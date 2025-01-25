@@ -11,10 +11,12 @@ namespace WorkoutTrackerAPI.Services;
 
 public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
 {
+    readonly MuscleRepository muscleRepository;
     readonly UserRepository userRepository;
     readonly IFileService fileService;
-    public MuscleService(MuscleRepository baseWorkoutRepository, UserRepository userRepository, IFileService fileService) : base(baseWorkoutRepository)
+    public MuscleService(MuscleRepository muscleRepository, UserRepository userRepository, IFileService fileService) : base(muscleRepository)
     {
+        this.muscleRepository = muscleRepository;
         this.userRepository = userRepository;
         this.fileService = fileService;
     }
@@ -79,14 +81,14 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
     }
 
-    public async Task<ServiceResult<Muscle>> GetMuscleByIdAsync(long muscleId)
+    public async Task<ServiceResult<Muscle>> GetMuscleByIdAsync(long muscleId, string userId, bool withDetails = false)
     {
         if (muscleId < 1)
             return ServiceResult<Muscle>.Fail(invalidMuscleIDException);
 
         try
         {
-            var muscleById = await baseWorkoutRepository.GetByIdAsync(muscleId);
+            var muscleById = withDetails ? await muscleRepository.GetMuscleByIdWithDetailsAsync(muscleId, userId) : await baseWorkoutRepository.GetByIdAsync(muscleId);
             return ServiceResult<Muscle>.Ok(muscleById);
         }
         catch (Exception ex)
@@ -95,14 +97,14 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
         }
     }
 
-    public async Task<ServiceResult<Muscle>> GetMuscleByNameAsync(string name)
+    public async Task<ServiceResult<Muscle>> GetMuscleByNameAsync(string name, string userId, bool withDetails = false)
     {
         if (string.IsNullOrEmpty(name))
             return ServiceResult<Muscle>.Fail(muscleNameIsNullOrEmptyException);
 
         try
         {
-            var muscleByName = await baseWorkoutRepository.GetByNameAsync(name);
+            var muscleByName = withDetails ? await muscleRepository.GetMuscleByNameWithDetailsAsync(name, userId) : await baseWorkoutRepository.GetByNameAsync(name);
             return ServiceResult<Muscle>.Ok(muscleByName);
         }
         catch (Exception ex)

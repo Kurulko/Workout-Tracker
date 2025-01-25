@@ -10,7 +10,7 @@ public class FileService : IFileService
 
     readonly string sourcePath = Path.Combine("Data", "Source");
 
-    public async Task<string> UploadFileAsync(IFormFile file, string directory, string[] allowedExtensions, long maxFileSize)
+    public async Task<string> UploadFileAsync(IFormFile file, string directory, string[] allowedExtensions, long maxFileSize, bool isUniqueName = true)
     {
         if (file == null || file.Length == 0)
             throw new ArgumentException("No file provided.");
@@ -26,7 +26,7 @@ public class FileService : IFileService
             throw new InvalidOperationException($"File size exceeds the maximum limit of {maxFileSize / 1024 / 1024} MB.");
         }
 
-        string fileName = $"{Guid.NewGuid()}{extension}";
+        string fileName = isUniqueName ? $"{Guid.NewGuid()}{extension}" : file.FileName;
         //string fileName = file.FileName;
         string contentPath = environment.ContentRootPath;
         string filePath = Path.Combine(directory, fileName);
@@ -47,8 +47,8 @@ public class FileService : IFileService
     }
 
     readonly string[] imageExtensions = new string[] { ".jpg", ".jpeg", ".png" };
-    public async Task<string> UploadImageAsync(IFormFile file, string directory, long maxFileSize)
-        => await UploadFileAsync(file, directory, imageExtensions, maxFileSize);
+    public async Task<string> UploadImageAsync(IFormFile file, string directory, long maxFileSize, bool isUniqueName = true)
+        => await UploadFileAsync(file, directory, imageExtensions, maxFileSize, isUniqueName);
 
     public string DownloadFile(string filePath)
     {

@@ -219,18 +219,25 @@ public class UserService : BaseService<User>, IUserService
             if (userDetails is null)
                 throw userDetailsIsNullException;
 
-            var _userDetails = await userRepository.GetUserDetailsFromUserAsync(userId) ?? throw userDetailsNotFoundException;
+            var _userDetails = await userRepository.GetUserDetailsFromUserAsync(userId);
+            if (_userDetails is null)
+            {
+                userDetails.UserId = userId;
+                await userDetailsRepository.AddAsync(userDetails);
+            }
+            else
+            {
+                if (_userDetails.UserId != userId)
+                    throw UserNotHavePermissionException("update", "user details");
 
-            if (_userDetails.UserId != userId)
-                throw UserNotHavePermissionException("update", "user details");
+                _userDetails.Gender = userDetails.Gender;
+                _userDetails.Weight = userDetails.Weight;
+                _userDetails.Height = userDetails.Height;
+                _userDetails.DateOfBirth = userDetails.DateOfBirth;
+                _userDetails.BodyFatPercentage = userDetails.BodyFatPercentage;
 
-            _userDetails.Gender = userDetails.Gender;
-            _userDetails.Weight = userDetails.Weight;
-            _userDetails.Height = userDetails.Height;
-            _userDetails.DateOfBirth = userDetails.DateOfBirth;
-            _userDetails.BodyFatPercentage = userDetails.BodyFatPercentage;
-
-            await userDetailsRepository.UpdateAsync(_userDetails);
+                await userDetailsRepository.UpdateAsync(_userDetails);
+            }
             return ServiceResult.Ok();
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)

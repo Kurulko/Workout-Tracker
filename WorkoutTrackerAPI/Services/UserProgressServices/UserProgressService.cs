@@ -20,23 +20,23 @@ public class UserProgressService : IUserProgressService
 
         var user = await userRepository.GetUserByIdAsync(userId) ?? throw NotFoundException.NotFoundExceptionByID(nameof(User), userId);
 
-        var userWorkouts = (await userRepository.GetUserWorkoutsAsync(userId))!;
+        var userWorkoutRecords = (await userRepository.GetUserWorkoutRecordsAsync(userId))!;
 
-        if (userWorkouts is null || !userWorkouts.Any())
+        if (userWorkoutRecords is null || !userWorkoutRecords.Any())
             return new TotalUserProgress();
 
-        int totalWorkouts = userWorkouts.Sum(w => w.CountOfTrainings);
-        ModelWeight totalWeightLifted = userWorkouts.GetTotalWeightValue();
-        TimeSpan totalDuration = userWorkouts.GetTotalTime();
-        var workoutDates = userWorkouts.SelectMany(w => w.WorkoutRecords!.Select(wr => wr.Date)).ToList();
+        int totalWorkouts = userWorkoutRecords.Count();
+        ModelWeight totalWeightLifted = userWorkoutRecords.GetTotalWeightValue();
+        TimeSpan totalDuration = userWorkoutRecords.GetTotalTime();
+        var workoutDates = userWorkoutRecords.Select(wr => wr.Date).Distinct().ToList();
         DateTime? firstWorkoutDate = user.StartedWorkingOut;
 
         TimeSpan averageWorkoutDuration = TimeSpan.FromMinutes(totalDuration.TotalMinutes / totalWorkouts);
         int countOfDaysSinceFirstWorkout = firstWorkoutDate == null ? 0 : (int)(DateTime.Now - firstWorkoutDate.Value).TotalDays;
 
         const int daysInWeek = 7;
-        double countOfWeeks = countOfDaysSinceFirstWorkout / daysInWeek;
-        var frequencyPerWeek = (double)Math.Round((decimal)(totalWorkouts / countOfWeeks), 1);
+        double countOfWeeks = Math.Round((double)countOfDaysSinceFirstWorkout / daysInWeek) + 1;
+        var frequencyPerWeek = Math.Round(totalWorkouts / countOfWeeks, 1);
 
         return new TotalUserProgress
         {

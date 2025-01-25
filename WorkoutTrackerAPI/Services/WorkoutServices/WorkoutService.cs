@@ -21,14 +21,16 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
     readonly ExerciseRecordRepository exerciseRecordRepository;
     readonly ExerciseRecordGroupRepository exerciseRecordGroupRepository;
     readonly WorkoutRecordRepository workoutRecordRepository;
-    public WorkoutService(WorkoutRepository baseWorkoutRepository, 
+    readonly WorkoutRepository workoutRepository;
+    public WorkoutService(WorkoutRepository workoutRepository, 
         ExerciseSetRepository exerciseSetRepository, 
         ExerciseSetGroupRepository exerciseSetGroupRepository, 
         ExerciseRecordRepository exerciseRecordRepository, 
         ExerciseRecordGroupRepository exerciseRecordGroupRepository,
         WorkoutRecordRepository workoutRecordRepository, 
-        UserRepository userRepository) : base(baseWorkoutRepository)
+        UserRepository userRepository) : base(workoutRepository)
     {
+        this.workoutRepository = workoutRepository;
         this.userRepository = userRepository;
         this.exerciseSetRepository = exerciseSetRepository;
         this.exerciseSetGroupRepository = exerciseSetGroupRepository;
@@ -320,7 +322,7 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
     public async Task<ServiceResult> UnpinUserWorkout(string userId, long workoutId)
         => await ChangeUserPinnedWorkout(userId, workoutId, false);
 
-    public async Task<ServiceResult<Workout>> GetUserWorkoutByIdAsync(string userId, long workoutId)
+    public async Task<ServiceResult<Workout>> GetUserWorkoutByIdAsync(string userId, long workoutId, bool withDetails = false)
     {
         try
         {
@@ -329,7 +331,7 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             if (workoutId < 1)
                 throw invalidWorkoutIDException;
 
-            var userWorkoutById = await baseWorkoutRepository.GetByIdAsync(workoutId);
+            var userWorkoutById = withDetails ? await workoutRepository.GetWorkoutByIdWithDetailsAsync(workoutId) : await baseWorkoutRepository.GetByIdAsync(workoutId);
             return ServiceResult<Workout>.Ok(userWorkoutById);
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
@@ -342,7 +344,7 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
         }
     }
 
-    public async Task<ServiceResult<Workout>> GetUserWorkoutByNameAsync(string userId, string name)
+    public async Task<ServiceResult<Workout>> GetUserWorkoutByNameAsync(string userId, string name, bool withDetails = false)
     {
         try
         {
@@ -351,7 +353,7 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             if (string.IsNullOrEmpty(name))
                 throw workoutNameIsNullOrEmptyException;
 
-            var userWorkoutByName = await baseWorkoutRepository.GetByNameAsync(name);
+            var userWorkoutByName = withDetails ? await workoutRepository.GetWorkoutByNameWithDetailsAsync(name) : await baseWorkoutRepository.GetByNameAsync(name);
             return ServiceResult<Workout>.Ok(userWorkoutByName);
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)

@@ -14,9 +14,10 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
 {
     readonly UserRepository userRepository;
     readonly IFileService fileService;
-
-    public EquipmentService(EquipmentRepository baseWorkoutRepository, UserRepository userRepository, IFileService fileService) : base(baseWorkoutRepository)
+    readonly EquipmentRepository equipmentRepository;
+    public EquipmentService(EquipmentRepository equipmentRepository, UserRepository userRepository, IFileService fileService) : base(equipmentRepository)
     {
+        this.equipmentRepository = equipmentRepository;
         this.userRepository = userRepository;
         this.fileService = fileService;
     }
@@ -187,14 +188,14 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         return true;
     }
 
-    public async Task<ServiceResult<Equipment>> GetInternalEquipmentByIdAsync(long equipmentId)
+    public async Task<ServiceResult<Equipment>> GetInternalEquipmentByIdAsync(long equipmentId, bool withDetails = false)
     {
         try
         {
             if (equipmentId < 1)
                 throw invalidEquipmentIDException;
 
-            var equipmentById = await baseWorkoutRepository.GetByIdAsync(equipmentId);
+            var equipmentById = withDetails ? await equipmentRepository.GetEquipmentByIdWithDetailsAsync(equipmentId) : await baseWorkoutRepository.GetByIdAsync(equipmentId);
 
             if (equipmentById != null && equipmentById.OwnedByUserId != null)
                 throw UserNotHavePermissionException("get", "internal equipment");
@@ -211,14 +212,14 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
     }
 
-    public async Task<ServiceResult<Equipment>> GetInternalEquipmentByNameAsync(string name)
+    public async Task<ServiceResult<Equipment>> GetInternalEquipmentByNameAsync(string name, bool withDetails = false)
     {
         try
         {
             if (string.IsNullOrEmpty(name))
                 throw equipmentNameIsNullOrEmptyException;
 
-            var equipmentByName = await baseWorkoutRepository.GetByNameAsync(name);
+            var equipmentByName = withDetails ? await equipmentRepository.GetEquipmentByNameWithDetailsAsync(name) : await baseWorkoutRepository.GetByNameAsync(name);
 
             if (equipmentByName != null && equipmentByName.OwnedByUserId != null)
                 throw UserNotHavePermissionException("get", "internal equipment by name");
@@ -248,7 +249,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
     }
 
-    public async Task<ServiceResult<Equipment>> GetUserEquipmentByIdAsync(string userId, long equipmentId)
+    public async Task<ServiceResult<Equipment>> GetUserEquipmentByIdAsync(string userId, long equipmentId, bool withDetails = false)
     {
         try
         {
@@ -257,7 +258,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
             if (equipmentId < 1)
                 throw invalidEquipmentIDException;
 
-            var userEquipmentById = await baseWorkoutRepository.GetByIdAsync(equipmentId);
+            var userEquipmentById = withDetails ? await equipmentRepository.GetEquipmentByIdWithDetailsAsync(equipmentId) : await baseWorkoutRepository.GetByIdAsync(equipmentId);
 
             if (userEquipmentById != null && userEquipmentById.OwnedByUserId != userId)
                 throw UserNotHavePermissionException("get", "user equipment");
@@ -274,7 +275,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
     }
 
-    public async Task<ServiceResult<Equipment>> GetUserEquipmentByNameAsync(string userId, string name)
+    public async Task<ServiceResult<Equipment>> GetUserEquipmentByNameAsync(string userId, string name, bool withDetails = false)
     {
         try
         {
@@ -283,7 +284,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
             if (string.IsNullOrEmpty(name))
                 throw equipmentNameIsNullOrEmptyException;
 
-            var userEquipmentByName = await baseWorkoutRepository.GetByNameAsync(name);
+            var userEquipmentByName = withDetails ? await equipmentRepository.GetEquipmentByNameWithDetailsAsync(name) : await baseWorkoutRepository.GetByNameAsync(name);
 
             if (userEquipmentByName != null && userEquipmentByName.OwnedByUserId != userId)
                 throw UserNotHavePermissionException("get", "user equipment by name");
@@ -301,7 +302,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
     }
 
 
-    public async Task<ServiceResult<Equipment>> GetEquipmentByIdAsync(string userId, long equipmentId)
+    public async Task<ServiceResult<Equipment>> GetEquipmentByIdAsync(string userId, long equipmentId, bool withDetails = false)
     {
         try
         {
@@ -310,7 +311,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
             if (equipmentId < 1)
                 throw invalidEquipmentIDException;
 
-            var equipmentById = await baseWorkoutRepository.GetByIdAsync(equipmentId);
+            var equipmentById = withDetails ? await equipmentRepository.GetEquipmentByIdWithDetailsAsync(equipmentId) : await baseWorkoutRepository.GetByIdAsync(equipmentId);
 
             if (equipmentById != null && (equipmentById.OwnedByUserId != userId && equipmentById.OwnedByUserId != null))
                 throw UserNotHavePermissionException("get", "equipment");
@@ -327,7 +328,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
     }
 
-    public async Task<ServiceResult<Equipment>> GetEquipmentByNameAsync(string userId, string name)
+    public async Task<ServiceResult<Equipment>> GetEquipmentByNameAsync(string userId, string name, bool withDetails = false)
     {
         try
         {
@@ -336,7 +337,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
             if (string.IsNullOrEmpty(name))
                 throw equipmentNameIsNullOrEmptyException;
 
-            var equipmentByName = await baseWorkoutRepository.GetByNameAsync(name);
+            var equipmentByName = withDetails ? await equipmentRepository.GetEquipmentByNameWithDetailsAsync(name) : await baseWorkoutRepository.GetByNameAsync(name);
 
             if (equipmentByName != null && (equipmentByName.OwnedByUserId != userId && equipmentByName.OwnedByUserId != null))
                 throw UserNotHavePermissionException("get", "equipment by name");

@@ -6,13 +6,13 @@ namespace WorkoutTrackerAPI.Services.ExerciseServices;
 
 public interface IExerciseService
 {
-    Task<ServiceResult<Exercise>> GetInternalExerciseByIdAsync(long exerciseId);
-    Task<ServiceResult<Exercise>> GetUserExerciseByIdAsync(string userId, long exerciseId);
-    Task<ServiceResult<Exercise>> GetExerciseByIdAsync(string userId, long exerciseId);
+    Task<ServiceResult<Exercise>> GetInternalExerciseByIdAsync(string userId, long exerciseId, bool withDetails = false);
+    Task<ServiceResult<Exercise>> GetUserExerciseByIdAsync(string userId, long exerciseId, bool withDetails = false);
+    Task<ServiceResult<Exercise>> GetExerciseByIdAsync(string userId, long exerciseId, bool withDetails = false);
 
-    Task<ServiceResult<Exercise>> GetInternalExerciseByNameAsync(string name);
-    Task<ServiceResult<Exercise>> GetUserExerciseByNameAsync(string userId, string name);
-    Task<ServiceResult<Exercise>> GetExerciseByNameAsync(string userId, string name);
+    Task<ServiceResult<Exercise>> GetInternalExerciseByNameAsync(string userId, string name, bool withDetails = false);
+    Task<ServiceResult<Exercise>> GetUserExerciseByNameAsync(string userId, string name, bool withDetails = false);
+    Task<ServiceResult<Exercise>> GetExerciseByNameAsync(string userId, string name, bool withDetails = false);
 
     Task<ServiceResult<IQueryable<Exercise>>> GetInternalExercisesAsync(ExerciseType? exerciseType = null);
     Task<ServiceResult<IQueryable<Exercise>>> GetUserExercisesAsync(string userId, ExerciseType? exerciseType = null);
