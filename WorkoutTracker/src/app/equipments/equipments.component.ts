@@ -28,6 +28,7 @@ export class EquipmentsComponent extends ModelsTableComponent<Equipment> impleme
     super(impersonationManager, tokenManager, preferencesManager, snackBar);
     this.displayedColumns = ['index', 'name', 'photo', 'actions'];
     this.filterColumn = "name";
+    this.sortColumn = 'name';
   }
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;

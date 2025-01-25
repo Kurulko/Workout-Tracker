@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EquipmentDetails } from './equipment-details';
 import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
@@ -15,6 +15,7 @@ import { MainComponent } from '../shared/components/base/main.component';
 import { ExerciseService } from '../exercises/services/exercise.service';
 import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
+import { showValuesStr } from '../shared/helpers/functions/showFunctions/showValuesStr';
 
 @Component({
   selector: 'app-equipment-details',
@@ -38,6 +39,8 @@ export class EquipmentDetailsComponent extends MainComponent implements AfterVie
 
   equipmentPageType!: "yours"|"internal";
   envProduction = environment;
+  
+  readonly musclePanelOpenState = signal(false);
 
   ngAfterViewInit(): void {
     const fullPath = this.router.url;
@@ -51,6 +54,16 @@ export class EquipmentDetailsComponent extends MainComponent implements AfterVie
     this.loadExercises();
   } 
 
+   getMuscleNamesStr(): string {
+    if(!this.equipmentDetails.muscles)
+      return '';
+    
+    var muscleNames = this.equipmentDetails.muscles.map(muscle => muscle.name);
+    const maxLength = 100;
+    return showValuesStr(muscleNames, maxLength);
+  }
+
+  hasMuscles: boolean = false; 
   loadEquipmentDetails() {
     var idParam = this.activatedRoute.snapshot.paramMap.get('id');
     this.equipmentId = idParam ? +idParam : 0;
@@ -72,6 +85,7 @@ export class EquipmentDetailsComponent extends MainComponent implements AfterVie
       }))
       .subscribe((result: EquipmentDetails) => {
           this.equipmentDetails = result;
+          this.hasMuscles = result.muscles !== null && result.muscles.length > 0;
       });
     } 
     else {
@@ -92,7 +106,7 @@ export class EquipmentDetailsComponent extends MainComponent implements AfterVie
   pageExerciseSize: number = 10;
   totalExerciseCount!: number;
 
-  sortExerciseColumn: string = "id";
+  sortExerciseColumn: string = "name";
   sortExerciseOrder: "asc" | "desc" = "asc";
   filterExerciseColumn?: string;
   filterExerciseQuery?: string;

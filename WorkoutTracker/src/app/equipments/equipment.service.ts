@@ -100,6 +100,14 @@ export class EquipmentService extends ModelsService {
         return this.webClient.get<boolean>(`user-equipment-exists-by-name/${name}`);
     }
 
+    getEquipmentById(id: number): Observable<Equipment> {
+        return this.webClient.get<Equipment>(`equipment/${id}`);
+    }
+
+    getEquipmentByName(name: string): Observable<Equipment> {
+        return this.webClient.get<Equipment>(`equipment/by-name/${name}`);
+    }
+
     getAllEquipments(pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Equipment>> {
         return this.webClient.get<ApiResult<Equipment>>("all-equipments", this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
