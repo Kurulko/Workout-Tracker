@@ -1,4 +1,7 @@
 <main-app title="Body Weights">
+  <button type="button" mat-flat-button color="secondary" [routerLink]="['/account']">
+    <mat-icon>reply</mat-icon> Account
+  </button>
   <button type="button" [hidden]="!data" color="primary" mat-flat-button [routerLink]="['/body-weight']">
     <mat-icon>add</mat-icon> Add
   </button>

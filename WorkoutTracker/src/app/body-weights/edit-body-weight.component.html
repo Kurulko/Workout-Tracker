@@ -13,7 +13,6 @@
             <app-date-input 
                 [(ngModel)]="bodyWeight.date" 
                 [maxDate]="maxDate" 
-                [required]="true" 
                 #date="ngModel" 
                 width="100%"/>
         </app-short-card>
@@ -24,11 +23,10 @@
             [(ngModel)]="bodyWeight.weight" 
             [weightTypeValue]="preferableWeightType"
             [weightMaxValue]="1000" 
+            [required]="true"
             width="40%" 
-            [required]="true" 
             #weight="ngModel" />
         <br>
-        
         <div>
             <button type="button" color="primary" mat-flat-button (click)="onSubmit()" 
                     [disabled]="date.invalid || weight.invalid">
