@@ -111,16 +111,20 @@ public static class EnumerableExtensions
 
     public static ModelWeight GetTotalWeightValue(this ExerciseRecord exerciseRecord)
     {
-        if (exerciseRecord.Weight is ModelWeight weight && exerciseRecord.Reps is int reps)
-            return weight * reps;
+        if (exerciseRecord.Weight is ModelWeight weight)
+        {
+            return exerciseRecord.Reps is int reps ? weight * reps : weight;
+        }
 
         return new ModelWeight();
     }
 
     public static ModelWeight GetTotalWeightValue(this ExerciseSet exerciseSet)
     {
-        if (exerciseSet.Weight is ModelWeight weight && exerciseSet.Reps is int reps)
-            return weight * reps;
+        if (exerciseSet.Weight is ModelWeight weight)
+        {
+            return exerciseSet.Reps is int reps ? weight * reps : weight;
+        }
 
         return new ModelWeight();
     }
@@ -191,10 +195,7 @@ public static class EnumerableExtensions
     {
         if (exerciseSet.Time is TimeSpan time)
         {
-            if (exerciseSet.Reps is int reps)
-                return time * reps;
-            else
-                return time;
+            return time;
         }
 
         return new TimeSpan();
