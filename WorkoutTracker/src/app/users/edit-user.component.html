@@ -11,8 +11,8 @@
         <div class="row">
             <div class="col">
                 <!-- ID -->
-                <app-short-card title="ID" width="90%">
-                    <mat-form-field *ngIf="id" [style.width]="'100%'">
+                <app-short-card title="ID" width="90%" *ngIf="id">
+                    <mat-form-field [style.width]="'100%'">
                         <mat-label>ID:</mat-label>
                         <input matInput [value]="user.userId" disabled placeholder="ID"/>
                     </mat-form-field>
@@ -35,6 +35,7 @@
                 <app-short-card title="Email" width="90%">
                     <app-email-input 
                         [(ngModel)]="user.email" 
+                        email
                         [required]="false" 
                         #emailInput="ngModel"
                         width="100%" />
@@ -59,7 +60,7 @@
                         label="Started Working Out" 
                         [(ngModel)]="user.startedWorkingOut" 
                         [maxDate]="maxDate" 
-                        [required]="true" 
+                        [required]="false" 
                         #startedWorkingOutInput="ngModel" 
                         width="100%" />
                 </app-short-card>

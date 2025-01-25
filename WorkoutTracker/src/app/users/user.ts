@@ -3,5 +3,5 @@ export interface User {
     userName: string;
     email: string|null;
     registered: Date;
-    startedWorkingOut: Date;
+    startedWorkingOut: Date|null;
 }
