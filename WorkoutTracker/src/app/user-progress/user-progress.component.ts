@@ -9,6 +9,9 @@ import { showTime } from '../shared/helpers/functions/showFunctions/showTime';
 import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
 import { TokenManager } from '../shared/helpers/managers/token-manager';
 import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { showCountOfSomethingStr } from '../shared/helpers/functions/showFunctions/showCountOfSomethingStr';
+import { TimeSpan } from '../shared/models/time-span';
+import { showBigNumberStr } from '../shared/helpers/functions/showFunctions/showBigNumberStr';
 
 @Component({
   selector: 'app-user-progress',
@@ -21,6 +24,10 @@ export class UserProgressComponent extends MainComponent implements OnInit {
   restDays!: number;
 
   workoutDates: Date[] = [];
+
+  firstWorkoutDate!: Date;
+  todayDate = new Date();
+  totalDays!: TimeSpan;
 
   constructor(private userProgressService: UserProgressService, 
     impersonationManager: ImpersonationManager, 
@@ -39,13 +46,18 @@ export class UserProgressComponent extends MainComponent implements OnInit {
     this.loadData();
   }
 
+  showCountOfSomethingStr = showCountOfSomethingStr;
+  
   loadData() {
     this.userProgressService.calculateUserProgress()
       .pipe(this.catchError())
       .subscribe((result: UserProgress) => {
         this.userProgress = result;
-
+        this.totalDays = <TimeSpan>{days: result.countOfDaysSinceFirstWorkout};
+        
         this.workoutDates = result.workoutDates!.map(workoutDate => new Date(workoutDate));
+        this.firstWorkoutDate = new Date(Math.min(...this.workoutDates.map(date => date.getTime())))
+
         this.workoutDays = result.totalWorkouts;
         this.restDays = result.countOfDaysSinceFirstWorkout - result.totalWorkouts;
       });

@@ -18,7 +18,7 @@
                                 </tr>
                                 <tr>
                                     <th>Total Weight Lifted:</th>
-                                    <td>{{ roundWeight(userProgress.totalWeightLifted.weight) }} {{ showWeightTypeShort(userProgress.totalWeightLifted.weightType) }}</td>
+                                    <td>{{ showBigNumberStr(roundWeight(userProgress.totalWeightLifted.weight)) }} {{ showWeightTypeShort(userProgress.totalWeightLifted.weightType) }}</td>
                                 </tr>
                                 <tr>
                                     <th>Total Duration</th>
@@ -30,7 +30,7 @@
                                 </tr>
                                 <tr>
                                     <th>Count of Days since First Workout:</th>
-                                    <td>{{ userProgress.countOfDaysSinceFirstWorkout }} days</td>
+                                    <td>{{ showCountOfSomethingStr(userProgress.countOfDaysSinceFirstWorkout, "day", "days") }} ({{showTime(totalDays)}})</td>
                                 </tr>
                                 <tr>
                                     <th>Average Workout Duration:</th>
@@ -38,7 +38,7 @@
                                 </tr>
                                 <tr>
                                     <th>Frequency Per Week:</th>
-                                    <td>{{ userProgress.frequencyPerWeek }} times per week</td>
+                                    <td>{{ showCountOfSomethingStr(userProgress.frequencyPerWeek, "time", "times") }} per week</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -47,6 +47,8 @@
                     <app-short-card title="Workouts on Calendar" width="70%">
                         <app-readonly-calendar 
                             [selectedDates]="workoutDates" 
+                            [minDate]="firstWorkoutDate"
+                            [maxDate]="todayDate"
                             width="100%" />
                     </app-short-card>
                 </div>
