@@ -1,9 +1,12 @@
 <main-app title="Workout Records">
-  <button type="button" [hidden]="!data" color="primary" mat-flat-button
+    <button type="button" mat-flat-button color="secondary" [routerLink]="['/account']">
+        <mat-icon>reply</mat-icon> Account
+    </button>
+    <button type="button" [hidden]="!data" color="primary" mat-flat-button
         [routerLink]="workoutId ? ['/workouts', workoutId , 'workout-record'] : ['/workout-record']">
-    <mat-icon>add</mat-icon><mat-icon>fitness_center</mat-icon> Add
-  </button>
-  <br/><br/>
+        <mat-icon>add</mat-icon><mat-icon>fitness_center</mat-icon> Add
+    </button>
+    <br/><br/>
 
   <ng-container *ngIf="!data; else workoutRecordsTemplate">
     <mat-spinner diameter="60" />
@@ -20,7 +23,7 @@
         <br />
 
         <div class="row">
-            <div class="col" *ngIf="!date && data!.length > 1">
+            <div class="col-md-6" *ngIf="!date && data!.length > 1">
                 <app-workout-record-chart 
                     chartType="bar"
                     [pageIndex]="pageIndex"
@@ -30,7 +33,7 @@
                     [isPaginator]="false"
                     (pageChange)="onPageChange($event)" />
             </div>
-            <div class="col">
+            <div class="col-md-6">
                 <div class="card-container" *ngFor="let workoutRecord of data">
                     <mat-card>
                         <mat-card-header>
@@ -46,7 +49,7 @@
                                     </tr>
                                     <tr>
                                         <th>Weight:</th>
-                                        <td>{{ roundWeight(workoutRecord.weight.weight) }} {{ showWeightTypeShort(workoutRecord.weight.weightType) }}</td>
+                                        <td>{{ showBigNumberStr(roundWeight(workoutRecord.weight.weight)) }} {{ showWeightTypeShort(workoutRecord.weight.weightType) }}</td>
                                     </tr>
                                     <tr>
                                         <th>Exercises:</th>

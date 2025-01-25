@@ -25,8 +25,8 @@
                 <app-short-card title="Workout" width="100%">
                     <app-workout-selector 
                         [(ngModel)]="workoutRecord.workoutId" 
-                        [required]="true" 
                         #workoutInput="ngModel"
+                        [required]="true" 
                         width="100%" />
                 </app-short-card>
                 <br />
@@ -39,7 +39,7 @@
                     #timeInput="ngModel" 
                     width="100%"/>
                 <br />
-                
+
                 <div>
                     <button type="button" color="primary" mat-flat-button (click)="onSubmit()" 
                             [disabled]="dateInput.invalid || workoutInput.invalid || timeInput.invalid || !isExerciseSetGroupsValid">

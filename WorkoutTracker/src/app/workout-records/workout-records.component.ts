@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar  } from '@angular/material/snack-bar';
 import { Observable } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
@@ -77,8 +76,6 @@ export class WorkoutRecordsComponent extends ModelsTableComponent<WorkoutRecord>
     this.loadData();
   }
 
-  dataSource!: MatTableDataSource<WorkoutRecord>;
-
   getData(event: PageEvent) {
     var sortColumn = (this.sort) ? this.sort.active : this.sortColumn;
     var sortOrder = (this.sort) ? this.sort.direction: this.sortOrder;
@@ -91,7 +88,7 @@ export class WorkoutRecordsComponent extends ModelsTableComponent<WorkoutRecord>
         this.paginator.pageIndex = result.pageIndex;
         this.paginator.pageSize = result.pageSize;
 
-        this.dataSource = new MatTableDataSource<WorkoutRecord>(result.data);
+        this.data = result.data;
       });
   }
 

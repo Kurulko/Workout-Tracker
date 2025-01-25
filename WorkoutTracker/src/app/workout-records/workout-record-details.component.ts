@@ -25,7 +25,7 @@ import { PreferencesManager } from '../shared/helpers/managers/preferences-manag
   styleUrls: ['./workout-record-details.component.css']
 })
 export class WorkoutRecordDetailsComponent extends MainComponent implements OnInit {
-  workoutRecord: WorkoutRecord = <WorkoutRecord>{};
+  workoutRecord!: WorkoutRecord;
 
   constructor(private activatedRoute: ActivatedRoute, 
     private router: Router, 

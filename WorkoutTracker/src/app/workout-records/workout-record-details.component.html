@@ -25,7 +25,7 @@
                         </tr>
                         <tr>
                             <th>Weight:</th>
-                            <td>{{ roundWeight(workoutRecord.weight.weight) }} {{ showWeightTypeShort(workoutRecord.weight.weightType) }}</td>
+                            <td>{{ showBigNumberStr(roundWeight(workoutRecord.weight.weight)) }} {{ showWeightTypeShort(workoutRecord.weight.weightType) }}</td>
                         </tr>
                         <tr>
                             <th>Records:</th>
@@ -50,7 +50,7 @@
                                                     {{ exerciseRecordGroup.exerciseName }}
                                                 </td>
                                                 <td  *ngIf="set === 0" [attr.rowspan]="exerciseRecordGroup.sets">
-                                                    {{ showCountOfSomethingStr(exerciseRecordGroup.sets, 'set', 'sets') }} ({{ roundWeight(exerciseRecordGroup.weight.weight) }} {{ showWeightTypeShort(exerciseRecordGroup.weight.weightType) }})
+                                                    {{ showCountOfSomethingStr(exerciseRecordGroup.sets, 'set', 'sets') }} <span *ngIf="exerciseRecordGroup.weight.weight">({{ showBigNumberStr(roundWeight(exerciseRecordGroup.weight.weight)) }} {{ showWeightTypeShort(exerciseRecordGroup.weight.weightType) }})</span>
                                                 </td>
                                                 <td>
                                                     {{ exerciseRecordGroup.sets === 1 ? '' : (set + 1) + ')' }} {{ showExerciseValue(exerciseRecord) }}
