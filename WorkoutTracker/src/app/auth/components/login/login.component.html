@@ -2,7 +2,7 @@
     <app-show-auth-result-errors [authResult]="authResult" />
 
     <app-short-card title="Name" width="40%">
-        <app-name-input [(ngModel)]="loginModel.name" width="100%" [required]="true" hintStr="Min 3 characters" #name="ngModel" />
+        <app-name-input [(ngModel)]="loginModel.name" width="100%" [minlength]="3" [required]="true" hintStr="Min 3 characters" #name="ngModel" />
     </app-short-card>
     <br />
     <app-short-card title="Password" width="40%">

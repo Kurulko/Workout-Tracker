@@ -11,7 +11,7 @@
             <br />
 
             <!-- Email -->
-            <app-email-input formControlName="email" [required]="false" width="40%" />
+            <app-email-input formControlName="email" email [required]="false" width="40%" />
             <br />
 
             <!-- Password -->
@@ -44,7 +44,7 @@
                             formControlName="birthday" 
                             label="Birthday" 
                             modelName="Birthday"
-                            [maxDate]="maxDate" 
+                            [maxDate]="maxBirthdayDate" 
                             [required]="true" 
                             width="100%" />
                     </app-short-card>

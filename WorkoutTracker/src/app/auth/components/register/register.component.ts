@@ -11,6 +11,7 @@ import { UserDetailsService } from 'src/app/account/services/user-details.servic
 import { UserDetails } from 'src/app/account/models/user-details';
 import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
+import { minAge } from 'src/settings';
 
 @Component({
   selector: 'app-register',
@@ -18,7 +19,7 @@ import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent extends AuthComponent implements OnInit {
-  maxDate: Date = new Date();
+  maxBirthdayDate!: Date;
 
   constructor(private fb: FormBuilder,
     private userDetailsService: UserDetailsService,
@@ -38,6 +39,10 @@ export class RegisterComponent extends AuthComponent implements OnInit {
   rememberMeForm!: FormGroup;
 
   ngOnInit() {
+    const currentDate = new Date(); 
+    currentDate.setFullYear(currentDate.getFullYear() - minAge) //at least 5 y.o.
+    this.maxBirthdayDate = currentDate;
+
     this.initForm();
   }
 
