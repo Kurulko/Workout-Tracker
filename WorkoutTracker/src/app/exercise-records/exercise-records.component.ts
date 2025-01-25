@@ -62,11 +62,11 @@ export class ExerciseRecordsComponent extends ModelsTableComponent<ExerciseRecor
 
   onExerciseSelected() {
     if(this.exerciseId){
-      (this.exerciseService.getInternalExerciseById(this.exerciseId) ?? this.exerciseService.getUserExerciseById(this.exerciseId))
-      .pipe(this.catchError())
-      .subscribe(exercise => {
-        this.exerciseType = exercise.type;
-      });
+      this.exerciseService.getExerciseById(this.exerciseId)
+        .pipe(this.catchError())
+        .subscribe(exercise => {
+          this.exerciseType = exercise.type;
+        });
     }
     this.loadData();
   }

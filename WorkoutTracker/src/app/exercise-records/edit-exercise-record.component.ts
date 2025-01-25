@@ -9,6 +9,7 @@ import { TokenManager } from '../shared/helpers/managers/token-manager';
 import { ExerciseRecord } from './exercise-record';
 import { ExerciseRecordService } from './exercise-record.service';
 import { ExerciseType } from '../exercises/models/exercise-type';
+import { ExerciseService } from '../exercises/services/exercise.service';
 
 @Component({
   selector: 'app-edit-exercise-record',
@@ -23,6 +24,7 @@ export class EditExerciseRecordComponent extends EditModelComponent<ExerciseReco
 
   constructor( 
     private activatedRoute: ActivatedRoute,  
+    private exerciseService: ExerciseService, 
     private exerciseRecordService: ExerciseRecordService, 
     router: Router,  
     impersonationManager: ImpersonationManager, 
@@ -33,7 +35,6 @@ export class EditExerciseRecordComponent extends EditModelComponent<ExerciseReco
     super(router, impersonationManager, tokenManager, preferencesManager, snackBar);
   }
 
-  exerciseType = ExerciseType;
 
   ngOnInit(): void {
     this.loadData();
@@ -52,32 +53,53 @@ export class EditExerciseRecordComponent extends EditModelComponent<ExerciseReco
       });
     }
     else {
-      // Add mode
-      this.title = "Create new Exercise Record";
-      this.exerciseRecord = <ExerciseRecord>{ date : new Date() };
+      this.router.navigate([this.exerciseRecordsPath]);
     }
   }
 
   onSubmit() {
-    if (this.id) {
-      // Edit mode
-      this.exerciseRecordService.updateExerciseRecord(this.exerciseRecord)
-      .pipe(this.catchError())
-      .subscribe(_ => {
-          this.modelUpdatedSuccessfully('Exercise Record')
-          console.log("ExerciseRecord " + this.exerciseRecord!.id + " has been updated.");
-          this.router.navigate([this.exerciseRecordsPath]);
-      });
+    this.prepareExerciseRecordBeforeSumbiting(this.exerciseRecord);
+    this.exerciseRecordService.updateExerciseRecord(this.exerciseRecord)
+    .pipe(this.catchError())
+    .subscribe(_ => {
+        this.modelUpdatedSuccessfully('Exercise Record')
+        console.log("ExerciseRecord " + this.exerciseRecord!.id + " has been updated.");
+        this.router.navigate([this.exerciseRecordsPath]);
+    });
+  }
+
+  isExerciseSetValid: boolean = false;
+  onExerciseSetValidityChange(isValid: boolean){
+    this.isExerciseSetValid = isValid;
+  }
+
+
+  prepareExerciseRecordBeforeSumbiting(exerciseRecord: ExerciseRecord) {
+    switch (exerciseRecord.exerciseType) {
+      case ExerciseType.Reps:
+        exerciseRecord.time = null;
+        exerciseRecord.weight = null;
+        break;
+      case ExerciseType.Time:
+        exerciseRecord.reps = null;
+        exerciseRecord.weight = null;
+        break;
+      case ExerciseType.WeightAndReps:
+        exerciseRecord.time = null;
+        break;
+      case ExerciseType.WeightAndTime:
+        exerciseRecord.reps = null;
+        break;
+      default:
+        throw new Error(`Unexpected exerciseType value`);
     }
-    else {
-      // Add mode
-      this.exerciseRecordService.createExerciseRecord(this.exerciseRecord)
+  }
+
+  onExerciseSelected() {
+    this.exerciseService.getExerciseById(this.exerciseRecord.exerciseId)
       .pipe(this.catchError())
-      .subscribe(result => {
-          this.modelAddedSuccessfully('Exercise Record')
-          console.log("ExerciseRecord " + result.id + " has been created.");
-          this.router.navigate([this.exerciseRecordsPath]);
+      .subscribe(exercise => {
+        this.exerciseRecord.exerciseType = exercise.type;
       });
-    }
   }
 }

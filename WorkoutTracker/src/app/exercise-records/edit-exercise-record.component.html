@@ -8,33 +8,49 @@
     </ng-container>
     <ng-template #editExerciseRecordTemplate>
         <app-show-validation-errors [validationErrors]="validationErrors"/>
-        <!-- Date -->
-        <app-short-card title="Date" width="40%">
-            <app-date-input 
-                [(ngModel)]="exerciseRecord.date" 
-                [maxDate]="maxDate" 
-                [required]="true" 
-                #dateInput="ngModel" 
-                width="100%"/>
-        </app-short-card>
-        <br />
-
-        <!-- Exercise Record -->
-        <app-exercise-set-editor 
-            [(ngModel)]="exerciseRecord" 
-            width="40%" 
-            [required]="true"  
-            #exerciseRecordInput="ngModel" />
-        <br />
-
-        <div>
-            <button type="button" color="primary" mat-flat-button (click)="onSubmit()" 
-            [disabled]="dateInput.invalid || exerciseRecordInput.invalid">
-                <mat-icon>{{ this.id ? "edit" : "add_box" }}</mat-icon> {{ this.id ? "Save" : "Create" }}
-            </button>
-            <button type="button" mat-flat-button color="secondary" [routerLink]="[exerciseRecordsPath]">
-                <mat-icon>cancel</mat-icon> Cancel
-            </button>
+        <div class="row">
+            <div class="col">
+                <!-- Date -->
+                <app-short-card title="Date" width="80%">
+                    <app-date-input 
+                        [(ngModel)]="exerciseRecord.date" 
+                        [maxDate]="maxDate" 
+                        [required]="true" 
+                        #dateInput="ngModel" 
+                        width="100%"/>
+                </app-short-card>
+                <br />
+                <!-- Type -->
+                <app-short-card title="Exercise" width="80%">
+                    <app-exercise-selector 
+                        [(ngModel)]="exerciseRecord.exerciseId"
+                        (ngModelChange)="onExerciseSelected()"
+                        [required]="true" 
+                        #exerciseIdInput="ngModel" 
+                        width="100%"/>
+                </app-short-card>
+                <br />
+                <div>
+                    <button type="button" color="primary" mat-flat-button (click)="onSubmit()" 
+                    [disabled]="dateInput.invalid || !isExerciseSetValid || exerciseIdInput.invalid">
+                        <mat-icon>{{ this.id ? "edit" : "add_box" }}</mat-icon> {{ this.id ? "Save" : "Create" }}
+                    </button>
+                    <button type="button" mat-flat-button color="secondary" [routerLink]="[exerciseRecordsPath]">
+                        <mat-icon>cancel</mat-icon> Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="col">
+                <!-- Exercise Record -->
+                <app-short-card title="Value" width="80%">
+                    <app-exercise-set-editor 
+                        [(ngModel)]="exerciseRecord"
+                        (validityChange)="onExerciseSetValidityChange($event)" 
+                        width="100%" 
+                        [required]="true"  
+                    />
+                </app-short-card>
+            </div>
         </div>
     </ng-template>
 </main-app>
