@@ -38,7 +38,8 @@ export class NavMenuComponent extends MainComponent {
         this.tokenManager.setToken(token);
         this.impersonationManager.finishImpersonating();
         this.operationDoneSuccessfully("Impersonating", 'stopped');
-        this.router.navigate(["/"]);
+        // this.router.navigate(["/"]);
+        window.location.reload();   
       })
   }
 }

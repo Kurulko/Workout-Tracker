@@ -31,7 +31,7 @@
     </a>
 
 
-    <a *ngIf="isLoggedIn" mat-flat-button color="primary" [routerLink]="['/users']">
+    <a *ngIf="isAdmin" mat-flat-button color="primary" [routerLink]="['/users']">
       <mat-icon>group</mat-icon> Users
     </a>
 
@@ -48,7 +48,7 @@
       <mat-icon>login</mat-icon> Register
     </a>
 
-    <a *ngIf="isLoggedIn" mat-flat-button color="primary" (click)="onLogout()">
+    <a *ngIf="isLoggedIn && !isImpersonating" mat-flat-button color="primary" (click)="onLogout()">
       <mat-icon>logout</mat-icon>
     </a>
 
