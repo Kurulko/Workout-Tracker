@@ -8,6 +8,7 @@ using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Extentions;
 using WorkoutTrackerAPI.Data.DTOs;
 using AutoMapper;
+using WorkoutTrackerAPI.Data.DTOs.UserDTOs.ExerciseRecordDTOs;
 
 namespace WorkoutTrackerAPI.Controllers.UserControllers;
 
@@ -107,7 +108,7 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
     }
 
     [HttpPut("{exerciseRecordId}")]
-    public async Task<IActionResult> UpdateCurrentUserExerciseRecordAsync(long exerciseRecordId, ExerciseRecordDTO exerciseRecordDTO)
+    public async Task<IActionResult> UpdateCurrentUserExerciseRecordAsync(long exerciseRecordId, ExerciseRecordUpdateDTO exerciseRecordDTO)
     {
         if (exerciseRecordId < 1)
             return InvalidExerciseRecordID();
