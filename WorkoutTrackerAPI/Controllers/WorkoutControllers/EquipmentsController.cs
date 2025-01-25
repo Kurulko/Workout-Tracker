@@ -11,6 +11,7 @@ using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs.EquipmentDTOs;
 using WorkoutTrackerAPI.Services.FileServices;
+using WorkoutTrackerAPI.Services;
 
 namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 
@@ -149,7 +150,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
         );
     }
 
-    [HttpGet("{equipmentId}/equipments")]
+    [HttpGet("{equipmentId}/exercises")]
     public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetExercisesByEquipmentIdAsync(
         int equipmentId,
         int pageIndex = 0,
@@ -163,7 +164,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await equipmentService.GetEquipmentByIdAsync(userId, equipmentId);
+        var serviceResult = await equipmentService.GetEquipmentByIdAsync(userId, equipmentId, true);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
@@ -205,7 +206,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
         if (equipmentId < 1)
             return InvalidEquipmentID();
 
-        var serviceResult = await equipmentService.GetInternalEquipmentByIdAsync(equipmentId);
+        var serviceResult = await equipmentService.GetInternalEquipmentByIdAsync(equipmentId, true);
         return HandleEquipmentDetailsDTOServiceResult(serviceResult);
     }
 
@@ -230,7 +231,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
             return InvalidEquipmentID();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await equipmentService.GetUserEquipmentByIdAsync(userId, equipmentId);
+        var serviceResult = await equipmentService.GetUserEquipmentByIdAsync(userId, equipmentId, true);
         return HandleUserEquipmentDetailsDTOServiceResult(serviceResult);
     }
 
@@ -251,7 +252,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
         if (string.IsNullOrEmpty(name))
             return EquipmentNameIsNullOrEmpty();
 
-        var serviceResult = await equipmentService.GetInternalEquipmentByNameAsync(name);
+        var serviceResult = await equipmentService.GetInternalEquipmentByNameAsync(name, true);
         return HandleEquipmentDetailsDTOServiceResult(serviceResult);
     }
 
@@ -274,9 +275,33 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
             return EquipmentNameIsNullOrEmpty();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await equipmentService.GetUserEquipmentByNameAsync(userId, name);
+        var serviceResult = await equipmentService.GetUserEquipmentByNameAsync(userId, name, true);
         return HandleUserEquipmentDetailsDTOServiceResult(serviceResult);
     }
+
+    [HttpGet("equipment/{equipmentId}")]
+    [ActionName(nameof(GetEquipmentByIdAsync))]
+    public async Task<ActionResult<EquipmentDTO>> GetEquipmentByIdAsync(long equipmentId)
+    {
+        if (equipmentId < 1)
+            return InvalidEquipmentID();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await equipmentService.GetEquipmentByIdAsync(userId, equipmentId);
+        return HandleUserEquipmentDTOServiceResult(serviceResult);
+    }
+
+    [HttpGet("equipment/by-name/{name}")]
+    public async Task<ActionResult<EquipmentDTO>> GetEquipmentByNameAsync(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return EquipmentNameIsNullOrEmpty();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await equipmentService.GetEquipmentByNameAsync(userId, name);
+        return HandleEquipmentDTOServiceResult(serviceResult);
+    }
+
 
     readonly string equipmentPhotosDirectory = Path.Combine("photos", "equipments");
     const int maxEquipmentImageSizeInMB = 3;
@@ -290,7 +315,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 
         try
         {
-            string? image = await fileService.GetImage(equipmentCreationDTO.ImageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB);
+            string? image = await fileService.GetImage(equipmentCreationDTO.ImageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB, false);
             var equipment = mapper.Map<Equipment>(equipmentCreationDTO);
             equipment.Image = image;
 
@@ -352,7 +377,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 
         try
         {
-            string? image = await fileService.GetImage(equipmentUpdateDTO.ImageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB);
+            string? image = await fileService.GetImage(equipmentUpdateDTO.ImageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB, false);
             var equipment = mapper.Map<Equipment>(equipmentUpdateDTO);
             equipment.Image = image ?? equipmentUpdateDTO.Image;
 

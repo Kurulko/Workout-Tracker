@@ -26,7 +26,55 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
     ActionResult<WorkoutDTO> HandleWorkoutDTOServiceResult(ServiceResult<Workout> serviceResult)
         => HandleDTOServiceResult<Workout, WorkoutDTO>(serviceResult, workoutNotFoundStr);
     ActionResult<WorkoutDetailsDTO> HandleWorkoutDetailsDTOServiceResult(ServiceResult<Workout> serviceResult)
-        => HandleDTOServiceResult<Workout, WorkoutDetailsDTO>(serviceResult, workoutNotFoundStr);
+    {
+        ServiceResult<WorkoutDetailsDTO> serviceResultDTO;
+
+        if (serviceResult.Success)
+        {
+            var workoutDetailsDTO = GetWorkoutDetailsDTO(serviceResult.Model);
+            serviceResultDTO = ServiceResult<WorkoutDetailsDTO>.Ok(workoutDetailsDTO);
+        }
+        else
+        {
+            serviceResultDTO = ServiceResult<WorkoutDetailsDTO>.Fail(serviceResult.ErrorMessage!);
+        }
+
+        return HandleServiceResult(serviceResultDTO, workoutNotFoundStr);
+    }
+
+    WorkoutDetailsDTO? GetWorkoutDetailsDTO(Workout? workout)
+    {
+        if (workout == null)
+            return null;
+
+        var workoutDetailsDTO = new WorkoutDetailsDTO();
+
+        var workoutDTO = mapper.Map<WorkoutDTO>(workout);
+        var workoutRecords = workout.WorkoutRecords!;
+        var totalWorkouts = workoutRecords.Count();
+        var totalWeight = workoutRecords.GetTotalWeightValue();
+        var totalDuration = workoutRecords.GetTotalTime();
+        var averageWorkoutDuration = TimeSpan.FromMinutes(totalDuration.TotalMinutes / totalWorkouts);
+        var dates = workoutRecords.Select(wr => wr.Date).Distinct().ToList();
+
+        workoutDetailsDTO.Workout = workoutDTO;
+        workoutDetailsDTO.TotalWorkouts = totalWorkouts;
+        workoutDetailsDTO.TotalWeight = totalWeight;
+        workoutDetailsDTO.TotalDuration = (TimeSpanModel)totalDuration;
+        workoutDetailsDTO.AverageWorkoutDuration = (TimeSpanModel)averageWorkoutDuration;
+        workoutDetailsDTO.Dates = dates;
+
+        if (workoutDTO.Started.HasValue)
+            workoutDetailsDTO.CountOfDaysSinceFirstWorkout = (int)(DateTime.Now - workoutDTO.Started.Value).TotalDays;
+
+        var muscles = workout.ExerciseSetGroups!.GetMuscles();
+        var equipments = workout.ExerciseSetGroups!.GetEquipments();
+
+        workoutDetailsDTO.Muscles = muscles.Select(m => mapper.Map<MuscleDTO>(m));
+        workoutDetailsDTO.Equipments = equipments.Select(m => mapper.Map<EquipmentDTO>(m));
+
+        return workoutDetailsDTO;
+    }
 
     ActionResult InvalidWorkoutID()
         => InvalidEntryID(nameof(Workout));
@@ -94,7 +142,7 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
             return InvalidWorkoutID();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutService.GetUserWorkoutByIdAsync(userId, workoutId);
+        var serviceResult = await workoutService.GetUserWorkoutByIdAsync(userId, workoutId, true);
         return HandleWorkoutDetailsDTOServiceResult(serviceResult);
     }
 
@@ -117,10 +165,9 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
             return WorkoutNameIsNullOrEmpty();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutService.GetUserWorkoutByNameAsync(userId, name);
+        var serviceResult = await workoutService.GetUserWorkoutByNameAsync(userId, name, true);
         return HandleWorkoutDetailsDTOServiceResult(serviceResult);
     }
-
 
     [HttpPost]
     public async Task<IActionResult> AddCurrentUserWorkoutAsync(WorkoutCreationDTO workoutCreationDTO)

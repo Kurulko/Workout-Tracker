@@ -161,7 +161,8 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (exerciseId < 1)
             return InvalidExerciseID();
 
-        var serviceResult = await exerciseService.GetInternalExerciseByIdAsync(exerciseId);
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await exerciseService.GetInternalExerciseByIdAsync(userId, exerciseId);
         return HandleExerciseDTOServiceResult(serviceResult);
     }
 
@@ -172,7 +173,8 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (exerciseId < 1)
             return InvalidExerciseID();
 
-        var serviceResult = await exerciseService.GetInternalExerciseByIdAsync(exerciseId);
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await exerciseService.GetInternalExerciseByIdAsync(userId, exerciseId, true);
         return HandleExerciseDetailsDTOServiceResult(serviceResult);
     }
 
@@ -197,7 +199,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
             return InvalidExerciseID();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await exerciseService.GetUserExerciseByIdAsync(userId, exerciseId);
+        var serviceResult = await exerciseService.GetUserExerciseByIdAsync(userId, exerciseId, true);
         return HandleUserExerciseDetailsDTOServiceResult(serviceResult);
     }
 
@@ -208,7 +210,8 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (string.IsNullOrEmpty(name))
             return ExerciseNameIsNullOrEmpty();
 
-        var serviceResult = await exerciseService.GetInternalExerciseByNameAsync(name);
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await exerciseService.GetInternalExerciseByNameAsync(userId, name);
         return HandleExerciseDTOServiceResult(serviceResult);
     }
 
@@ -218,7 +221,8 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (string.IsNullOrEmpty(name))
             return ExerciseNameIsNullOrEmpty();
 
-        var serviceResult = await exerciseService.GetInternalExerciseByNameAsync(name);
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await exerciseService.GetInternalExerciseByNameAsync(userId, name, true);
         return HandleExerciseDetailsDTOServiceResult(serviceResult);
     }
 
@@ -241,9 +245,34 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
             return ExerciseNameIsNullOrEmpty();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await exerciseService.GetUserExerciseByNameAsync(userId, name);
+        var serviceResult = await exerciseService.GetUserExerciseByNameAsync(userId, name, true);
         return HandleUserExerciseDetailsDTOServiceResult(serviceResult);
     }
+
+
+    [HttpGet("exercise/{exerciseId}")]
+    [ActionName(nameof(GetCurrentExerciseByIdAsync))]
+    public async Task<ActionResult<ExerciseDTO>> GetCurrentExerciseByIdAsync(long exerciseId)
+    {
+        if (exerciseId < 1)
+            return InvalidExerciseID();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await exerciseService.GetExerciseByIdAsync(userId, exerciseId);
+        return HandleUserExerciseDTOServiceResult(serviceResult);
+    }
+
+    [HttpGet("exercise/by-name/{name}")]
+    public async Task<ActionResult<ExerciseDTO>> GetExerciseByNameAsync(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return ExerciseNameIsNullOrEmpty();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await exerciseService.GetExerciseByNameAsync(userId, name);
+        return HandleExerciseDTOServiceResult(serviceResult);
+    }
+
 
     readonly string exercisePhotosDirectory = Path.Combine("photos", "exercises");
     const int maxExerciseImageSizeInMB = 3;
@@ -257,7 +286,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
         try
         {
-            string? image = await fileService.GetImage(exerciseCreationDTO.ImageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB);
+            string? image = await fileService.GetImage(exerciseCreationDTO.ImageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, false);
             var exercise = mapper.Map<Exercise>(exerciseCreationDTO);
             exercise.Image = image;
 
@@ -320,7 +349,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
         try
         {
-            string? image = await fileService.GetImage(exerciseUpdateDTO.ImageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB);
+            string? image = await fileService.GetImage(exerciseUpdateDTO.ImageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, false);
             var exercise = mapper.Map<Exercise>(exerciseUpdateDTO);
             exercise.Image = image ?? exerciseUpdateDTO.Image;
 

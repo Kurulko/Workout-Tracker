@@ -17,11 +17,13 @@ namespace WorkoutTrackerAPI.Controllers.WorkoutControllers;
 public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
 {
     readonly IMuscleService muscleService;
+    readonly IHttpContextAccessor httpContextAccessor;
     readonly IFileService fileService;
-    public MusclesController(IFileService fileService, IMuscleService muscleService, IMapper mapper) : base(mapper)
+    public MusclesController(IFileService fileService, IMuscleService muscleService, IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(mapper)
     {
         this.muscleService = muscleService;
         this.fileService = fileService;
+        this.httpContextAccessor = httpContextAccessor;
     }
 
 
@@ -157,7 +159,8 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
-        var serviceResult = await muscleService.GetMuscleByIdAsync(muscleId);
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await muscleService.GetMuscleByIdAsync(muscleId, userId, true);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
@@ -187,7 +190,8 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (muscleId < 1)
             return InvalidMuscleID();
 
-        var serviceResult = await muscleService.GetMuscleByIdAsync(muscleId);
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await muscleService.GetMuscleByIdAsync(muscleId, userId);
         return HandleMuscleDTOServiceResult(serviceResult);
     }
 
@@ -198,7 +202,8 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (muscleId < 1)
             return InvalidMuscleID();
 
-        var serviceResult = await muscleService.GetMuscleByIdAsync(muscleId);
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await muscleService.GetMuscleByIdAsync(muscleId, userId, true);
         return HandleMuscleDetailsDTOServiceResult(serviceResult);
     }
 
@@ -209,7 +214,8 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (string.IsNullOrEmpty(name))
             return MuscleNameIsNullOrEmpty();
 
-        var serviceResult = await muscleService.GetMuscleByNameAsync(name);
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await muscleService.GetMuscleByNameAsync(name, userId);
         return HandleMuscleDTOServiceResult(serviceResult);
     }
 
@@ -219,7 +225,8 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (string.IsNullOrEmpty(name))
             return MuscleNameIsNullOrEmpty();
 
-        var serviceResult = await muscleService.GetMuscleByNameAsync(name);
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await muscleService.GetMuscleByNameAsync(name, userId, true);
         return HandleMuscleDetailsDTOServiceResult(serviceResult);
     }
 
@@ -235,7 +242,7 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
 
         try
         {
-            string? image = await fileService.GetImage(muscleCreationDTO.ImageFile, musclePhotosDirectory, maxMuscleImageSizeInMB);
+            string? image = await fileService.GetImage(muscleCreationDTO.ImageFile, musclePhotosDirectory, maxMuscleImageSizeInMB, false);
             var muscle = mapper.Map<Muscle>(muscleCreationDTO);
             muscle.Image = image;
 
@@ -269,7 +276,7 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
 
         try
         {
-            string? image = await fileService.GetImage(muscleUpdateDTO.ImageFile, musclePhotosDirectory, maxMuscleImageSizeInMB);
+            string? image = await fileService.GetImage(muscleUpdateDTO.ImageFile, musclePhotosDirectory, maxMuscleImageSizeInMB, false);
             var muscle = mapper.Map<Muscle>(muscleUpdateDTO);
             muscle.Image = image ?? muscleUpdateDTO.Image;
 
