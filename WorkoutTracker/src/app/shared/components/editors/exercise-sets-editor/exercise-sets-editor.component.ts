@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { ExerciseType } from '../../../../exercises/models/exercise-type';
 import { TimeSpan } from '../../../models/time-span';
@@ -13,6 +13,11 @@ import { WeightType } from 'src/app/shared/models/weight-type';
     selector: 'app-exercise-sets-edit',
     templateUrl: './exercise-sets-editor.component.html',
     providers: [
+        {
+            provide: NG_VALIDATORS,
+            useExisting: forwardRef(() => ExerciseSetsEditorComponent),
+            multi: true,
+        },
         {
             provide: NG_VALUE_ACCESSOR,
             useExisting: forwardRef(() => ExerciseSetsEditorComponent),
@@ -155,5 +160,18 @@ export class ExerciseSetsEditorComponent extends BaseEditorComponent<ExerciseSet
     onExerciseSetUpdated(updatedSet: any, index: number) {
         this.exerciseSets[index] = updatedSet;
         this.updateValue();
+    }
+
+    validate() {
+        var isValid;
+        if(this.exerciseSetsValidators && this.exerciseSetsValidators.some(v => v === false)){ 
+            // if at least one exercise set is invalid
+            isValid = false;
+        }
+        else {
+            isValid = this.isValid;
+        }
+
+        return isValid ? null : { required: true };
     }
 }

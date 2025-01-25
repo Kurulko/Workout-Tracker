@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { ExerciseType } from '../../../../exercises/models/exercise-type';
 import { ExerciseSet } from '../../../models/exercise-set';
@@ -12,6 +12,11 @@ import { ModelWeight } from 'src/app/shared/models/model-weight';
   selector: 'app-exercise-set-editor',
   templateUrl: './exercise-set-editor.component.html',
   providers: [
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => ExerciseSetEditorComponent),
+      multi: true,
+    },
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => ExerciseSetEditorComponent),
@@ -99,5 +104,9 @@ export class ExerciseSetEditorComponent extends BaseEditorComponent<ExerciseSet>
 
   writeValue(value: ExerciseSet): void {
     this._exerciseSet = value;
+  }
+
+  validate() {
+    return this.isValid ? null : {required: true};
   }
 }

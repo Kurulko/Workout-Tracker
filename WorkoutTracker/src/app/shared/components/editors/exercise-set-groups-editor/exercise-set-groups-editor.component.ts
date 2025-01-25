@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, ViewChild, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { ExerciseSetGroup } from '../../../models/exercise-set-group';
 import { ModelWeight } from '../../../models/model-weight';
@@ -14,6 +14,11 @@ import { Exercise } from 'src/app/exercises/models/exercise';
   selector: 'app-exercise-set-groups-editor',
   templateUrl: './exercise-set-groups-editor.component.html',
   providers: [
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => ExerciseSetGroupsEditorComponent),
+      multi: true,
+    },
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => ExerciseSetGroupsEditorComponent),
@@ -51,7 +56,6 @@ export class ExerciseSetGroupsEditorComponent extends BaseEditorComponent<Exerci
     }
     else {
       this.validityChange.emit(this.isValid);
-      // this.validityChange.emit(this.checkExerciseSetGroupsValidation());
     }
   }
 
@@ -111,7 +115,7 @@ export class ExerciseSetGroupsEditorComponent extends BaseEditorComponent<Exerci
   }
 
   onExerciseIdSelected(exerciseId: number) {
-    (this.exerciseService.getInternalExerciseById(exerciseId) ?? this.exerciseService.getInternalExerciseById(exerciseId))
+    this.exerciseService.getExerciseById(exerciseId)
       // .pipe(this.catchError())
       .subscribe((exercise) => {
         this.exerciseSetGroups.push(this.getDefaultExerciseSetGroupByExercise(exercise));
@@ -150,5 +154,18 @@ export class ExerciseSetGroupsEditorComponent extends BaseEditorComponent<Exerci
 
   collapseAll(): void {
     this.accordion.closeAll();
+  }
+
+  validate() {
+    var isValid;
+    if(this.exerciseSetGroupsValidators && this.exerciseSetGroupsValidators.some(v => v === false)) { 
+      // if at least one exercise set is invalid
+      isValid = false;
+    }
+    else {
+      isValid = this.isValid;
+    }
+
+    return isValid ? null : { required: true };
   }
 }

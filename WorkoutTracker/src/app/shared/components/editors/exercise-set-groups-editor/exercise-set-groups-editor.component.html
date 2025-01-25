@@ -7,7 +7,7 @@
             <mat-icon>add</mat-icon> Add Exercise
         </button>
         <app-exercise-selector *ngIf="isAddingNewExercise" (exerciseIdChange)="onExerciseIdSelected($event)" 
-            [required]="true" width="500px" />
+            [required]="exerciseSetGroups.length === 0" width="500px" />
     </mat-card-header>
     <mat-card-content>
         <br>
