@@ -11,9 +11,9 @@ public class ImpersonationController : APIController
         => this.impersonationService = impersonationService;
 
 
-    [HttpPost("impersonate")]
+    [HttpPost("impersonate/{userId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<ActionResult> ImpersonateAsync([FromBody] string userId)
+    public async Task<ActionResult> ImpersonateAsync(string userId)
     {
        if(string.IsNullOrEmpty(userId))
            return BadRequest("User ID is null or empty.");
