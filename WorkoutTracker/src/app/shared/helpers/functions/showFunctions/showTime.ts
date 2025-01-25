@@ -1,56 +1,59 @@
 import { TimeSpan } from "../../../models/time-span";
-import { roundNumber } from "../roundNumber";
 import { showCountOfSomethingStr } from "./showCountOfSomethingStr";
 
-export function showTime(time: TimeSpan): string {
-  let timeStr = '';
-  const andStr = " and ";
+export function showTime(time: TimeSpan, isWithSeconds: boolean = false, isWithMilliseconds: boolean = false): string {
+  var years = Math.trunc(time.days / 365);
+  var months = Math.trunc((time.days - years * 365) / 30);
+  var days = time.days - years * 365 - months * 30;
 
-  var hours = time.hours;
-  if(hours > 0) {
-    if(hours >= 24) {
-      var days = roundNumber(time.hours / 24, 0);
-      timeStr += showDays(days);
+  var timesStr: (string|null)[] = 
+    [showYears(years), showMonths(months), showDays(days), showHours(time.hours), showMinutes(time.minutes)];
 
-      var hoursLeft = hours - days * 24;
-      if(hoursLeft > 0) {
-        timeStr += andStr + showHours(hoursLeft);
-      }
-    }
-    else {
-      timeStr += showHours(hours);
+  if(isWithSeconds) {
+    timesStr.push(showSeconds(time.seconds));
+
+    if(isWithMilliseconds) {
+      timesStr.push(showMilliseconds(time.milliseconds));
     }
   }
 
-  var minutes = time.minutes;
-  if(minutes > 0) {
-
-    if(timeStr !== '')
-      timeStr += andStr;
-    
-    timeStr += showMinutes(minutes);
-  } 
-
-  return timeStr;
+  timesStr = timesStr.filter(t => t)
+  return timesStr.join(' and ');
 }
 
-export function showDays(days: number): string {
+export function showYears(years: number): string|null {
+  return showSmthIfAboveZero(years, 'year', 'years');
+}
+
+export function showMonths(months: number): string|null {
+  return showSmthIfAboveZero(months, 'month', 'months');
+}
+
+export function showDays(days: number): string|null {
   return showSmthIfAboveZero(days, 'day', 'days');
 }
 
-export function showHours(hours: number): string {
+export function showHours(hours: number): string|null {
   return showSmthIfAboveZero(hours, 'hour', 'hours');
 }
 
-export function showMinutes(minutes: number): string {
+export function showMinutes(minutes: number): string|null {
   return showSmthIfAboveZero(minutes, 'minute', 'minutes');
 }
 
-function showSmthIfAboveZero(count: number, singularStr: string, pluralStr: string): string {
+export function showSeconds(seconds: number): string|null {
+  return showSmthIfAboveZero(seconds, 'second', 'seconds');
+}
+
+export function showMilliseconds(milliseconds: number): string|null {
+  return showSmthIfAboveZero(milliseconds, 'millisecond', 'milliseconds');
+}
+
+function showSmthIfAboveZero(count: number, singularStr: string, pluralStr: string): string|null {
   if(count > 0){
     return showCountOfSomethingStr(count, singularStr, pluralStr);
   }
 
-  return '';
+  return null;
 }
 

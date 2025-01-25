@@ -6,6 +6,7 @@ import { ModelWeight } from "src/app/shared/models/model-weight";
 import { showCountOfSomethingStr } from "./showCountOfSomethingStr";
 import { roundNumber } from "../roundNumber";
 import { ExerciseRecord } from "src/app/exercise-records/exercise-record";
+import { showBigNumberStr } from "./showBigNumberStr";
 
 export function showExerciseValue(exercise: ExerciseSet|ExerciseRecord): string {
   switch (exercise.exerciseType) {
@@ -23,8 +24,7 @@ export function showExerciseValue(exercise: ExerciseSet|ExerciseRecord): string 
 }
 
 export function showWeight(modelWeight: ModelWeight): string {
-  const weight = modelWeight.weight;
-  return `${roundNumber(modelWeight.weight)} ${showWeightTypeShort(modelWeight.weightType)}`;
+  return `${showBigNumberStr(roundNumber(modelWeight.weight))} ${showWeightTypeShort(modelWeight.weightType)}`;
 }
 
 export function showTime(time: TimeSpan): string {
