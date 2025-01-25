@@ -1,18 +1,21 @@
 <mat-form-field [style.width]="width">
     <mat-label>{{ label ?? 'Name' }}</mat-label>
     <input matInput placeholder="Insert Name" 
-        [(ngModel)]="name"
+        [formControl]="internalControl"
+        [minlength]="minLength"
+        [maxlength]="maxLength ?? null"
+        [required]="required"
         type="text" 
-        [required]="required" 
-        [minlength]="minlength"
-        [pattern]="pattern"
         (blur)="onTouched()"
-        #nameInput="ngModel" />
+    />
     <mat-hint *ngIf="hintStr">{{ hintStr }}</mat-hint>
-    <mat-error *ngIf="nameInput.errors?.['required'] && nameInput.touched">
+    <mat-error *ngIf="internalControl.errors?.['required'] && internalControl.touched">
         {{modelName}} is required.
     </mat-error>
-    <mat-error *ngIf="nameInput.errors?.['minlength'] && nameInput.touched">
-        {{modelName}} must be at least {{minlength}} characters long.
+    <mat-error *ngIf="internalControl.errors?.['minlength'] && internalControl.touched">
+        {{modelName}} must be at least {{minLength}} characters long.
+    </mat-error>
+    <mat-error *ngIf="internalControl.errors?.['maxlength'] && internalControl.touched">
+        {{modelName}} must be no longer than {{maxLength}} characters long.
     </mat-error>
 </mat-form-field>

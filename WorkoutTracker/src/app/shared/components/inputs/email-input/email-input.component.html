@@ -1,16 +1,17 @@
 <mat-form-field [style.width]="width">
     <mat-label>{{ label ?? 'Email' }}</mat-label>
     <input matInput placeholder="Insert Email" 
-        [(ngModel)]="email"
         type="email" 
-        [required]="required" 
+        email
+        [required]="required"
+        [formControl]="internalControl"
         (blur)="onTouched()"
-        #emailInput="ngModel" />
+    />
     <mat-hint *ngIf="hintStr">{{ hintStr }}</mat-hint>
-    <mat-error *ngIf="emailInput.errors?.['required'] && emailInput.touched">
+    <mat-error *ngIf="internalControl.errors?.['required'] && internalControl.touched">
         {{modelName}} is required.
     </mat-error>
-    <mat-error *ngIf="emailInput.errors?.['email'] && emailInput.touched">
+    <mat-error *ngIf="internalControl.errors?.['email'] && internalControl.touched">
         Incorrect {{modelName}}.
     </mat-error>
 </mat-form-field>

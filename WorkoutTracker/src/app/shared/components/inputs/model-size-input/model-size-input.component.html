@@ -1,25 +1,23 @@
 <app-short-card [title]="label ?? 'Size:'" [width]="width">
-   <!-- Size -->
-   <app-size-input
-      [(ngModel)]="modelSize.size" 
-      (ngModelChange)="updateModelSize()"
-      [label]="sizeLabel"
-      [errorMessage]="sizeErrorMessage"
-      [width]="sizeWidth"
-      [sizeType]="modelSize.sizeType" 
-      [required]="required" 
-      [minValue]="sizeMinValue"
-      [maxValue]="sizeMaxValue"
-      [isShortSizeType]="sizeIsShortSizeType"
-      [hintStr]="sizeHintStr" />
+   <form [formGroup]="modelSizeForm">
+      <!-- Size -->
+      <app-size-input
+         formControlName="size"
+         [minValue]="sizeMinValue"
+         [maxValue]="sizeMaxValue"
+         [required]="required"
+         [label]="sizeLabel"
+         [width]="sizeWidth"
+         [sizeType]="modelSizeForm.get('sizeType')?.value" 
+         [isShortSizeType]="sizeIsShortSizeType"
+         [hintStr]="sizeHintStr" />
 
-   <!-- Size Type -->
-   <app-size-type-selector 
-      [(ngModel)]="modelSize.sizeType"
-      (ngModelChange)="updateModelSize()"
-      [required]="true" 
-      [label]="sizeTypeLabel"
-      [errorMessage]="sizeTypeErrorMessage"
-      [width]="sizeTypeWidth"
-      [isShortForm]="sizeTypeIsShortForm" />
+      <!-- Size Type -->
+      <app-size-type-selector 
+         formControlName="sizeType"
+         [required]="true"
+         [label]="sizeTypeLabel"
+         [width]="sizeTypeWidth"
+         [isShortForm]="sizeTypeIsShortForm" />
+   </form>
 </app-short-card>

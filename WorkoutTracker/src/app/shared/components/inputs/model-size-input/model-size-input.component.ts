@@ -1,6 +1,6 @@
 import { Component, Input, forwardRef } from '@angular/core';
 import { BaseEditorComponent } from '../../base-editor.component';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { FormBuilder, FormGroup, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { ModelSize } from 'src/app/shared/models/model-size';
 import { SizeType } from 'src/app/shared/models/size-type';
 
@@ -10,6 +10,11 @@ import { SizeType } from 'src/app/shared/models/size-type';
   styleUrls: ['./model-size-input.component.css'],
   providers: [
     {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => ModelSizeInputComponent),
+      multi: true,
+    },
+    {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => ModelSizeInputComponent),
       multi: true,
@@ -18,45 +23,82 @@ import { SizeType } from 'src/app/shared/models/size-type';
 })
 export class ModelSizeInputComponent extends BaseEditorComponent<ModelSize> {
   @Input() sizeValue?: number;
-  @Input() sizeMinValue: number = 0;
+  @Input() sizeMinValue: number = 1;
   @Input() sizeMaxValue: number|null = null;
   @Input() sizeIsShortSizeType: boolean = true;
   @Input() sizeHintStr?: string;
   @Input() sizeLabel?: string;
-  @Input() sizeErrorMessage?: string;
   @Input() sizeWidth?: string = "65%";
 
   @Input() sizeTypeValue?: SizeType;
   @Input() sizeTypeIsShortForm: boolean = true;
   @Input() sizeTypeLabel?: string;
-  @Input() sizeTypeErrorMessage?: string;
   @Input() sizeTypeWidth?: string = "35%";
 
-  private _modelSize: ModelSize = <ModelSize>{};
+  modelSizeForm!: FormGroup;
   
-  get modelSize(): ModelSize {
-    return this._modelSize;
+  constructor(private fb: FormBuilder){
+    super();
+  }
+  
+  ngOnInit(){
+    this.initForm();
   }
 
-  set modelSize(value: ModelSize) {
-    this._modelSize = value;
-    this.updateModelSize(); 
+  initForm() {
+    this.modelSizeForm = this.fb.group({
+      size: [null, this.getSizeValidators()],
+      sizeType: [null, this.getSizeTypeValidators()],
+    });
   }
 
-  updateModelSize() {
-    this.onChange(this._modelSize); 
-    this.onTouched();
+  private getSizeValidators() {
+    const validators = [Validators.min(this.sizeMinValue)];
+
+    if (this.required) {
+      validators.push(Validators.required);
+    }
+
+    if (this.sizeMaxValue) {
+      validators.push(Validators.max(this.sizeMaxValue));
+    }
+
+    return validators;
+  }
+  
+  private getSizeTypeValidators() {
+    return this.required ? [Validators.required] : [];
   }
 
-  writeValue(value?: ModelSize): void {
-    var modelSize = value ?? <ModelSize>{};
-    
-    if(this.sizeTypeValue !== undefined)
-      modelSize.sizeType = this.sizeTypeValue;
+  override writeValue(value?: ModelSize): void {
+    if (value || this.sizeValue || this.sizeTypeValue != undefined) {
+      var modelSize = value ?? <ModelSize>{};
 
-    if(this.sizeValue !== undefined)
-      modelSize.size = this.sizeValue;
+      if(this.sizeTypeValue !== undefined && modelSize.sizeType === undefined)
+        modelSize.sizeType = this.sizeTypeValue;
 
-    this._modelSize = modelSize;
+      if(this.sizeValue !== undefined && modelSize.size === undefined)
+        modelSize.size = this.sizeValue;
+
+      this.modelSizeForm.patchValue(modelSize);
+    } else {
+      this.modelSizeForm.reset();
+    }
+  }
+
+  override registerOnChange(fn: any): void {
+    this.modelSizeForm.valueChanges.subscribe(fn);
+  }
+
+  validate() {
+    if(this.modelSizeForm.valid)
+      return null;
+
+    const sizeErrors = this.modelSizeForm.get('size')?.errors || {};
+    const sizeTypeErrors = this.modelSizeForm.get('sizeType')?.errors || {};
+  
+    const combinedErrors = { ...sizeErrors, ...sizeTypeErrors };
+  
+    return Object.keys(combinedErrors).length > 0 ? combinedErrors : null;
   }
 }

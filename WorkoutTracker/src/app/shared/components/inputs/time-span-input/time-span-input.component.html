@@ -2,34 +2,90 @@
     <form [formGroup]="timeSpanForm">
         <mat-form-field [style.width]="'100%'">
             <mat-label>Hours:</mat-label>
-            <input matInput type="number" [(ngModel)]="timeSpan.hours" (ngModelChange)="updateTimeSpan()" formControlName="hours" placeholder="Insert Hours" required [min]="0" />
+            <input matInput 
+                type="number"
+                formControlName="hours"
+                [min]="min"
+                [max]="maxHours"
+                [required]="required" 
+                placeholder="Insert Hours" />
+            <mat-error *ngIf="timeSpanForm.get('hours')?.touched && timeSpanForm.get('hours')?.errors?.['required']">
+                Hours are required
+            </mat-error>
+            <mat-error *ngIf="timeSpanForm.get('hours')?.touched && timeSpanForm.get('hours')?.errors?.['min']">
+                Min {{ showCountOfSomethingStr(min, 'hour', 'hours') }}
+            </mat-error>
+            <mat-error *ngIf="timeSpanForm.get('hours')?.touched && timeSpanForm.get('hours')?.errors?.['max']">
+                Max {{ showCountOfSomethingStr(maxHours, 'hour', 'hours') }} hours
+            </mat-error>
         </mat-form-field>
         <br>
         <mat-form-field [style.width]="'100%'">
             <mat-label>Minutes:</mat-label>
-            <input matInput type="number" [(ngModel)]="timeSpan.minutes" (ngModelChange)="updateTimeSpan()" formControlName="minutes" placeholder="Insert Minutes" required [min]="0" [max]="60" />
+            <input matInput
+                type="number" 
+                formControlName="minutes" 
+                [min]="min"
+                [max]="59"
+                [required]="required"
+                placeholder="Insert Minutes"  />
+            <mat-error *ngIf="timeSpanForm.get('minutes')?.touched && timeSpanForm.get('minutes')?.errors?.['required']">
+                Minutes are required
+            </mat-error>
+            <mat-error *ngIf="timeSpanForm.get('minutes')?.touched && timeSpanForm.get('minutes')?.errors?.['min']">
+                Min {{ showCountOfSomethingStr(min, 'minute', 'minutes') }}
+            </mat-error>
             <mat-error *ngIf="timeSpanForm.get('minutes')?.touched && timeSpanForm.get('minutes')?.errors?.['max']">
-                Max 60 minutes
+                Max 59 minutes
             </mat-error>
         </mat-form-field>
         <br *ngIf="isWithSeconds">
         <mat-form-field *ngIf="isWithSeconds" [style.width]="'100%'">
             <mat-label>Seconds:</mat-label>
-            <input matInput type="number" [(ngModel)]="timeSpan.seconds" (ngModelChange)="updateTimeSpan()" formControlName="seconds" placeholder="Insert Seconds" required [min]="0" [max]="60" />
+            <input matInput 
+                type="number" 
+                formControlName="seconds" 
+                [min]="min"
+                [max]="59"
+                [required]="required"
+                placeholder="Insert Seconds" />
+            <mat-error *ngIf="timeSpanForm.get('seconds')?.touched && timeSpanForm.get('seconds')?.errors?.['required']">
+                Seconds are required
+            </mat-error>
+            <mat-error *ngIf="timeSpanForm.get('seconds')?.touched && timeSpanForm.get('seconds')?.errors?.['min']">
+                Min {{ showCountOfSomethingStr(min, 'second', 'seconds') }}
+            </mat-error>
             <mat-error *ngIf="timeSpanForm.get('seconds')?.touched && timeSpanForm.get('seconds')?.errors?.['max']">
-                Max 60 seconds
+                Max 59 seconds
             </mat-error>
         </mat-form-field>
         <br *ngIf="isWithMilliseconds">
         <mat-form-field *ngIf="isWithSeconds && isWithMilliseconds" [style.width]="'100%'">
             <mat-label>Milliseconds:</mat-label>
-            <input matInput type="number" [(ngModel)]="timeSpan.milliseconds" (ngModelChange)="updateTimeSpan()" formControlName="milliseconds" placeholder="Insert Milliseconds" required [min]="0" [max]="1000" />
+            <input matInput 
+                type="number" 
+                formControlName="milliseconds" 
+                [min]="min"
+                [max]="999"
+                [required]="required"
+                placeholder="Insert Milliseconds" />
+            <mat-error *ngIf="timeSpanForm.get('milliseconds')?.touched && timeSpanForm.get('milliseconds')?.errors?.['required']">
+                Milliseconds are required
+            </mat-error>
+            <mat-error *ngIf="timeSpanForm.get('milliseconds')?.touched && timeSpanForm.get('milliseconds')?.errors?.['min']">
+                Min {{ showCountOfSomethingStr(min, 'millisecond', 'milliseconds') }}
+            </mat-error>
             <mat-error *ngIf="timeSpanForm.get('milliseconds')?.touched && timeSpanForm.get('milliseconds')?.errors?.['max']">
-                Max 1000 milliseconds
+                Max 999 milliseconds
             </mat-error>
         </mat-form-field>
-        <mat-error *ngIf="timeSpanForm.errors?.['notValid']">
-            {{modelName}} is required.
+        <mat-error *ngIf="timeSpanForm.errors?.['notValid'] 
+                && (timeSpanForm.get('hours')!.touched 
+                && timeSpanForm.get('minutes')!.touched 
+                && (!isWithSeconds || timeSpanForm.get('seconds')?.touched) 
+                && (!isWithMilliseconds || timeSpanForm.get('milliseconds')?.touched))"
+            >
+            Overall error: At least one field must be above zero.
         </mat-error>
     </form>
 </app-short-card>

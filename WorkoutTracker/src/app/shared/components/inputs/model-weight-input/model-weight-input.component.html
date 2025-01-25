@@ -1,25 +1,23 @@
 <app-short-card [title]="label ?? 'Weight:'" [width]="width">
-   <!-- Weight -->
-   <app-weight-input
-      [(ngModel)]="modelWeight.weight" 
-      (ngModelChange)="updateModelWeight()"
-      [label]="weightLabel"
-      [errorMessage]="weightErrorMessage"
-      [width]="weightWidth"
-      [weightType]="modelWeight.weightType" 
-      [required]="required" 
-      [minValue]="weightMinValue"
-      [maxValue]="weightMaxValue"
-      [isShortWeightType]="weightIsShortWeightType"
-      [hintStr]="weightHintStr" />
+   <form [formGroup]="modelWeightForm">
+      <!-- Weight -->
+      <app-weight-input
+         formControlName="weight"
+         [minValue]="weightMinValue"
+         [maxValue]="weightMaxValue"
+         [required]="required"
+         [label]="weightLabel"
+         [width]="weightWidth"
+         [weightType]="modelWeightForm.get('weightType')?.value" 
+         [isShortWeightType]="weightIsShortWeightType"
+         [hintStr]="weightHintStr" />
 
-   <!-- Weight Type -->
-   <app-weight-type-selector 
-      [(ngModel)]="modelWeight.weightType"
-      (ngModelChange)="updateModelWeight()"
-      [required]="true" 
-      [label]="weightTypeLabel"
-      [errorMessage]="weightTypeErrorMessage"
-      [width]="weightTypeWidth"
-      [isShortForm]="weightTypeIsShortForm" />
+      <!-- Weight Type -->
+      <app-weight-type-selector 
+         formControlName="weightType"
+         [required]="true"
+         [label]="weightTypeLabel"
+         [width]="weightTypeWidth"
+         [isShortForm]="weightTypeIsShortForm" />
+   </form>
 </app-short-card>

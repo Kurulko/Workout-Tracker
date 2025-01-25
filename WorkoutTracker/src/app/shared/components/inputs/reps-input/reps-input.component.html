@@ -1,17 +1,21 @@
 <mat-form-field [style.width]="width">
     <mat-label>{{ label ?? 'Reps' }}</mat-label>
     <input matInput 
-        placeholder="Insert Reps"
+        [formControl]="internalControl"
         type="number" 
-        [(ngModel)]="reps" 
-        [min]="0" 
-        [required]="required" 
-        #repsInput="ngModel">
+        placeholder="Insert Reps"
+        [required]="required"
+        [min]="minValue"
+        [max]="maxValue ?? null"
+    >
     <mat-hint *ngIf="hintStr">{{ hintStr }}</mat-hint>
-    <mat-error *ngIf="repsInput.errors?.['required'] && repsInput.touched">
+    <mat-error *ngIf="internalControl.errors?.['required'] && internalControl.touched">
         {{modelName}} is required.
     </mat-error>
-    <mat-error *ngIf="repsInput.errors?.['min'] && repsInput.touched">
-        {{modelName}} must be a positive number.
+    <mat-error *ngIf="internalControl.errors?.['min'] && internalControl.touched">
+        {{modelName}} must be above {{minValue}}.
+    </mat-error>
+    <mat-error *ngIf="internalControl.errors?.['max'] && internalControl.touched">
+        {{modelName}} must be less than {{maxValue}}.
     </mat-error>
 </mat-form-field>

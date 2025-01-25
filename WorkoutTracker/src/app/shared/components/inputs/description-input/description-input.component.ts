@@ -1,6 +1,6 @@
 import { Component, Input, forwardRef } from '@angular/core';
-import { BaseEditorComponent } from '../../base-editor.component';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
+import { BaseInputComponent } from '../base-input.component';
 
 @Component({
   selector: 'app-description-input',
@@ -8,34 +8,38 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
   styleUrls: ['./description-input.component.css'],
   providers: [
     {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => DescriptionInputComponent),
+      multi: true,
+    },
+    {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => DescriptionInputComponent),
       multi: true,
     },
   ],
 })
-export class DescriptionInputComponent extends BaseEditorComponent<string> {
+export class DescriptionInputComponent extends BaseInputComponent<string> {
   @Input() hintStr?: string;
-  @Input() minlength: number = 10;
+  @Input() minLength: number = 10;
+  @Input() maxLength?: number;
 
-  private _description: string|null = null;
+  ngOnInit() {
+    const validators = [];
 
-  ngOnInit(): void {
-    this._description = this.value ?? null;
-    this.modelName = this.modelName ?? "Description";
-  }
+    if (this.required) {
+      validators.push(Validators.required);
+    }
 
-  get description(): string|null {
-    return this._description;
-  }
+    if (this.maxLength) {
+      validators.push(Validators.maxLength(this.maxLength));
+    }
 
-  set description(value: string) {
-    this._description = value;
-    this.onChange(value); 
-    this.onTouched();
-  }
+    validators.push(Validators.minLength(this.minLength));
+    this.internalControl.setValidators(validators);
 
-  writeValue(value?: string): void {
-    this._description = value ?? null;
+    if(!this.modelName){
+      this.modelName = "Description";
+    }
   }
 }

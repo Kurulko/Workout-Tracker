@@ -1,9 +1,9 @@
 import { Component, Input, forwardRef } from '@angular/core';
-import { BaseEditorComponent } from '../../base-editor.component';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { showWeightType } from 'src/app/shared/helpers/functions/showFunctions/showWeightType';
 import { showWeightTypeShort } from 'src/app/shared/helpers/functions/showFunctions/showWeightTypeShort';
 import { WeightType } from 'src/app/shared/models/weight-type';
+import { BaseInputComponent } from '../base-input.component';
 
 @Component({
   selector: 'app-weight-input',
@@ -11,38 +11,45 @@ import { WeightType } from 'src/app/shared/models/weight-type';
   styleUrls: ['./weight-input.component.css'],
   providers: [
     {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => WeightInputComponent),
+      multi: true,
+    },
+    {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => WeightInputComponent),
       multi: true,
     },
   ],
 })
-export class WeightInputComponent extends BaseEditorComponent<number> {
-  @Input() minValue: number = 0;
+export class WeightInputComponent extends BaseInputComponent<number> {
+  @Input() minValue: number = 1;
   @Input() maxValue: number| null = null;
 
   @Input() weightType?: WeightType;
   @Input() isShortWeightType: boolean = true;
   @Input() hintStr?: string;
-
-  private _weight: number|null = null;
-
+  
   showWeightType = showWeightType;
   showWeightTypeShort = showWeightTypeShort;
 
-  ngOnInit(): void {
-    this._weight = this.value ?? null;
-    this.modelName = this.modelName ?? "Weight";
-  }
+  ngOnInit() {
+    const validators = [];
 
-  get weight(): number|null {
-    return this._weight;
-  }
+    if (this.required) {
+      validators.push(Validators.required);
+    }
 
-  set weight(value: number) {
-    this._weight = value;
-    this.onChange(value); 
-    this.onTouched();
+    if (this.maxValue) {
+      validators.push(Validators.max(this.maxValue));
+    }
+
+    validators.push(Validators.min(this.minValue));
+    this.internalControl.setValidators(validators);
+
+    if(!this.modelName) {
+      this.modelName = "Weight";
+    }
   }
 
   validateWeightInput(event: Event): void {
@@ -54,9 +61,5 @@ export class WeightInputComponent extends BaseEditorComponent<number> {
     if (!regex.test(value)) {
       input.value = value.slice(0, -1);
     }
-  }
-
-  writeValue(value?: number): void {
-    this._weight = value ?? null;
   }
 }

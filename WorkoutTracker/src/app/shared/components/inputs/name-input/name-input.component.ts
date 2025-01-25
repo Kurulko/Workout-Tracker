@@ -1,6 +1,6 @@
 import { Component, Input, forwardRef } from '@angular/core';
-import { BaseEditorComponent } from '../../base-editor.component';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
+import { BaseInputComponent } from '../base-input.component';
 
 @Component({
   selector: 'app-name-input',
@@ -8,36 +8,44 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
   styleUrls: ['./name-input.component.css'],
   providers: [
     {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => NameInputComponent),
+      multi: true,
+    },
+    {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => NameInputComponent),
       multi: true,
     },
   ],
 })
-export class NameInputComponent extends BaseEditorComponent<string> {
+export class NameInputComponent extends BaseInputComponent<string> {
   @Input() pattern: string|RegExp = '';
-  @Input() minlength: number = 3;
+  @Input() minLength: number = 3;
+  @Input() maxLength?: number;
   @Input() hintStr?: string;
 
-  private _name: string|null = null;
-  
-  ngOnInit(): void {
-    this._name = this.value ?? null;
-    this.modelName = this.modelName ?? "Name";
-  }
+  ngOnInit() {
+    const validators = [];
 
-  get name(): string|null {
-    return this._name;
-  }
+    if (this.required) {
+      validators.push(Validators.required);
+    }
 
-  set name(value: string) {
-    this._name = value;
-    this.onChange(value); 
-    this.onTouched();
-  }
+    if (this.pattern) {
+      validators.push(Validators.pattern(this.pattern));
+    }
 
-  writeValue(value?: string): void {
-    this._name = value ?? null;
+    if (this.maxLength) {
+      validators.push(Validators.maxLength(this.maxLength));
+    }
+
+    validators.push(Validators.minLength(this.minLength));
+    this.internalControl.setValidators(validators);
+
+    if(!this.modelName){
+      this.modelName = "Name";
+    }
   }
 }
 

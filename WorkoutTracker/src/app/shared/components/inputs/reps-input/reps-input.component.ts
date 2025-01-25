@@ -1,6 +1,7 @@
 import { Component, Input, forwardRef } from '@angular/core';
 import { BaseEditorComponent } from '../../base-editor.component';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
+import { BaseInputComponent } from '../base-input.component';
 
 @Component({
   selector: 'app-reps-input',
@@ -8,33 +9,39 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
   styleUrls: ['./reps-input.component.css'],
   providers: [
     {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => RepsInputComponent),
+      multi: true,
+    },
+    {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => RepsInputComponent),
       multi: true,
     },
   ],
 })
-export class RepsInputComponent extends BaseEditorComponent<number> {
+export class RepsInputComponent extends BaseInputComponent<number> {
   @Input() hintStr?: string;
+  @Input() maxValue?: number;
+  @Input() minValue: number = 1;
 
-  private _reps: number|null = null;
+  ngOnInit() {
+    const validators = [];
 
-  ngOnInit(): void {
-    this._reps = this.value ?? null;
-    this.modelName = this.modelName ?? "Reps";
-  }
+    if (this.required) {
+      validators.push(Validators.required);
+    }
 
-  get reps(): number|null {
-    return this._reps;
-  }
+    if (this.maxValue) {
+      validators.push(Validators.max(this.maxValue));
+    }
 
-  set reps(value: number) {
-    this._reps = value;
-    this.onChange(value); 
-    this.onTouched();
-  }
+    validators.push(Validators.min(this.minValue));
 
-  writeValue(value?: number): void {
-    this._reps = value ?? null;
+    this.internalControl.setValidators(validators);
+
+    if(!this.modelName){
+      this.modelName = "Reps";
+    }
   }
 }

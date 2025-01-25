@@ -1,6 +1,6 @@
-import { Component, Input, forwardRef } from '@angular/core';
+import { Component, Input, OnInit, forwardRef } from '@angular/core';
 import { BaseEditorComponent } from '../../base-editor.component';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { FormBuilder, FormGroup, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { ModelWeight } from 'src/app/shared/models/model-weight';
 import { WeightType } from 'src/app/shared/models/weight-type';
 
@@ -10,53 +10,95 @@ import { WeightType } from 'src/app/shared/models/weight-type';
   styleUrls: ['./model-weight-input.component.css'],
   providers: [
     {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => ModelWeightInputComponent),
+      multi: true,
+    },
+    {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => ModelWeightInputComponent),
       multi: true,
     },
   ],
 })
-export class ModelWeightInputComponent extends BaseEditorComponent<ModelWeight> {
+export class ModelWeightInputComponent extends BaseEditorComponent<ModelWeight> implements OnInit {
   @Input() weightValue?: number;
-  @Input() weightMinValue: number = 0;
+  @Input() weightMinValue: number = 10;
   @Input() weightMaxValue: number|null = null;
   @Input() weightIsShortWeightType: boolean = true;
   @Input() weightHintStr?: string;
   @Input() weightLabel?: string;
-  @Input() weightErrorMessage?: string;
   @Input() weightWidth?: string = "65%";
 
   @Input() weightTypeValue?: WeightType;
   @Input() weightTypeIsShortForm: boolean = true;
   @Input() weightTypeLabel?: string;
-  @Input() weightTypeErrorMessage?: string;
   @Input() weightTypeWidth?: string = "35%";
 
-  private _modelWeight: ModelWeight = <ModelWeight>{};
+  modelWeightForm!: FormGroup;
+
+  constructor(private fb: FormBuilder){
+    super();
+  }
   
-  get modelWeight(): ModelWeight {
-    return this._modelWeight;
+  ngOnInit(){
+    this.initForm();
   }
 
-  set modelWeight(value: ModelWeight) {
-    this._modelWeight = value;
-    this.updateModelWeight(); 
+  initForm() {
+    this.modelWeightForm = this.fb.group({
+      weight: [null, this.getWeightValidators()],
+      weightType: [null, this.getWeightTypeValidators()],
+    });
   }
 
-  updateModelWeight() {
-    this.onChange(this._modelWeight); 
-    this.onTouched();
+  private getWeightValidators() {
+    const validators = [Validators.min(this.weightMinValue)];
+
+    if (this.required) {
+      validators.push(Validators.required);
+    }
+
+    if (this.weightMaxValue) {
+      validators.push(Validators.max(this.weightMaxValue));
+    }
+
+    return validators;
+  }
+  
+  private getWeightTypeValidators() {
+    return this.required ? [Validators.required] : [];
   }
 
-  writeValue(value?: ModelWeight): void {
-    var modelWeight = value ?? <ModelWeight>{};
+  override writeValue(value?: ModelWeight): void {
+    if (value || this.weightValue || this.weightTypeValue != undefined) {
+      var modelWeight = value ?? <ModelWeight>{};
 
-    if(this.weightTypeValue !== undefined)
-      modelWeight.weightType = this.weightTypeValue;
+      if(this.weightTypeValue !== undefined && modelWeight.weightType === undefined)
+        modelWeight.weightType = this.weightTypeValue;
 
-    if(this.weightValue !== undefined)
-      modelWeight.weight = this.weightValue;
+      if(this.weightValue !== undefined && modelWeight.weight === undefined)
+        modelWeight.weight = this.weightValue;
 
-    this._modelWeight = modelWeight;
+      this.modelWeightForm.patchValue(modelWeight);
+    } else {
+      this.modelWeightForm.reset();
+    }
+  }
+
+  override registerOnChange(fn: any): void {
+    this.modelWeightForm.valueChanges.subscribe(fn);
+  }
+
+  validate() {
+    if(this.modelWeightForm.valid)
+      return null;
+
+    const weightErrors = this.modelWeightForm.get('weight')?.errors || {};
+    const weightTypeErrors = this.modelWeightForm.get('weightType')?.errors || {};
+  
+    const combinedErrors = { ...weightErrors, ...weightTypeErrors };
+  
+    return Object.keys(combinedErrors).length > 0 ? combinedErrors : null;
   }
 }

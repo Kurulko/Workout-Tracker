@@ -1,12 +1,17 @@
 import { Component, Input, forwardRef } from '@angular/core';
-import { BaseEditorComponent } from '../../base-editor.component';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
+import { BaseInputComponent } from '../base-input.component';
 
 @Component({
   selector: 'app-email-input',
   templateUrl: './email-input.component.html',
   styleUrls: ['./email-input.component.css'],
   providers: [
+     {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => EmailInputComponent),
+      multi: true,
+    },
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => EmailInputComponent),
@@ -14,27 +19,22 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
     },
   ],
 })
-export class EmailInputComponent extends BaseEditorComponent<string> {
+export class EmailInputComponent extends BaseInputComponent<string> {
   @Input() hintStr?: string;
 
-  private _email: string|null = null;
-  
-  ngOnInit(): void {
-    this._email = this.value ?? null;
-    this.modelName = this.modelName ?? "Emal";
-  }
+  ngOnInit() {
+    const validators = [];
 
-  get email(): string|null {
-    return this._email;
-  }
+    if (this.required) {
+      validators.push(Validators.required);
+    }
 
-  set email(value: string) {
-    this._email = value;
-    this.onChange(value); 
-    this.onTouched();
-  }
+    validators.push(Validators.email);
 
-  writeValue(value?: string): void {
-    this._email = value ?? null;
+    this.internalControl.setValidators(validators);
+
+    if(!this.modelName) {
+      this.modelName = "Email";
+    }
   }
 }

@@ -1,8 +1,8 @@
 import { Component, Input, forwardRef } from '@angular/core';
-import { BaseEditorComponent } from '../../base-editor.component';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { PhotoUploadDialogComponent } from '../../dialogs/photo-upload-dialog/photo-upload-dialog.component';
+import { BaseInputComponent } from '../base-input.component';
 
 @Component({
   selector: 'app-photo-input',
@@ -10,51 +10,54 @@ import { PhotoUploadDialogComponent } from '../../dialogs/photo-upload-dialog/ph
   styleUrls: ['./photo-input.component.css'],
   providers: [
     {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => PhotoInputComponent),
+      multi: true,
+    },
+    {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => PhotoInputComponent),
       multi: true,
     },
   ],
 })
-export class PhotoInputComponent extends BaseEditorComponent<File> {
+export class PhotoInputComponent extends BaseInputComponent<File> {
   @Input()
   previewUrl: string | null = null;
-
-  private _imageFile: File|null = null;
 
   constructor(private dialog: MatDialog){
     super();
   }
   
-  ngOnInit(): void {
-    this._imageFile = this.value ?? null;
-    this.modelName = this.modelName ?? "Photo";
+  ngOnInit() {
+    const validators = [];
+
+    if (this.required) {
+      validators.push(Validators.required);
+    }
+
+    this.internalControl.setValidators(validators);
+
+    if(!this.modelName){
+      this.modelName = "Photo";
+    }
   }
 
-  get imageFile(): File|null {
-    return this._imageFile;
-  }
-
-  set imageFile(value: File|null) {
-    this._imageFile = value;
-    this.onChange(value ?? undefined); 
-    this.onTouched();
-  }
-
-  writeValue(value?: File): void {
-    this._imageFile = value ?? null;
-  }
-
+  imageFile: File|null = null;
   onFileSelected(file: File | null): void {
     if (file) {
+      this.internalControl.setValue(file);
       this.imageFile = file;
-
       const reader = new FileReader();
       reader.onload = (e) => {
         this.previewUrl = e.target?.result as string;
       };
-      reader.readAsDataURL(this.imageFile);
+      reader.readAsDataURL(file);
     }
+  }
+
+  override writeValue(value: any): void {
+    
   }
 
   openUploadPhotoDialog(){    
@@ -73,6 +76,7 @@ export class PhotoInputComponent extends BaseEditorComponent<File> {
   }
 
   deletePhoto() {
+    this.internalControl.setValue(null);
     this.imageFile = null;
     this.previewUrl = null;
   }

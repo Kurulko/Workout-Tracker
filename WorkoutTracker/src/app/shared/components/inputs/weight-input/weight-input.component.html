@@ -2,22 +2,21 @@
     <mat-label>{{ label ?? 'Weight' }}</mat-label>
     <input matInput 
         placeholder="Insert Weight"
-        type="number" 
-        [(ngModel)]="weight" 
-        [min]="minValue" 
+        [min]="minValue"
         [max]="maxValue"
-        [required]="required" 
+        type="number" 
+        [formControl]="internalControl"
         (input)="validateWeightInput($event)" 
-        #weightInput="ngModel">
+    >
     <span *ngIf="weightType != undefined" matTextSuffix>{{ isShortWeightType ? showWeightTypeShort(weightType) :  showWeightType(weightType) }}</span>
     <mat-hint *ngIf="hintStr">{{ hintStr }}</mat-hint>
-    <mat-error *ngIf="weightInput.errors?.['required'] && weightInput.touched">
+    <mat-error *ngIf="internalControl.errors?.['required'] && internalControl.touched">
         {{modelName}} is required.
     </mat-error>
-    <mat-error *ngIf="weightInput.errors?.['min'] && weightInput.touched">
+    <mat-error *ngIf="internalControl.errors?.['min'] && internalControl.touched">
         {{modelName}} must be above {{ minValue }}.
     </mat-error>
-    <mat-error *ngIf="weightInput.errors?.['max'] && weightInput.touched">
+    <mat-error *ngIf="internalControl.errors?.['max'] && internalControl.touched">
         {{modelName}} must be less than {{ maxValue }}.
     </mat-error>
 </mat-form-field>

@@ -1,6 +1,6 @@
 import { Component, Input, signal, forwardRef } from '@angular/core';
-import { BaseEditorComponent } from '../../base-editor.component';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
+import { BaseInputComponent } from '../base-input.component';
 
 @Component({
   selector: 'app-password-input',
@@ -8,41 +8,47 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
   styleUrls: ['./password-input.component.css'],
   providers: [
     {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => PasswordInputComponent),
+      multi: true,
+    },
+    {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => PasswordInputComponent),
       multi: true,
     },
   ],
 })
-export class PasswordInputComponent extends BaseEditorComponent<string> {
+export class PasswordInputComponent extends BaseInputComponent<string> {
   @Input() pattern: string|RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-])[A-Za-z\d@$!%*?&_\-]{6,}$/;
-  @Input() minlength: number = 8;
+  @Input() minLength: number = 8;
+  @Input() maxLength?: number;
   @Input() hintStr?: string;
 
-  private _password: string|null = null;
+  ngOnInit() {
+    const validators = [];
 
-  ngOnInit(): void {
-    this._password = this.value ?? null;
-    this.modelName = this.modelName ?? "Password";
-  }
+    if (this.required) {
+      validators.push(Validators.required);
+    }
 
-  get password(): string|null {
-    return this._password;
-  }
+    if (this.maxLength) {
+      validators.push(Validators.maxLength(this.maxLength));
+    }
 
-  set password(value: string) {
-    this._password = value;
-    this.onChange(value); 
-    this.onTouched();
+    validators.push(Validators.pattern(this.pattern));
+    validators.push(Validators.minLength(this.minLength));
+
+    this.internalControl.setValidators(validators);
+
+    if(!this.modelName){
+      this.modelName = "Password";
+    }
   }
 
   hidePassword = signal(true);
   togglePasswordVisibility(event: MouseEvent): void {
     this.hidePassword.set(!this.hidePassword());
     event.stopPropagation();
-  }
-
-  writeValue(value?: string): void {
-    this._password = value ?? null;
   }
 }
