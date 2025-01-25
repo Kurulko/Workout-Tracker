@@ -15,12 +15,13 @@ export class ImpersonationService extends BaseService {
     }
 
     impersonate(userId: string) : Observable<TokenModel> {
-        return this.webClient.postText<TokenViewModel>('impersonate', userId)
+        return this.webClient.post<TokenViewModel>(`impersonate/${userId}`)
             .pipe(map((tokenViewModel:TokenViewModel) => toTokenModel(tokenViewModel)!))
     }
    
     revert() : Observable<TokenModel>  {
-        return this.webClient.post<TokenModel>('revert');
+        return this.webClient.post<TokenViewModel>('revert')
+            .pipe(map((tokenViewModel:TokenViewModel) => toTokenModel(tokenViewModel)!))
     }
 
     isImpersonating(): Observable<boolean> {
