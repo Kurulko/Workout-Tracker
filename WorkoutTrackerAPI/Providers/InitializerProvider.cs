@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json.Linq;
+using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Initializers;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
 using WorkoutTrackerAPI.Repositories.WorkoutRepositories;
+using WorkoutTrackerAPI.Services;
 using WorkoutTrackerAPI.Services.FileServices;
 
 namespace WorkoutTrackerAPI.Providers;
@@ -24,12 +26,8 @@ public static class InitializerProvider
         if (!await roleRepository.AnyAsync())
             await InitializeRolesAsync(roleRepository);
 
-        var userRepository = serviceProvider.GetRequiredService<UserRepository>();
-        if (!await userRepository.AnyUsersAsync())
-            await InitializeUsersAsync(userRepository, config);
-
         var muscleRepository = serviceProvider.GetRequiredService<MuscleRepository>();
-        if(!await muscleRepository.AnyAsync())
+        if (!await muscleRepository.AnyAsync())
             await InitializeMusclesAsync(muscleRepository);
 
         var equipmentRepository = serviceProvider.GetRequiredService<EquipmentRepository>();
@@ -39,18 +37,34 @@ public static class InitializerProvider
         var exerciseRepository = serviceProvider.GetRequiredService<ExerciseRepository>();
         if (!await exerciseRepository.AnyAsync())
             await InitializeExercisesAsync(exerciseRepository, muscleRepository, equipmentRepository);
+
+        var userRepository = serviceProvider.GetRequiredService<UserRepository>();
+
+        if (!await userRepository.AnyUsersAsync())
+        {
+            var workoutRepository = serviceProvider.GetRequiredService<WorkoutRepository>();
+            var workoutRecordRepository = serviceProvider.GetRequiredService<WorkoutRecordRepository>();
+            var exerciseRecordGroupRepository = serviceProvider.GetRequiredService<ExerciseRecordGroupRepository>();
+            var exerciseRecordRepository = serviceProvider.GetRequiredService<ExerciseRecordRepository>();
+            var exerciseSetGroupRepository = serviceProvider.GetRequiredService<ExerciseSetGroupRepository>();
+            var exerciseSetRepository = serviceProvider.GetRequiredService<ExerciseSetRepository>();
+
+            await InitializeUsersAsync(userRepository, workoutRepository, workoutRecordRepository, exerciseRecordGroupRepository, exerciseRecordRepository, exerciseSetGroupRepository, exerciseSetRepository, exerciseRepository, config);
+        }
     }
 
     static async Task InitializeRolesAsync(RoleRepository roleRepository)
         => await RolesInitializer.InitializeAsync(roleRepository, Roles.AdminRole, Roles.UserRole);
 
-    static async Task InitializeUsersAsync(UserRepository userRepository, ConfigurationManager config)
+    static async Task InitializeUsersAsync(UserRepository userRepository, WorkoutRepository workoutRepository, WorkoutRecordRepository workoutRecordRepository, ExerciseRecordGroupRepository exerciseRecordGroupRepository, ExerciseRecordRepository exerciseRecordRepository, ExerciseSetGroupRepository exerciseSetGroupRepository, ExerciseSetRepository exerciseSetRepository, ExerciseRepository exerciseRepository, ConfigurationManager config)
     {
         string adminName = config.GetValue<string>("Admin:Name")!;
         string adminPassword = config.GetValue<string>("Admin:Password")!;
         string adminEmail = config.GetValue<string>("Admin:Email")!;
 
-        await UsersInitializer.InitializeAsync(userRepository, adminName, adminEmail, adminPassword, new[] { Roles.AdminRole, Roles.UserRole });
+        var user = await UsersInitializer.InitializeAsync(userRepository, adminName, adminEmail, adminPassword, new[] { Roles.AdminRole, Roles.UserRole });
+
+        await WorkoutInitializerProvider.InitializeWorkoutsAsync(workoutRepository, workoutRecordRepository, exerciseRecordGroupRepository, exerciseRecordRepository, exerciseSetGroupRepository, exerciseSetRepository, exerciseRepository, user.Id);
     }
 
     static async Task InitializeMusclesAsync(MuscleRepository muscleRepository)
@@ -65,7 +79,7 @@ public static class InitializerProvider
         foreach (var muscle in muscleData)
             await MusclesInitializer.InitializeAsync(muscleRepository, muscle, null);
     }
-    
+
     static async Task InitializeEquipmentsAsync(EquipmentRepository equipmentRepository)
     {
         string equipmentNamesFilePath = Path.Combine(sourceFolderPath, "equipment-names.json");
@@ -83,19 +97,26 @@ public static class InitializerProvider
     {
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Pull-ups", GetExercisePhoto("wide_grip_pull_ups.png"), new[] { "Pull-Up Bar" }, ExerciseType.Reps, new[] { "Latissimus dorsi", "Biceps brachii short head", "Biceps brachii long head" });
 
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Cossack Squats", GetExercisePhoto("weighted_cossack_squats.jpg"), new[] { "Dumbbells", "Kettlebells", "Barbells" },
+        ExerciseType.WeightAndReps, new[] { "Quadriceps", "Gluteus maximus", "Hamstrings", "Adductors", "Calves", "Core" });
+
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Dumbbell Lateral Raises", GetExercisePhoto("dumbbell_lateral_raises.png"), new[] { "Dumbbells" }, ExerciseType.WeightAndReps, new[] { "Deltoids" });
+
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Push-ups", GetExercisePhoto("push_ups.jpg"), new[] { "No Equipment" }, ExerciseType.Reps, new[] { "Pectoralis major", "Triceps" });
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Bench Press", GetExercisePhoto("bench_press.jpg"), new[] { "Barbells" }, ExerciseType.WeightAndReps, new[] { "Pectoralis major", "Triceps", "Deltoid anterior" });
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Deadlifts", GetExercisePhoto("barbell_deadlift.jpg"), new[] { "Barbells" }, ExerciseType.WeightAndReps, new[] { "Gluteus maximus", "Hamstrings", "Erector spinae" });
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Barbell deadlift", GetExercisePhoto("barbell_deadlift.jpg"), new[] { "Barbells" }, ExerciseType.WeightAndReps, new[] { "Gluteus maximus", "Hamstrings", "Erector spinae" });
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Crunches", GetExercisePhoto("do_abdominal_crunches.png"), new[] { "No Equipment" }, ExerciseType.Reps, new[] { "Rectus abdominis" });
+
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Crunches", GetExercisePhoto("do_abdominal_crunches.png"), new[] { "Weight Plates" }, ExerciseType.WeightAndReps, new[] { "Rectus abdominis" });
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Shrugs", GetExercisePhoto("shurgs.jpg"), new[] { "Barbells" }, ExerciseType.WeightAndReps, new[] { "Trapezius" });
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Biceps Curl", GetExercisePhoto("biceps_curl.png"), new[] { "Dumbbells" }, ExerciseType.WeightAndReps, new[] { "Biceps brachii short head", "Biceps brachii long head" });
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Standing Calf Raises", GetExercisePhoto("standing_calf_raises.jpg"), new[] { "No Equipment" }, ExerciseType.Reps, new[] { "Gastrocnemius", "Soleus" });
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Standing Calf Raises", GetExercisePhoto("standing_calf_raises.jpg"), new[] { "Barbells" }, ExerciseType.WeightAndReps, new[] { "Gastrocnemius", "Soleus" });
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Dumbbell Chest Fly", GetExercisePhoto("dumbbell_chest_fly.jpg"), new[] { "Dumbbells" }, ExerciseType.WeightAndReps, new[] { "Pectoralis major" });
 
@@ -115,11 +136,15 @@ public static class InitializerProvider
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Barbell Back Squat", GetExercisePhoto("barbell_back_squat.jpg"), new[] { "Barbells" }, ExerciseType.WeightAndReps, new[] { "Quadriceps", "Gluteus maximus", "Hamstrings" });
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Plank", GetExercisePhoto("weighted_ plank.jpg"), new[] { "Weighted Vest" }, ExerciseType.WeightAndTime, new[] { "Rectus abdominis", "External oblique" });
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Plank", GetExercisePhoto("weighted_plank.jpg"), new[] { "Weighted Vest" }, ExerciseType.WeightAndTime, new[] { "Rectus abdominis", "External oblique" });
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Russian Twists", GetExercisePhoto("weighted_russian_twists.png"), new[] { "Weighted Vest" }, ExerciseType.Reps, new[] { "External oblique" });
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Plank", GetExercisePhoto("plank.png"), new[] { "Weighted Vest" }, ExerciseType.Time, new[] { "Rectus abdominis", "External oblique" });
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted V-ups", GetExercisePhoto("weighted_v_ups.png"), new[] { "Weighted Vest" }, ExerciseType.Reps, new[] { "Rectus abdominis", "Hip flexors" });
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Russian Twists", GetExercisePhoto("weighted_russian_twists.png"), new[] { "Weighted Vest" }, ExerciseType.WeightAndReps, new[] { "External oblique" });
+
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Russian Twists", GetExercisePhoto("weighted_russian_twists.png"), new[] { "No Equipment" }, ExerciseType.Reps, new[] { "External oblique" });
+
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted V-ups", GetExercisePhoto("weighted_v_ups.png"), new[] { "Weighted Vest" }, ExerciseType.WeightAndReps, new[] { "Rectus abdominis", "Hip flexors" });
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Ab Rollouts", GetExercisePhoto("ab_rollouts.png"), new[] { "Core Wheels" }, ExerciseType.Reps, new[] { "Rectus abdominis", "Hip flexors" });
 
@@ -131,11 +156,11 @@ public static class InitializerProvider
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Renegade Row Push-ups", GetExercisePhoto("dumbbell_renegade_row_push_ups.png"), new[] { "No Equipment" }, ExerciseType.Reps, new[] { "Latissimus dorsi", "Triceps", "Core" });
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Push-ups", GetExercisePhoto("weighted_push_ups.png"), new[] { "Weighted Vest" }, ExerciseType.Reps, new[] { "Pectoralis major", "Triceps" });
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Push-ups", GetExercisePhoto("weighted_push_ups.png"), new[] { "Weighted Vest" }, ExerciseType.WeightAndReps, new[] { "Pectoralis major", "Triceps" });
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Elevated Push-ups", GetExercisePhoto("elevated_push_ups.png"), new[] { "No Equipment" }, ExerciseType.Reps, new[] { "Pectoralis major", "Triceps" });
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Pull-ups", GetExercisePhoto("weighted_pull_ups.png"), new[] { "Pull-Up Bar" }, ExerciseType.Reps, new[] { "Latissimus dorsi", "Biceps brachii short head", "Biceps brachii long head" });
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Pull-ups", GetExercisePhoto("weighted_pull_ups.png"), new[] { "Pull-Up Bar", "Weighted Vest" }, ExerciseType.WeightAndReps, new[] { "Latissimus dorsi", "Biceps brachii short head", "Biceps brachii long head" });
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Wide Grip Pull-ups", GetExercisePhoto("wide_grip_pull_ups.png"), new[] { "Pull-Up Bar" }, ExerciseType.Reps, new[] { "Latissimus dorsi", "Biceps brachii short head", "Biceps brachii long head" });
 
@@ -149,7 +174,9 @@ public static class InitializerProvider
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Toes to Bar", GetExercisePhoto("toes_to_bar.jpg"), new[] { "Pull-Up Bar" }, ExerciseType.Reps, new[] { "Rectus abdominis", "Hip flexors" });
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Hanging Knee Raises", GetExercisePhoto("weighted_hanging_knee_raises.png"), new[] { "Weight Plates" }, ExerciseType.WeightAndReps, new[] { "Rectus abdominis", "Hip flexors" });
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Hanging Knee Raises", GetExercisePhoto("weighted_hanging_knee_raises.png"), new[] { "Dumbbells" }, ExerciseType.WeightAndReps, new[] { "Rectus abdominis", "Hip flexors" });
+
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Hanging Knee Raises", GetExercisePhoto("weighted_hanging_knee_raises.png"), new[] { "No Equipment" }, ExerciseType.Reps, new[] { "Rectus abdominis", "Hip flexors" });
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Front Squat", GetExercisePhoto("front_squat.png"), new[] { "Barbells" }, ExerciseType.WeightAndReps, new[] { "Quadriceps", "Gluteus maximus" });
 
@@ -184,11 +211,17 @@ public static class InitializerProvider
             ExerciseType.WeightAndReps, new[] { "Hamstrings", "Glutes" });
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
-            "Dips", GetExercisePhoto("dips.png"), new[] { "Dip Bars" },
-            ExerciseType.WeightAndReps, new[] { "Triceps", "Chest" });
+            "Dips", GetExercisePhoto("dips.png"), new[] { "Dip Bars" }, ExerciseType.Reps, new[] { "Triceps", "Chest" });
+
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
+            "Weighted Dips", GetExercisePhoto("dips.png"), new[] { "Dip Bars", "Weight Plates" }, ExerciseType.WeightAndReps, new[] { "Triceps", "Chest" });
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
             "Bench Dips", GetExercisePhoto("bench_dips.png"), new[] { "Bench" },
+            ExerciseType.Reps, new[] { "Triceps", "Chest" });
+
+        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
+            "Weighted Bench Dips", GetExercisePhoto("bench_dips.png"), new[] { "Bench", "Weight Plates" },
             ExerciseType.WeightAndReps, new[] { "Triceps", "Chest" });
 
         await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
@@ -226,4 +259,5 @@ public static class InitializerProvider
         string exercisePhotosPath = Path.Combine("photos", "exercises");
         return Path.Combine(exercisePhotosPath, fileName);
     }
+
 }
