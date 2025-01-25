@@ -92,7 +92,7 @@ export class WorkoutsComponent extends ModelsTableComponent<Workout> implements 
   }
 
   openWorkoutCompleteDialog(id: number){
-    this.currentWorkoutTime = <TimeSpan>{};
+    this.currentWorkoutTime = new TimeSpan();
     this.currentWorkoutDate = new Date();
     this.currentWorkoutId = id;
 

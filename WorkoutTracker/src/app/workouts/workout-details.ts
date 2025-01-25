@@ -7,9 +7,12 @@ import { Workout } from "./workout";
 export interface WorkoutDetails {
     workout: Workout;
 
-    countOfWorkouts: number;
-    sumOfWeight: ModelWeight;
-    sumOfTime: TimeSpan;
+    totalWorkouts: number;
+    totalWeight: ModelWeight;
+    totalDuration: TimeSpan;
+    averageWorkoutDuration: TimeSpan;
+    countOfDaysSinceFirstWorkout: number;
+    dates: Date[]|null;
 
     muscles: Muscle[];
     equipments: Equipment[];

@@ -37,7 +37,7 @@
             <p>{{ showCountOfExercisesLeftStr(workout.exercises, countOfExercisesShown) }}</p>
           </mat-card-content>
           <mat-card-actions>
-            <button type="button" mat-button color="primary" [routerLink]="['/workout-details', workout.id]">
+            <button type="button" mat-button color="primary" [routerLink]="['/workout', workout.id, 'details']">
               <mat-icon>info</mat-icon> Details
             </button>
             <button type="button" mat-button color="secondary" [routerLink]="['/workouts', workout.id, 'workout-records']">
@@ -66,17 +66,18 @@
 <ng-template #dialogTemplate>
   <h2 mat-dialog-title>Time Taken and When:</h2>
   <mat-dialog-content>
-    <h3>Date:</h3>
-    <app-date-input [(ngModel)]="currentWorkoutDate" [maxDate]="maxDate" [required]="true" #date="ngModel" width="100%" />
+    <app-short-card title="Date:">
+      <app-date-input [(ngModel)]="currentWorkoutDate" [maxDate]="maxDate" [required]="true" #date="ngModel" width="100%" />
+    </app-short-card>
     <br />
-    <app-time-span-input [(ngModel)]="currentWorkoutTime" [required]="true" #time="ngModel" width="100%"/>
+    <app-time-span-input label="Time Taken" [(ngModel)]="currentWorkoutTime" [required]="true" #time="ngModel" width="100%"/>
   </mat-dialog-content>
   <mat-dialog-actions>
-    <button type="button" color="primary" mat-flat-button (click)="completeCurrentWorkout()" mat-dialog-close [disabled]="time.invalid && time.touched">
-        <mat-icon>save</mat-icon> Save
+    <button type="button" color="primary" mat-flat-button (click)="completeCurrentWorkout()" mat-dialog-close [disabled]="date.invalid || time.invalid">
+      <mat-icon>save</mat-icon> Save
     </button>
     <button type="button" mat-flat-button color="secondary" mat-dialog-close>
-        <mat-icon>cancel</mat-icon> Cancel
+      <mat-icon>cancel</mat-icon> Cancel
     </button>
   </mat-dialog-actions>
 </ng-template>

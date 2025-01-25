@@ -3,6 +3,9 @@
         <mat-spinner diameter="60" />
     </ng-container>
     <ng-template #workoutDetailsTemplate>
+        <button type="button" mat-flat-button color="secondary" [routerLink]="['/workouts']">
+            <mat-icon>reply</mat-icon> Back
+        </button>
         <button type="button" mat-flat-button color="primary" [routerLink]="['/workouts', workoutDetails.workout.id, 'workout-records']">
             <mat-icon>analytics</mat-icon> Records
         </button>
@@ -16,89 +19,111 @@
             </mat-card-header>
             <mat-card-content>
                 <br>
-                <table class="table">
-                    <tbody>
-                        <tr>
-                            <th>Count of workouts:</th>
-                            <td>{{ showCountOfSomethingStr(workoutDetails.countOfWorkouts, 'workout', 'workouts') }}</td>
-                        </tr>
-                        <tr>
-                            <th>Workout Weight:</th>
-                            <td>{{ roundWeight(workoutDetails.workout.weight.weight) }} {{ showWeightTypeShort(workoutDetails.workout.weight.weightType) }}</td>
-                        </tr>
-                        <tr>
-                            <th>Total Lifted Weight:</th>
-                            <td>{{ roundWeight(workoutDetails.sumOfWeight.weight) }} {{ showWeightTypeShort(workoutDetails.sumOfWeight.weightType) }}</td>
-                        </tr>
-                        <tr>
-                            <th>Equipments:</th>
-                            <td>
-                                <mat-accordion>
-                                    <mat-expansion-panel (opened)="equipmentPanelOpenState.set(true)" (closed)="equipmentPanelOpenState.set(false)">
-                                    <mat-expansion-panel-header>
-                                        <mat-panel-title> {{ equipmentPanelOpenState() ? 'Equipments:' : showEquipmentsStr(100) }}</mat-panel-title>
-                                    </mat-expansion-panel-header>
-                                    <ul>
-                                        <li *ngFor="let equipment of workoutDetails.equipments">
-                                            {{ equipment.name }}
-                                        </li>
-                                    </ul>
-                                    </mat-expansion-panel>
-                                </mat-accordion>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Muscles:</th>
-                            <td>
-                                <mat-accordion>
-                                    <mat-expansion-panel (opened)="musclePanelOpenState.set(true)" (closed)="musclePanelOpenState.set(false)">
-                                    <mat-expansion-panel-header>
-                                        <mat-panel-title> {{ musclePanelOpenState() ? 'Muscles:' : showMusclesStr(100) }}</mat-panel-title>
-                                    </mat-expansion-panel-header>
-                                    <ul>
-                                        <li *ngFor="let muscle of workoutDetails.muscles">
-                                            {{ muscle.name }}
-                                        </li>
-                                    </ul>
-                                    </mat-expansion-panel>
-                                </mat-accordion>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Exercises:</th>
-                            <td>
-                                <table class="table ">
-                                    <thead>
-                                        <tr>
-                                            <th>№</th>
-                                            <th>Exercise</th>
-                                            <th>Sets</th>
-                                            <th>Values</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <ng-container *ngFor="let exerciseSetGroup of workoutDetails.workout.exerciseSetGroups, let group = index">
-                                            <tr *ngFor="let exerciseSet of exerciseSetGroup.exerciseSets, let set = index">
-                                                <td  *ngIf="set === 0" [attr.rowspan]="exerciseSetGroup.sets">
-                                                    {{ group + 1 }}
-                                                </td>
-                                                <td  *ngIf="set === 0" [attr.rowspan]="exerciseSetGroup.sets">
-                                                    {{ exerciseSet.exerciseName }}
-                                                </td>
-                                                <td  *ngIf="set === 0" [attr.rowspan]="exerciseSetGroup.sets">
-                                                    {{ showCountOfSomethingStr(exerciseSetGroup.sets, 'set', 'sets') }} ({{ roundWeight(exerciseSetGroup.weight.weight) }} {{ showWeightTypeShort(exerciseSetGroup.weight.weightType) }})
-                                                </td>
-                                                <td>
-                                                    {{ exerciseSetGroup.sets === 1 ? '' : (set + 1) + ')' }} {{ showExerciseValue(exerciseSet) }}
-                                                </td>
-                                            </tr>
-                                        </ng-container>
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="row">
+                    <div class="col-md-5">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th>Count:</th>
+                                    <td>{{ showCountOfSomethingStr(workoutDetails.totalWorkouts, 'workout', 'workouts') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Weight:</th>
+                                    <td>{{ showBigNumberStr(roundWeight(workoutDetails.workout.weight.weight)) }} {{ showWeightTypeShort(workoutDetails.workout.weight.weightType) }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Total Weight:</th>
+                                    <td>{{ showBigNumberStr(roundWeight(workoutDetails.totalWeight.weight)) }} {{ showWeightTypeShort(workoutDetails.totalWeight.weightType) }}</td>
+                                </tr>
+                                <tr>
+                                    <th>First Date:</th>
+                                    <td>{{ workoutDetails.workout.started | date:'d MMMM yyyy' }} ({{showCountOfSomethingStr(workoutDetails.countOfDaysSinceFirstWorkout, "day", "days")}} ago)</td>
+                                </tr>
+                                <tr>
+                                    <th>Total Duration:</th>
+                                    <td>{{ showTime(workoutDetails.totalDuration) }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Average Duration:</th>
+                                    <td>{{ showTime(workoutDetails.averageWorkoutDuration) }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Equipments:</th>
+                                    <td>
+                                        <mat-accordion>
+                                            <mat-expansion-panel (opened)="equipmentPanelOpenState.set(true)" (closed)="equipmentPanelOpenState.set(false)">
+                                            <mat-expansion-panel-header>
+                                                <mat-panel-title> {{ equipmentPanelOpenState() ? 'Equipments:' : showEquipmentsStr(50) }}</mat-panel-title>
+                                            </mat-expansion-panel-header>
+                                            <ul>
+                                                <li *ngFor="let equipment of workoutDetails.equipments">
+                                                    {{ equipment.name }}
+                                                </li>
+                                            </ul>
+                                            </mat-expansion-panel>
+                                        </mat-accordion>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Muscles:</th>
+                                    <td>
+                                        <mat-accordion>
+                                            <mat-expansion-panel (opened)="musclePanelOpenState.set(true)" (closed)="musclePanelOpenState.set(false)">
+                                            <mat-expansion-panel-header>
+                                                <mat-panel-title> {{ musclePanelOpenState() ? 'Muscles:' : showMusclesStr(50) }}</mat-panel-title>
+                                            </mat-expansion-panel-header>
+                                            <ul>
+                                                <li *ngFor="let muscle of workoutDetails.muscles">
+                                                    {{ muscle.name }}
+                                                </li>
+                                            </ul>
+                                            </mat-expansion-panel>
+                                        </mat-accordion>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br>
+                        <app-short-card title="Records on Calendar" width="80%" *ngIf="dates && dates.length > 0">
+                            <app-readonly-calendar 
+                                [selectedDates]="dates" 
+                                [minDate]="firstRecordDate"
+                                [maxDate]="lastRecordDate"
+                                width="100%" />
+                        </app-short-card>
+                    </div>
+                    <div class="col-md-7">
+                        <h2>Exercises:</h2>
+                        <table class="table ">
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>Exercise</th>
+                                    <th>Sets</th>
+                                    <th>Values</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngFor="let exerciseSetGroup of workoutDetails.workout.exerciseSetGroups, let group = index">
+                                    <tr *ngFor="let exerciseSet of exerciseSetGroup.exerciseSets, let set = index">
+                                        <td  *ngIf="set === 0" [attr.rowspan]="exerciseSetGroup.sets">
+                                            {{ group + 1 }}
+                                        </td>
+                                        <td  *ngIf="set === 0" [attr.rowspan]="exerciseSetGroup.sets">
+                                            {{ exerciseSet.exerciseName }}
+                                        </td>
+                                        <td  *ngIf="set === 0" [attr.rowspan]="exerciseSetGroup.sets">
+                                            {{ showCountOfSomethingStr(exerciseSetGroup.sets, 'set', 'sets') }} <span *ngIf="exerciseSetGroup.weight.weight">({{ showBigNumberStr(roundWeight(exerciseSetGroup.weight.weight)) }} {{ showWeightTypeShort(exerciseSetGroup.weight.weightType) }})</span>
+                                        </td>
+                                        <td>
+                                            {{ exerciseSetGroup.sets === 1 ? '' : (set + 1) + ')' }} {{ showExerciseValue(exerciseSet) }}
+                                        </td>
+                                    </tr>
+                                </ng-container>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </mat-card-content>
             <mat-card-actions>
                 <button type="button" mat-button color="primary" [routerLink]="['/workout', workoutDetails.workout.id]">

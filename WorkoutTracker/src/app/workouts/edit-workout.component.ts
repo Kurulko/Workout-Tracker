@@ -88,7 +88,7 @@ export class EditWorkoutComponent extends EditModelComponent<Workout> implements
     }
   }
 
-  isExerciseSetGroupsValid: boolean = true;
+  isExerciseSetGroupsValid!: boolean;
   onExerciseSetGroupsValidityChange(isValid: boolean): void {
     this.isExerciseSetGroupsValid = isValid;
   }

@@ -17,6 +17,7 @@ import { showCountOfSomethingStr } from '../shared/helpers/functions/showFunctio
 import { showValuesStr } from '../shared/helpers/functions/showFunctions/showValuesStr';
 import { WorkoutDetails } from './workout-details';
 import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { showTime } from '../shared/helpers/functions/showFunctions/showTime';
 
 @Component({
   selector: 'app-workout-details',
@@ -25,6 +26,10 @@ import { PreferencesManager } from '../shared/helpers/managers/preferences-manag
 })
 export class WorkoutDetailsComponent  extends MainComponent implements OnInit {
   workoutDetails!: WorkoutDetails;
+
+  dates: Date[]|null = null;
+  firstRecordDate!: Date;
+  lastRecordDate!: Date;
 
   constructor(private activatedRoute: ActivatedRoute, 
     private router: Router, 
@@ -44,6 +49,7 @@ export class WorkoutDetailsComponent  extends MainComponent implements OnInit {
   showCountOfSomethingStr = showCountOfSomethingStr;
   showExerciseValue = showExerciseValue;
   roundWeight = roundNumber;
+  showTime = showTime;
 
   showEquipmentsStr(maxLength: number){
     var equipmentNames = this.workoutDetails.equipments.map(e => e.name);
@@ -70,14 +76,20 @@ export class WorkoutDetailsComponent  extends MainComponent implements OnInit {
           console.error(`Error occurred: ${errorResponse.message} - ${errorResponse.status}`);
 
           if (errorResponse.status === StatusCodes.NOT_FOUND) {
-              this.router.navigate(['workouts']);
+            this.router.navigate(['workouts']);
           }
 
           this.showSnackbar(errorResponse.message);
           return throwError(() => errorResponse);
         }))
         .subscribe((result: WorkoutDetails) => {
-            this.workoutDetails = result;
+          this.workoutDetails = result;
+
+          if(this.workoutDetails.dates) {
+            this.dates = this.workoutDetails.dates!.map(date => new Date(date));
+            this.firstRecordDate = new Date(Math.min(...this.dates.map(date => date.getTime())))
+            this.lastRecordDate = new Date(Math.max(...this.dates.map(date => date.getTime())))
+          }
         });
     }
     else {
