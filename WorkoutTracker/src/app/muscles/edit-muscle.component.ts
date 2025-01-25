@@ -10,6 +10,7 @@ import { ImpersonationManager } from '../shared/helpers/managers/impersonation-m
 import { TokenManager } from '../shared/helpers/managers/token-manager';
 import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
+import { MatSelectChange } from '@angular/material/select';
 
 @Component({
   selector: 'app-muscle-edit',
@@ -87,7 +88,7 @@ export class MuscleEditComponent extends EditModelComponent<Muscle> implements O
       this.accessibleChildMuscles = this.allMuscles.filter(d => d.id !== this.muscle.id);
     }
 
-    if(this.childMuscles) {
+    if(this.childMuscles && !this.isNoneOptionSelected) {
       this.childMuscles = this.childMuscles.filter(cm => this.accessibleChildMuscles.map(acm => acm.id).includes(cm.id))
     }
   }
@@ -135,10 +136,10 @@ export class MuscleEditComponent extends EditModelComponent<Muscle> implements O
   }
 
   isDisabledNoneOption(): boolean {
-    if(!this.muscle.childMuscles)
+    if(!this.childMuscles)
       return false;
 
-    return this.muscle.childMuscles.length > 0 && !this.isNoneOptionSelected;
+    return this.childMuscles.length > 0 && !this.isNoneOptionSelected;
   }
 
   isNoneOptionSelected = false;

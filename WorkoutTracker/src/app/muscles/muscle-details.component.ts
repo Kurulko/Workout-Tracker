@@ -234,7 +234,7 @@ export class MuscleDetailsComponent extends MainComponent implements OnInit  {
     )
     .pipe(this.catchError())
     .subscribe(() => {
-      this.loadMuscleSizes();
+      this.loadExercises();
       this.modelDeletedSuccessfully("Exercise");
     })
   };

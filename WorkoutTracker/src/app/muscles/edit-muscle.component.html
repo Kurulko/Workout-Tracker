@@ -31,7 +31,6 @@
         </app-short-card>
         <br><br>
         <app-short-card title="Children" width="80%">
-          <!-- <app-multiple-muscle-selector [(ngModel)]="childMuscles" [parentMuscleId]="muscle.parentMuscleId" [required]="false" #childMusclesInput="ngModel" width="100%"/> -->
           <mat-spinner diameter="30" *ngIf="!accessibleChildMuscles" />
           <mat-form-field [hidden]="!accessibleChildMuscles" [style.width]="'100%'">
               <mat-label>Select Child Muscle...</mat-label>

@@ -26,6 +26,7 @@ export class MusclesComponent extends ModelsTableComponent<Muscle> implements On
   {
     super(impersonationManager, tokenManager, preferencesManager, snackBar);
     this.filterColumn = "name";
+    this.sortColumn = 'name';
   }
 
   getModels(pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Muscle>> {

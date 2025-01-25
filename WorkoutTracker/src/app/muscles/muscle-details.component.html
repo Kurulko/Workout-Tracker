@@ -16,82 +16,84 @@
         </mat-card-title-group>
       </mat-card-header>
       <mat-card-content>
-          <br>
-          <table class="table">
-              <tbody>
-                  <tr>
-                      <th>Parent Muscle:</th>
-                      <td>
-                        <ng-container *ngIf="hasParentMuscle; else noParentMuscleTemplate">
-                          {{ muscleDetails.muscle.parentMuscleName }}
-                        </ng-container>
-                        <ng-template #noParentMuscleTemplate>
-                          <p class="none-option">No Parent Muscle</p>
-                        </ng-template>
-                      </td>
-                  </tr>          
-                  <tr>
-                      <th>Child Muscles:</th>
-                      <td>
-                        <ng-container *ngIf="hasChildMuscles; else noChildMusclesTemplate">
-                          <mat-accordion *ngIf="muscleDetails.muscle.childMuscles?.length !== 0">
-                            <mat-expansion-panel (opened)="muscleChildsPanelOpenState.set(true)" (closed)="muscleChildsPanelOpenState.set(false)">
-                              <mat-expansion-panel-header>
-                                <mat-panel-title> {{ muscleChildsPanelOpenState() ? 'Child Muscles:' : getChildMuscleNamesStr() }}</mat-panel-title>
-                              </mat-expansion-panel-header>
-                              <ul>
-                                <li *ngFor="let muscle of muscleDetails.muscle.childMuscles">
-                                    {{ muscle.name }}
-                                </li>
-                              </ul>
-                            </mat-expansion-panel>
-                        </mat-accordion>
-                        </ng-container>
-                        <ng-template #noChildMusclesTemplate>
-                          <p class="none-option">No Child Muscles</p>
-                        </ng-template>
-                      </td>
-                  </tr>
-                  <tr>
-                      <th>Exercises:</th>
-                      <td>
-                        <ng-container *ngIf="hasExercises; else noExercisesTemplate">
-                          <app-exercise-table 
-                            [pageIndex]="exercisePageIndex"
-                            [pageSize]="exercisePageSize"
-                            [totalCount]="exerciseTotalCount"
-                            [data]="exercises"
-                            (sortChange)="onExerciseSortChange($event)"
-                            (pageChange)="onExercisePageChange($event)"
-                            (deleteItem)="onDeleteExercise($event)" />
-                        </ng-container>
-                        <ng-template #noExercisesTemplate>
-                          <p class="none-option">No Exercises</p>
-                        </ng-template>
-                      </td>
-                  </tr>
-                  <tr>
-                    <th>Muscle Sizes:</th>
-                    <td>
-                      <ng-container *ngIf="hasMuscleSizes; else noMuscleSizesTemplate">
-                        <app-muscle-size-table 
-                          [muscleId]="muscleId" 
-                          [visibleColumns]="['date', 'size', 'actions']"
-                          [pageIndex]="muscleSizePageIndex"
-                          [pageSize]="muscleSizePageSize"
-                          [totalCount]="muscleSizeTotalCount"
-                          [data]="muscleSizes"
-                          (sortChange)="onMuscleSizeSortChange($event)"
-                          (pageChange)="onMuscleSizePageChange($event)"
-                          (deleteItem)="onDeleteMuscleSize($event)" />
-                      </ng-container>
-                      <ng-template #noMuscleSizesTemplate>
-                        <p class="none-option">No Muscle Sizes</p>
-                      </ng-template>
-                    </td>
-                </tr>
-              </tbody>
-          </table>
+        <br>
+        <div class="row">
+          <div class="col-md-4">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>Parent Muscle:</th>
+                        <td>
+                          <ng-container *ngIf="hasParentMuscle; else noParentMuscleTemplate">
+                            {{ muscleDetails.muscle.parentMuscleName }}
+                          </ng-container>
+                          <ng-template #noParentMuscleTemplate>
+                            <p class="none-option">No Parent Muscle</p>
+                          </ng-template>
+                        </td>
+                    </tr>          
+                    <tr>
+                        <th>Child Muscles:</th>
+                        <td>
+                          <ng-container *ngIf="hasChildMuscles; else noChildMusclesTemplate">
+                            <mat-accordion *ngIf="muscleDetails.muscle.childMuscles?.length !== 0">
+                              <mat-expansion-panel (opened)="muscleChildsPanelOpenState.set(true)" (closed)="muscleChildsPanelOpenState.set(false)">
+                                <mat-expansion-panel-header>
+                                  <mat-panel-title> {{ muscleChildsPanelOpenState() ? 'Child Muscles:' : getChildMuscleNamesStr() }}</mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <ul>
+                                  <li *ngFor="let muscle of muscleDetails.muscle.childMuscles">
+                                      {{ muscle.name }}
+                                  </li>
+                                </ul>
+                              </mat-expansion-panel>
+                          </mat-accordion>
+                          </ng-container>
+                          <ng-template #noChildMusclesTemplate>
+                            <p class="none-option">No Child Muscles</p>
+                          </ng-template>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-8">
+            <h2>Exercises:</h2>
+            <ng-container *ngIf="hasExercises; else noExercisesTemplate">
+              <app-exercise-table
+                [pageIndex]="exercisePageIndex"
+                [pageSize]="exercisePageSize"
+                [totalCount]="exerciseTotalCount"
+                [displayedColumns]="['index', 'name', 'photo','type', 'equipments', 'actions']"
+                [data]="exercises"
+                (sortChange)="onExerciseSortChange($event)"
+                (pageChange)="onExercisePageChange($event)"
+                (deleteItem)="onDeleteExercise($event)" />
+            </ng-container>
+            <ng-template #noExercisesTemplate>
+              <p class="none-option">No Exercises</p>
+            </ng-template>
+            <div *ngIf="muscleDetails.muscle.isMeasurable">
+              <hr>
+              <h2>Muscle Sizes:</h2>
+                <ng-container *ngIf="hasMuscleSizes; else noMuscleSizesTemplate">
+                  <app-muscle-size-table 
+                    [muscleId]="muscleId" 
+                    [displayedColumns]="['date', 'size', 'actions']"
+                    [pageIndex]="muscleSizePageIndex"
+                    [pageSize]="muscleSizePageSize"
+                    [totalCount]="muscleSizeTotalCount"
+                    [data]="muscleSizes"
+                    (sortChange)="onMuscleSizeSortChange($event)"
+                    (pageChange)="onMuscleSizePageChange($event)"
+                    (deleteItem)="onDeleteMuscleSize($event)" />
+                </ng-container>
+                <ng-template #noMuscleSizesTemplate>
+                  <p class="none-option">No Muscle Sizes</p>
+                </ng-template>
+            </div>
+          </div>
+        </div>
       </mat-card-content>
       <mat-card-actions>
         <button type="button" mat-button color="primary" [routerLink]="['/muscle', muscleDetails.muscle.id]">
