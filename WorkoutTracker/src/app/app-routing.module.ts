@@ -68,7 +68,6 @@ const routes: Routes = [
     { path: 'exercise/:id/details', component: ExerciseDetailsComponent, canActivate: [AuthGuard] },
 
     { path: 'exercise-records', component: ExerciseRecordsComponent, canActivate: [AuthGuard] },
-    { path: 'exercise-record', component: EditExerciseRecordComponent, canActivate: [AuthGuard] },
     { path: 'exercise-record/:id', component: EditExerciseRecordComponent, canActivate: [AuthGuard] },
 
     { path: 'users', component: UsersComponent, canActivate: [AdminGuard] },
@@ -81,12 +80,12 @@ const routes: Routes = [
     { path: 'workouts', component: WorkoutsComponent, canActivate: [AuthGuard] },
     { path: 'workout', component: EditWorkoutComponent, canActivate: [AuthGuard] },
     { path: 'workout/:id', component: EditWorkoutComponent, canActivate: [AuthGuard] },
-    { path: 'workout-details/:id', component: WorkoutDetailsComponent, canActivate: [AuthGuard] },
+    { path: 'workout/:id/details', component: WorkoutDetailsComponent, canActivate: [AuthGuard] },
 
     { path: 'workout-records', component: WorkoutRecordsComponent, canActivate: [AuthGuard] },
     { path: 'workouts/:workoutId/workout-records', component: WorkoutRecordsComponent, canActivate: [AuthGuard] },
     { path: 'workouts/:workoutId/workout-record', component: EditWorkoutRecordComponent, canActivate: [AuthGuard] },
-    { path: 'workouts/workout-record', component: EditWorkoutRecordComponent, canActivate: [AuthGuard] },
+    { path: 'workout-record', component: EditWorkoutRecordComponent, canActivate: [AuthGuard] },
     { path: 'workouts/:workoutId/workout-record/:id', component: EditWorkoutRecordComponent, canActivate: [AuthGuard] },
     { path: 'workouts/:workoutId/workout-record-details/:id', component: WorkoutRecordDetailsComponent, canActivate: [AuthGuard] },
 
