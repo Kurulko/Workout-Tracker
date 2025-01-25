@@ -4,18 +4,23 @@ import { getEnumElements } from 'src/app/shared/helpers/functions/getFunctions/g
 import { WeightType } from 'src/app/shared/models/weight-type';
 import { showWeightType } from 'src/app/shared/helpers/functions/showFunctions/showWeightType';
 import { showWeightTypeShort } from 'src/app/shared/helpers/functions/showFunctions/showWeightTypeShort';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'app-weight-type-selector',
   templateUrl: './weight-type-selector.component.html',
   styleUrls: ['./weight-type-selector.component.css'],
   providers: [
-      {
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: forwardRef(() => WeightTypeSelectorComponent),
-        multi: true,
-      },
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => WeightTypeSelectorComponent),
+      multi: true,
+    },
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => WeightTypeSelectorComponent),
+      multi: true,
+    },
   ],
 })
 export class WeightTypeSelectorComponent extends BaseSelectorComponent<WeightType> implements OnInit {
@@ -41,5 +46,9 @@ export class WeightTypeSelectorComponent extends BaseSelectorComponent<WeightTyp
 
   writeValue(value?: WeightType): void {
     this.selectedWeightType = value;
+  }
+
+  validate() {
+    return this.validateEnum(this.selectedWeightType);
   }
 }

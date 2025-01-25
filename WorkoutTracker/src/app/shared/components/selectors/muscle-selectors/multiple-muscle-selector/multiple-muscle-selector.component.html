@@ -1,7 +1,7 @@
 <mat-spinner diameter="30" *ngIf="!muscles" />
 <mat-form-field *ngIf="muscles | async as result" [style.width]="width">
     <mat-label>{{ label ?? "Select Muscle..." }}</mat-label>
-    <mat-select [(ngModel)]="selectedMuscles" (selectionChange)="onMusclesSelected()" multiple [compareWith]="compareWithById" #muscles="ngModel">
+    <mat-select [(ngModel)]="selectedMuscles" (selectionChange)="onMusclesSelected()" multiple [compareWith]="compareWithById" [required]="required" #muscles="ngModel">
         <mat-option (onSelectionChange)="noneOptionSelected()" *ngIf="!required" class="none-option" [disabled]="isDisabledNoneOption()">
             --None--
         </mat-option>   

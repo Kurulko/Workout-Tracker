@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, Input, OnInit, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { BaseSelectorComponent } from '../base-selector.component';
 import { getEnumElements } from 'src/app/shared/helpers/functions/getFunctions/getEnumElements';
 import { SizeType } from 'src/app/shared/models/size-type';
@@ -11,6 +11,11 @@ import { showSizeTypeShort } from 'src/app/shared/helpers/functions/showFunction
   templateUrl: './size-type-selector.component.html',
   styleUrls: ['./size-type-selector.component.css'],
   providers: [
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => SizeTypeSelectorComponent),
+      multi: true,
+    },
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => SizeTypeSelectorComponent),
@@ -41,5 +46,9 @@ export class SizeTypeSelectorComponent extends BaseSelectorComponent<SizeType> i
 
   writeValue(value?: SizeType): void {
     this.selectedSizeType = value;
+  }
+
+  validate() {
+    return this.validateEnum(this.selectedSizeType);
   }
 }

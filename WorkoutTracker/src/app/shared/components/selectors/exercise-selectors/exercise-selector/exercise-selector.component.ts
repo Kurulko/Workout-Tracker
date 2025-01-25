@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Output, Input, OnInit, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, EventEmitter, Output, forwardRef } from '@angular/core';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ExerciseService } from 'src/app/exercises/services/exercise.service';
 import { BaseExerciseSelectorComponent } from '../base-exercise-selector.component';
 
@@ -8,6 +8,11 @@ import { BaseExerciseSelectorComponent } from '../base-exercise-selector.compone
   templateUrl: './exercise-selector.component.html',
   styleUrls: ['./exercise-selector.component.css'],
   providers: [
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => ExerciseSelectorComponent),
+      multi: true,
+    },
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => ExerciseSelectorComponent),
@@ -31,5 +36,9 @@ export class ExerciseSelectorComponent extends BaseExerciseSelectorComponent<num
 
   writeValue(value?: number): void {
     this.selectedExerciseId = value;
+  }
+
+  validate() {
+    return this.validateItemId(this.selectedExerciseId)
   }
 }

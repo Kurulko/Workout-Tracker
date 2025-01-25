@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, Input, OnInit, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { map, Observable } from 'rxjs';
 import { Workout } from 'src/app/workouts/workout';
 import { WorkoutService } from 'src/app/workouts/workout.service';
@@ -10,6 +10,11 @@ import { ModelsSelectorComponent } from '../models-selector.component';
   templateUrl: './workout-selector.component.html',
   styleUrls: ['./workout-selector.component.css'],
   providers: [
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => WorkoutSelectorComponent),
+      multi: true,
+    },
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => WorkoutSelectorComponent),
@@ -42,5 +47,9 @@ export class WorkoutSelectorComponent extends ModelsSelectorComponent<number> im
 
   writeValue(value?: number): void {
     this.selectedWorkoutId = value;
+  }
+
+  validate() {
+    return this.validateItemId(this.selectedWorkoutId)
   }
 }

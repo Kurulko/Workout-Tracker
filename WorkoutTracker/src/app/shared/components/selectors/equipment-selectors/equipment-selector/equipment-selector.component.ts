@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, Input, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { EquipmentService } from 'src/app/equipments/equipment.service';
 import { BaseEquipmentSelectorComponent } from '../base-equipment-selector.component';
 
@@ -8,11 +8,16 @@ import { BaseEquipmentSelectorComponent } from '../base-equipment-selector.compo
   templateUrl: './equipment-selector.component.html',
   styleUrls: ['./equipment-selector.component.css'],
   providers: [
-      {
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: forwardRef(() => EquipmentSelectorComponent),
-        multi: true,
-      },
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => EquipmentSelectorComponent),
+      multi: true,
+    },
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => EquipmentSelectorComponent),
+      multi: true,
+    },
   ],
 })
 export class EquipmentSelectorComponent extends BaseEquipmentSelectorComponent<number> {
@@ -32,5 +37,9 @@ export class EquipmentSelectorComponent extends BaseEquipmentSelectorComponent<n
 
   writeValue(value?: number): void {
     this.selectedEquipmentId = value;
+  }
+
+  validate() {
+   return this.validateItemId(this.selectedEquipmentId)
   }
 }

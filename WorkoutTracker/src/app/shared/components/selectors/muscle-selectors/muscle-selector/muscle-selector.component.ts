@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, Input, OnInit, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MuscleService } from 'src/app/muscles/muscle.service';
 import { BaseMuscleSelectorComponent } from '../base-muscle-selector.component';
 
@@ -8,6 +8,11 @@ import { BaseMuscleSelectorComponent } from '../base-muscle-selector.component';
   templateUrl: './muscle-selector.component.html',
   styleUrls: ['./muscle-selector.component.css'],
   providers: [
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => MuscleSelectorComponent),
+      multi: true,
+    },
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => MuscleSelectorComponent),
@@ -31,5 +36,9 @@ export class MuscleSelectorComponent extends BaseMuscleSelectorComponent<number>
 
   writeValue(value?: number): void {
     this.selectedMuscleId = value;
+  }
+
+  validate() {
+    return this.validateItemId(this.selectedMuscleId)
   }
 }

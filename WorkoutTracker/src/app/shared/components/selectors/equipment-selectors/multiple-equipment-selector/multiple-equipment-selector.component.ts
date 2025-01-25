@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, Input, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Equipment } from 'src/app/equipments/equipment';
 import { EquipmentService } from 'src/app/equipments/equipment.service';
 import { BaseEquipmentSelectorComponent } from '../base-equipment-selector.component';
@@ -9,6 +9,11 @@ import { BaseEquipmentSelectorComponent } from '../base-equipment-selector.compo
   templateUrl: './multiple-equipment-selector.component.html',
   styleUrls: ['./multiple-equipment-selector.component.css'],
   providers: [
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => MultipleEquipmentSelectorComponent),
+      multi: true,
+    },
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => MultipleEquipmentSelectorComponent),
@@ -47,5 +52,9 @@ export class MultipleEquipmentSelectorComponent extends BaseEquipmentSelectorCom
   isNoneOptionSelected = false;
   noneOptionSelected(){
     this.isNoneOptionSelected = !this.isNoneOptionSelected;
+  }
+
+  validate() {
+    return this.validateItems(this.selectedEquipments, this.isNoneOptionSelected);
   }
 }

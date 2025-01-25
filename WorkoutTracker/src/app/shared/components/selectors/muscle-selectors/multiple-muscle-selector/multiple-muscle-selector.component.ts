@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, Input, OnInit, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Muscle } from 'src/app/muscles/muscle';
 import { MuscleService } from 'src/app/muscles/muscle.service';
 import { BaseMuscleSelectorComponent } from '../base-muscle-selector.component';
@@ -9,6 +9,11 @@ import { BaseMuscleSelectorComponent } from '../base-muscle-selector.component';
   templateUrl: './multiple-muscle-selector.component.html',
   styleUrls: ['./multiple-muscle-selector.component.css'],
   providers: [
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => MultipleMuscleSelectorComponent),
+      multi: true,
+    },
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => MultipleMuscleSelectorComponent),
@@ -47,4 +52,8 @@ export class MultipleMuscleSelectorComponent extends BaseMuscleSelectorComponent
   noneOptionSelected(){
     this.isNoneOptionSelected = !this.isNoneOptionSelected;
   }  
+
+  validate() {
+    return this.validateItems(this.selectedMuscles, this.isNoneOptionSelected);
+  }
 }

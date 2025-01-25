@@ -2,7 +2,7 @@
 <mat-form-field *ngIf="muscles | async as result" [style.width]="width">
     <mat-label>{{ label ?? "Select Muscle..." }}</mat-label>
     <mat-select [(ngModel)]="selectedMuscleId" (selectionChange)="onMuscleIdSelected()" [required]="required" #muscle="ngModel">
-        <mat-option *ngIf="selectedMuscleId == undefined || !required" class="none-option">--None--</mat-option>
+        <mat-option *ngIf="!required" class="none-option">--None--</mat-option>
         <mat-option *ngFor="let muscle of result" [value]="muscle.id">
             <img src="{{ envProduction.baseUrl + 'resources/' + muscle.image }}" aria-label="Photo"
                 width="10%" height="10%" *ngIf="muscle.image" />

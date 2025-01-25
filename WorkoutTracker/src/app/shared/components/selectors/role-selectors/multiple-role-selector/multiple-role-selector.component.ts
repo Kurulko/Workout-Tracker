@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, Input, OnInit, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Role } from 'src/app/roles/role';
 import { RoleService } from 'src/app/roles/role.service';
 import { BaseRoleSelectorComponent } from '../base-role-selector.component';
@@ -9,6 +9,11 @@ import { BaseRoleSelectorComponent } from '../base-role-selector.component';
   templateUrl: './multiple-role-selector.component.html',
   styleUrls: ['./multiple-role-selector.component.css'],
   providers: [
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => MultipleRoleSelectorComponent),
+      multi: true,
+    },
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => MultipleRoleSelectorComponent),
@@ -47,5 +52,9 @@ export class MultipleRoleSelectorComponent extends BaseRoleSelectorComponent<Rol
   isNoneOptionSelected = false;
   noneOptionSelected(){
     this.isNoneOptionSelected = !this.isNoneOptionSelected;
+  }
+
+  validate() {
+    return this.validateItems(this.selectedRoles, this.isNoneOptionSelected);
   }
 }

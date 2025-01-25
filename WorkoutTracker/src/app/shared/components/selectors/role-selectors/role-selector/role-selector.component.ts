@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, Input, OnInit, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Role } from 'src/app/roles/role';
 import { RoleService } from 'src/app/roles/role.service';
 import { BaseRoleSelectorComponent } from '../base-role-selector.component';
@@ -9,6 +9,11 @@ import { BaseRoleSelectorComponent } from '../base-role-selector.component';
   templateUrl: './role-selector.component.html',
   styleUrls: ['./role-selector.component.css'],
   providers: [
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => RoleSelectorComponent),
+      multi: true,
+    },
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => RoleSelectorComponent),
@@ -33,5 +38,9 @@ export class RoleSelectorComponent extends BaseRoleSelectorComponent<string> {
 
   writeValue(value?: string): void {
     this.selectedRoleId = value;
+  }
+
+  validate() {
+    return this.validateItemId(this.selectedRoleId)
   }
 }

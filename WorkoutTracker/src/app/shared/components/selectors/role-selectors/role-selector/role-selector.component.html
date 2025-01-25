@@ -2,7 +2,7 @@
 <mat-form-field *ngIf="roles | async as result" [style.width]="width">
     <mat-label>{{ label ?? "Select Role..." }}</mat-label>
     <mat-select [(ngModel)]="selectedRoleId" (selectionChange)="onRoleIdSelected()" [required]="required" #role="ngModel">
-        <mat-option *ngIf="selectedRoleId == undefined || !required" class="none-option">--None--</mat-option>
+        <mat-option *ngIf="!required" class="none-option">--None--</mat-option>
         <mat-option *ngFor="let role of result" [value]="role.id">
             {{ role.name }}
         </mat-option>

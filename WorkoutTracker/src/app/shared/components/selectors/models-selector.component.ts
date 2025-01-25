@@ -32,4 +32,18 @@ export abstract class ModelsSelectorComponent<T> extends BaseSelectorComponent<T
   compareWithById(item1: any, item2: any): boolean {
     return item1 && item2 ? item1.id === item2.id : item1 === item2;
   }
+
+  protected validateItemId(selectedItemId: any) {
+    if(!this.required)
+      return null;
+
+    return selectedItemId ? null : { required: true };
+  }
+
+  protected validateItems(selectedItems: any[]|undefined, isNoneOptionSelected: boolean) {
+    if(!this.required)
+      return null;
+
+    return selectedItems && selectedItems.length > 0 && !isNoneOptionSelected ? null : { required: true };
+  }
 }

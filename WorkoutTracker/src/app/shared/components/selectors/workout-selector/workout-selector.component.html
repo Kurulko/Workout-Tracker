@@ -2,7 +2,7 @@
 <mat-form-field *ngIf="workouts | async as result" [style.width]="width">
     <mat-label>{{ label ?? "Select Workout..." }}</mat-label>
     <mat-select [(ngModel)]="selectedWorkoutId" (selectionChange)="onWorkoutIdSelected()" [required]="required" #workout="ngModel">
-        <mat-option *ngIf="selectedWorkoutId == undefined || !required" class="none-option">--None--</mat-option>
+        <mat-option *ngIf="!required" class="none-option">--None--</mat-option>
         <mat-option *ngFor="let workout of result" [value]="workout.id">
             {{ workout.name }}
         </mat-option>

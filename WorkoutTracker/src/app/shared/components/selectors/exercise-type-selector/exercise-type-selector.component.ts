@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Output, Input, OnInit, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, EventEmitter, Output, OnInit, forwardRef } from '@angular/core';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { BaseSelectorComponent } from '../base-selector.component';
 import { getEnumElements } from 'src/app/shared/helpers/functions/getFunctions/getEnumElements';
 import { showExerciseType } from 'src/app/shared/helpers/functions/showFunctions/showExerciseType';
@@ -10,6 +10,11 @@ import { ExerciseType } from 'src/app/exercises/models/exercise-type';
   templateUrl: './exercise-type-selector.component.html',
   styleUrls: ['./exercise-type-selector.component.css'],
   providers: [
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => ExerciseTypeSelectorComponent),
+      multi: true,
+    },
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => ExerciseTypeSelectorComponent),
@@ -39,5 +44,9 @@ export class ExerciseTypeSelectorComponent extends BaseSelectorComponent<Exercis
 
   writeValue(value?: ExerciseType): void {
     this.selectedExerciseType = value ?? null;
+  }
+
+  validate() {
+    return this.validateEnum(this.selectedExerciseType);
   }
 }
