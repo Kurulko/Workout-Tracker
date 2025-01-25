@@ -117,6 +117,14 @@ export class ExerciseService extends ModelsService {
         return this.webClient.get<boolean>(`user-exercise-exists-by-name/${name}`);
     }
 
+    getExerciseById(id: number): Observable<Exercise> {
+        return this.webClient.get<Exercise>(`exercise/${id}`);
+    }
+
+    getExerciseByName(name: string): Observable<Exercise> {
+        return this.webClient.get<Exercise>(`exercise/by-name/${name}`);
+    }
+
     getAllExercises(type: ExerciseType|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Exercise>> {
         return this.webClient.get<ApiResult<Exercise>>("all-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }

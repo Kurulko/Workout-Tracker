@@ -18,88 +18,95 @@
             </mat-card-header>
             <mat-card-content>
                 <br>
-                <table class="table">
-                    <tbody>
-                        <tr>
-                            <th>Type:</th>
-                            <td>{{ showExerciseType(exerciseDetails.exercise.type) }}</td>
-                        </tr> 
-                        <tr>
-                            <th>Muscles:</th>
-                            <td>
-                                <mat-accordion>
-                                    <mat-expansion-panel (opened)="musclePanelOpenState.set(true)" (closed)="musclePanelOpenState.set(false)">
-                                    <mat-expansion-panel-header>
-                                        <mat-panel-title> {{ musclePanelOpenState() ? 'Muscles:' : getMuscleNamesStr() }}</mat-panel-title>
-                                    </mat-expansion-panel-header>
-                                    <ul>
-                                        <li *ngFor="let muscle of exerciseDetails.exercise.muscles">
-                                            {{ muscle.name }}
-                                        </li>
-                                    </ul>
-                                    </mat-expansion-panel>
-                                </mat-accordion>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Equipments:</th>
-                            <td>
-                                <mat-accordion>
-                                    <mat-expansion-panel (opened)="equipmentPanelOpenState.set(true)" (closed)="equipmentPanelOpenState.set(false)">
-                                    <mat-expansion-panel-header>
-                                        <mat-panel-title> {{ equipmentPanelOpenState() ? 'Equipments:' : getEquipmentNamesStr() }}</mat-panel-title>
-                                    </mat-expansion-panel-header>
-                                    <ul>
-                                        <li *ngFor="let equipment of exerciseDetails.exercise.equipments">
-                                            {{ equipment.name }}
-                                        </li>
-                                    </ul>
-                                    </mat-expansion-panel>
-                                </mat-accordion>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Count of Times:</th>
-                            <td>{{ showCountOfSomethingStr(exerciseDetails.countOfTimes, 'time', 'times') }}</td>
-                        </tr>  
-                        <tr *ngIf="isExerciseRecords">
-                            <th>Sum:</th>
-                            <td>{{ showExerciseSumValue() }}</td>
-                        </tr>
-                        <tr>
-                            <th>Workouts:</th>
-                            <td>
-                                <p *ngIf="!isWorkouts">No workouts yet</p>
-                                <app-workout-table 
-                                    [pageIndex]="pageWorkoutIndex"
-                                    [pageSize]="pageWorkoutSize"
-                                    [totalCount]="totalWorkoutCount"
-                                    [data]="workouts"
-                                    [displayedColumns]="['index', 'name', 'actions']"
-                                    (sortChange)="onWorkoutSortChange($event)"
-                                    (pageChange)="onWorkoutPageChange($event)"
-                                    (deleteItem)="onDeleteWorkout($event)" 
-                                />
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Records:</th>
-                            <td>
-                                <p *ngIf="!isExerciseRecords">No records yet</p>
-                                <app-exercise-record-table 
-                                    [pageIndex]="pageExerciseRecordIndex"
-                                    [pageSize]="pageExerciseRecordSize"
-                                    [totalCount]="totalExerciseRecordCount"
-                                    [data]="exerciseRecords"
-                                    [displayedColumns]="['index', 'date', 'sum', 'value', 'actions']"
-                                    (sortChange)="onExerciseRecordSortChange($event)"
-                                    (pageChange)="onExerciseRecordPageChange($event)"
-                                    (deleteItem)="onDeleteExerciseRecord($event)" 
-                                />
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="row">
+                    <div class="col-md-5">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th>Type:</th>
+                                    <td>{{ showExerciseType(exerciseDetails.exercise.type) }}</td>
+                                </tr> 
+                                <tr>
+                                    <th>Muscles:</th>
+                                    <td>
+                                        <mat-accordion>
+                                            <mat-expansion-panel (opened)="musclePanelOpenState.set(true)" (closed)="musclePanelOpenState.set(false)">
+                                            <mat-expansion-panel-header>
+                                                <mat-panel-title> {{ musclePanelOpenState() ? 'Muscles:' : getMuscleNamesStr() }}</mat-panel-title>
+                                            </mat-expansion-panel-header>
+                                            <ul>
+                                                <li *ngFor="let muscle of exerciseDetails.exercise.muscles">
+                                                    {{ muscle.name }}
+                                                </li>
+                                            </ul>
+                                            </mat-expansion-panel>
+                                        </mat-accordion>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Equipments:</th>
+                                    <td>
+                                        <mat-accordion>
+                                            <mat-expansion-panel (opened)="equipmentPanelOpenState.set(true)" (closed)="equipmentPanelOpenState.set(false)">
+                                            <mat-expansion-panel-header>
+                                                <mat-panel-title> {{ equipmentPanelOpenState() ? 'Equipments:' : getEquipmentNamesStr() }}</mat-panel-title>
+                                            </mat-expansion-panel-header>
+                                            <ul>
+                                                <li *ngFor="let equipment of exerciseDetails.exercise.equipments">
+                                                    {{ equipment.name }}
+                                                </li>
+                                            </ul>
+                                            </mat-expansion-panel>
+                                        </mat-accordion>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Count of Times:</th>
+                                    <td>{{ showCountOfSomethingStr(exerciseDetails.countOfTimes, 'time', 'times') }}</td>
+                                </tr>  
+                                <tr *ngIf="isExerciseRecords">
+                                    <th>Sum:</th>
+                                    <td>{{ showExerciseSumValue() }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br>
+                        <app-short-card title="Records on Calendar" width="80%" *ngIf="dates && dates.length > 0">
+                            <app-readonly-calendar 
+                                [selectedDates]="dates" 
+                                [minDate]="firstRecordDate"
+                                [maxDate]="lastRecordDate"
+                                width="100%" />
+                        </app-short-card>
+                    </div>
+                    <div class="col-md-7">
+                        <h2>Workouts:</h2>
+                        <p *ngIf="!isWorkouts" class="none-option">No workouts yet</p>
+                        <app-workout-table *ngIf="isWorkouts"
+                            [pageIndex]="pageWorkoutIndex"
+                            [pageSize]="pageWorkoutSize"
+                            [totalCount]="totalWorkoutCount"
+                            [data]="workouts"
+                            [displayedColumns]="['index', 'name', 'actions']"
+                            (sortChange)="onWorkoutSortChange($event)"
+                            (pageChange)="onWorkoutPageChange($event)"
+                            (deleteItem)="onDeleteWorkout($event)" 
+                        />
+                        <hr>
+                        <h2>Records:</h2>
+                        <p *ngIf="!isExerciseRecords" class="none-option">No records yet</p>
+                        <app-exercise-record-table *ngIf="isExerciseRecords"
+                            [pageIndex]="pageExerciseRecordIndex"
+                            [pageSize]="pageExerciseRecordSize"
+                            [totalCount]="totalExerciseRecordCount"
+                            [data]="exerciseRecords"
+                            [displayedColumns]="['index', 'date', 'sum', 'value', 'actions']"
+                            (sortChange)="onExerciseRecordSortChange($event)"
+                            (pageChange)="onExerciseRecordPageChange($event)"
+                            (deleteItem)="onDeleteExerciseRecord($event)" 
+                        />
+                    </div>
+                </div>
             </mat-card-content>
             <mat-card-actions>
                 <button type="button" mat-button color="primary" [routerLink]="[exerciseDetails.exercise.isCreatedByUser ? '/your-exercise' : '/exercise', exerciseDetails.exercise.id]">

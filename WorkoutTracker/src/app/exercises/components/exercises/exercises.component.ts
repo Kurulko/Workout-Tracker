@@ -25,6 +25,7 @@ export class ExercisesComponent extends ModelsTableComponent<Exercise> {
   {
     super(impersonationManager, tokenManager, preferencesManager, snackBar);
     this.filterColumn = "name";
+    this.sortColumn = 'name';
   }
 
   ngOnInit(): void {

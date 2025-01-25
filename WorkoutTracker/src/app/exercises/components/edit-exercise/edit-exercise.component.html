@@ -11,20 +11,20 @@
     <div class="row">
       <div class="col">
         <app-short-card title="Name" width="80%">
-          <app-name-input [(ngModel)]="exercise.name" [required]="true" width="100%" [minlength]="3" hintStr="Min 3 characters" #name="ngModel" />
+          <app-name-input [(ngModel)]="exercise.name" [required]="true" width="100%" [minlength]="3" hintStr="Min 3 characters" #nameInput="ngModel" />
         </app-short-card>
         <br />
         <app-short-card title="Type" width="80%">
-          <app-exercise-type-selector [(ngModel)]="exercise.type" [required]="true" width="100%" #exerciseType="ngModel" />
+          <app-exercise-type-selector [(ngModel)]="exercise.type" [required]="true" width="100%" #exerciseTypeInput="ngModel" />
         </app-short-card>
         <br>
         <app-short-card title="Description" width="80%">
-          <app-description-input [(ngModel)]="exercise.description" [required]="false" width="100%"  [minlength]="10" hintStr="Min 10 characters" #description="ngModel" />
+          <app-description-input [(ngModel)]="exercise.description" [required]="false" width="100%"  [minlength]="10" hintStr="Min 10 characters" #descriptionInput="ngModel" />
         </app-short-card>
       </div>
       <div class="col">
         <app-short-card title="Photo" width="80%">
-          <app-photo-input [(ngModel)]="exercise.imageFile" (ngModelChange)="onPhotoUpload()" [previewUrl]="previewUrl" [required]="false" width="80%"/>
+          <app-photo-input [(ngModel)]="exercise.imageFile" (ngModelChange)="onPhotoUpload()" [previewUrl]="previewUrl" [required]="false" width="80%" #photoInput="ngModel" />
         </app-short-card>
       </div>
     </div>
@@ -33,18 +33,18 @@
       <div class="row">
         <div class="col">
           <h3>Muscles:</h3>
-          <app-multiple-muscle-selector [(ngModel)]="muscles" [required]="true" width="75%"/>
+          <app-multiple-muscle-selector [(ngModel)]="muscles" [required]="true" width="75%" #musclesInput="ngModel"/>
         </div>
         <div class="col">
           <h3>Equipments:</h3>
-          <app-multiple-equipment-selector [(ngModel)]="equipments" [required]="true" width="75%"/>
+          <app-multiple-equipment-selector [(ngModel)]="equipments" [modelsType]="exercisePageType === 'internal' ? 'internal' : 'all'" [required]="true" width="75%"  #equipmentsInput="ngModel"/>
         </div>
       </div>
     </app-short-card>
     <br /><br />
     <div>
         <button type="button" color="primary" mat-flat-button (click)="onSubmit()" 
-            [disabled]="name.invalid || exerciseType.invalid">
+            [disabled]="nameInput.invalid || exerciseTypeInput.invalid || equipmentsInput.invalid || musclesInput.invalid || photoInput.invalid || descriptionInput.invalid">
           <mat-icon>{{ this.id ? "edit" : "add_box" }}</mat-icon> {{ this.id ? "Save" : "Create" }}
         </button>
         <button type="button" mat-flat-button color="secondary" [routerLink]="['/exercises']">

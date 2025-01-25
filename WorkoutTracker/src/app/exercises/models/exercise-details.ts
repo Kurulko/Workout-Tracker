@@ -9,4 +9,6 @@ export interface ExerciseDetails {
     sumOfWeight: ModelWeight|null;
     sumOfTime: TimeSpan|null;
     sumOfReps: number|null;
+
+    dates: Date[]|null;
 }

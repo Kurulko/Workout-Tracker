@@ -34,6 +34,10 @@ export class ExerciseDetailsComponent extends MainComponent implements OnInit {
   exerciseDetails!: ExerciseDetails;
   exerciseId!: number;
 
+  dates: Date[]|null = null;
+  firstRecordDate!: Date;
+  lastRecordDate!: Date;
+
   constructor(private activatedRoute: ActivatedRoute, 
     private router: Router, 
     private exerciseService: ExerciseService, 
@@ -83,6 +87,12 @@ export class ExerciseDetailsComponent extends MainComponent implements OnInit {
       }))
       .subscribe((result: ExerciseDetails) => {
         this.exerciseDetails = result;
+
+        if(this.exerciseDetails.dates) {
+          this.dates = this.exerciseDetails.dates!.map(date => new Date(date));
+          this.firstRecordDate = new Date(Math.min(...this.dates.map(date => date.getTime())))
+          this.lastRecordDate = new Date(Math.max(...this.dates.map(date => date.getTime())))
+        }
       });
     } 
     else {
@@ -170,8 +180,8 @@ export class ExerciseDetailsComponent extends MainComponent implements OnInit {
   pageExerciseRecordSize: number = 5;
   totalExerciseRecordCount!: number;
 
-  sortExerciseRecordColumn: string = "id";
-  sortExerciseRecordOrder: "asc" | "desc" = "asc";
+  sortExerciseRecordColumn: string = "date";
+  sortExerciseRecordOrder: "asc" | "desc" = "desc";
   filterExerciseRecordColumn?: string;
   filterExerciseRecordQuery?: string;
     
@@ -232,7 +242,7 @@ export class ExerciseDetailsComponent extends MainComponent implements OnInit {
   pageWorkoutSize: number = 10;
   totalWorkoutCount!: number;
 
-  sortWorkoutColumn: string = "id";
+  sortWorkoutColumn: string = "name";
   sortWorkoutOrder: "asc" | "desc" = "asc";
   filterWorkoutColumn?: string;
   filterWorkoutQuery?: string;
