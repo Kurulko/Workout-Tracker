@@ -26,6 +26,8 @@ export class MuscleSizesComponent extends  ModelsTableComponent<MuscleSize> impl
     snackBar: MatSnackBar) 
   {
     super(impersonationManager, tokenManager, preferencesManager, snackBar);
+    this.sortColumn = "date";
+    this.sortOrder = "desc";
   }
 
   sizeType: "cm" | "inches" = "cm";
