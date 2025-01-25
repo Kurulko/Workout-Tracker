@@ -11,9 +11,21 @@ public class EquipmentRepository : BaseWorkoutRepository<Equipment>
 
     }
 
-    IQueryable<Equipment> GetEquipments()
-       => dbSet.Include(m => m.Exercises)!.ThenInclude(e => e.WorkingMuscles);
+    public async Task<Equipment?> GetEquipmentByIdWithDetailsAsync(long key)
+    {
+        return await dbSet
+          .Where(w => w.Id == key)
+           .Include(m => m.Exercises)!.
+            ThenInclude(e => e.WorkingMuscles)
+          .FirstOrDefaultAsync();
+    }
 
-    public override Task<IQueryable<Equipment>> GetAllAsync()
-        => Task.FromResult(GetEquipments());
+    public async Task<Equipment?> GetEquipmentByNameWithDetailsAsync(string name)
+    {
+        return await dbSet
+          .Where(w => w.Name == name)
+          .Include(m => m.Exercises)!.
+            ThenInclude(e => e.WorkingMuscles)
+          .FirstOrDefaultAsync();
+    }
 }
