@@ -16,8 +16,8 @@
                             formControlName="birthday" 
                             label="Birthday" 
                             modelName="Birthday"
-                            [maxDate]="maxDate" 
-                            [required]="true" 
+                            [maxDate]="maxBirthdayDate" 
+                            [required]="true"
                             width="100%" />
                     </app-short-card>
                     <br />
@@ -27,14 +27,16 @@
                         [weightMaxValue]="1000"
                         formControlName="weight" 
                         width="80%"
-                        [required]="true" />
+                        [required]="true"
+                    />
                     <br />
                      <!-- Body Fat Percentage -->
                     <app-short-card title="Body Fat Percentage" width="80%">
                         <app-body-fat-percentage-input 
                             formControlName="bodyFatPercentage"
-                            width="100%" 
-                            [required]="true"/>
+                            [required]="true"
+                            width="100%"
+                        />
                     </app-short-card>
                 </div>
                 <div class="col">
@@ -43,19 +45,21 @@
                         <app-gender-selector 
                             formControlName="gender" 
                             width="100%" 
-                            [required]="true" />
+                            [required]="true"
+                        />
                     </app-short-card>
                     <br />
-                        <!-- Height -->
-                        <app-model-size-input 
-                            [sizeTypeValue]="preferableSizeType" 
-                            modelName="Height"
-                            [sizeMaxValue]="300"
-                            label="Height:" 
-                            sizeLabel="Height"
-                            formControlName="height" 
-                            width="80%"
-                            [required]="true" />
+                    <!-- Height -->
+                    <app-model-size-input 
+                        [sizeTypeValue]="preferableSizeType" 
+                        modelName="Height"
+                        [sizeMaxValue]="300"
+                        label="Height:" 
+                        sizeLabel="Height"
+                        formControlName="height" 
+                        width="80%"
+                        [required]="true"
+                    />
                 </div>
             </div>
             <br>

@@ -8,6 +8,7 @@ import { UserDetails } from '../models/user-details';
 import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
 import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
+import { minAge } from 'src/settings';
 
 @Component({
   selector: 'app-user-details',
@@ -16,7 +17,7 @@ import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-
 })
 export class UserDetailsComponent extends EditModelComponent<UserDetails> implements OnInit {
   userDetailsForm!: FormGroup;
-  maxDate: Date = new Date();
+  maxBirthdayDate!: Date;
 
   readonly accountPath: string = '/account';
 
@@ -33,6 +34,10 @@ export class UserDetailsComponent extends EditModelComponent<UserDetails> implem
   }
 
   ngOnInit(): void {
+    const currentDate = new Date(); 
+    currentDate.setFullYear(currentDate.getFullYear() - minAge) 
+    this.maxBirthdayDate = currentDate;
+
     this.initForm();
     this.loadData();
   }

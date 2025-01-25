@@ -26,6 +26,7 @@
         <app-short-card title="Email" width="40%">
             <app-email-input 
                 [(ngModel)]="user.email" 
+                email
                 [required]="false" 
                 #emailInput="ngModel"
                 width="100%" />
