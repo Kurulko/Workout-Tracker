@@ -6,8 +6,6 @@ namespace WorkoutTrackerAPI.Data.DTOs;
 public class ExerciseRecordDTO
 {
     public long Id { get; set; }
-
-    [DateNotInFuture]
     public DateTime Date { get; set; }
 
     public ModelWeight? TotalWeight { get; set; }
@@ -16,8 +14,6 @@ public class ExerciseRecordDTO
 
     public ModelWeight? Weight { get; set; }
     public TimeSpanModel? Time { get; set; }
-
-    [PositiveNumber]
     public int? Reps { get; set; }
 
     public long ExerciseId { get; set; }

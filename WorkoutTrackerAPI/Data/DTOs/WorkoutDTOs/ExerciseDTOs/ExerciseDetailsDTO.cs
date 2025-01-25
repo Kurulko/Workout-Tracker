@@ -9,4 +9,6 @@ public class ExerciseDetailsDTO
     public ModelWeight? SumOfWeight { get; set; }
     public TimeSpanModel? SumOfTime { get; set; }
     public int? SumOfReps { get; set; }
+
+    public IEnumerable<DateTime>? Dates { get; set; }
 }

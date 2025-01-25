@@ -8,7 +8,6 @@ public class TotalUserProgressDTO
     public DateTime? FirstWorkoutDate { get; set; }
     public int CountOfDaysSinceFirstWorkout { get; set; }
     public TimeSpanModel AverageWorkoutDuration { get; set; }
-    public double ProgressPercentage { get; set; }
     public double FrequencyPerWeek { get; set; }
     public IEnumerable<DateTime>? WorkoutDates { get; set; }
 }

@@ -10,6 +10,9 @@ public class UserCreationDTO : IEquatable<User>
     public string? Email { get; set; }
 
     [DateNotInFuture]
+    public DateTime Registered { get; set; }
+
+    [DateNotInFuture]
     public DateTime? StartedWorkingOut { get; set; }
 
     public bool Equals(User? other)
