@@ -12,8 +12,8 @@ public class Exercise : WorkoutModel
     public string? CreatedByUserId { get; set; }
     public User? CreatedByUser { get; set; }
 
-    public IEnumerable<Equipment> Equipments { get; set; } = null!;
-    public IEnumerable<Muscle> WorkingMuscles { get; set; } = null!;
+    public ICollection<Equipment> Equipments { get; set; } = null!;
+    public ICollection<Muscle> WorkingMuscles { get; set; } = null!;
     public IEnumerable<ExerciseRecord>? ExerciseRecords { get; set; }
     public IEnumerable<ExerciseRecordGroup>? ExerciseRecordGroups { get; set; }
     public IEnumerable<ExerciseSetGroup>? ExerciseSetGroups { get; set; }
