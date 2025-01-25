@@ -26,6 +26,7 @@ export class RolesComponent extends ModelsTableComponent<Role> implements OnInit
   {
     super(impersonationManager, tokenManager, preferencesManager, snackBar);
     this.filterColumn = "name";
+    this.sortColumn = 'name';
     this.displayedColumns = ['index', 'name', 'actions'];
   }
 
