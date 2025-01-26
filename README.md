@@ -32,30 +32,30 @@ WorkoutTracker provides the following features:
    - View workout history and track progress over time.
    - Add personal workout routines.
 
-3. **Muscle Group Management**
-   - View muscle categories and their related exercises.
-   - Filter exercises by targeted muscle groups.
+3. **Muscles, Exercises and Equipments Management**
+   - View muscles, exercises and equipments and filter them.
+   - Create your own exercises and equipments.
 
 4. **Body and Muscle Measurements Tracking**
    - Record weight and muscle measurements over time.
    - Progress visualization via charts.
 
 5. **User Profile Management**
+   - Update your username and email.
    - Update profile details and preferences.
-   - Upload profile photos.
 
-6. **Admin Dashboard**
+7. **Admin Dashboard**
    - Manage users and roles.
    - Impersonate users.
 
-7. **Responsive Design**
+8. **Responsive Design**
    - Mobile-friendly interface with Angular Material.
 
 ---
 
 ## Technologies Used
 
-### **Backend (ASP.NET)**
+### **Back-end (ASP.NET Core)**
 - **ASP.NET Core 6** - Backend API framework.
 - **Entity Framework Core 6** - Database interaction and ORM.
 - **Microsoft SQL Server** - Relational database storage.
@@ -66,17 +66,23 @@ WorkoutTracker provides the following features:
 - Logging: **Serilog**
 - Authentication: **JWT (JSON Web Token)**
 
-#### Backend Packages:
+#### Back-end Packages:
 ```
-<ItemGroup>
-  <PackageReference Include="AutoMapper" Version="13.0.1" />
-  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
-  <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.0" />
-  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
-  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
-</ItemGroup>
+ <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.0" />
+    <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="6.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.4.5" />
+  </ItemGroup>
 ```
-### **Frontend (Angular)**
+### **Front-end (Angular)**
 - **Angular 16** - Component-based frontend framework.
 - **Angular Material** - UI components and responsive design.
 - **RxJS** - Reactive programming with observables.
@@ -85,7 +91,7 @@ WorkoutTracker provides the following features:
 - Charts: **Chart.js with ng2-charts**
 - Styling: **Bootstrap 5**
 
-#### Frontend Dependencies:
+#### Front-end Dependencies:
 ```
 "dependencies": {
   "@angular/material": "^16.2.14",
@@ -147,10 +153,12 @@ cd ../WorkoutTracker
 npm install
 ```
 
+---
+
 ## Environment Configuration
 
-### Backend (ASP.NET)
-Modify settings in WorkoutTrackerAPI/appsettings.json
+### Back-end (ASP.NET)
+Modify settings in `WorkoutTrackerAPI/appsettings.json`
 
 #### Configure appsettings.json
 
@@ -170,7 +178,7 @@ Modify settings in WorkoutTrackerAPI/appsettings.json
     "ExpirationDays": 7
   },
 
-  "YourName": {
+  "Admin": {
     "Name": "YourName",
     "Email": "youremail@email.com",
     "Password": "your-password"
@@ -179,11 +187,11 @@ Modify settings in WorkoutTrackerAPI/appsettings.json
 
 ```
 
-### Frontend (Angular)
+### Front-end (Angular)
 
 #### Configure Environment Variables
 
-##### 1. Modify WorkoutTracker/src/environments/environment.prod.ts:
+##### 1. Modify `WorkoutTracker/src/environments/environment.prod.ts`:
 ```
 export const environment = {
   production: true,
@@ -191,7 +199,7 @@ export const environment = {
 };
 ```
 
-##### 2. Modify WorkoutTracker/src/proxy.conf.js:
+##### 2. Modify `WorkoutTracker/src/proxy.conf.js`:
 ```
 const PROXY_CONFIG = [
   {
@@ -225,7 +233,7 @@ This will start your back-end server
 cd ../WorkoutTracker
 ng serve
 ```
-The Angular application will be available at http://localhost:4200.
+The Angular application will be available at `http://localhost:4200`.
 
 
 ## API Documentation
