@@ -1,7 +1,9 @@
 ﻿using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
+using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Exceptions;
+using WorkoutTrackerAPI.Extentions;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
 using WorkoutTrackerAPI.Services.BodyWeightServices;
@@ -74,21 +76,21 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         }
     }
 
-    async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsAsync(string userId, DateTime? date = null)
+    async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsAsync(string userId, DateTimeRange? range = null)
     {
         try
         {
             await CheckUserIdAsync(userRepository, userId);
 
-            if (date is DateTime _date && _date.Date > DateTime.Now.Date)
+            if (range is DateTimeRange _range && _range.LastDate > DateTime.Now.Date)
                 throw new ArgumentException("Incorrect date.");
 
-            var userBodyWeights = await baseRepository.FindAsync(ms => ms.UserId == userId);
+            IEnumerable<BodyWeight> userBodyWeights = (await baseRepository.FindAsync(wr => wr.UserId == userId)).ToList();
 
-            if (date.HasValue)
-                userBodyWeights = userBodyWeights.Where(bw => bw.Date.Date == date.Value.Date);
+            if (range is not null)
+                userBodyWeights = userBodyWeights.Where(bw => range.IsDateInRange(bw.Date, true));
 
-            return ServiceResult<IQueryable<BodyWeight>>.Ok(userBodyWeights);
+            return ServiceResult<IQueryable<BodyWeight>>.Ok(userBodyWeights.AsQueryable());
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
@@ -100,14 +102,14 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         }
     }
 
-    public async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInPoundsAsync(string userId, DateTime? date = null)
+    public async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInPoundsAsync(string userId, DateTimeRange? range = null)
     {
-        var serviceResult = await GetUserBodyWeightsAsync(userId, date);
+        var serviceResult = await GetUserBodyWeightsAsync(userId, range);
 
         if (!serviceResult.Success)
             return serviceResult;
 
-        var userBodyWeightsInPounds = serviceResult.Model!.AsEnumerable().Select(m =>
+        var userBodyWeightsInPounds = serviceResult.Model!.ToList().Select(m =>
         {
             m.Weight = ModelWeight.GetModelWeightInPounds(m.Weight);
             return m;
@@ -116,20 +118,41 @@ public class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
         return ServiceResult<IQueryable<BodyWeight>>.Ok(userBodyWeightsInPounds);
     }
 
-    public async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInKilogramsAsync(string userId, DateTime? date = null)
+    public async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInKilogramsAsync(string userId, DateTimeRange? range = null)
     {
-        var serviceResult = await GetUserBodyWeightsAsync(userId, date);
+        var serviceResult = await GetUserBodyWeightsAsync(userId, range);
 
         if (!serviceResult.Success)
             return serviceResult;
 
-        var userBodyWeightsInKilograms = serviceResult.Model!.AsEnumerable().Select(m =>
+        var userBodyWeightsInKilograms = serviceResult.Model!.ToList().Select(m =>
         {
             m.Weight = ModelWeight.GetModelWeightInKilos(m.Weight);
             return m;
         }).AsQueryable();
 
         return ServiceResult<IQueryable<BodyWeight>>.Ok(userBodyWeightsInKilograms);
+    }
+
+    public async Task<ServiceResult<BodyWeight>> GetCurrentUserBodyWeightAsync(string userId)
+    {
+        try
+        {
+            await CheckUserIdAsync(userRepository, userId);
+
+            var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId);
+            var userMaxBodyWeight = userBodyWeights?.ToList().MaxBy(bw => bw.Date);
+
+            return ServiceResult<BodyWeight>.Ok(userMaxBodyWeight);
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<BodyWeight>.Fail(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("current body weight", "get", ex));
+        }
     }
 
     public async Task<ServiceResult<BodyWeight>> GetMaxUserBodyWeightAsync(string userId)
