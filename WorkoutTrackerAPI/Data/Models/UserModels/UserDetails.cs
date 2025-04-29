@@ -1,4 +1,6 @@
-﻿namespace WorkoutTrackerAPI.Data.Models.UserModels;
+﻿using WorkoutTrackerAPI.Data.Enums;
+
+namespace WorkoutTrackerAPI.Data.Models.UserModels;
 
 public class UserDetails : IDbModel
 {
@@ -13,7 +15,3 @@ public class UserDetails : IDbModel
     public User? User { get; set; }
 }
 
-public enum Gender
-{
-    Male, Female
-}
