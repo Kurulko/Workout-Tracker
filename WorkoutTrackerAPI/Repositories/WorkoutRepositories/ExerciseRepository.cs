@@ -13,7 +13,8 @@ public class ExerciseRepository : BaseWorkoutRepository<Exercise>
     }
 
     IQueryable<Exercise> GetExercises()
-        => dbSet.Include(m => m.WorkingMuscles)
+        => dbSet.Include(m => m.ExerciseAliases)
+        .Include(m => m.WorkingMuscles)
         .Include(m => m.Equipments);
 
     public override Task<IQueryable<Exercise>> GetAllAsync()
@@ -23,6 +24,7 @@ public class ExerciseRepository : BaseWorkoutRepository<Exercise>
     {
         return await dbSet
           .Where(w => w.Id == key)
+          .Include(m => m.ExerciseAliases)
           .Include(m => m.WorkingMuscles)
           .Include(m => m.Equipments)
           .FirstOrDefaultAsync();
@@ -32,6 +34,7 @@ public class ExerciseRepository : BaseWorkoutRepository<Exercise>
     {
         return await dbSet
           .Where(w => w.Name == name)
+          .Include(m => m.ExerciseAliases)
           .Include(m => m.WorkingMuscles)
           .Include(m => m.Equipments)
           .FirstOrDefaultAsync();
@@ -41,6 +44,7 @@ public class ExerciseRepository : BaseWorkoutRepository<Exercise>
     {
         var exercise = await dbSet
          .Where(w => w.Id == key)
+         .Include(m => m.ExerciseAliases)
          .Include(m => m.WorkingMuscles)
          .Include(m => m.Equipments)
          .Include(m => m.ExerciseRecords)
@@ -60,6 +64,7 @@ public class ExerciseRepository : BaseWorkoutRepository<Exercise>
     {
         var exercise = await dbSet
           .Where(w => w.Name == name)
+          .Include(m => m.ExerciseAliases)
           .Include(m => m.WorkingMuscles)
           .Include(m => m.Equipments)
           .Include(m => m.ExerciseRecords)

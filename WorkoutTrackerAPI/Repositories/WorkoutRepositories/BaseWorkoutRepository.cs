@@ -14,8 +14,14 @@ public class BaseWorkoutRepository<T> : DbModelRepository<T>, IBaseWorkoutReposi
     {
     }
     public virtual async Task<T?> GetByNameAsync(string name)
-        => await (await GetAllAsync()).SingleOrDefaultAsync(m => m.Name == name); 
+    {
+        var workoutModels = await GetAllAsync();
+        return await workoutModels.SingleOrDefaultAsync(m => m.Name == name);
+    }
 
     public virtual async Task<bool> ExistsByNameAsync(string name)
-        => await (await GetAllAsync()).AnyAsync(m => m.Name == name);
+    {
+        var workoutModels = await GetAllAsync();
+        return await workoutModels.AnyAsync(m => m.Name == name);
+    }
 }
