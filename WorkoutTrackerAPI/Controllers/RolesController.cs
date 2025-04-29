@@ -49,7 +49,7 @@ public class RolesController : APIController
             if (roles is null)
                 return EntryNotFound("Roles");
 
-            var roleDTOs = roles.AsEnumerable().Select(u => mapper.Map<RoleDTO>(u));
+            var roleDTOs = roles.ToList().Select(u => mapper.Map<RoleDTO>(u));
             return await ApiResult<RoleDTO>.CreateAsync(
                 roleDTOs.AsQueryable(),
                 pageIndex,
