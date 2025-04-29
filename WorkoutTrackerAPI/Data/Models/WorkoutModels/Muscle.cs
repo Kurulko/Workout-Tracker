@@ -1,4 +1,5 @@
-﻿using WorkoutTrackerAPI.Data.Models.UserModels;
+﻿using Microsoft.EntityFrameworkCore;
+using WorkoutTrackerAPI.Data.Models.UserModels;
 
 namespace WorkoutTrackerAPI.Data.Models;
 

@@ -1,4 +1,6 @@
-﻿namespace WorkoutTrackerAPI.Data.Models.WorkoutModels;
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace WorkoutTrackerAPI.Data.Models.WorkoutModels;
 
 public class Equipment : WorkoutModel
 {
