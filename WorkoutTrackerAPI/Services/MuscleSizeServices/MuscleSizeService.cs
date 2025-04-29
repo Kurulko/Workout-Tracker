@@ -6,6 +6,7 @@ using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Exceptions;
+using WorkoutTrackerAPI.Extentions;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
 using WorkoutTrackerAPI.Services.MuscleSizeServices;
@@ -79,27 +80,27 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         }
     }
     
-    async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesAsync(string userId, long? muscleId = null, DateTime? date = null)
+    async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesAsync(string userId, long? muscleId = null, DateTimeRange? range = null)
     {
         try
         {
             await CheckUserIdAsync(userRepository, userId);
 
-            if (date.HasValue && date.Value.Date > DateTime.Now.Date)
+            if (range is DateTimeRange _range && _range.LastDate > DateTime.Now.Date)
                 throw new ArgumentException("Incorrect date.");
 
             if (muscleId.HasValue && muscleId < 1)
                 throw new InvalidIDException(nameof(Muscle));
 
-            var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId);
+            IEnumerable<MuscleSize> userMuscleSizes = (await baseRepository.FindAsync(wr => wr.UserId == userId)).ToList();
 
-            if (date.HasValue)
-                userMuscleSizes = userMuscleSizes.Where(ms => ms.Date.Date == date.Value.Date); 
+            if (range is not null)
+                userMuscleSizes = userMuscleSizes.Where(ms => range.IsDateInRange(ms.Date, true));
 
             if (muscleId.HasValue)
                 userMuscleSizes = userMuscleSizes.Where(ms => ms.MuscleId == muscleId);
 
-            return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizes);
+            return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizes.AsQueryable());
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
@@ -111,14 +112,14 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         }
     }
 
-    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInInchesAsync(string userId, long? muscleId = null, DateTime? date = null)
+    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInInchesAsync(string userId, long? muscleId = null, DateTimeRange? range = null)
     {
-        var serviceResult = await GetUserMuscleSizesAsync(userId, muscleId, date);
+        var serviceResult = await GetUserMuscleSizesAsync(userId, muscleId, range);
 
         if (!serviceResult.Success)
             return serviceResult;
 
-        var userMuscleSizesInInches = serviceResult.Model!.AsEnumerable().Select(m =>
+        var userMuscleSizesInInches = serviceResult.Model!.ToList().Select(m =>
         {
             m.Size = ModelSize.GetModelSizeInInches(m.Size);
             return m;
@@ -127,14 +128,14 @@ public class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
         return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizesInInches);
     }
 
-    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInCentimetersAsync(string userId, long? muscleId = null, DateTime? date = null)
+    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInCentimetersAsync(string userId, long? muscleId = null, DateTimeRange? range = null)
     {
-        var serviceResult = await GetUserMuscleSizesAsync(userId, muscleId, date);
+        var serviceResult = await GetUserMuscleSizesAsync(userId, muscleId, range);
 
         if (!serviceResult.Success)
             return serviceResult;
 
-        var userMuscleSizesInCentimeter = serviceResult.Model!.AsEnumerable().Select(m =>
+        var userMuscleSizesInCentimeter = serviceResult.Model!.ToList().Select(m =>
         {
             m.Size = ModelSize.GetModelSizeInCentimeters(m.Size);
             return m;
