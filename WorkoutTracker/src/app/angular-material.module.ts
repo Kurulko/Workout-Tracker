@@ -22,6 +22,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   imports: [
@@ -47,7 +48,8 @@ import { MatDividerModule } from '@angular/material/divider';
     MatStepperModule,
     MatGridListModule,
     MatProgressBarModule,
-    MatDividerModule
+    MatDividerModule,
+    MatTooltipModule
   ],
   exports: [
     MatButtonModule,
@@ -72,7 +74,8 @@ import { MatDividerModule } from '@angular/material/divider';
     MatStepperModule,
     MatGridListModule,
     MatProgressBarModule,
-    MatDividerModule
+    MatDividerModule,
+    MatTooltipModule
   ]
 })
 export class AngularMaterialModule { }

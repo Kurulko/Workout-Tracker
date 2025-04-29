@@ -23,7 +23,7 @@ import { MuscleSizesComponent } from './muscle-sizes/muscle-sizes.component';
 import { MuscleSizeEditComponent } from './muscle-sizes/edit-muscle-size.component';
 import { EquipmentsComponent } from './equipments/equipments.component';
 import { ExerciseEditComponent } from './exercises/components/edit-exercise/edit-exercise.component';
-import { UserProgressComponent } from './user-progress/user-progress.component';
+import { WorkoutProgressComponent } from './workout-progress/workout-progress.component';
 import { UsersComponent } from './users/users.component';
 import { AccountComponent } from './account/components/account.component';
 import { PasswordComponent } from './account/components/password.component';
@@ -97,6 +97,10 @@ import { PhotoUploadDialogComponent } from './shared/components/dialogs/photo-up
 import { NgxMultipleDatesModule } from 'ngx-multiple-dates';
 import { WorkoutsVsRestChartComponent } from './shared/components/charts/workouts-vs-rest-chart/workouts-vs-rest-chart.component';
 import { ReadonlyCalendarComponent } from './shared/components/calendars/readonly-calendar/readonly-calendar.component';
+import { DatePipe } from '@angular/common';
+import { ShortModelWeightInputComponent } from './shared/components/inputs/short-model-weight-input/short-model-weight-input.component';
+import { ShortTimeSpanInputComponent } from './shared/components/inputs/short-time-span-input/short-time-span-input.component';
+import { DateRangeInputComponent } from './shared/components/inputs/date-range-input/date-range-input.component';
 
 @NgModule({
   declarations: [
@@ -115,7 +119,7 @@ import { ReadonlyCalendarComponent } from './shared/components/calendars/readonl
     EquipmentsComponent,
     ExercisesComponent,
     ExerciseEditComponent,
-    UserProgressComponent,
+    WorkoutProgressComponent,
     UsersComponent,
     AccountComponent,
     PasswordComponent,
@@ -185,7 +189,10 @@ import { ReadonlyCalendarComponent } from './shared/components/calendars/readonl
     ExerciseRecordChartComponent,
     PhotoUploadDialogComponent,
     WorkoutsVsRestChartComponent,
-    ReadonlyCalendarComponent
+    ReadonlyCalendarComponent,
+    ShortModelWeightInputComponent,
+    ShortTimeSpanInputComponent,
+    DateRangeInputComponent
   ],
   imports: [
     BrowserModule,
@@ -203,7 +210,8 @@ import { ReadonlyCalendarComponent } from './shared/components/calendars/readonl
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true 
-    }
+    },
+    DatePipe
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]

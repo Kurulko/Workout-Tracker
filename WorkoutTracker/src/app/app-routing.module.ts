@@ -18,7 +18,7 @@ import { EditUserComponent } from './users/edit-user.component';
 import { RolesComponent } from './roles/roles.component';
 import { AccountComponent } from './account/components/account.component';
 import { PasswordComponent } from './account/components/password.component';
-import { UserProgressComponent } from './user-progress/user-progress.component';
+import { WorkoutProgressComponent } from './workout-progress/workout-progress.component';
 import { WorkoutsComponent } from './workouts/workouts.component';
 import { EditWorkoutComponent } from './workouts/edit-workout.component';
 import { WorkoutDetailsComponent } from './workouts/workout-details.component';
@@ -92,7 +92,7 @@ const routes: Routes = [
     { path: 'account', component: AccountComponent, canActivate: [AuthGuard] },
     { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
     { path: 'password', component: PasswordComponent, canActivate: [AuthGuard] },
-    { path: 'progress', component: UserProgressComponent, canActivate: [AuthGuard] },
+    { path: 'progress', component: WorkoutProgressComponent, canActivate: [AuthGuard] },
     { path: 'personal-data', component: UserDetailsComponent, canActivate: [AuthGuard] },
 
     { path: '**', component: NotFoundComponent },
