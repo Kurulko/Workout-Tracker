@@ -1,0 +1,191 @@
+<main-app title="Workout Progress">
+    <ng-container *ngIf="!workoutProgress || !currentUserProgress; else workoutProgressTemplate">
+        <mat-spinner diameter="60" />
+    </ng-container>
+    <ng-template #workoutProgressTemplate>
+        <ng-template #noWorkoutsTemplate>
+            <h3><i>You have not completed any workouts yet...</i></h3>
+        </ng-template>
+        <ng-container *ngIf="workoutProgress.baseInfoProgress.totalWorkouts; else noWorkoutsTemplate">
+            <app-short-card title="Current Progress" width="50%">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>Workout Status:</th>
+                            <td>
+                                {{ WorkoutStatus[currentUserProgress.workoutStatus!] }} 
+                                <mat-icon matTooltip="Beginner < 1; Intermediate < 5; Advanced < 10; Elite 10+ years of training" class="info-icon">
+                                    help_outline
+                                </mat-icon>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>First Workout Date:</th>
+                            <td>{{ currentUserProgress.firstWorkoutDate | date:'d MMMM yyyy' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Last Workout Date:</th>
+                            <td>{{ showLastDateStr(currentUserProgress.lastWorkoutDate!) }}</td>
+                        </tr>
+                        <tr>
+                            <th>Count of Days:</th>
+                            <td>{{ showCountOfSomethingStr(currentUserProgress.countOfWorkoutDays, "day", "days") }} ({{showTime(totalDays)}})</td>
+                        </tr>
+                        <tr>
+                            <th>Current Weight:</th>
+                            <td>{{currentUserProgress.currentBodyWeight.weight}} {{ showWeightTypeShort(currentUserProgress.currentBodyWeight.weightType) }} (min: {{workoutProgress.bodyWeightProgress.minBodyWeight.weight}} {{ showWeightTypeShort(workoutProgress.bodyWeightProgress.minBodyWeight.weightType) }}, max: {{workoutProgress.bodyWeightProgress.maxBodyWeight.weight}} {{ showWeightTypeShort(workoutProgress.bodyWeightProgress.maxBodyWeight.weightType) }})</td>
+                        </tr>
+                        <tr>
+                            <th>Current Strike:</th>
+                            <td>
+                                <span class="circle-badge bg-primary text-white">{{ showDays(currentUserProgress.currentWorkoutStrikeDays) }}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </app-short-card>
+            <br><hr><br>
+            <app-date-range-input [(ngModel)]="range" (ngModelChange)="onDateRangeChange()" [maxDate]="maxDate" [required]="false" width="75%" />
+            <br><br>
+            <div class="row">
+                <div class="col-md-6">
+                    <app-short-card title="Basic Info">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th>Total Workouts:</th>
+                                    <td>{{ workoutProgress.baseInfoProgress.totalWorkouts }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Total Duration</th>
+                                    <td>{{ showTime(workoutProgress.baseInfoProgress.totalDuration) }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Frequency per Week:</th>
+                                    <td>{{ showCountOfSomethingStr(workoutProgress.baseInfoProgress.frequencyPerWeek, "time", "times") }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Count of Exercises Used:</th>
+                                    <td>{{ workoutProgress.baseInfoProgress.countOfExercisesUsed }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </app-short-card>
+                    <app-short-card title="Total Completed">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th>Total Weight Lifted:</th>
+                                    <td>{{ showBigNumberStr(roundWeight(workoutProgress.totalCompletedProgress.totalWeightLifted.weight)) }} {{ showWeightTypeShort(workoutProgress.totalCompletedProgress.totalWeightLifted.weightType) }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Total Reps Completed:</th>
+                                    <td>{{ showBigNumberStr(roundWeight(workoutProgress.totalCompletedProgress.totalRepsCompleted)) }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Total Time Completed:</th>
+                                    <td>{{ showTime(workoutProgress.totalCompletedProgress.totalTimeCompleted) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </app-short-card>
+                    <app-short-card title="Others">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th>Average Weight Lifted:</th>
+                                    <td>{{ showBigNumberStr(roundWeight(workoutProgress.workoutWeightLiftedProgress.averageWorkoutWeightLifted.weight)) }} {{ showWeightTypeShort(workoutProgress.workoutWeightLiftedProgress.averageWorkoutWeightLifted.weightType) }} (min: {{ showBigNumberStr(roundWeight(workoutProgress.workoutWeightLiftedProgress.minWorkoutWeightLifted.weight)) }} {{ showWeightTypeShort(workoutProgress.workoutWeightLiftedProgress.minWorkoutWeightLifted.weightType) }}, max: {{ showBigNumberStr(roundWeight(workoutProgress.workoutWeightLiftedProgress.maxWorkoutWeightLifted.weight)) }} {{ showWeightTypeShort(workoutProgress.workoutWeightLiftedProgress.maxWorkoutWeightLifted.weightType) }})</td>
+                                </tr>
+                                <tr>
+                                    <th>Average Workout Duration:</th>
+                                    <td>{{ showTime(workoutProgress.workoutDurationProgress.averageWorkoutDuration) }} (min: {{ showTime(workoutProgress.workoutDurationProgress.minWorkoutDuration) }}, max: {{ showTime(workoutProgress.workoutDurationProgress.maxWorkoutDuration) }}) </td>
+                                </tr>
+                                <tr>
+                                    <th>Average Weight:</th>
+                                    <td>{{workoutProgress.bodyWeightProgress.averageBodyWeight.weight}} {{ showWeightTypeShort(workoutProgress.bodyWeightProgress.averageBodyWeight.weightType) }} (min: {{workoutProgress.bodyWeightProgress.minBodyWeight.weight}} {{ showWeightTypeShort(workoutProgress.bodyWeightProgress.minBodyWeight.weightType) }}, max: {{workoutProgress.bodyWeightProgress.maxBodyWeight.weight}} {{ showWeightTypeShort(workoutProgress.bodyWeightProgress.maxBodyWeight.weightType) }})</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </app-short-card>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-5">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <p>Avg Strike:</p>
+                            <span class="circle-badge bg-primary text-white">{{ showDays(workoutProgress.strikeDurationProgress.averageWorkoutStrikeDays) }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <p>Max Strike:</p>
+                            <span class="circle-badge bg-success text-white">{{ showDays(workoutProgress.strikeDurationProgress.maxWorkoutStrikeDays) }}</span>
+                        </div>
+                        <div class="col-md-3">
+                            <p>Max Break:</p>
+                            <span class="circle-badge bg-danger text-white">{{ showDays(workoutProgress.strikeDurationProgress.maxRestStrikeDays) }}</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <br>
+                    <app-workouts-vs-rest-chart 
+                        [workoutDays]="workoutDays"
+                        [restDays]="restDays"
+                        width="375px" />
+                </div>
+            </div>
+            <br><hr><br>
+            <div class="row">
+                <div class="col-md-4">
+                    <app-short-card title="Workouts on Calendar" width="100%">
+                        <app-readonly-calendar 
+                            [selectedDates]="workoutDates" 
+                            [minDate]="firstWorkoutDate"
+                            [maxDate]="todayDate"
+                            (currentMonthChange)="onCurrentMonthChange($event)"
+                            width="100%" />
+                    </app-short-card>
+                </div>
+                <div class="col-md-6" *ngIf="monthWorkoutProgress && monthWorkoutProgress.baseInfoProgress.totalWorkouts">
+                    <app-short-card [title]="(getCurrentMonthDate() | date:'MMMM yyyy') ?? ''">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th>Total Workouts:</th>
+                                    <td>{{ monthWorkoutProgress.baseInfoProgress.totalWorkouts }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Total Duration</th>
+                                    <td>{{ showTime(monthWorkoutProgress.baseInfoProgress.totalDuration) }}</td>
+                                </tr>    
+                                <tr>
+                                    <th>Total Weight Lifted:</th>
+                                    <td>{{ showBigNumberStr(roundWeight(monthWorkoutProgress.totalCompletedProgress.totalWeightLifted.weight)) }} {{ showWeightTypeShort(monthWorkoutProgress.totalCompletedProgress.totalWeightLifted.weightType) }}</td>
+                                </tr>                            
+                                <tr>
+                                    <th>Frequency per Week:</th>
+                                    <td>{{ showCountOfSomethingStr(monthWorkoutProgress.baseInfoProgress.frequencyPerWeek, "time", "times") }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Average Weight Lifted:</th>
+                                    <td>{{ showBigNumberStr(roundWeight(monthWorkoutProgress.workoutWeightLiftedProgress.averageWorkoutWeightLifted.weight)) }} {{ showWeightTypeShort(monthWorkoutProgress.workoutWeightLiftedProgress.averageWorkoutWeightLifted.weightType) }} (min: {{ showBigNumberStr(roundWeight(monthWorkoutProgress.workoutWeightLiftedProgress.minWorkoutWeightLifted.weight)) }} {{ showWeightTypeShort(monthWorkoutProgress.workoutWeightLiftedProgress.minWorkoutWeightLifted.weightType) }}, max: {{ showBigNumberStr(roundWeight(monthWorkoutProgress.workoutWeightLiftedProgress.maxWorkoutWeightLifted.weight)) }} {{ showWeightTypeShort(monthWorkoutProgress.workoutWeightLiftedProgress.maxWorkoutWeightLifted.weightType) }})</td>
+                                </tr>
+                                <tr>
+                                    <th>Average Workout Duration:</th>
+                                    <td>{{ showTime(monthWorkoutProgress.workoutDurationProgress.averageWorkoutDuration) }} (min: {{ showTime(monthWorkoutProgress.workoutDurationProgress.minWorkoutDuration) }}, max: {{ showTime(monthWorkoutProgress.workoutDurationProgress.maxWorkoutDuration) }}) </td>
+                                </tr>
+                                <tr>
+                                    <th>Max Strike:</th>
+                                    <td>{{ showDays(monthWorkoutProgress.strikeDurationProgress.maxWorkoutStrikeDays) }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Max Break:</th>
+                                    <td>{{ showDays(monthWorkoutProgress.strikeDurationProgress.maxRestStrikeDays) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </app-short-card>
+                </div>
+            </div>
+            <br>
+        </ng-container>
+    </ng-template>
+</main-app>

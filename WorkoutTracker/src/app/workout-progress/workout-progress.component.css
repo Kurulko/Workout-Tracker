@@ -1,0 +1,14 @@
+.circle-badge {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+}
+
+.info-icon {
+    cursor: pointer;
+    color: gray;
+    font-size: 17px;
+}
