@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using WorkoutTrackerAPI.Data;
+using WorkoutTrackerAPI.Data.Enums;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Initializers;
 using WorkoutTrackerAPI.Repositories;

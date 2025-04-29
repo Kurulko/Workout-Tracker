@@ -20,11 +20,19 @@ using WorkoutTrackerAPI.Services.ImpersonationServices;
 using WorkoutTrackerAPI.Services.MuscleServices;
 using WorkoutTrackerAPI.Services.MuscleSizeServices;
 using WorkoutTrackerAPI.Services.ProgressServices;
+using WorkoutTrackerAPI.Services.ProgressServices.BaseInfoProgressServices;
+using WorkoutTrackerAPI.Services.ProgressServices.BodyWeightProgressServices;
+using WorkoutTrackerAPI.Services.ProgressServices.StrikeDurationProgressServices;
+using WorkoutTrackerAPI.Services.ProgressServices.TotalCompletedProgressServices;
+using WorkoutTrackerAPI.Services.ProgressServices.WorkoutDurationProgressServices;
+using WorkoutTrackerAPI.Services.ProgressServices.WorkoutWeightLiftedProgressServices;
 using WorkoutTrackerAPI.Services.RoleServices;
+using WorkoutTrackerAPI.Services.WorkoutProgressServices;
 using WorkoutTrackerAPI.Services.UserServices;
 using WorkoutTrackerAPI.Services.WorkoutRecordServices;
 using WorkoutTrackerAPI.Services.WorkoutServices;
 using WorkoutTrackerAPI.ValidationAttributes;
+using WorkoutTrackerAPI.Services.ExerciseAliasServices;
 
 namespace WorkoutTrackerAPI.Providers;
 
@@ -100,9 +108,7 @@ public static class ServiceProviders
 
     public static void AddAccountServices(this IServiceCollection services)
     {
-        services.AddScoped<UserRepository>();
-        services.AddScoped<RoleRepository>();
-
+        services.AddAccountRepositories();
         services.AddScoped<JwtHandler>();
         services.AddScoped<IImpersonationService, ImpersonationService>();
         services.AddScoped<IUserService, UserService>();
@@ -110,11 +116,34 @@ public static class ServiceProviders
         services.AddScoped<IAccountService, AccountService>();
     }
 
+    static void AddAccountRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<UserRepository>();
+        services.AddScoped<RoleRepository>();
+    }
+
+
     public static void AddWorkoutModelServices(this IServiceCollection services)
+    {
+        services.AddWorkoutModelRepositories();
+        services.AddScoped<IBodyWeightService, BodyWeightService>();
+        services.AddScoped<IExerciseService, ExerciseService>();
+        services.AddScoped<IExerciseAliasService, ExerciseAliasService>();
+        services.AddScoped<IEquipmentService, EquipmentService>();
+        services.AddScoped<IMuscleService, MuscleService>();
+        services.AddScoped<IMuscleSizeService, MuscleSizeService>();
+        services.AddScoped<IExerciseRecordService, ExerciseRecordService>();
+        services.AddScoped<IWorkoutService, WorkoutService>();
+        services.AddScoped<IWorkoutRecordService, WorkoutRecordService>();
+        services.AddProgressServices();
+    }
+
+    static void AddWorkoutModelRepositories(this IServiceCollection services)
     {
         services.AddScoped<UserDetailsRepository>();
         services.AddScoped<BodyWeightRepository>();
         services.AddScoped<ExerciseRepository>();
+        services.AddScoped<ExerciseAliasRepository>();
         services.AddScoped<EquipmentRepository>();
         services.AddScoped<MuscleRepository>();
         services.AddScoped<MuscleSizeRepository>();
@@ -124,15 +153,18 @@ public static class ServiceProviders
         services.AddScoped<ExerciseRecordGroupRepository>();
         services.AddScoped<WorkoutRecordRepository>();
         services.AddScoped<WorkoutRepository>();
+    }
 
-        services.AddScoped<IBodyWeightService, BodyWeightService>();
-        services.AddScoped<IExerciseService, ExerciseService>();
-        services.AddScoped<IEquipmentService, EquipmentService>();
-        services.AddScoped<IMuscleService, MuscleService>();
-        services.AddScoped<IMuscleSizeService, MuscleSizeService>();
-        services.AddScoped<IExerciseRecordService, ExerciseRecordService>();
-        services.AddScoped<IUserProgressService, UserProgressService>();
-        services.AddScoped<IWorkoutRecordService, WorkoutRecordService>();
-        services.AddScoped<IWorkoutService, WorkoutService>();
+    static void AddProgressServices(this IServiceCollection services)
+    {
+        services.AddSingleton<IBaseInfoProgressService, BaseInfoProgressService>();
+
+        services.AddSingleton<ITotalCompletedProgressService, TotalCompletedProgressService>();
+        services.AddSingleton<IWorkoutWeightLiftedProgressService, WorkoutWeightLiftedProgressService>();
+        services.AddSingleton<IStrikeDurationProgressService, StrikeDurationProgressService>();
+        services.AddSingleton<IWorkoutDurationProgressService, WorkoutDurationProgressService>();
+        services.AddSingleton<IBodyWeightProgressService, BodyWeightProgressService>();
+
+        services.AddScoped<IWorkoutProgressService, WorkoutProgressService>();
     }
 }
