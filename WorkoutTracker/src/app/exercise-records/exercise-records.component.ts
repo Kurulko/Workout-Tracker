@@ -11,6 +11,7 @@ import { ExerciseRecordService } from './exercise-record.service';
 import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
 import { ExerciseType } from '../exercises/models/exercise-type';
 import { ExerciseService } from '../exercises/services/exercise.service';
+import { DateTimeRange } from '../shared/models/date-time-range';
 
 @Component({
   selector: 'app-exercise-records',
@@ -32,7 +33,7 @@ export class ExerciseRecordsComponent extends ModelsTableComponent<ExerciseRecor
     this.sortOrder = "desc";
   }
   
-  date: Date|null = null;
+  range: DateTimeRange|null = null;
   maxDate: Date = new Date();
 
   exerciseId: number|null = null;
@@ -43,12 +44,7 @@ export class ExerciseRecordsComponent extends ModelsTableComponent<ExerciseRecor
   }
 
   getModels(pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<ExerciseRecord>> {
-      return this.exerciseRecordService.getExerciseRecords(this.exerciseId, this.exerciseType, this.date, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
-  }
-
-  clearDate(){
-    this.date = null;
-    this.loadData();
+      return this.exerciseRecordService.getExerciseRecords(this.exerciseId, this.exerciseType, this.range, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
   }
 
   deleteItem(id: number) {
