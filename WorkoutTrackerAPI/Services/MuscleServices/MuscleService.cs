@@ -30,6 +30,9 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
     NotFoundException MuscleNotFoundByNameException(string name)
         => NotFoundException.NotFoundExceptionByName(nameof(Muscle), name);
 
+    ArgumentException MuscleNameMustBeUnique()
+    => EntryNameMustBeUnique(nameof(Muscle));
+
     public async Task<ServiceResult<Muscle>> AddMuscleAsync(Muscle muscle)
     {
         if (muscle is null)
@@ -39,7 +42,7 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
             return ServiceResult<Muscle>.Fail(InvalidEntryIDWhileAddingStr(nameof(Muscle), "muscle"));
 
         if (await baseWorkoutRepository.ExistsByNameAsync(muscle.Name))
-            throw EntryNameMustBeUnique(nameof(Muscle));
+            return ServiceResult<Muscle>.Fail(MuscleNameMustBeUnique());
 
         try
         {
@@ -192,6 +195,11 @@ public class MuscleService : BaseWorkoutService<Muscle>, IMuscleService
 
             if (_muscle is null)
                 return ServiceResult.Fail(MuscleNotFoundByIDException(muscle.Id));
+
+            var isSameName = _muscle.Name != muscle.Name;
+            var isUniqueMuscleName = isSameName || await baseWorkoutRepository.ExistsByNameAsync(muscle.Name);
+            if (!isUniqueMuscleName)
+                return ServiceResult.Fail(MuscleNameMustBeUnique());
 
             _muscle.Name = muscle.Name;
             _muscle.Image = muscle.Image;
