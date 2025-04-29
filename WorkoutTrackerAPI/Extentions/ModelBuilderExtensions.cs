@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using WorkoutTrackerAPI.Data;
+using WorkoutTrackerAPI.Data.Enums;
 
 namespace WorkoutTrackerAPI.Extentions;
 

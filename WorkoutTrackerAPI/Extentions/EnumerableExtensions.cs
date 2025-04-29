@@ -1,6 +1,7 @@
 ﻿using System.Linq.Dynamic.Core;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs;
+using WorkoutTrackerAPI.Data.Enums;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Data.Models.WorkoutModels;
@@ -262,5 +263,17 @@ public static class EnumerableExtensions
         }
 
         return sum;
+    }
+
+    public static ModelWeight Sum(this IEnumerable<ModelWeight> modelWeights)
+    {
+        return modelWeights.Aggregate((w1, w2) => w1 + w2);
+    }
+
+    public static ModelWeight Average(this IEnumerable<ModelWeight> modelWeights)
+    {
+        var sum = modelWeights.Sum();
+        var count = modelWeights.Count();
+        return sum / count;
     }
 }
