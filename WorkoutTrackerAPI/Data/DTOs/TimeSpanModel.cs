@@ -1,7 +1,4 @@
-﻿using WorkoutTrackerAPI.Data.Account;
-using WorkoutTrackerAPI.Data.Models;
-
-namespace WorkoutTrackerAPI.Data.DTOs;
+﻿namespace WorkoutTrackerAPI.Data.DTOs;
 
 public struct TimeSpanModel
 {
