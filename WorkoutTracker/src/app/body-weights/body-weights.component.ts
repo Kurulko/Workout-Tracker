@@ -10,6 +10,7 @@ import { PreferencesManager } from '../shared/helpers/managers/preferences-manag
 import { WeightType } from '../shared/models/weight-type';
 import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
 import { TokenManager } from '../shared/helpers/managers/token-manager';
+import { DateTimeRange } from '../shared/models/date-time-range';
 
 @Component({
   selector: 'app-body-weights',
@@ -33,14 +34,14 @@ export class BodyWeightsComponent extends ModelsTableComponent<BodyWeight> imple
 
   weightType: "kg" | "lbs" = "kg";
   
-  date: Date|null = null;
+  range: DateTimeRange|null = null;
   maxDate: Date = new Date();
 
   getModels(pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<BodyWeight>> {
     if(this.weightType === 'kg')
-      return this.bodyWeightService.getBodyWeightsInKilograms(this.date, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+      return this.bodyWeightService.getBodyWeightsInKilograms(this.range, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
     else
-      return this.bodyWeightService.getBodyWeightsInPounds(this.date, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+      return this.bodyWeightService.getBodyWeightsInPounds(this.range, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
   }
 
   ngOnInit() {
@@ -50,11 +51,6 @@ export class BodyWeightsComponent extends ModelsTableComponent<BodyWeight> imple
     this.loadData();
   }
   
-  clearDate(){
-    this.date = null;
-    this.loadData();
-  }
-
   deleteItem(id: number) {
     this.bodyWeightService.deleteBodyWeight(id)
       .pipe(this.catchError())

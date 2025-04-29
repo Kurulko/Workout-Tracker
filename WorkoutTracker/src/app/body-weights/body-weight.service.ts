@@ -4,6 +4,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { BodyWeight } from "./body-weight";
 import { ApiResult } from "../shared/models/api-result";
+import { DateTimeRange } from "../shared/models/date-time-range";
 
 @Injectable({
     providedIn: 'root'
@@ -25,24 +26,20 @@ export class BodyWeightService extends ModelsService {
         return this.webClient.get<BodyWeight>('min-body-weight');
     }
 
-    private getBodyWeightsHttpParams(date: Date|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null) : HttpParams {
-        var httpParams = this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
-        
-        if(date){
-            httpParams = httpParams.set('date', date.toDateString())
-        }
-
-        return httpParams;
+    private getBodyWeightsHttpParams(range: DateTimeRange|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null) : HttpParams {
+        var params = this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+        params = this.getRangeParams(params, range);
+        return params;
     }
 
-    getBodyWeightsInKilograms(date: Date|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<BodyWeight>> {
+    getBodyWeightsInKilograms(range: DateTimeRange|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<BodyWeight>> {
         return this.webClient.get<ApiResult<BodyWeight>>('in-kilograms', 
-            this.getBodyWeightsHttpParams(date, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
+            this.getBodyWeightsHttpParams(range, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
-    getBodyWeightsInPounds(date: Date|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<BodyWeight>> {
+    getBodyWeightsInPounds(range: DateTimeRange|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<BodyWeight>> {
         return this.webClient.get<ApiResult<BodyWeight>>('in-pounds', 
-            this.getBodyWeightsHttpParams(date, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
+            this.getBodyWeightsHttpParams(range, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
     updateBodyWeight(bodyWeight:BodyWeight): Observable<Object> {

@@ -22,6 +22,7 @@
         <app-model-weight-input 
             [(ngModel)]="bodyWeight.weight" 
             [weightTypeValue]="preferableWeightType"
+            [weightMinValue]="10"
             [weightMaxValue]="1000" 
             [required]="true"
             width="40%" 

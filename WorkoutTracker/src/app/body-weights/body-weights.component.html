@@ -14,9 +14,8 @@
     <ng-template #noBodyWeightsTemplate>
       <h3><i>You have not added your body weights yet...</i></h3>
     </ng-template>
-    <ng-container *ngIf="totalCount || date; else noBodyWeightsTemplate">
-      <app-date-input [(ngModel)]="date" (ngModelChange)="loadData()" [maxDate]="maxDate" [required]="false" />
-      <button *ngIf="date" mat-button color="accent" type="button" (click)="clearDate()">Clear Date</button>
+    <ng-container *ngIf="totalCount || range; else noBodyWeightsTemplate">
+      <app-date-range-input [(ngModel)]="range" (ngModelChange)="loadData()" [maxDate]="maxDate" [required]="false" width="75%"/>
       <br />
 
       <mat-button-toggle-group [(ngModel)]="weightType" (change)="loadData()" *ngIf="totalCount">
@@ -25,7 +24,7 @@
       </mat-button-toggle-group>
       <br/><br/>
       
-      <ng-container *ngIf="!date && data!.length > 1; else onlyTableTemplate">
+      <ng-container *ngIf="!range && data!.length > 1; else onlyTableTemplate">
         <div class="row">
           <div class="col">
             <app-body-weight-chart
