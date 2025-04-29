@@ -1,4 +1,5 @@
-﻿using WorkoutTrackerAPI.Data.Models;
+﻿using WorkoutTrackerAPI.Data.Enums;
+using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Exceptions;
 using WorkoutTrackerAPI.Repositories;
