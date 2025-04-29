@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar  } from '@angular/material/snack-bar';
 
@@ -9,6 +9,11 @@ import { ExerciseSetGroup } from '../shared/models/exercise-set-group';
 import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
 import { TokenManager } from '../shared/helpers/managers/token-manager';
 import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { TimeSpan } from '../shared/models/time-span';
+import { MatDialog } from '@angular/material/dialog';
+import { WorkoutRecordService } from '../workout-records/workout-record.service';
+import { WorkoutRecord } from '../workout-records/workout-record';
+import { toExerciseRecordGroups } from '../shared/helpers/functions/toExerciseRecordGroups';
 
 @Component({
   selector: 'app-workout-edit',
@@ -20,8 +25,12 @@ export class EditWorkoutComponent extends EditModelComponent<Workout> implements
 
   readonly workoutsPath = "/workouts";
 
+  @ViewChild('completedTemplate') completedTemplate!: TemplateRef<TimeSpan>;
+
   constructor(private activatedRoute: ActivatedRoute,  
     private workoutService: WorkoutService, 
+    private workoutRecordService: WorkoutRecordService, 
+    private dialog: MatDialog, 
     router: Router, 
     impersonationManager: ImpersonationManager, 
     tokenManager: TokenManager,
@@ -56,7 +65,7 @@ export class EditWorkoutComponent extends EditModelComponent<Workout> implements
     }
   }
 
-  onSubmit() {
+  onSubmit(isComplete: boolean = false) {
     this.workout.exerciseSetGroups = this.exerciseSetGroups;
     if (this.id) {
       // Edit mode
@@ -68,7 +77,11 @@ export class EditWorkoutComponent extends EditModelComponent<Workout> implements
           this.workoutService.updateWorkoutExerciseSetGroups(this.workout.id, this.exerciseSetGroups)
             .pipe(this.catchError())
             .subscribe(_ => {
-              this.router.navigate([this.workoutsPath]);
+              if(isComplete) {
+                this.openWorkoutCompleteDialog()
+              } else {
+                this.router.navigate([this.workoutsPath]);
+              }
             });
         });
     }
@@ -78,11 +91,16 @@ export class EditWorkoutComponent extends EditModelComponent<Workout> implements
         .pipe(this.catchError())
         .subscribe(result => {
           console.log("Workout " + result.id + " has been created.");
+          this.workout = result;
 
           this.workoutService.addExerciseSetGroupsToWorkout(result.id, this.exerciseSetGroups)
             .pipe(this.catchError())
             .subscribe(_ => {
-              this.router.navigate([this.workoutsPath]);
+              if(isComplete) {
+                this.openWorkoutCompleteDialog()
+              } else {
+                this.router.navigate([this.workoutsPath]);
+              }
             });
         });
     }
@@ -92,4 +110,45 @@ export class EditWorkoutComponent extends EditModelComponent<Workout> implements
   onExerciseSetGroupsValidityChange(isValid: boolean): void {
     this.isExerciseSetGroupsValid = isValid;
   }
+  
+  workoutTime!: TimeSpan;
+  workoutDate!: Date;
+
+  maxCompleteDate: Date = new Date();
+  
+  onComplete() {
+    this.openWorkoutCompleteDialog()
+    this.isCompleteCurrentWorkout = false;
+  }
+
+  isCompleteCurrentWorkout = true;
+  openWorkoutCompleteDialog(){
+    this.workoutTime = new TimeSpan();
+    this.workoutDate = new Date();
+
+    this.dialog.open(this.completedTemplate, { width: '300px' });
+  }
+
+  completeCurrentWorkout() {
+    this.workoutService.completeWorkout(this.workout.id, this.workoutDate, this.workoutTime)
+      .pipe(this.catchError())
+      .subscribe(() => {
+        this.operationDoneSuccessfully("Workout", "completed");
+        this.router.navigate([this.workoutsPath]);
+      })
+  }
+
+  completeWorkoutRecord() {
+    var workoutRecord = <WorkoutRecord>{ date: this.workoutDate, time: this.workoutTime };
+    workoutRecord.exerciseRecordGroups = toExerciseRecordGroups(this.workout.exerciseSetGroups, this.workoutDate);
+    workoutRecord.workoutId = this.workout.id;
+    
+    this.workoutRecordService.createWorkoutRecord(workoutRecord)
+      .pipe(this.catchError())
+      .subscribe(() => {
+        this.operationDoneSuccessfully("Workout", "completed");
+        this.router.navigate([this.workoutsPath]);
+      })
+  }
+
 }

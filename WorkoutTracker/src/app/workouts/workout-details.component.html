@@ -31,37 +31,42 @@
                                     <th>Weight:</th>
                                     <td>{{ showBigNumberStr(roundWeight(workoutDetails.workout.weight.weight)) }} {{ showWeightTypeShort(workoutDetails.workout.weight.weightType) }}</td>
                                 </tr>
-                                <tr>
+                                <tr *ngIf="workoutDetails.totalWorkouts > 0">
                                     <th>Total Weight:</th>
                                     <td>{{ showBigNumberStr(roundWeight(workoutDetails.totalWeight.weight)) }} {{ showWeightTypeShort(workoutDetails.totalWeight.weightType) }}</td>
                                 </tr>
-                                <tr>
+                                <tr *ngIf="workoutDetails.totalWorkouts > 0">
                                     <th>First Date:</th>
                                     <td>{{ workoutDetails.workout.started | date:'d MMMM yyyy' }} ({{showCountOfSomethingStr(workoutDetails.countOfDaysSinceFirstWorkout, "day", "days")}} ago)</td>
                                 </tr>
-                                <tr>
+                                <tr *ngIf="workoutDetails.totalWorkouts > 0">
                                     <th>Total Duration:</th>
                                     <td>{{ showTime(workoutDetails.totalDuration) }}</td>
                                 </tr>
-                                <tr>
+                                <tr *ngIf="workoutDetails.totalWorkouts > 0">
                                     <th>Average Duration:</th>
                                     <td>{{ showTime(workoutDetails.averageWorkoutDuration) }}</td>
                                 </tr>
                                 <tr>
                                     <th>Equipments:</th>
                                     <td>
-                                        <mat-accordion>
-                                            <mat-expansion-panel (opened)="equipmentPanelOpenState.set(true)" (closed)="equipmentPanelOpenState.set(false)">
-                                            <mat-expansion-panel-header>
-                                                <mat-panel-title> {{ equipmentPanelOpenState() ? 'Equipments:' : showEquipmentsStr(50) }}</mat-panel-title>
-                                            </mat-expansion-panel-header>
-                                            <ul>
-                                                <li *ngFor="let equipment of workoutDetails.equipments">
-                                                    {{ equipment.name }}
-                                                </li>
-                                            </ul>
-                                            </mat-expansion-panel>
-                                        </mat-accordion>
+                                        <ng-container *ngIf="!workoutDetails.equipments || workoutDetails.equipments.length == 0; else equipmentsTemplate">
+                                            <p class="none-option">No equipments</p>
+                                        </ng-container>
+                                        <ng-template #equipmentsTemplate>
+                                            <mat-accordion>
+                                                <mat-expansion-panel (opened)="equipmentPanelOpenState.set(true)" (closed)="equipmentPanelOpenState.set(false)">
+                                                <mat-expansion-panel-header>
+                                                    <mat-panel-title> {{ equipmentPanelOpenState() ? 'Equipments:' : showEquipmentsStr(50) }}</mat-panel-title>
+                                                </mat-expansion-panel-header>
+                                                <ul>
+                                                    <li *ngFor="let equipment of workoutDetails.equipments">
+                                                        {{ equipment.name }}
+                                                    </li>
+                                                </ul>
+                                                </mat-expansion-panel>
+                                            </mat-accordion>
+                                        </ng-template>
                                     </td>
                                 </tr>
                                 <tr>

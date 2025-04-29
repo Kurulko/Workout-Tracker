@@ -39,6 +39,14 @@
                             [disabled]="nameInput.invalid || descriptionInput.invalid || !isExerciseSetGroupsValid">
                         <mat-icon>{{ this.id ? "edit" : "add_box" }}</mat-icon> {{ this.id ? "Save" : "Create" }}
                     </button>
+                    <button type="button" color="accent" mat-flat-button (click)="onSubmit(true)"
+                            [disabled]="nameInput.invalid || descriptionInput.invalid || !isExerciseSetGroupsValid" style="margin: 5px;">
+                        <mat-icon>task_alt</mat-icon>  {{ this.id ? "Save" : "Create" }} and Complete
+                    </button>
+                    <button type="button" color="accent" mat-flat-button (click)="onComplete()"
+                            [disabled]="nameInput.invalid || descriptionInput.invalid || !isExerciseSetGroupsValid" style="margin: 5px;" *ngIf="id">
+                        <mat-icon>task_alt</mat-icon> Complete
+                    </button>
                     <button type="button" mat-flat-button color="secondary" [routerLink]="[workoutsPath]">
                         <mat-icon>cancel</mat-icon> Cancel
                     </button>
@@ -56,3 +64,22 @@
         </div>
     </ng-template>
 </main-app>
+
+<ng-template #completedTemplate>
+    <h2 mat-dialog-title>Time Taken and When:</h2>
+    <mat-dialog-content>
+      <app-short-card title="Date:">
+        <app-date-input [(ngModel)]="workoutDate" [maxDate]="maxCompleteDate" [required]="true" #date="ngModel" width="100%" />
+      </app-short-card>
+      <br />
+      <app-time-span-input label="Time Taken" [(ngModel)]="workoutTime" [required]="true" #time="ngModel" width="100%"/>
+    </mat-dialog-content>
+    <mat-dialog-actions>
+      <button type="button" color="primary" mat-flat-button (click)="isCompleteCurrentWorkout ? completeCurrentWorkout() : completeWorkoutRecord()" mat-dialog-close [disabled]="date.invalid || time.invalid">
+        <mat-icon>save</mat-icon> Save
+      </button>
+      <button type="button" mat-flat-button color="secondary" mat-dialog-close>
+        <mat-icon>cancel</mat-icon> Cancel
+      </button>
+    </mat-dialog-actions>
+</ng-template>

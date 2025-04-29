@@ -43,9 +43,9 @@ export class WorkoutsComponent extends ModelsTableComponent<Workout> implements 
   currentWorkoutTime!: TimeSpan;
   currentWorkoutDate!: Date;
 
-  maxDate: Date = new Date();
+  maxCompleteDate: Date = new Date();
 
-  @ViewChild('dialogTemplate') dialogTemplate!: TemplateRef<TimeSpan>;
+  @ViewChild('completedTemplate') completedTemplate!: TemplateRef<TimeSpan>;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -96,7 +96,7 @@ export class WorkoutsComponent extends ModelsTableComponent<Workout> implements 
     this.currentWorkoutDate = new Date();
     this.currentWorkoutId = id;
 
-    this.dialog.open(this.dialogTemplate, { width: '300px' });
+    this.dialog.open(this.completedTemplate, { width: '300px' });
   }
 
   completeCurrentWorkout() {

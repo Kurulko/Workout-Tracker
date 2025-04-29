@@ -63,11 +63,11 @@
   </ng-template>
 </main-app>
 
-<ng-template #dialogTemplate>
+<ng-template #completedTemplate>
   <h2 mat-dialog-title>Time Taken and When:</h2>
   <mat-dialog-content>
     <app-short-card title="Date:">
-      <app-date-input [(ngModel)]="currentWorkoutDate" [maxDate]="maxDate" [required]="true" #date="ngModel" width="100%" />
+      <app-date-input [(ngModel)]="currentWorkoutDate" [maxDate]="maxCompleteDate" [required]="true" #date="ngModel" width="100%" />
     </app-short-card>
     <br />
     <app-time-span-input label="Time Taken" [(ngModel)]="currentWorkoutTime" [required]="true" #time="ngModel" width="100%"/>
