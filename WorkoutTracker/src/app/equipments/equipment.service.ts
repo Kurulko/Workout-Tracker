@@ -112,6 +112,10 @@ export class EquipmentService extends ModelsService {
         return this.webClient.get<ApiResult<Equipment>>("all-equipments", this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
+    getUsedEquipments(pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Equipment>> {
+        return this.webClient.get<ApiResult<Equipment>>("used-equipments", this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
+    }
+
     getEquipmentExercises(equipmentId:number, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Exercise>> {
         return this.webClient.get<ApiResult<Exercise>>(`${equipmentId}/exercises`, this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }

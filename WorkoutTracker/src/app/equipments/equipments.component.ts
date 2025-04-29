@@ -34,7 +34,7 @@ export class EquipmentsComponent extends ModelsTableComponent<Equipment> impleme
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  equipmentPageType: "all"|"yours"|"internal" = "all";
+  equipmentPageType: "all"|"yours"|"internal"|"used" = "all";
   envProduction = environment;
 
   onEquipmentTabChange(event: any): void {
@@ -43,8 +43,10 @@ export class EquipmentsComponent extends ModelsTableComponent<Equipment> impleme
     if (index === 0) 
       this.equipmentPageType = 'all';
     else if (index === 1) 
-      this.equipmentPageType = 'yours';
+      this.equipmentPageType = 'used';
     else if (index === 2) 
+      this.equipmentPageType = 'yours';
+    else if (index === 3) 
       this.equipmentPageType = 'internal';
 
     this.loadData();
@@ -56,8 +58,12 @@ export class EquipmentsComponent extends ModelsTableComponent<Equipment> impleme
         return this.equipmentService.getAllEquipments(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
       case 'yours':
         return this.equipmentService.getUserEquipments(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
-      default:
+      case 'internal':
         return this.equipmentService.getInternalEquipments(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+      case 'used':
+        return this.equipmentService.getUsedEquipments(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+      default:
+        throw new Error(`Unexpected equipment type page value`);
     }
   }
 

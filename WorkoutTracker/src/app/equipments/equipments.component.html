@@ -1,12 +1,13 @@
 <main-app title="Equipments">
   <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="center" (selectedTabChange)="onEquipmentTabChange($event)">
     <mat-tab label="All" />
+    <mat-tab label="Used"  />
     <mat-tab label="Yours"  />
     <mat-tab label="Internal" />
   </mat-tab-group>
  
   <ng-container *ngIf="!isAddingEquipment; else addEquipmentTemplate">
-    <button *ngIf="(equipmentPageType !== 'internal' || isAdmin)" [hidden]="equipmentPageType === 'all'" color="primary" mat-flat-button 
+    <button *ngIf="(equipmentPageType !== 'internal' || isAdmin)" [hidden]="equipmentPageType !== 'yours' && equipmentPageType !== 'internal'" color="primary" mat-flat-button 
         (click)="startAddingEquipment()">
       <mat-icon>add</mat-icon><mat-icon>construction</mat-icon> Add
     </button>
