@@ -13,12 +13,14 @@ namespace WorkoutTrackerAPI.Services.EquipmentServices;
 public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
 {
     readonly UserRepository userRepository;
-    readonly IFileService fileService;
+    readonly ExerciseRecordRepository exerciseRecordRepository;
     readonly EquipmentRepository equipmentRepository;
-    public EquipmentService(EquipmentRepository equipmentRepository, UserRepository userRepository, IFileService fileService) : base(equipmentRepository)
+    readonly IFileService fileService;
+    public EquipmentService(EquipmentRepository equipmentRepository, UserRepository userRepository, ExerciseRecordRepository exerciseRecordRepository, IFileService fileService) : base(equipmentRepository)
     {
         this.equipmentRepository = equipmentRepository;
         this.userRepository = userRepository;
+        this.exerciseRecordRepository = exerciseRecordRepository;
         this.fileService = fileService;
     }
 
@@ -30,6 +32,9 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         => NotFoundException.NotFoundExceptionByID(nameof(Equipment), id);
 
     ArgumentException InvalidEquipmentIDWhileAddingException => InvalidEntryIDWhileAddingException(nameof(Equipment), "equipment");
+
+    ArgumentException EquipmentNameMustBeUnique()
+        => EntryNameMustBeUnique(nameof(Equipment));
 
     public async Task<ServiceResult<Equipment>> AddInternalEquipmentAsync(Equipment equipment)
     {
@@ -45,7 +50,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
                 throw InvalidEquipmentIDWhileAddingException;
 
             if (await baseWorkoutRepository.ExistsByNameAsync(equipment.Name))
-                throw new ArgumentException("Name must be unique.");
+                throw EquipmentNameMustBeUnique();
 
             await baseWorkoutRepository.AddAsync(equipment);
             return ServiceResult<Equipment>.Ok(equipment);
@@ -72,8 +77,9 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
             if (equipment.Id != 0)
                 throw InvalidEquipmentIDWhileAddingException;
 
-            if (await baseWorkoutRepository.ExistsByNameAsync(equipment.Name))
-                throw EntryNameMustBeUnique(nameof(Equipment));
+            var isUniqueEquipmentName = await IsUniqueEquipmentNameForUserAsync(equipment.Name, userId);
+            if (!isUniqueEquipmentName)
+                throw EquipmentNameMustBeUnique();
 
             equipment.OwnedByUserId = userId;
             await baseWorkoutRepository.AddAsync(equipment);
@@ -393,6 +399,29 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
     }
 
+    public async Task<ServiceResult<IQueryable<Equipment>>> GetUsedEquipmentsAsync(string userId)
+    {
+        try
+        {
+            await CheckUserIdAsync(userRepository, userId);
+
+            var usedEquipments = (await exerciseRecordRepository.FindAsync(er => er.UserId == userId))
+                .SelectMany(er => er.Exercise!.Equipments)
+                .Distinct();
+
+            return ServiceResult<IQueryable<Equipment>>.Ok(usedEquipments);
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<IQueryable<Equipment>>.Fail(ex);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<IQueryable<Equipment>>.Fail(FailedToActionStr("equipments", "get", ex));
+        }
+    }
+
+   
     public async Task<ServiceResult> UpdateInternalEquipmentAsync(Equipment equipment)
     {
         try
@@ -407,6 +436,11 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
 
             if (!string.IsNullOrEmpty(_equipment.OwnedByUserId))
                 throw UserNotHavePermissionException("update", "internal equipment");
+
+            var isSameName = _equipment.Name != equipment.Name;
+            var isUniqueEquipmentName = isSameName || await baseWorkoutRepository.ExistsByNameAsync(equipment.Name);
+            if (!isUniqueEquipmentName)
+                throw EquipmentNameMustBeUnique();
 
             _equipment.Name = equipment.Name;
             _equipment.Image = equipment.Image;
@@ -442,6 +476,11 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
             if (_equipment.OwnedByUserId != userId)
                 throw UserNotHavePermissionException("update", "equipment");
 
+            var isSameName = _equipment.Name != equipment.Name;
+            var isUniqueEquipmentName = isSameName || await IsUniqueEquipmentNameForUserAsync(equipment.Name, userId);
+            if (!isUniqueEquipmentName)
+                throw EquipmentNameMustBeUnique();
+
             _equipment.Name = equipment.Name;
             _equipment.Image = equipment.Image;
 
@@ -458,6 +497,7 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
         }
     }
 
+    
     public async Task<bool> UserEquipmentExistsAsync(string userId, long equipmentId)
     {
         await CheckUserIdAsync(userRepository, userId);
@@ -476,5 +516,12 @@ public class EquipmentService : BaseWorkoutService<Equipment>, IEquipmentService
             throw equipmentNameIsNullOrEmptyException;
 
         return await baseWorkoutRepository.ExistsByNameAsync(name);
+    }
+
+    
+    async Task<bool> IsUniqueEquipmentNameForUserAsync(string name, string userId)
+    {
+        var isAnyEquipmentNames = await baseWorkoutRepository.AnyAsync(w => w.Name == name && (w.OwnedByUserId == userId || w.OwnedByUserId == null));
+        return !isAnyEquipmentNames;
     }
 }

@@ -17,6 +17,7 @@ public interface IEquipmentService
     Task<ServiceResult<IQueryable<Equipment>>> GetInternalEquipmentsAsync();
     Task<ServiceResult<IQueryable<Equipment>>> GetUserEquipmentsAsync(string userId);
     Task<ServiceResult<IQueryable<Equipment>>> GetAllEquipmentsAsync(string userId);
+    Task<ServiceResult<IQueryable<Equipment>>> GetUsedEquipmentsAsync(string userId);
 
     Task<ServiceResult<Equipment>> AddInternalEquipmentAsync(Equipment model);
     Task<ServiceResult<Equipment>> AddUserEquipmentAsync(string userId, Equipment model);
