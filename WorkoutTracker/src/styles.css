@@ -47,3 +47,7 @@ mat-option img {
     margin-right: 10px;
     vertical-align: middle;
 }
+
+.app-input {
+    margin: 5px 2px 5px 2px;
+}
