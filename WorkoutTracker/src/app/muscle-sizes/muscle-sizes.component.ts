@@ -11,15 +11,20 @@ import { roundNumber } from '../shared/helpers/functions/roundNumber';
 import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
 import { TokenManager } from '../shared/helpers/managers/token-manager';
 import { ModelsTableComponent } from '../shared/components/base/models-table.component';
+import { MuscleService } from '../muscles/muscle.service';
+import { Muscle } from '../muscles/muscle';
+import { environment } from 'src/environments/environment.prod';
+import { DateTimeRange } from '../shared/models/date-time-range';
 
 @Component({
   selector: 'app-muscle-sizes',
   templateUrl: './muscle-sizes.component.html',
   styleUrls: ['./muscle-sizes.component.css']
 })
-export class MuscleSizesComponent extends  ModelsTableComponent<MuscleSize> implements OnInit {
+export class MuscleSizesComponent extends ModelsTableComponent<MuscleSize> implements OnInit {
   constructor(
-    public muscleSizeService: MuscleSizeService, 
+    private muscleSizeService: MuscleSizeService, 
+    private muscleService: MuscleService, 
     impersonationManager: ImpersonationManager, 
     tokenManager: TokenManager,
     preferencesManager: PreferencesManager,
@@ -32,17 +37,18 @@ export class MuscleSizesComponent extends  ModelsTableComponent<MuscleSize> impl
 
   sizeType: "cm" | "inches" = "cm";
   muscleId: number|null = null;
-  date: Date|null = null;
+  range: DateTimeRange|null = null;
   maxDate: Date = new Date();
 
+  envProduction = environment;
+  
   getModels(pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<MuscleSize>> {
     if(this.sizeType === 'cm')
-      return this.muscleSizeService.getMuscleSizesInCentimeters(this.muscleId, this.date, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+      return this.muscleSizeService.getMuscleSizesInCentimeters(this.muscleId, this.range, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
     else
-      return this.muscleSizeService.getMuscleSizesInInches(this.muscleId, this.date, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+      return this.muscleSizeService.getMuscleSizesInInches(this.muscleId, this.range, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
   }
 
-  
   ngOnInit() {
     if(this.preferencesManager.hasPreferableSizeType())
       this.sizeType = this.preferencesManager.getPreferableSizeType() === SizeType.Centimeter ? "cm" : "inches";
@@ -52,8 +58,18 @@ export class MuscleSizesComponent extends  ModelsTableComponent<MuscleSize> impl
   
   roundSize = roundNumber;
 
-  clearDate(){
-    this.date = null;
+  muscle: Muscle|null = null;
+  onMuscleIdSelected() {
+    if(this.muscleId) {
+      this.muscleService.getMuscleById(this.muscleId!)
+        .pipe(this.catchError())
+        .subscribe(result => {
+          this.muscle = result;
+        });
+    }
+    else {
+      this.muscle = null;
+    }
     this.loadData();
   }
 

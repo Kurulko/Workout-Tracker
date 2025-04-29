@@ -4,6 +4,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { MuscleSize } from "./muscle-size";
 import { ApiResult } from "../shared/models/api-result";
+import { DateTimeRange } from "../shared/models/date-time-range";
 
 @Injectable({
     providedIn: 'root'
@@ -25,27 +26,25 @@ export class MuscleSizeService extends ModelsService {
         return this.webClient.get<MuscleSize>(`min-muscle-size?muscleId=${muscleId}`);
     }
 
-    private getMuscleSizesHttpParams(muscleId: number|null, date: Date|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null) : HttpParams {
-        var httpParams = this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+    private getMuscleSizesHttpParams(muscleId: number|null, range: DateTimeRange|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null) : HttpParams {
+        var params = this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
         
         if(muscleId){
-            httpParams = httpParams.set('muscleId', muscleId)
+            params = params.set('muscleId', muscleId)
         }
 
-        if(date){
-            httpParams = httpParams.set('date', date.toDateString())
-        }
+        params = this.getRangeParams(params, range);
 
-        return httpParams;
+        return params;
     }
     
-    getMuscleSizesInCentimeters(muscleId: number|null, date: Date|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<MuscleSize>> {
+    getMuscleSizesInCentimeters(muscleId: number|null, range: DateTimeRange|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<MuscleSize>> {
       
-        return this.webClient.get<ApiResult<MuscleSize>>("in-centimeters", this.getMuscleSizesHttpParams(muscleId, date, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
+        return this.webClient.get<ApiResult<MuscleSize>>("in-centimeters", this.getMuscleSizesHttpParams(muscleId, range, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
-    getMuscleSizesInInches(muscleId: number|null, date: Date|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<MuscleSize>> {
-        return this.webClient.get<ApiResult<MuscleSize>>("in-inches", this.getMuscleSizesHttpParams(muscleId, date, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
+    getMuscleSizesInInches(muscleId: number|null, range: DateTimeRange|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<MuscleSize>> {
+        return this.webClient.get<ApiResult<MuscleSize>>("in-inches", this.getMuscleSizesHttpParams(muscleId, range, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
     updateMuscleSize(bodyWeight:MuscleSize): Observable<Object> {

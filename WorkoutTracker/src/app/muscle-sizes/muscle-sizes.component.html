@@ -13,15 +13,23 @@
     <ng-template #noMuscleSizesTemplate>
       <h3><i>You have not added your muscle sizes yet...</i></h3>
     </ng-template>
-    <ng-container *ngIf="totalCount || date || muscleId; else noMuscleSizesTemplate">
-      <!-- Muscle -->
-      <app-muscle-selector [(ngModel)]="muscleId" [isMeasurable]="true" (ngModelChange)="loadData()" [required]="false" />
-      <br />
+    <ng-container *ngIf="totalCount || range || muscleId; else noMuscleSizesTemplate">
+      
+      <div class="row">
+        <div class="col-md-5">
+          <!-- Muscle -->
+          <app-muscle-selector [(ngModel)]="muscleId" [isMeasurable]="true" (ngModelChange)="onMuscleIdSelected()" [required]="false" width="75%" />
+          <br />
 
-      <!-- Date -->
-      <app-date-input [(ngModel)]="date" [maxDate]="maxDate" (ngModelChange)="loadData()" [required]="false" />
-      <button *ngIf="date" mat-button color="accent" type="button" (click)="clearDate()">Clear Date</button>
-      <br />
+          <!-- Date -->
+          <app-date-range-input [(ngModel)]="range" (ngModelChange)="loadData()" [maxDate]="maxDate" [required]="false" width="100%" />
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-6" *ngIf="muscle">
+          <img src="{{ envProduction.baseUrl + 'resources/' + muscle.image }}" aria-label="Photo" 
+            height="100%" width="100%" *ngIf="muscle.image" />
+        </div>
+      </div>
 
       <mat-button-toggle-group [(ngModel)]="sizeType" (change)="loadData()" *ngIf="totalCount">
         <mat-button-toggle value="cm">Cm</mat-button-toggle>
@@ -30,7 +38,7 @@
       <br/><br/>
 
       <div class="row">
-        <div class="col" *ngIf="muscleId && !date && data!.length > 1">
+        <div class="col" *ngIf="muscleId && !range && data!.length > 1">
           <app-muscle-size-chart
             [pageIndex]="pageIndex"
             [pageSize]="pageSize"
