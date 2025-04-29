@@ -1,3 +1,4 @@
+import { DateTimeRange } from '../models/date-time-range';
 import { BaseService } from './base.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
@@ -18,6 +19,17 @@ export abstract class ModelsService extends BaseService {
             params = params
             .set("filterColumn", filterColumn)
             .set("filterQuery", filterQuery);
+        }
+
+        return params;
+    }
+
+    protected getRangeParams(params: HttpParams, range:DateTimeRange|null) : HttpParams
+    {
+        if(range){
+            params = params
+                .set('firstDate', range.firstDate.toDateString())
+                .set('lastDate', range.lastDate.toDateString());
         }
 
         return params;
