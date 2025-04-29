@@ -129,6 +129,10 @@ export class ExerciseService extends ModelsService {
         return this.webClient.get<ApiResult<Exercise>>("all-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
+    getUsedExercises(type: ExerciseType|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Exercise>> {
+        return this.webClient.get<ApiResult<Exercise>>("used-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
+    }
+
     getExerciseWorkouts(exerciseId:number, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Workout>> {
         return this.webClient.get<ApiResult<Workout>>(`${exerciseId}/workouts`, this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }

@@ -32,15 +32,17 @@ export class ExercisesComponent extends ModelsTableComponent<Exercise> {
     this.loadData();
   }
 
-  exercisePageType: "all"|"yours"|"internal" = "all";
+  exercisePageType: "all"|"yours"|"internal"|"used" = "all";
   onExerciseTabChange(event: any): void {
     const index = event.index;
 
     if (index === 0) 
       this.exercisePageType = 'all';
     else if (index === 1) 
-      this.exercisePageType = 'yours';
+      this.exercisePageType = 'used';
     else if (index === 2) 
+      this.exercisePageType = 'yours';
+    else if (index === 3) 
       this.exercisePageType = 'internal';
 
     this.loadData();
@@ -53,9 +55,13 @@ export class ExercisesComponent extends ModelsTableComponent<Exercise> {
         return this.exerciseService.getAllExercises(this.exerciseType, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
       case 'yours':
         return this.exerciseService.getUserExercises(this.exerciseType, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
-      default:
+      case 'internal':
         return this.exerciseService.getInternalExercises(this.exerciseType, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
-    }
+      case 'used':
+        return this.exerciseService.getUsedExercises(this.exerciseType, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+      default:
+        throw new Error(`Unexpected exercise type page value`);
+      }
   }
 
   deleteItem(id: number): void {

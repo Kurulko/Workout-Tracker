@@ -46,18 +46,23 @@
                                 <tr>
                                     <th>Equipments:</th>
                                     <td>
-                                        <mat-accordion>
-                                            <mat-expansion-panel (opened)="equipmentPanelOpenState.set(true)" (closed)="equipmentPanelOpenState.set(false)">
-                                            <mat-expansion-panel-header>
-                                                <mat-panel-title> {{ equipmentPanelOpenState() ? 'Equipments:' : getEquipmentNamesStr() }}</mat-panel-title>
-                                            </mat-expansion-panel-header>
-                                            <ul>
-                                                <li *ngFor="let equipment of exerciseDetails.exercise.equipments">
-                                                    {{ equipment.name }}
-                                                </li>
-                                            </ul>
-                                            </mat-expansion-panel>
-                                        </mat-accordion>
+                                        <ng-container *ngIf="!exerciseDetails.exercise.equipments || exerciseDetails.exercise.equipments.length == 0; else equipmentsTemplate">
+                                            <p class="none-option">No equipments</p>
+                                        </ng-container>
+                                        <ng-template #equipmentsTemplate>
+                                            <mat-accordion>
+                                                <mat-expansion-panel (opened)="equipmentPanelOpenState.set(true)" (closed)="equipmentPanelOpenState.set(false)">
+                                                <mat-expansion-panel-header>
+                                                    <mat-panel-title> {{ equipmentPanelOpenState() ? 'Equipments:' : getEquipmentNamesStr() }}</mat-panel-title>
+                                                </mat-expansion-panel-header>
+                                                <ul>
+                                                    <li *ngFor="let equipment of exerciseDetails.exercise.equipments">
+                                                        {{ equipment.name }}
+                                                    </li>
+                                                </ul>
+                                                </mat-expansion-panel>
+                                            </mat-accordion>
+                                        </ng-template>
                                     </td>
                                 </tr>
                                 <tr>

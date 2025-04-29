@@ -37,7 +37,7 @@
         </div>
         <div class="col">
           <h3>Equipments:</h3>
-          <app-multiple-equipment-selector [(ngModel)]="equipments" [modelsType]="exercisePageType === 'internal' ? 'internal' : 'all'" [required]="true" width="75%"  #equipmentsInput="ngModel"/>
+          <app-multiple-equipment-selector [(ngModel)]="equipments" [modelsType]="exercisePageType === 'internal' ? 'internal' : 'all'" [required]="false" width="75%"  #equipmentsInput="ngModel"/>
         </div>
       </div>
     </app-short-card>
