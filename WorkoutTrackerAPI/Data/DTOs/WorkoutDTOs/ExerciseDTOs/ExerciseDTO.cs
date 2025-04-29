@@ -1,6 +1,7 @@
 ﻿using WorkoutTrackerAPI.Data.Models;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using WorkoutTrackerAPI.Data.Enums;
 
 namespace WorkoutTrackerAPI.Data.DTOs;
 
