@@ -7,6 +7,7 @@ using WorkoutTrackerAPI.Services.WorkoutRecordServices;
 using WorkoutTrackerAPI.Data.DTOs.UserDTOs;
 using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Data.Models;
+using System;
 
 namespace WorkoutTrackerAPI.Controllers.UserControllers;
 
@@ -33,7 +34,7 @@ public class WorkoutRecordsController : DbModelController<WorkoutRecordDTO, Work
     [HttpGet]
     public async Task<ActionResult<ApiResult<WorkoutRecordDTO>>> GetCurrentUserWorkoutRecordsAsync(
         [FromQuery] long? workoutId,
-        [FromQuery] DateTime? date = null,
+        [FromQuery] DateTimeRange? range = null,
         [FromQuery] int pageIndex = 0,
         [FromQuery] int pageSize = 10,
         [FromQuery] string? sortColumn = null,
@@ -44,14 +45,14 @@ public class WorkoutRecordsController : DbModelController<WorkoutRecordDTO, Work
         if (workoutId.HasValue && workoutId < 1)
             return InvalidEntryID(nameof(Workout));
 
-        if (date.HasValue && date.Value.Date > DateTime.Now.Date)
+        if (range is not null && range.LastDate.Date > DateTime.Now.Date)
             return BadRequest("Incorrect date.");
 
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutRecordService.GetUserWorkoutRecordsAsync(userId, workoutId, date);
+        var serviceResult = await workoutRecordService.GetUserWorkoutRecordsAsync(userId, workoutId, range);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
@@ -59,7 +60,7 @@ public class WorkoutRecordsController : DbModelController<WorkoutRecordDTO, Work
         if (serviceResult.Model is not IQueryable<WorkoutRecord> workoutRecords)
             return EntryNotFound("Workout records");
 
-        var workoutRecordDTOs = workoutRecords.AsEnumerable().Select(m => mapper.Map<WorkoutRecordDTO>(m));
+        var workoutRecordDTOs = workoutRecords.ToList().Select(m => mapper.Map<WorkoutRecordDTO>(m));
         return await ApiResult<WorkoutRecordDTO>.CreateAsync(
             workoutRecordDTOs.AsQueryable(),
             pageIndex,
@@ -99,7 +100,8 @@ public class WorkoutRecordsController : DbModelController<WorkoutRecordDTO, Work
 
         workoutRecord = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetCurrentUserWorkoutRecordByIdAsync), new { workoutRecordId = workoutRecord.Id }, workoutRecord);
+        var workoutRecordDTO = mapper.Map<WorkoutRecordDTO>(workoutRecord);
+        return CreatedAtAction(nameof(GetCurrentUserWorkoutRecordByIdAsync), new { workoutRecordId = workoutRecord.Id }, workoutRecordDTO);
     }
 
     [HttpPut("{workoutRecordId}")]

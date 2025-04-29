@@ -31,7 +31,7 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
 
     [HttpGet("in-kilograms")]
     public async Task<ActionResult<ApiResult<BodyWeightDTO>>> GetCurrentUserBodyWeightsInKilogramsAsync(
-        DateTime? date = null,
+        DateTimeRange? range = null,
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -39,14 +39,14 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
         string? filterColumn = null,
         string? filterQuery = null)
     {
-        if (date.HasValue && date.Value.Date > DateTime.Now.Date)
+        if (range is not null && range.LastDate.Date > DateTime.Now.Date)
             return BadRequest("Incorrect date.");
 
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await bodyWeightService.GetUserBodyWeightsInKilogramsAsync(userId, date);
+        var serviceResult = await bodyWeightService.GetUserBodyWeightsInKilogramsAsync(userId, range);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
@@ -54,7 +54,7 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
         if (serviceResult.Model is not IQueryable<BodyWeight> bodyWeights)
             return EntryNotFound("Body weights");
 
-        var bodyWeightDTOs = bodyWeights.AsEnumerable().Select(m => mapper.Map<BodyWeightDTO>(m));
+        var bodyWeightDTOs = bodyWeights.ToList().Select(m => mapper.Map<BodyWeightDTO>(m));
         return await ApiResult<BodyWeightDTO>.CreateAsync(
             bodyWeightDTOs.AsQueryable(),
             pageIndex,
@@ -68,7 +68,7 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
 
     [HttpGet("in-pounds")]
     public async Task<ActionResult<ApiResult<BodyWeightDTO>>> GetCurrentUserBodyWeightsInPoundsAsync(
-        DateTime? date = null,
+        DateTimeRange? range = null,
         int pageIndex = 0,
         int pageSize = 10,
         string? sortColumn = null,
@@ -76,14 +76,14 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
         string? filterColumn = null,
         string? filterQuery = null)
     {
-        if (date.HasValue && date.Value.Date > DateTime.Now.Date)
+        if (range is not null && range.LastDate.Date > DateTime.Now.Date)
             return BadRequest("Incorrect date.");
 
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await bodyWeightService.GetUserBodyWeightsInPoundsAsync(userId, date);
+        var serviceResult = await bodyWeightService.GetUserBodyWeightsInPoundsAsync(userId, range);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);
@@ -91,7 +91,7 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
         if (serviceResult.Model is not IQueryable<BodyWeight> bodyWeights)
             return EntryNotFound("Body weights");
 
-        var bodyWeightDTOs = bodyWeights.AsEnumerable().Select(m => mapper.Map<BodyWeightDTO>(m));
+        var bodyWeightDTOs = bodyWeights.ToList().Select(m => mapper.Map<BodyWeightDTO>(m));
         return await ApiResult<BodyWeightDTO>.CreateAsync(
             bodyWeightDTOs.AsQueryable(),
             pageIndex,
@@ -149,7 +149,8 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
 
         bodyWeight = serviceResult.Model!;
 
-        return CreatedAtAction(nameof(GetCurrentUserBodyWeightByIdAsync), new { bodyWeightId = bodyWeight.Id }, bodyWeight);
+        bodyWeightDTO = mapper.Map<BodyWeightDTO>(bodyWeight);
+        return CreatedAtAction(nameof(GetCurrentUserBodyWeightByIdAsync), new { bodyWeightId = bodyWeight.Id }, bodyWeightDTO);
     }
 
     [HttpPut("{bodyWeightId}")]

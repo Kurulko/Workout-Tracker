@@ -72,7 +72,7 @@ public class UsersController : APIController
             if (users is null)
                 return EntryNotFound("Users");
 
-            var userDTOs = users.AsEnumerable().Select(u => mapper.Map<UserDTO>(u));
+            var userDTOs = users.ToList().Select(u => mapper.Map<UserDTO>(u));
             return await ApiResult<UserDTO>.CreateAsync(
                 userDTOs.AsQueryable(),
                 pageIndex,
