@@ -22,9 +22,10 @@ public class WorkoutDbContext : IdentityDbContext<User>
     public DbSet<ExerciseSetGroup> ExerciseSetGroups => Set<ExerciseSetGroup>();
     public DbSet<WorkoutRecord> WorkoutRecords => Set<WorkoutRecord>();
     public DbSet<Workout> Workouts => Set<Workout>();
+    public DbSet<ExerciseAlias> ExerciseAliases => Set<ExerciseAlias>();
 
-    public WorkoutDbContext(DbContextOptions options) : base(options)
-         => Database.EnsureCreated();
+    public WorkoutDbContext(DbContextOptions options) : base(options) { }
+         //=> Database.EnsureCreated();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -76,6 +77,22 @@ public class WorkoutDbContext : IdentityDbContext<User>
             .HasOne(er => er.Exercise)
             .WithMany(e => e.ExerciseRecords)
             .HasForeignKey(er => er.ExerciseId);
+
+
+        modelBuilder.Entity<Workout>()
+            .HasIndex(w => new { w.Name, w.UserId })
+            .IsUnique();
+
+        modelBuilder.Entity<Equipment>()
+            .HasIndex(e => new { e.Name, e.OwnedByUserId })
+            .IsUnique();
+
+        modelBuilder.Entity<Exercise>()
+            .HasIndex(e => new { e.Name, e.CreatedByUserId })
+            .IsUnique();
+
+        modelBuilder.Entity<Muscle>()
+            .HasIndex(m => m.Name)
+            .IsUnique();
     }
 }
-
