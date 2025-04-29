@@ -1,4 +1,5 @@
 ﻿using WorkoutTrackerAPI.Data;
+using WorkoutTrackerAPI.Data.Enums;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 
@@ -17,6 +18,7 @@ public interface IExerciseService
     Task<ServiceResult<IQueryable<Exercise>>> GetInternalExercisesAsync(ExerciseType? exerciseType = null);
     Task<ServiceResult<IQueryable<Exercise>>> GetUserExercisesAsync(string userId, ExerciseType? exerciseType = null);
     Task<ServiceResult<IQueryable<Exercise>>> GetAllExercisesAsync(string userId, ExerciseType? exerciseType = null);
+    Task<ServiceResult<IQueryable<Exercise>>> GetUsedExercisesAsync(string userId, ExerciseType? exerciseType = null);
 
     Task<ServiceResult<Exercise>> AddInternalExerciseAsync(Exercise model);
     Task<ServiceResult<Exercise>> AddUserExerciseAsync(string userId, Exercise model);

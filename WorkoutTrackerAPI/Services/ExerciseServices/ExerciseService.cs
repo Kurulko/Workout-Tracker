@@ -1,4 +1,5 @@
 ﻿using WorkoutTrackerAPI.Data;
+using WorkoutTrackerAPI.Data.Enums;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Exceptions;
@@ -13,16 +14,18 @@ namespace WorkoutTrackerAPI.Services;
 public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
 {
     readonly ExerciseRepository exerciseRepository;
+    readonly ExerciseRecordRepository exerciseRecordRepository;
     readonly UserRepository userRepository;
     readonly EquipmentRepository equipmentRepository;
     readonly MuscleRepository muscleRepository;
     readonly IFileService fileService;
-    public ExerciseService(ExerciseRepository exerciseRepository, UserRepository userRepository, EquipmentRepository equipmentRepository, MuscleRepository muscleRepository, IFileService fileService) : base(exerciseRepository)
+    public ExerciseService(ExerciseRepository exerciseRepository, UserRepository userRepository, EquipmentRepository equipmentRepository, MuscleRepository muscleRepository, ExerciseRecordRepository exerciseRecordRepository, IFileService fileService) : base(exerciseRepository)
     {
         this.exerciseRepository = exerciseRepository;
         this.userRepository = userRepository;
         this.equipmentRepository = equipmentRepository;
         this.muscleRepository = muscleRepository;
+        this.exerciseRecordRepository = exerciseRecordRepository;
         this.fileService = fileService;
     }
 
@@ -35,6 +38,8 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
     NotFoundException ExerciseNotFoundByNameException(string name)
         => NotFoundException.NotFoundExceptionByName(nameof(Exercise), name);
 
+    ArgumentException ExerciseNameMustBeUnique()
+        => EntryNameMustBeUnique(nameof(Exercise));
 
     ArgumentException InvalidExerciseIDWhileAddingException => InvalidEntryIDWhileAddingException(nameof(Exercise), "exercise");
 
@@ -52,7 +57,7 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
                 throw InvalidExerciseIDWhileAddingException;
 
             if (await baseWorkoutRepository.ExistsByNameAsync(exercise.Name))
-                throw EntryNameMustBeUnique(nameof(Exercise));
+                throw ExerciseNameMustBeUnique();
 
             await baseWorkoutRepository.AddAsync(exercise);
             return ServiceResult<Exercise>.Ok(exercise);
@@ -79,8 +84,9 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
             if (exercise.Id != 0)
                 throw InvalidExerciseIDWhileAddingException;
 
-            if (await baseWorkoutRepository.ExistsByNameAsync(exercise.Name))
-                throw EntryNameMustBeUnique(nameof(Exercise));
+            var isUniqueExerciseName = await IsUniqueExerciseNameForUserAsync(exercise.Name, userId);
+            if (!isUniqueExerciseName)
+                throw ExerciseNameMustBeUnique();
 
             exercise.CreatedByUserId = userId;
             await baseWorkoutRepository.AddAsync(exercise);
@@ -408,6 +414,31 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
         }
     }
 
+    public async Task<ServiceResult<IQueryable<Exercise>>> GetUsedExercisesAsync(string userId, ExerciseType? exerciseType = null)
+    {
+        try
+        {
+            await CheckUserIdAsync(userRepository, userId);
+            var usedExercises = (await exerciseRecordRepository.FindAsync(er => er.UserId == userId))
+                .Select(er => er.Exercise!)
+                .Distinct();
+
+            if (exerciseType is ExerciseType _exerciseType)
+                usedExercises = usedExercises.Where(e => e.Type == exerciseType);
+
+            return ServiceResult<IQueryable<Exercise>>.Ok(usedExercises);
+        }
+        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        {
+            return ServiceResult<IQueryable<Exercise>>.Fail(ex);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<IQueryable<Exercise>>.Fail(FailedToActionStr("used exercises", "get", ex));
+        }
+    }
+
+    
     public async Task<ServiceResult> UpdateInternalExerciseAsync(Exercise exercise)
     {
         try
@@ -422,6 +453,11 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
 
             if (!string.IsNullOrEmpty(_exercise.CreatedByUserId))
                 throw UserNotHavePermissionException("update", "internal exercise");
+
+            var isSameName = _exercise.Name != exercise.Name;
+            var isUniqueExerciseName = isSameName || await baseWorkoutRepository.ExistsByNameAsync(exercise.Name);
+            if (!isUniqueExerciseName)
+                throw ExerciseNameMustBeUnique();
 
             _exercise.Name = exercise.Name;
             _exercise.Image = exercise.Image;
@@ -457,6 +493,11 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
 
             if (_exercise.CreatedByUserId != userId)
                 throw UserNotHavePermissionException("update", "exercise");
+
+            var isSameName = _exercise.Name != exercise.Name;
+            var isUniqueExerciseName = isSameName || await IsUniqueExerciseNameForUserAsync(exercise.Name, userId);
+            if (!isUniqueExerciseName)
+                throw ExerciseNameMustBeUnique();
 
             _exercise.Name = exercise.Name;
             _exercise.Image = exercise.Image;
@@ -610,5 +651,11 @@ public class ExerciseService : BaseWorkoutService<Exercise>, IExerciseService
             throw exerciseNameIsNullOrEmptyException;
 
         return await baseWorkoutRepository.ExistsByNameAsync(name);
+    }
+
+    async Task<bool> IsUniqueExerciseNameForUserAsync(string name, string userId)
+    {
+        var isAnyExerciseNames = await baseWorkoutRepository.AnyAsync(w => w.Name == name && (w.CreatedByUserId == userId || w.CreatedByUserId == null));
+        return !isAnyExerciseNames;
     }
 }
