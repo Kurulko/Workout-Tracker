@@ -49,7 +49,7 @@ public class ExerciseProfile : Profile
             )
             .ForMember(
                 dest => dest.SumOfTime,
-                opt => opt.MapFrom(src => (TimeSpanModel)src.ExerciseRecords!.GetTotalTimeValue()!)
+                opt => opt.MapFrom(src => src.ExerciseRecords!.GetTotalTimeValue()!)
             )
             .ForMember(
                 dest => dest.SumOfReps,

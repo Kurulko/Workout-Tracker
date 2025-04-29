@@ -20,7 +20,7 @@ public class ExerciseSetProfile : Profile
             )
             .ForMember(
                 dest => dest.TotalTime,
-                opt => opt.MapFrom(src => (TimeSpanModel)src.GetTotalTimeValue()!)
+                opt => opt.MapFrom(src => src.GetTotalTimeValue()!)
             )
             .ForMember(
                 dest => dest.TotalReps,

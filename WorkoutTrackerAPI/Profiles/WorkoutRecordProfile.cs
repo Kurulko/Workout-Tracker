@@ -18,7 +18,7 @@ public class WorkoutRecordProfile : Profile
             )
             .ForMember(
                 dest => dest.Time,
-                opt => opt.MapFrom(src => (TimeSpanModel)src.Time!)
+                opt => opt.MapFrom(src => src.Time!)
             )
             .ForMember(
                 dest => dest.Exercises,
@@ -33,13 +33,13 @@ public class WorkoutRecordProfile : Profile
         CreateMap<WorkoutRecordDTO, WorkoutRecord>()
            .ForMember(
                dest => dest.Time,
-               opt => opt.MapFrom(src => (TimeSpan)src.Time!)
+               opt => opt.MapFrom(src => src.Time!)
            );
 
         CreateMap<WorkoutRecordCreationDTO, WorkoutRecord>()
             .ForMember(
                 dest => dest.Time,
-                opt => opt.MapFrom(src => (TimeSpan)src.Time!)
+                opt => opt.MapFrom(src => src.Time!)
             )
             .ReverseMap();
     }
