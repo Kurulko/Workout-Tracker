@@ -3,6 +3,7 @@ using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
 using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Exceptions;
+using WorkoutTrackerAPI.Extentions;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
 using WorkoutTrackerAPI.Repositories.WorkoutRepositories;
@@ -15,7 +16,7 @@ public class WorkoutRecordService : DbModelService<WorkoutRecord>, IWorkoutRecor
     readonly WorkoutRepository workoutRepository;
     readonly ExerciseRecordRepository exerciseRecordRepository;
     readonly ExerciseRecordGroupRepository exerciseRecordGroupRepository;
-    public WorkoutRecordService(WorkoutRecordRepository baseRepository, 
+    public WorkoutRecordService(WorkoutRecordRepository baseRepository,
         WorkoutRepository workoutRepository,
         ExerciseRecordRepository exerciseRecordRepository,
         ExerciseRecordGroupRepository exerciseRecordGroupRepository,
@@ -95,7 +96,7 @@ public class WorkoutRecordService : DbModelService<WorkoutRecord>, IWorkoutRecor
             workout.CountOfTrainings--;
             await workoutRepository.UpdateAsync(workout);
             await UpdateUserFirstWorkoutDate(userId);
-            
+
             return ServiceResult.Ok();
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
@@ -108,27 +109,27 @@ public class WorkoutRecordService : DbModelService<WorkoutRecord>, IWorkoutRecor
         }
     }
 
-    public async Task<ServiceResult<IQueryable<WorkoutRecord>>> GetUserWorkoutRecordsAsync(string userId, long? workoutId = null, DateTime? date = null)
+    public async Task<ServiceResult<IQueryable<WorkoutRecord>>> GetUserWorkoutRecordsAsync(string userId, long? workoutId = null, DateTimeRange? range = null)
     {
         try
         {
             await CheckUserIdAsync(userRepository, userId);
 
-            if (date is DateTime _date && _date.Date > DateTime.Now.Date)
+            if (range is DateTimeRange _range && _range.LastDate > DateTime.Now.Date)
                 throw new ArgumentException("Incorrect date.");
 
             if (workoutId.HasValue && workoutId < 1)
                 throw new InvalidIDException(nameof(Workout));
 
-            var userWorkoutRecords = await baseRepository.FindAsync(wr => wr.UserId == userId);
+            IEnumerable<WorkoutRecord> userWorkoutRecords = (await baseRepository.FindAsync(wr => wr.UserId == userId)).ToList();
 
-            if (date.HasValue)
-                userWorkoutRecords = userWorkoutRecords.Where(bw => bw.Date.Date == date.Value.Date);
+            if (range is not null)
+                userWorkoutRecords = userWorkoutRecords.Where(bw => range.IsDateInRange(bw.Date, true));
 
             if (workoutId.HasValue)
                 userWorkoutRecords = userWorkoutRecords.Where(ms => ms.WorkoutId == workoutId);
 
-            return ServiceResult<IQueryable<WorkoutRecord>>.Ok(userWorkoutRecords);
+            return ServiceResult<IQueryable<WorkoutRecord>>.Ok(userWorkoutRecords.AsQueryable());
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
