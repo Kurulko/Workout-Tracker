@@ -1,12 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Exceptions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WorkoutTrackerAPI.Repositories;
 
@@ -71,13 +67,19 @@ public class DbModelRepository<T> : IDisposable, IBaseRepository<T>
         => await Task.FromResult(dbSet);
 
     public virtual async Task<T?> GetByIdAsync(long key)
-        => await (await GetAllAsync()).SingleOrDefaultAsync(m => m.Id == key);
+    {
+        var models = await GetAllAsync();
+        return await models.SingleOrDefaultAsync(m => m.Id == key);
+    }
 
     public virtual async Task<IQueryable<T>> FindAsync(Expression<Func<T, bool>> expression)
-        => (await GetAllAsync()).Where(expression);
+    {
+        var models = await GetAllAsync();
+        return models.Where(expression);
+    }
 
     public virtual async Task<bool> ExistsAsync(long key)
-        => await (await GetAllAsync()).AnyAsync(m => m.Id == key);
+        => await dbSet.AnyAsync(m => m.Id == key);
 
     public virtual async Task UpdateAsync(T model)
     {
