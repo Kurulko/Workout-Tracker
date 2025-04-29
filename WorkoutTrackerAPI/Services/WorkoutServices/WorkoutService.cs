@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System;
 using WorkoutTrackerAPI.Data;
 using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs;
 using WorkoutTrackerAPI.Data.Models;
@@ -22,12 +23,12 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
     readonly ExerciseRecordGroupRepository exerciseRecordGroupRepository;
     readonly WorkoutRecordRepository workoutRecordRepository;
     readonly WorkoutRepository workoutRepository;
-    public WorkoutService(WorkoutRepository workoutRepository, 
-        ExerciseSetRepository exerciseSetRepository, 
-        ExerciseSetGroupRepository exerciseSetGroupRepository, 
-        ExerciseRecordRepository exerciseRecordRepository, 
+    public WorkoutService(WorkoutRepository workoutRepository,
+        ExerciseSetRepository exerciseSetRepository,
+        ExerciseSetGroupRepository exerciseSetGroupRepository,
+        ExerciseRecordRepository exerciseRecordRepository,
         ExerciseRecordGroupRepository exerciseRecordGroupRepository,
-        WorkoutRecordRepository workoutRecordRepository, 
+        WorkoutRecordRepository workoutRecordRepository,
         UserRepository userRepository) : base(workoutRepository)
     {
         this.workoutRepository = workoutRepository;
@@ -46,6 +47,9 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
     NotFoundException WorkoutNotFoundByIDException(long id)
         => NotFoundException.NotFoundExceptionByID(nameof(Workout), id);
 
+    ArgumentException WorkoutNameMustBeUnique()
+        => EntryNameMustBeUnique(nameof(Workout));
+
     public async Task<ServiceResult<Workout>> AddUserWorkoutAsync(string userId, Workout workout)
     {
         try
@@ -58,8 +62,9 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             if (workout.Id != 0)
                 throw InvalidEntryIDWhileAddingException(nameof(Workout), "workout");
 
-            if (await baseWorkoutRepository.ExistsByNameAsync(workout.Name))
-                throw EntryNameMustBeUnique(nameof(Workout));
+            var isUniqueWorkoutName = await IsUniqueWorkoutNameForUserAsync(workout.Name, userId);
+            if (!isUniqueWorkoutName)
+                throw WorkoutNameMustBeUnique();
 
             Workout _workout = new()
             {
@@ -109,8 +114,8 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
         {
             return ServiceResult.Fail(FailedToActionStr("workout", "delete"));
         }
-    } 
-    
+    }
+
     async Task AddExerciseSetGroups(string userId, long workoutId, IEnumerable<ExerciseSetGroup> exerciseSetGroups)
     {
         foreach (var exerciseSetGroup in exerciseSetGroups)
@@ -190,7 +195,7 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             if (workout.UserId != userId)
                 throw UserNotHavePermissionException("update", "workout exercise sets");
 
-            if(workout.ExerciseSetGroups is IEnumerable<ExerciseSetGroup> _exerciseSetGroups)
+            if (workout.ExerciseSetGroups is IEnumerable<ExerciseSetGroup> _exerciseSetGroups)
                 await DeleteExerciseSetGroups(_exerciseSetGroups);
 
             await AddExerciseSetGroups(userId, workoutId, exerciseSetGroups);
@@ -204,33 +209,6 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
         {
             return ServiceResult.Fail(FailedToActionStr("exercise record groups", "update"));
         }
-    }
-
-    ExerciseRecord ToExerciseRecord(ExerciseSet exerciseSet, DateTime date, long exerciseRecordGroupId)
-    {
-        ExerciseRecord exerciseRecord = new()
-        {
-            Date = date,
-            ExerciseId = exerciseSet.ExerciseId,
-            ExerciseRecordGroupId = exerciseRecordGroupId,
-            UserId = exerciseSet.UserId,
-            Reps = exerciseSet.Reps,
-            Weight = exerciseSet.Weight,
-            Time = exerciseSet.Time,
-        };
-
-        return exerciseRecord;
-    }
-
-    ExerciseRecordGroup ToExerciseRecordGroup(ExerciseSetGroup exerciseSetGroup, long workoutRecordId)
-    {
-        ExerciseRecordGroup exerciseRecordGroup = new()
-        {
-            ExerciseId = exerciseSetGroup.ExerciseId,
-            WorkoutRecordId = workoutRecordId,
-        };
-
-        return exerciseRecordGroup;
     }
 
     public async Task<ServiceResult> CompleteUserWorkout(string userId, long workoutId, DateTime date, TimeSpan time)
@@ -261,12 +239,12 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
 
             foreach (var exerciseSetGroup in workout.ExerciseSetGroups!)
             {
-                var exerciseRecordGroup = ToExerciseRecordGroup(exerciseSetGroup, workoutRecord.Id);
+                var exerciseRecordGroup = exerciseSetGroup.ToExerciseRecordGroup(workoutRecord.Id);
                 await exerciseRecordGroupRepository.AddAsync(exerciseRecordGroup);
 
                 foreach (var exerciseSet in exerciseSetGroup.ExerciseSets)
                 {
-                    var exerciseRecord = ToExerciseRecord(exerciseSet, date, exerciseRecordGroup.Id);
+                    var exerciseRecord = exerciseSet.ToExerciseRecord(date, exerciseRecordGroup.Id);
                     await exerciseRecordRepository.AddAsync(exerciseRecord);
                 }
             }
@@ -373,7 +351,7 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             await CheckUserIdAsync(userRepository, userId);
 
             if (exerciseId is long _exerciseId && _exerciseId < 1)
-                    throw new InvalidIDException(nameof(Exercise));
+                throw new InvalidIDException(nameof(Exercise));
 
             var userWorkouts = await baseWorkoutRepository.FindAsync(e => e.UserId == userId);
 
@@ -411,11 +389,13 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             if (_workout.UserId != userId)
                 throw UserNotHavePermissionException("update", "workout");
 
+            var isSameName = _workout.Name == workout.Name;
+            var isUniqueWorkoutName = isSameName || await IsUniqueWorkoutNameForUserAsync(workout.Name, userId);
+            if (!isUniqueWorkoutName)
+                throw WorkoutNameMustBeUnique();
+
             _workout.Name = workout.Name;
             _workout.Description = workout.Description;
-            //_workout.CountOfTrainings = workout.CountOfTrainings;
-            //_workout.SumOfWeight = workout.SumOfWeight;
-            //_workout.SumOfTime = workout.SumOfTime;
 
             await baseWorkoutRepository.UpdateAsync(_workout);
             return ServiceResult.Ok();
@@ -458,5 +438,11 @@ public class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
         var firstWorkoutDate = userWorkoutRecords?.MinBy(wr => wr.Date)?.Date;
         user.StartedWorkingOut = firstWorkoutDate;
         await userRepository.UpdateUserAsync(user);
+    }
+
+    async Task<bool> IsUniqueWorkoutNameForUserAsync(string name, string userId)
+    {
+        var isAnyWorkoutNames = await baseWorkoutRepository.AnyAsync(w => w.Name == name && (w.UserId == userId || w.UserId == null));
+        return !isAnyWorkoutNames;
     }
 }
