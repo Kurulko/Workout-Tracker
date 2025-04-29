@@ -4,6 +4,7 @@
       <mat-option *ngIf="!required" class="none-option">--None--</mat-option>
       <mat-option *ngFor="let weightType of weightTypes" [value]="weightType">
         {{ isShortForm ? showWeightTypeShort(weightType) : showWeightType(weightType) }}
+        <span *ngIf="weightType != selectedWeightType && weight">({{ roundNumber(convertWeightValue(weight, selectedWeightType!, weightType), 1) }} {{showWeightTypeShort(weightType)}})</span>
       </mat-option>
     </mat-select>
     <mat-error [hidden]="!required || weightType.valid || weightType.untouched">

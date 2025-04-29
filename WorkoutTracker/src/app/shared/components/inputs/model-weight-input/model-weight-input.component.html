@@ -15,6 +15,7 @@
       <!-- Weight Type -->
       <app-weight-type-selector 
          formControlName="weightType"
+         [weight]="modelWeightForm.get('weight')?.value" 
          [required]="true"
          [label]="weightTypeLabel"
          [width]="weightTypeWidth"

@@ -25,23 +25,23 @@ export class WorkoutsVsRestChartComponent implements OnInit {
     Chart.register(...registerables, DataLabelsPlugin);
   }
 
-  ngOnInit(): void {
-    this.workoutsChartData.datasets[0].data =  [this.restDays, this.workoutDays];
-    this.totalDays = this.restDays + this.workoutDays;
-  }
+  workoutsChartData!: ChartData;
+  workoutsChartOptions!: ChartOptions;
 
-  workoutsChartData: ChartData = {
-    labels:  ['Rest', 'Workouts'],
-    datasets: [
-      {
-        data: [],
-        backgroundColor: ['#FF6384', '#36A2EB'],
-      },
-    ],
-  };
+  initData() {
+    this.workoutsChartData = {
+      labels:  ['Rest', 'Workouts'],
+      datasets: [
+        {
+          data: [this.restDays, this.workoutDays],
+          backgroundColor: ['#FF6384', '#36A2EB'],
+        },
+      ],
+    };
+    // this.workoutsChartData.datasets[0].data =  [this.restDays, this.workoutDays];
 
-  workoutsChartOptions: ChartOptions = {
-      responsive: true,
+    this.workoutsChartOptions = {
+      responsive: false,
       plugins: {
         datalabels: {
           formatter: (value, context) => {
@@ -67,13 +67,24 @@ export class WorkoutsVsRestChartComponent implements OnInit {
         }
       }
     };
-  
-    getPercentageFromValue(value: number): number {
-      const percentage = roundNumber(((value / this.totalDays) * 100), 0);
-      return percentage;
-    }
 
-    showCountOfDays(days: number){
-      return showCountOfSomethingStr(days, "day", "days")
-    }
+    this.totalDays = this.restDays + this.workoutDays;
+  }
+
+  ngOnInit(): void {
+    this.initData();
+  }
+
+  ngOnChanges() {
+    this.initData();
+  }
+
+  getPercentageFromValue(value: number): number {
+    const percentage = roundNumber(((value / this.totalDays) * 100), 0);
+    return percentage;
+  }
+
+  showCountOfDays(days: number){
+    return showCountOfSomethingStr(days, "day", "days")
+  }
 }

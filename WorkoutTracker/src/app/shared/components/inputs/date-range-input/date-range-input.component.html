@@ -1,0 +1,62 @@
+<div [style.width]="width">
+    <form [formGroup]="rangeForm">
+        <h2>{{ label ?? 'Date Range:' }}</h2>
+         <div class="row">
+            <div class="col-md-5">
+                <mat-form-field class="app-input" [style.width]="'100%'">
+                    <mat-label>First Date:</mat-label>
+                    <input matInput 
+                        formControlName="firstDate"
+                        [(ngModel)]="range.firstDate"
+                        [matDatepicker]="firstDatePicker" 
+                        placeholder="Insert First Date" 
+                        [max]="range.lastDate ?? maxDate"
+                        [min]="minDate"
+                        [required]="required"
+                    />
+                    <mat-datepicker-toggle matSuffix [for]="firstDatePicker" />
+                    <mat-datepicker #firstDatePicker />
+                    <mat-error *ngIf="rangeForm.get('firstDate')?.touched && rangeForm.get('firstDate')?.errors?.['required']">
+                        First Date is required
+                    </mat-error>
+                    <mat-error *ngIf="rangeForm.get('firstDate')?.touched && rangeForm.get('firstDate')?.errors?.['min']">
+                        Min date is {{ minDate | date:'d MMMM yyyy' }}
+                    </mat-error>
+                    <mat-error *ngIf="rangeForm.get('firstDate')?.touched && rangeForm.get('firstDate')?.errors?.['max']">
+                        Max date is {{ maxDate | date:'d MMMM yyyy' }}
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="col-md-5">
+                <mat-form-field class="app-input" [style.width]="'100%'">
+                    <mat-label>Last Date:</mat-label>
+                    <input matInput 
+                        formControlName="lastDate"
+                        [(ngModel)]="range.lastDate"
+                        [matDatepicker]="lastDatePicker" 
+                        placeholder="Insert Last Date" 
+                        [max]="maxDate"
+                        [min]="range.firstDate ?? minDate"
+                        [required]="required"
+                    />
+                    <mat-datepicker-toggle matSuffix [for]="lastDatePicker" />
+                    <mat-datepicker #lastDatePicker />
+                    <mat-error *ngIf="rangeForm.get('lastDate')?.touched && rangeForm.get('lastDate')?.errors?.['required']">
+                        Last Date is required
+                    </mat-error>
+                    <mat-error *ngIf="rangeForm.get('lastDate')?.touched && rangeForm.get('lastDate')?.errors?.['min']">
+                        Min date is {{ minDate | date:'d MMMM yyyy' }}
+                    </mat-error>
+                    <mat-error *ngIf="rangeForm.get('lastDate')?.touched && rangeForm.get('lastDate')?.errors?.['max']">
+                        Max date is {{ maxDate | date:'d MMMM yyyy' }}
+                    </mat-error>
+                </mat-form-field>
+            </div>
+            <div class="col-md-2">
+                <button type="button" *ngIf="range && (range.firstDate || range.lastDate)" mat-fab color="accent" (click)="clearRange()">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

@@ -2,35 +2,31 @@
     <mat-spinner diameter="60" />
 </ng-container>
 <ng-template #exerciseSetTemplate>
-    <div>
-        <div *ngIf="exerciseSet.exerciseType == exerciseType.Reps || exerciseSet.exerciseType == exerciseType.WeightAndReps">
+    <div class="row">
+        <div class="col-md-4" *ngIf="exerciseSet.exerciseType == exerciseType.Reps || exerciseSet.exerciseType == exerciseType.WeightAndReps">
             <!-- Reps -->
-            <app-short-card title="Reps" [width]="width">
-                <app-reps-input 
-                    [(ngModel)]="exerciseSet.reps" 
-                    (ngModelChange)="onExerciseSetChange()"
-                    width="100%" 
-                    [required]="required" />
-             </app-short-card>
-             <br *ngIf="exerciseSet.exerciseType == exerciseType.WeightAndReps">
+            <app-reps-input
+                [(ngModel)]="exerciseSet.reps" 
+                (ngModelChange)="onExerciseSetChange()"
+                width="100%"
+                [required]="required" />
         </div>
-        <div *ngIf="exerciseSet.exerciseType == exerciseType.Time || exerciseSet.exerciseType == exerciseType.WeightAndTime">
+        <div class="col-md-6" *ngIf="exerciseSet.exerciseType == exerciseType.Time || exerciseSet.exerciseType == exerciseType.WeightAndTime">
             <!-- Time -->
-            <app-time-span-input 
+            <app-short-time-span-input
                 [(ngModel)]="exerciseSet.time" 
                 [isWithSeconds]="true"
                 (ngModelChange)="onExerciseSetChange()"
                 [required]="required" 
                 [width]="width" />
-             <br *ngIf="exerciseSet.exerciseType == exerciseType.WeightAndTime">
         </div>
-        <div *ngIf="exerciseSet.exerciseType == exerciseType.WeightAndReps || exerciseSet.exerciseType == exerciseType.WeightAndTime">
+        <div class="col-md-6" *ngIf="exerciseSet.exerciseType == exerciseType.WeightAndReps || exerciseSet.exerciseType == exerciseType.WeightAndTime">
             <!-- Weight -->
-            <app-model-weight-input 
+            <app-short-model-weight-input
                 [(ngModel)]="exerciseSet.weight" 
                 (ngModelChange)="onExerciseSetChange()"
                 [weightTypeValue]="weightTypeValue" 
-                [width]="width"
+                width="100%"
                 [required]="required" />
         </div>
     </div>

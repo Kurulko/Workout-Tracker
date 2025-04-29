@@ -113,8 +113,16 @@ export class ExerciseSetsEditorComponent extends BaseEditorComponent<ExerciseSet
 
         if(exerciseSet.exerciseType == ExerciseType.Time || exerciseSet.exerciseType == ExerciseType.WeightAndTime)
             exerciseSet.time = <TimeSpan>{};
+        else
+            exerciseSet.time = null;
+
         if(exerciseSet.exerciseType == ExerciseType.WeightAndReps || exerciseSet.exerciseType == ExerciseType.WeightAndTime)
             exerciseSet.weight = <ModelWeight>{};
+        else
+            exerciseSet.weight = null;
+
+        if(exerciseSet.exerciseType == ExerciseType.WeightAndTime || exerciseSet.exerciseType == ExerciseType.Time)
+            exerciseSet.reps = null;
 
         return exerciseSet;
     }

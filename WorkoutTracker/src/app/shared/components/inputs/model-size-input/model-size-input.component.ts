@@ -28,7 +28,7 @@ export class ModelSizeInputComponent extends BaseEditorComponent<ModelSize> {
   @Input() sizeIsShortSizeType: boolean = true;
   @Input() sizeHintStr?: string;
   @Input() sizeLabel?: string;
-  @Input() sizeWidth?: string = "65%";
+  @Input() sizeWidth?: string = "50%";
 
   @Input() sizeTypeValue?: SizeType;
   @Input() sizeTypeIsShortForm: boolean = true;
@@ -37,7 +37,7 @@ export class ModelSizeInputComponent extends BaseEditorComponent<ModelSize> {
 
   modelSizeForm!: FormGroup;
   
-  constructor(private fb: FormBuilder){
+  constructor(private fb: FormBuilder) {
     super();
   }
   

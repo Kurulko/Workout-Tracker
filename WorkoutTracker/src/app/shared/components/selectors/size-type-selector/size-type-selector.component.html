@@ -4,6 +4,7 @@
       <mat-option *ngIf="!required" class="none-option">--None--</mat-option>
       <mat-option *ngFor="let sizeType of sizeTypes" [value]="sizeType">
         {{ isShortForm ? showSizeTypeShort(sizeType) : showSizeType(sizeType) }}
+        <span *ngIf="selectedSizeType && sizeType != selectedSizeType && size">({{ roundNumber(convertSizeValue(size, selectedSizeType!, sizeType), 1) }} {{showSizeTypeShort(sizeType)}})</span>
       </mat-option>
     </mat-select>
     <mat-error [hidden]="!required || sizeType.valid || sizeType.untouched">

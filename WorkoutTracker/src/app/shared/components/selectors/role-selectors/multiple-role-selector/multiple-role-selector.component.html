@@ -2,8 +2,8 @@
 <mat-form-field *ngIf="roles | async as result" [style.width]="width">
     <mat-label>{{ label ?? "Select Roles..." }}</mat-label>
     <mat-select [(ngModel)]="selectedRoles" (selectionChange)="onRolesSelected()" multiple [compareWith]="compareWithById" [required]="required" #roles="ngModel">
-        <mat-option *ngIf="!required" class="none-option">--None--</mat-option>
-        <mat-option *ngFor="let role of result" [value]="role">
+        <mat-option (onSelectionChange)="noneOptionSelected()" *ngIf="!required" class="none-option" [disabled]="isDisabledNoneOption()">--None--</mat-option>
+        <mat-option *ngFor="let role of result" [value]="role" [disabled]="isNoneOptionSelected">
             {{ role.name }}
         </mat-option>
     </mat-select>

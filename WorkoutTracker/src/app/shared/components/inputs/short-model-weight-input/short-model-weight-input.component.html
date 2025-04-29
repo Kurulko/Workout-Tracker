@@ -1,0 +1,24 @@
+<div [style.width]="width">    
+    <form [formGroup]="modelWeightForm" >
+       <!-- Weight -->
+       <app-weight-input
+          formControlName="weight"
+          [minValue]="weightMinValue"
+          [maxValue]="weightMaxValue"
+          [required]="required"
+          [label]="weightLabel"
+          width="50%"
+          [weightType]="modelWeightForm.get('weightType')?.value" 
+          [isShortWeightType]="true"
+          [hintStr]="weightHintStr" />
+ 
+       <!-- Weight Type -->
+       <app-weight-type-selector 
+          formControlName="weightType"
+          [weight]="modelWeightForm.get('weight')?.value" 
+          [required]="true"
+          [label]="weightTypeLabel"
+          width="20%"
+          [isShortForm]="true" />
+    </form>
+</div>

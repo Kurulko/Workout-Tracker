@@ -1,6 +1,6 @@
-<mat-form-field [style.width]="width">
+<mat-form-field [style.width]="width" class="app-input">
     <mat-label>{{ label ?? 'Reps' }}</mat-label>
-    <input matInput 
+    <input matInput
         [formControl]="internalControl"
         type="number" 
         placeholder="Insert Reps"

@@ -1,6 +1,5 @@
 import { Component, Input, forwardRef } from '@angular/core';
-import { FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
-import { BaseEditorComponent } from '../../base-editor.component';
+import { NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { BaseInputComponent } from '../base-input.component';
 
 @Component({

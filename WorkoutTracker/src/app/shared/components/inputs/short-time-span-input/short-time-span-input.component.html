@@ -1,8 +1,8 @@
-<app-short-card [title]="label ?? 'Time'" [width]="width">
+<div [style.width]="width">
     <form [formGroup]="timeSpanForm">
-        <mat-form-field [style.width]="'100%'" class="app-input">
+        <mat-form-field [style.width]="'31%'" class="app-input">
             <mat-label>Hours:</mat-label>
-            <input matInput 
+            <input matInput
                 type="number"
                 formControlName="hours"
                 [min]="min"
@@ -19,8 +19,7 @@
                 Max {{ showCountOfSomethingStr(maxHours, 'hour', 'hours') }} hours
             </mat-error>
         </mat-form-field>
-        <br>
-        <mat-form-field [style.width]="'100%'" class="app-input">
+        <mat-form-field [style.width]="'31%'" class="app-input">
             <mat-label>Minutes:</mat-label>
             <input matInput
                 type="number" 
@@ -39,10 +38,9 @@
                 Max 59 minutes
             </mat-error>
         </mat-form-field>
-        <br *ngIf="isWithSeconds">
-        <mat-form-field *ngIf="isWithSeconds" [style.width]="'100%'" class="app-input">
+        <mat-form-field *ngIf="isWithSeconds" [style.width]="'31%'" class="app-input">
             <mat-label>Seconds:</mat-label>
-            <input matInput 
+            <input matInput
                 type="number" 
                 formControlName="seconds" 
                 [min]="min"
@@ -59,10 +57,9 @@
                 Max 59 seconds
             </mat-error>
         </mat-form-field>
-        <br *ngIf="isWithMilliseconds">
-        <mat-form-field *ngIf="isWithSeconds && isWithMilliseconds" [style.width]="'100%'" class="app-input">
+        <mat-form-field *ngIf="isWithSeconds && isWithMilliseconds" [style.width]="'31%'" class="app-input">
             <mat-label>Milliseconds:</mat-label>
-            <input matInput 
+            <input matInput
                 type="number" 
                 formControlName="milliseconds" 
                 [min]="min"
@@ -88,4 +85,4 @@
             Overall error: At least one field must be above zero.
         </mat-error>
     </form>
-</app-short-card>
+</div>

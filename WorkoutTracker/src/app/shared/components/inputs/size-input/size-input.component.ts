@@ -56,7 +56,7 @@ export class SizeInputComponent extends BaseInputComponent<number> {
     const input = event.target as HTMLInputElement;
     const value = input.value;
   
-    const regex = /^\d*\.?\d{0,1}$/;
+    const regex = /^\d*\.?\d{0,2}$/;
   
     if (!regex.test(value)) {
       input.value = value.slice(0, -1);

@@ -5,6 +5,8 @@ import { getEnumElements } from 'src/app/shared/helpers/functions/getFunctions/g
 import { SizeType } from 'src/app/shared/models/size-type';
 import { showSizeType } from 'src/app/shared/helpers/functions/showFunctions/showSizeType';
 import { showSizeTypeShort } from 'src/app/shared/helpers/functions/showFunctions/showSizeTypeShort';
+import { convertSizeValue } from 'src/app/shared/helpers/functions/convertos/convertSizeValue';
+import { roundNumber } from 'src/app/shared/helpers/functions/roundNumber';
 
 @Component({
   selector: 'app-size-type-selector',
@@ -24,6 +26,8 @@ import { showSizeTypeShort } from 'src/app/shared/helpers/functions/showFunction
   ],
 })
 export class SizeTypeSelectorComponent extends BaseSelectorComponent<SizeType> implements OnInit {
+  @Input() size?: number;
+
   @Input() isShortForm: boolean = false;
   @Output() sizeTypeChange = new EventEmitter<SizeType>();
   
@@ -38,6 +42,9 @@ export class SizeTypeSelectorComponent extends BaseSelectorComponent<SizeType> i
     this.selectedSizeType = this.value;
   }
 
+  convertSizeValue = convertSizeValue;
+  roundNumber = roundNumber;
+  
   onSizeTypeSelected() {
     this.sizeTypeChange.emit(this.selectedSizeType);
     this.onChange(this.selectedSizeType);

@@ -5,35 +5,31 @@ import { ModelWeight } from 'src/app/shared/models/model-weight';
 import { WeightType } from 'src/app/shared/models/weight-type';
 
 @Component({
-  selector: 'app-model-weight-input',
-  templateUrl: './model-weight-input.component.html',
-  styleUrls: ['./model-weight-input.component.css'],
+  selector: 'app-short-model-weight-input',
+  templateUrl: './short-model-weight-input.component.html',
+  styleUrls: ['./short-model-weight-input.component.css'],
   providers: [
     {
       provide: NG_VALIDATORS,
-      useExisting: forwardRef(() => ModelWeightInputComponent),
+      useExisting: forwardRef(() => ShortModelWeightInputComponent),
       multi: true,
     },
     {
       provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => ModelWeightInputComponent),
+      useExisting: forwardRef(() => ShortModelWeightInputComponent),
       multi: true,
     },
   ],
 })
-export class ModelWeightInputComponent extends BaseEditorComponent<ModelWeight> implements OnInit {
+export class ShortModelWeightInputComponent extends BaseEditorComponent<ModelWeight> implements OnInit {
   @Input() weightValue?: number;
   @Input() weightMinValue: number = 1;
   @Input() weightMaxValue: number|null = null;
-  @Input() weightIsShortWeightType: boolean = true;
   @Input() weightHintStr?: string;
   @Input() weightLabel?: string;
-  @Input() weightWidth?: string = "50%";
 
   @Input() weightTypeValue?: WeightType;
-  @Input() weightTypeIsShortForm: boolean = true;
   @Input() weightTypeLabel?: string;
-  @Input() weightTypeWidth?: string = "35%";
 
   modelWeightForm!: FormGroup;
 
