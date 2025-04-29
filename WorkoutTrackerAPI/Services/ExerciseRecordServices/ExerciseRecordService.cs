@@ -1,7 +1,10 @@
 ﻿using WorkoutTrackerAPI.Data;
+using WorkoutTrackerAPI.Data.Enums;
 using WorkoutTrackerAPI.Data.Models;
 using WorkoutTrackerAPI.Data.Models.UserModels;
+using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Exceptions;
+using WorkoutTrackerAPI.Extentions;
 using WorkoutTrackerAPI.Repositories;
 using WorkoutTrackerAPI.Repositories.UserRepositories;
 
@@ -74,29 +77,29 @@ public class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRe
         }
     }
 
-    public async Task<ServiceResult<IQueryable<ExerciseRecord>>> GetUserExerciseRecordsAsync(string userId, long? exerciseId = null, ExerciseType? exerciseType = null, DateTime? date = null)
+    public async Task<ServiceResult<IQueryable<ExerciseRecord>>> GetUserExerciseRecordsAsync(string userId, long? exerciseId = null, ExerciseType? exerciseType = null, DateTimeRange? range = null)
     {
         try
         {
             await CheckUserIdAsync(userRepository, userId);
 
-            if (date.HasValue && date.Value.Date > DateTime.Now.Date)
+            if (range is DateTimeRange _range && _range.LastDate > DateTime.Now.Date)
                 throw new ArgumentException("Incorrect date.");
 
             if (exerciseId.HasValue && exerciseId < 1)
                 throw new InvalidIDException(nameof(Exercise));
 
-            var userExerciseRecords = await baseRepository.FindAsync(ms => ms.UserId == userId);
+            IEnumerable<ExerciseRecord> userExerciseRecords = (await baseRepository.FindAsync(wr => wr.UserId == userId)).ToList();
 
-            if (date.HasValue)
-                userExerciseRecords = userExerciseRecords.Where(ms => ms.Date.Date == date.Value.Date);
+            if (range is not null)
+                userExerciseRecords = userExerciseRecords.Where(ms => range.IsDateInRange(ms.Date, true));
 
             if (exerciseId.HasValue)
                 userExerciseRecords = userExerciseRecords.Where(ms => ms.ExerciseId == exerciseId);
             else if(exerciseType.HasValue)
                 userExerciseRecords = userExerciseRecords.Where(ms => ms.Exercise!.Type == exerciseType);
 
-            return ServiceResult<IQueryable<ExerciseRecord>>.Ok(userExerciseRecords);
+            return ServiceResult<IQueryable<ExerciseRecord>>.Ok(userExerciseRecords.AsQueryable());
         }
         catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
         {
