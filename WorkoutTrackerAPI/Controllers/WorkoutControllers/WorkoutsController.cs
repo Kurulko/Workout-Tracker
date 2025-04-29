@@ -50,22 +50,27 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
         var workoutDetailsDTO = new WorkoutDetailsDTO();
 
         var workoutDTO = mapper.Map<WorkoutDTO>(workout);
+        workoutDetailsDTO.Workout = workoutDTO;
+
         var workoutRecords = workout.WorkoutRecords!;
         var totalWorkouts = workoutRecords.Count();
-        var totalWeight = workoutRecords.GetTotalWeightValue();
-        var totalDuration = workoutRecords.GetTotalTime();
-        var averageWorkoutDuration = TimeSpan.FromMinutes(totalDuration.TotalMinutes / totalWorkouts);
-        var dates = workoutRecords.Select(wr => wr.Date).Distinct().ToList();
 
-        workoutDetailsDTO.Workout = workoutDTO;
-        workoutDetailsDTO.TotalWorkouts = totalWorkouts;
-        workoutDetailsDTO.TotalWeight = totalWeight;
-        workoutDetailsDTO.TotalDuration = (TimeSpanModel)totalDuration;
-        workoutDetailsDTO.AverageWorkoutDuration = (TimeSpanModel)averageWorkoutDuration;
-        workoutDetailsDTO.Dates = dates;
+        if (totalWorkouts > 0)
+        {
+            var totalWeight = workoutRecords.GetTotalWeightValue();
+            var totalDuration = workoutRecords.GetTotalTime();
+            var averageWorkoutDuration = TimeSpan.FromMinutes(totalDuration.TotalMinutes / totalWorkouts);
+            var dates = workoutRecords.Select(wr => wr.Date).Distinct().ToList();
 
-        if (workoutDTO.Started.HasValue)
-            workoutDetailsDTO.CountOfDaysSinceFirstWorkout = (int)(DateTime.Now - workoutDTO.Started.Value).TotalDays;
+            workoutDetailsDTO.TotalWorkouts = totalWorkouts;
+            workoutDetailsDTO.TotalWeight = totalWeight;
+            workoutDetailsDTO.TotalDuration = (TimeSpanModel)totalDuration;
+            workoutDetailsDTO.AverageWorkoutDuration = (TimeSpanModel)averageWorkoutDuration;
+            workoutDetailsDTO.Dates = dates;
+
+            if (workoutDTO.Started.HasValue)
+                workoutDetailsDTO.CountOfDaysSinceFirstWorkout = (int)(DateTime.Now - workoutDTO.Started.Value).TotalDays;
+        }
 
         var muscles = workout.ExerciseSetGroups!.GetMuscles();
         var equipments = workout.ExerciseSetGroups!.GetEquipments();
@@ -109,7 +114,7 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
         if (serviceResult.Model is not IQueryable<Workout> workouts)
             return EntryNotFound("Workouts");
 
-        var workoutDTOs = workouts.AsEnumerable().Select(m => mapper.Map<WorkoutDTO>(m));
+        var workoutDTOs = workouts.ToList().Select(m => mapper.Map<WorkoutDTO>(m));
         return await ApiResult<WorkoutDTO>.CreateAsync(
             workoutDTOs.AsQueryable(),
             pageIndex,
@@ -183,8 +188,9 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
             return BadRequest(serviceResult.ErrorMessage);
 
         workout = serviceResult.Model!;
+        var workoutDTO = mapper.Map<WorkoutDTO>(workout);
 
-        return CreatedAtAction(nameof(GetCurrentUserWorkoutByIdAsync), new { workoutId = workout.Id }, workout);
+        return CreatedAtAction(nameof(GetCurrentUserWorkoutByIdAsync), new { workoutId = workout.Id }, workoutDTO);
     }
 
     [HttpPost("exercise-set-groups/{workoutId}")]
@@ -197,7 +203,7 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
             return EntryIsNull("Exercise Set Groups");
 
         string userId = httpContextAccessor.GetUserId()!;
-        var exerciseSetGroups = exerciseSetGroupCreationDTOs.AsEnumerable().Select(m => mapper.Map<ExerciseSetGroup>(m));
+        var exerciseSetGroups = exerciseSetGroupCreationDTOs.ToList().Select(m => mapper.Map<ExerciseSetGroup>(m));
         var serviceResult = await workoutService.AddExerciseSetGroupsToUserWorkoutAsync(userId, workoutId, exerciseSetGroups);
         return HandleServiceResult(serviceResult);
     }
@@ -212,7 +218,7 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
             return EntryIsNull("Exercise Set Groups");
 
         string userId = httpContextAccessor.GetUserId()!;
-        var exerciseSetGroups = exerciseSetGroupCreationDTOs.AsEnumerable().Select(m => mapper.Map<ExerciseSetGroup>(m));
+        var exerciseSetGroups = exerciseSetGroupCreationDTOs.ToList().Select(m => mapper.Map<ExerciseSetGroup>(m));
         var serviceResult = await workoutService.UpdateUserWorkoutExerciseSetGroupsAsync(userId, workoutId, exerciseSetGroups);
         return HandleServiceResult(serviceResult);
     }

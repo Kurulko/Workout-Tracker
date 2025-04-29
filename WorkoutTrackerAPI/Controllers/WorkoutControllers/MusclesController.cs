@@ -66,7 +66,7 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (serviceResult.Model is not IQueryable<Muscle> muscles)
             return EntryNotFound("Muscles");
 
-        var muscleDTOs = muscles.AsEnumerable().Select(m => mapper.Map<MuscleDTO>(m));
+        var muscleDTOs = muscles.ToList().Select(m => mapper.Map<MuscleDTO>(m));
         return await ApiResult<MuscleDTO>.CreateAsync(
             muscleDTOs.AsQueryable(),
             pageIndex,
@@ -98,7 +98,7 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (serviceResult.Model is not IQueryable<Muscle> muscles)
             return EntryNotFound("Muscles");
 
-        var muscleDTOs = muscles.AsEnumerable().Select(m => mapper.Map<MuscleDTO>(m));
+        var muscleDTOs = muscles.ToList().Select(m => mapper.Map<MuscleDTO>(m));
         return await ApiResult<MuscleDTO>.CreateAsync(
             muscleDTOs.AsQueryable(),
             pageIndex,
@@ -130,7 +130,7 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (serviceResult.Model is not IQueryable<Muscle> muscles)
             return EntryNotFound("Muscles");
 
-        var muscleDTOs = muscles.AsEnumerable().Select(m => mapper.Map<MuscleDTO>(m));
+        var muscleDTOs = muscles.ToList().Select(m => mapper.Map<MuscleDTO>(m));
         return await ApiResult<MuscleDTO>.CreateAsync(
             muscleDTOs.AsQueryable(),
             pageIndex,
@@ -171,7 +171,7 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (muscle.Exercises is not IEnumerable<Exercise> exercises)
             return EntryNotFound("Exercises");
 
-        var exerciseDTOs = exercises.AsEnumerable().Select(m => mapper.Map<ExerciseDTO>(m));
+        var exerciseDTOs = exercises.ToList().Select(m => mapper.Map<ExerciseDTO>(m));
         return await ApiResult<ExerciseDTO>.CreateAsync(
             exerciseDTOs.AsQueryable(),
             pageIndex,
@@ -252,8 +252,9 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
                 return BadRequest(serviceResult.ErrorMessage);
 
             muscle = serviceResult.Model!;
+            var muscleDTO = mapper.Map<MuscleDTO>(muscle);
 
-            return CreatedAtAction(nameof(GetMuscleByIdAsync), new { muscleId = muscle.Id }, muscle);
+            return CreatedAtAction(nameof(GetMuscleByIdAsync), new { muscleId = muscle.Id }, muscleDTO);
         }
         catch (Exception ex)
         {

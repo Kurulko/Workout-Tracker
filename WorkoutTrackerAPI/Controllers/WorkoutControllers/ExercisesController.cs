@@ -9,7 +9,9 @@ using WorkoutTrackerAPI.Data.DTOs;
 using WorkoutTrackerAPI.Data.DTOs.UserDTOs;
 using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs;
 using WorkoutTrackerAPI.Data.DTOs.WorkoutDTOs.ExerciseDTOs;
+using WorkoutTrackerAPI.Data.Enums;
 using WorkoutTrackerAPI.Data.Models;
+using WorkoutTrackerAPI.Data.Models.WorkoutModels;
 using WorkoutTrackerAPI.Extentions;
 using WorkoutTrackerAPI.Services.ExerciseServices;
 using WorkoutTrackerAPI.Services.FileServices;
@@ -74,7 +76,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (serviceResult.Model is not IQueryable<Exercise> exercises)
             return EntryNotFound("Exercises");
 
-        var exerciseDTOs = exercises.AsEnumerable().Select(m => mapper.Map<ExerciseDTO>(m));
+        var exerciseDTOs = exercises.ToList().Select(m => mapper.Map<ExerciseDTO>(m));
         return await ApiResult<ExerciseDTO>.CreateAsync(
             exerciseDTOs.AsQueryable(),
             pageIndex,
@@ -108,7 +110,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (serviceResult.Model is not IQueryable<Exercise> exercises)
             return EntryNotFound("Exercises");
 
-        var exerciseDTOs = exercises.AsEnumerable().Select(m => mapper.Map<ExerciseDTO>(m));
+        var exerciseDTOs = exercises.ToList().Select(m => mapper.Map<ExerciseDTO>(m));
         return await ApiResult<ExerciseDTO>.CreateAsync(
             exerciseDTOs.AsQueryable(),
             pageIndex,
@@ -142,7 +144,41 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (serviceResult.Model is not IQueryable<Exercise> exercises)
             return EntryNotFound("Exercises");
 
-        var exerciseDTOs = exercises.AsEnumerable().Select(m => mapper.Map<ExerciseDTO>(m));
+        var exerciseDTOs = exercises.ToList().Select(m => mapper.Map<ExerciseDTO>(m));
+        return await ApiResult<ExerciseDTO>.CreateAsync(
+            exerciseDTOs.AsQueryable(),
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
+    }
+
+    [HttpGet("used-exercises")]
+    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetUsedExercisesAsync(
+        ExerciseType? type = null,
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? sortColumn = null,
+        string? sortOrder = null,
+        string? filterColumn = null,
+        string? filterQuery = null)
+    {
+        if (pageIndex < 0 || pageSize <= 0)
+            return InvalidPageIndexOrPageSize();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await exerciseService.GetUsedExercisesAsync(userId, type);
+
+        if (!serviceResult.Success)
+            return BadRequest(serviceResult.ErrorMessage);
+
+        if (serviceResult.Model is not IQueryable<Exercise> exercises)
+            return EntryNotFound("Exercises");
+
+        var exerciseDTOs = exercises.ToList().Select(m => mapper.Map<ExerciseDTO>(m));
         return await ApiResult<ExerciseDTO>.CreateAsync(
             exerciseDTOs.AsQueryable(),
             pageIndex,
@@ -296,8 +332,9 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
                 return BadRequest(serviceResult.ErrorMessage);
 
             exercise = serviceResult.Model!;
+            var exerciseDTO = mapper.Map<ExerciseDTO>(exercise);
 
-            return CreatedAtAction(nameof(GetInternalExerciseByIdAsync), new { exerciseId = exercise.Id }, exercise);
+            return CreatedAtAction(nameof(GetInternalExerciseByIdAsync), new { exerciseId = exercise.Id }, exerciseDTO);
         }
         catch (Exception ex)
         {
@@ -324,8 +361,9 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
                 return BadRequest(serviceResult.ErrorMessage);
 
             exercise = serviceResult.Model!;
+            var exerciseDTO = mapper.Map<ExerciseDTO>(exercise);
 
-            return CreatedAtAction(nameof(GetCurrentUserExerciseByIdAsync), new { exerciseId = exercise.Id }, exercise);
+            return CreatedAtAction(nameof(GetCurrentUserExerciseByIdAsync), new { exerciseId = exercise.Id }, exerciseDTO);
         }
         catch (Exception ex)
         {
