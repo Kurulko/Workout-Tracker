@@ -1,4 +1,5 @@
-﻿using WorkoutTrackerAPI.Data.Models.UserModels;
+﻿using WorkoutTrackerAPI.Data.Enums;
+using WorkoutTrackerAPI.Data.Models.UserModels;
 
 namespace WorkoutTrackerAPI.Data.DTOs.UserDTOs;
 
