@@ -13,6 +13,8 @@ import { ImpersonationManager } from '../shared/helpers/managers/impersonation-m
 import { TokenManager } from '../shared/helpers/managers/token-manager';
 import { ExerciseRecord } from '../exercise-records/exercise-record';
 import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { toExerciseRecordGroups } from '../shared/helpers/functions/toExerciseRecordGroups';
+import { toExerciseSetGroups } from '../shared/helpers/functions/toExerciseSetGroups';
 
 @Component({
   selector: 'app-edit-workout-record',
@@ -57,7 +59,7 @@ export class EditWorkoutRecordComponent extends EditModelComponent<WorkoutRecord
       .pipe(this.catchLoadDataError(this.getWorkoutRecordsPath()))
       .subscribe((result: WorkoutRecord) => {
         this.workoutRecord = result;
-        this.exerciseSetGroups = this.toExerciseSetGroups(result.exerciseRecordGroups);
+        this.exerciseSetGroups = toExerciseSetGroups(result.exerciseRecordGroups);
         this.title = `Edit Workout Record`;
       });
     }
@@ -74,7 +76,7 @@ export class EditWorkoutRecordComponent extends EditModelComponent<WorkoutRecord
   }
 
   onSubmit() {
-    this.workoutRecord.exerciseRecordGroups = this.toExerciseRecordGroups(this.exerciseSetGroups);
+    this.workoutRecord.exerciseRecordGroups = toExerciseRecordGroups(this.exerciseSetGroups, this.workoutRecord.date);
 
     if (this.id) {
       // Edit mode
@@ -89,8 +91,8 @@ export class EditWorkoutRecordComponent extends EditModelComponent<WorkoutRecord
       // Add mode
       this.workoutRecordService.createWorkoutRecord(this.workoutRecord)
         .pipe(this.catchError())
-        .subscribe(result => {
-            console.log("Workout Record " + result.id + " has been created.");
+        .subscribe(_ => {
+            // console.log("Workout Record " + result.id + " has been created.");
             this.router.navigate([this.getWorkoutRecordsPath()]);
         });
     }
@@ -100,39 +102,6 @@ export class EditWorkoutRecordComponent extends EditModelComponent<WorkoutRecord
     if(this.workoutId)
       return `/workouts/${this.workoutId}/workout-records`;
     return `/workout-records`;
-  }
-
-  private toExerciseRecordGroups(exerciseSetGroups: ExerciseSetGroup[]): ExerciseRecordGroup[] {
-    return exerciseSetGroups.map(esg => <ExerciseRecordGroup>{
-      id: esg.id,
-      exerciseId: esg.exerciseId,
-      exerciseRecords: esg.exerciseSets.map(es => <ExerciseRecord>{
-        id: es.id,
-        date : this.workoutRecord.date,
-        exerciseId: es.exerciseId,
-        reps: es.reps,
-        time: es.time,
-        weight: es.weight,
-      })
-    });
-  }
-
-  private toExerciseSetGroups(exerciseRecordGroups: ExerciseRecordGroup[]): ExerciseSetGroup[] {
-    return exerciseRecordGroups.map(esg => <ExerciseSetGroup>{
-      id: esg.id,
-      exerciseId: esg.exerciseId,
-      exerciseName: esg.exerciseName,
-      exerciseType: esg.exerciseType,
-      exerciseSets: esg.exerciseRecords.map(es => <ExerciseSet>{
-        id: es.id,
-        exerciseId: es.exerciseId,
-        exerciseName: es.exerciseName,
-        exerciseType: es.exerciseType,
-        reps: es.reps,
-        time: es.time,
-        weight: es.weight,
-      })
-    });
   }
 
   isExerciseSetGroupsValid!: boolean;

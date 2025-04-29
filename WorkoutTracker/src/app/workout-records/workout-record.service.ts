@@ -4,6 +4,7 @@ import { Observable } from "rxjs";
 import { ModelsService } from 'src/app/shared/services/models.service';
 import { ApiResult } from 'src/app/shared/models/api-result';
 import { WorkoutRecord } from './workout-record';
+import { DateTimeRange } from '../shared/models/date-time-range';
 
 @Injectable({
     providedIn: 'root'
@@ -17,26 +18,23 @@ export class WorkoutRecordService extends ModelsService {
         return this.webClient.get<WorkoutRecord>(id.toString());
     }
 
-    getWorkoutRecords(workoutId: number|null, date: Date|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<WorkoutRecord>> {
-        var httpParams = this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+    getWorkoutRecords(workoutId: number|null, range: DateTimeRange|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<WorkoutRecord>> {
+        var params = this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
         
         if(workoutId){
-            httpParams = httpParams.set('workoutId', workoutId)
+            params = params.set('workoutId', workoutId)
         }
         
-        if(date){
-            httpParams = httpParams.set('date', date.toDateString())
-        }
+        params = this.getRangeParams(params, range);
 
-        return this.webClient.get<ApiResult<WorkoutRecord>>(this.emptyPath, httpParams);
+        return this.webClient.get<ApiResult<WorkoutRecord>>(this.emptyPath, params);
     }
-
 
     updateWorkoutRecord(workoutRecord:WorkoutRecord): Observable<Object> {
         return this.webClient.put(`/${workoutRecord.id}`, workoutRecord);
     }
 
-    createWorkoutRecord(workoutRecord:WorkoutRecord): Observable<WorkoutRecord>{
+    createWorkoutRecord(workoutRecord:WorkoutRecord): Observable<Object>{
         return this.webClient.post<WorkoutRecord>(this.emptyPath, workoutRecord);
     }
 

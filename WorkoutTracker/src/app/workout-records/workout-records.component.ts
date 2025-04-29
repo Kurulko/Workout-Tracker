@@ -18,6 +18,9 @@ import { TokenManager } from '../shared/helpers/managers/token-manager';
 import { showCountOfSomethingLeftStr } from '../shared/helpers/functions/showFunctions/showCountOfSomethingLeftStr';
 import { showCountOfSomethingStr } from '../shared/helpers/functions/showFunctions/showCountOfSomethingStr';
 import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { ExerciseRecordGroup } from '../shared/models/exercise-record-group';
+import { ExerciseRecord } from '../exercise-records/exercise-record';
+import { DateTimeRange } from '../shared/models/date-time-range';
 
 @Component({
   selector: 'app-workout-records',
@@ -42,14 +45,14 @@ export class WorkoutRecordsComponent extends ModelsTableComponent<WorkoutRecord>
 
   workoutId?: number;
 
-  date: Date|null = null;
+  range: DateTimeRange|null = null;
   maxDate: Date = new Date();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   
   getModels(pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<WorkoutRecord>> {
-    return this.workoutRecordService.getWorkoutRecords(this.workoutId ?? null, this.date, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+    return this.workoutRecordService.getWorkoutRecords(this.workoutId ?? null, this.range, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
   }
 
   showWeightTypeShort = showWeightTypeShort;
@@ -68,11 +71,6 @@ export class WorkoutRecordsComponent extends ModelsTableComponent<WorkoutRecord>
       this.workoutId = +idParam;
     }
 
-    this.loadData();
-  }
-
-  clearDate(){
-    this.date = null;
     this.loadData();
   }
 
@@ -100,4 +98,36 @@ export class WorkoutRecordsComponent extends ModelsTableComponent<WorkoutRecord>
         this.modelDeletedSuccessfully("Workout Record");
       })
   };
+
+  copyWorkoutRecord(workoutRecord: WorkoutRecord) {
+    var workoutRecordText = this.getWorkoutRecordText(workoutRecord);
+    navigator.clipboard.writeText(workoutRecordText);
+  }
+
+  getWorkoutRecordText(workoutRecord: WorkoutRecord) : string {
+    var workoutRecordText = '';
+
+    for(let exerciseRecordGroup of workoutRecord.exerciseRecordGroups) {
+      workoutRecordText += this.getExerciseRecordGroupText(exerciseRecordGroup);
+    }
+
+    return workoutRecordText;
+  }
+
+  getExerciseRecordGroupText(exerciseRecordGroup: ExerciseRecordGroup) : string {
+    var exerciseRecordGroupText = '';
+
+    for(let exerciseRecord of exerciseRecordGroup.exerciseRecords) {
+      exerciseRecordGroupText += this.getExerciseRecordText(exerciseRecord);
+    }
+    
+    return exerciseRecordGroupText;
+  }
+
+  getExerciseRecordText(exerciseRecord: ExerciseRecord) : string {
+    var exerciseRecordText = '';
+
+    
+    return exerciseRecordText;
+  }
 }
