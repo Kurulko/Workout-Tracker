@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /WorkoutTracker/.angular/cache/
 /WorkoutTrackerAPI/Providers/WorkoutInitializerProvider.cs
+/WorkoutTracker.Infrastructure/Providers/WorkoutInitializerProvider.cs
