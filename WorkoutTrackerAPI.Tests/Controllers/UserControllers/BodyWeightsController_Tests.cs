@@ -4,22 +4,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Data;
+using WorkoutTracker.API.Data.Models.UserModels;
+using WorkoutTracker.API.Data;
 using Xunit;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using System.Security.Claims;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Tests.Services;
-using WorkoutTrackerAPI.Controllers.WorkoutControllers;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Services.BodyWeightServices;
-using WorkoutTrackerAPI.Services;
-using WorkoutTrackerAPI.Extentions;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Tests.Services;
+using WorkoutTracker.API.Controllers.WorkoutControllers;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Services.BodyWeightServices;
+using WorkoutTracker.API.Services;
+using WorkoutTracker.API.Extentions;
 
-namespace WorkoutTrackerAPI.Tests.Controllers.UserControllers;
+namespace WorkoutTracker.API.Tests.Controllers.UserControllers;
 
 public class BodyWeightsController_Tests : DbModelController_Tests<BodyWeight>
 {

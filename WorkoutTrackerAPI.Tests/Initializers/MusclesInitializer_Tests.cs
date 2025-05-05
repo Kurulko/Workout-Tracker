@@ -2,16 +2,16 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Services;
-using WorkoutTrackerAPI.Services.MuscleServices;
-using WorkoutTrackerAPI.Services.RoleServices;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data.Models.UserModels;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Services;
+using WorkoutTracker.API.Services.MuscleServices;
+using WorkoutTracker.API.Services.RoleServices;
 using Xunit;
 
-namespace WorkoutTrackerAPI.Tests.Initializers;
+namespace WorkoutTracker.API.Tests.Initializers;
 
 public class MusclesInitializer_Tests
 {

@@ -3,15 +3,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Security.Claims;
-using WorkoutTrackerAPI.Controllers.AuthControllers;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Services.ImpersonationServices;
+using WorkoutTracker.API.Controllers.AuthControllers;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Services.ImpersonationServices;
 using Xunit;
 
-namespace WorkoutTrackerAPI.Tests.Controllers.AuthControllers;
+namespace WorkoutTracker.API.Tests.Controllers.AuthControllers;
 
 public class ImpersonationController_Tests : APIController_Tests
 {

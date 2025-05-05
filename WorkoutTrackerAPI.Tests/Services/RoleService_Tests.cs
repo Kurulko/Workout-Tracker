@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Services.RoleServices;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Services.RoleServices;
 using Moq;
 using Xunit;
-using WorkoutTrackerAPI.Exceptions;
+using WorkoutTracker.API.Exceptions;
 using System.Data;
-using WorkoutTrackerAPI.Extentions;
+using WorkoutTracker.API.Extentions;
 
-namespace WorkoutTrackerAPI.Tests.Services;
+namespace WorkoutTracker.API.Tests.Services;
 
 public class RoleService_Tests : BaseService_Tests
 {

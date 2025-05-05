@@ -1,18 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Moq;
-using WorkoutTrackerAPI.Controllers.WorkoutControllers;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Services.ExerciseRecordServices;
-using WorkoutTrackerAPI.Services;
+using WorkoutTracker.API.Controllers.WorkoutControllers;
+using WorkoutTracker.API.Data.Models.UserModels;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Services.ExerciseRecordServices;
+using WorkoutTracker.API.Services;
 using Xunit;
-using WorkoutTrackerAPI.Controllers.UserControllers;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Initializers;
+using WorkoutTracker.API.Controllers.UserControllers;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Initializers;
 
-namespace WorkoutTrackerAPI.Tests.Controllers.UserControllers;
+namespace WorkoutTracker.API.Tests.Controllers.UserControllers;
 
 public class ExerciseRecordsController_Tests : DbModelController_Tests<ExerciseRecord>
 {

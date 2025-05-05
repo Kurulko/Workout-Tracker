@@ -4,19 +4,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Services.ExerciseRecordServices;
-using WorkoutTrackerAPI.Services;
+using WorkoutTracker.API.Data.Models.UserModels;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Services.ExerciseRecordServices;
+using WorkoutTracker.API.Services;
 using Xunit;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Services.BodyWeightServices;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Services.BodyWeightServices;
 using System.Linq.Expressions;
 
-namespace WorkoutTrackerAPI.Tests.Services.UserServices;
+namespace WorkoutTracker.API.Tests.Services.UserServices;
 
 public class ExerciseRecordService_Tests : DbModelService_Tests<ExerciseRecord>
 {

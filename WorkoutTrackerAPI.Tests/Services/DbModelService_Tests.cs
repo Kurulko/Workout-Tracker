@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Repositories.UserRepositories;
 
-namespace WorkoutTrackerAPI.Tests.Services;
+namespace WorkoutTracker.API.Tests.Services;
 
 public abstract class DbModelService_Tests<TModel> : BaseService_Tests where TModel : class, IDbModel
 {

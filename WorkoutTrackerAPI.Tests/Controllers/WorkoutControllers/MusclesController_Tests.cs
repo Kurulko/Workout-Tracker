@@ -5,16 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Controllers.WorkoutControllers;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Services;
-using WorkoutTrackerAPI.Services.MuscleServices;
+using WorkoutTracker.API.Controllers.WorkoutControllers;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Services;
+using WorkoutTracker.API.Services.MuscleServices;
 using Xunit;
 
-namespace WorkoutTrackerAPI.Tests.Controllers.WorkoutControllers;
+namespace WorkoutTracker.API.Tests.Controllers.WorkoutControllers;
 
 public class MusclesController_Tests : BaseWorkoutController_Tests<Muscle>
 {

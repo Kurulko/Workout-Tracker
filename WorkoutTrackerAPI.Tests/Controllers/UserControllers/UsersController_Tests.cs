@@ -3,30 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Services.UserServices;
-using WorkoutTrackerAPI.Services;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Services.UserServices;
+using WorkoutTracker.API.Services;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Controllers;
+using WorkoutTracker.API.Data.Models.UserModels;
+using WorkoutTracker.API.Controllers;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using AutoMapper;
-using WorkoutTrackerAPI.Profiles;
+using WorkoutTracker.API.Profiles;
 using Microsoft.AspNetCore.Mvc;
-using WorkoutTrackerAPI.Extentions;
+using WorkoutTracker.API.Extentions;
 using Xunit;
-using WorkoutTrackerAPI.Data.DTOs;
-using WorkoutTrackerAPI.Data.Account;
-using WorkoutTrackerAPI.Controllers.AuthControllers;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Services.ExerciseRecordServices;
+using WorkoutTracker.API.Data.DTOs;
+using WorkoutTracker.API.Data.Account;
+using WorkoutTracker.API.Controllers.AuthControllers;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Services.ExerciseRecordServices;
 
-namespace WorkoutTrackerAPI.Tests.Controllers.UserControllers;
+namespace WorkoutTracker.API.Tests.Controllers.UserControllers;
 
 public class UsersController_Tests : APIController_Tests
 {

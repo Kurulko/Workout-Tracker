@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WorkoutTrackerAPI.Tests.Controllers;
+namespace WorkoutTracker.API.Tests.Controllers;
 
 public abstract class APIController_Tests
 {

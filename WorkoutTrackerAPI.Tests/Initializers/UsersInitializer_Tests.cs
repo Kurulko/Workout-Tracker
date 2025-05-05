@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Moq;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data.Models.UserModels;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Repositories.UserRepositories;
 using Xunit;
 
-namespace WorkoutTrackerAPI.Tests.Initializers;
+namespace WorkoutTracker.API.Tests.Initializers;
 
 public class UsersInitializer_Tests
 {

@@ -1,16 +1,16 @@
 ﻿using Moq;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Services.MuscleSizeServices;
-using WorkoutTrackerAPI.Services;
+using WorkoutTracker.API.Data.Models.UserModels;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Services.MuscleSizeServices;
+using WorkoutTracker.API.Services;
 using Xunit;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Initializers;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Initializers;
 using System.Linq.Expressions;
 
-namespace WorkoutTrackerAPI.Tests.Services.UserServices;
+namespace WorkoutTracker.API.Tests.Services.UserServices;
 
 public class MuscleSizeService_Tests : DbModelService_Tests<MuscleSize>
 {

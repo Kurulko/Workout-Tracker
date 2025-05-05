@@ -2,16 +2,16 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Moq;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Services;
-using WorkoutTrackerAPI.Services.RoleServices;
-using WorkoutTrackerAPI.Services.UserServices;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data.Models.UserModels;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Services;
+using WorkoutTracker.API.Services.RoleServices;
+using WorkoutTracker.API.Services.UserServices;
 using Xunit;
 
-namespace WorkoutTrackerAPI.Tests.Initializers;
+namespace WorkoutTracker.API.Tests.Initializers;
 
 public class RolesInitializer_Tests
 {

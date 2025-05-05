@@ -6,20 +6,20 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Controllers.AuthControllers;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Services.ImpersonationServices;
-using WorkoutTrackerAPI.Data.Account;
-using WorkoutTrackerAPI.Data.Settings;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Services.AccountServices;
+using WorkoutTracker.API.Controllers.AuthControllers;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Services.ImpersonationServices;
+using WorkoutTracker.API.Data.Account;
+using WorkoutTracker.API.Data.Settings;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Services.AccountServices;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
 using System.Linq.Dynamic.Core.Tokenizer;
 
-namespace WorkoutTrackerAPI.Tests.Controllers.AuthControllers;
+namespace WorkoutTracker.API.Tests.Controllers.AuthControllers;
 
 public class AccountController_Tests : APIController_Tests
 {

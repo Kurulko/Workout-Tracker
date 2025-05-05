@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Repositories.UserRepositories;
 using Microsoft.EntityFrameworkCore;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Exceptions;
-using WorkoutTrackerAPI.Repositories;
+using WorkoutTracker.API.Data.Models.UserModels;
+using WorkoutTracker.API.Exceptions;
+using WorkoutTracker.API.Repositories;
 using Xunit;
 using System.Linq.Expressions;
 
-namespace WorkoutTrackerAPI.Tests.Repositories;
+namespace WorkoutTracker.API.Tests.Repositories;
 
 public abstract class DbModelRepository_Tests<T> where T : class, IDbModel
 {

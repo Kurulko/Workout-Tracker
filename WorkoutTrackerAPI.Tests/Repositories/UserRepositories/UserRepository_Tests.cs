@@ -4,20 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Repositories.UserRepositories;
 using Xunit;
 using Microsoft.AspNetCore.Identity;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Data.Account;
-using WorkoutTrackerAPI.Extentions;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Data.Account;
+using WorkoutTracker.API.Extentions;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using WorkoutTrackerAPI.Exceptions;
-using WorkoutTrackerAPI.Data.Models.UserModels;
+using WorkoutTracker.API.Exceptions;
+using WorkoutTracker.API.Data.Models.UserModels;
 
-namespace WorkoutTrackerAPI.Tests.Repositories.UserRepositories;
+namespace WorkoutTracker.API.Tests.Repositories.UserRepositories;
 
 public class UserRepository_Tests
 {

@@ -5,19 +5,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Controllers.UserControllers;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Services.ExerciseServices;
+using WorkoutTracker.API.Controllers.UserControllers;
+using WorkoutTracker.API.Data.Models.UserModels;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Services.ExerciseServices;
 using Xunit;
 using ExerciseTrackerAPI.Controllers.ExerciseControllers;
-using WorkoutTrackerAPI.Services;
+using WorkoutTracker.API.Services;
 
-namespace WorkoutTrackerAPI.Tests.Controllers.WorkoutControllers;
+namespace WorkoutTracker.API.Tests.Controllers.WorkoutControllers;
 
 public class ExercisesController_Tests : BaseWorkoutController_Tests<Exercise>
 {

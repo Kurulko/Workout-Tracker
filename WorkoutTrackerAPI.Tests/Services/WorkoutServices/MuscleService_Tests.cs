@@ -1,15 +1,15 @@
 ﻿using Moq;
 using System.Linq.Expressions;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Exceptions;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Services;
-using WorkoutTrackerAPI.Services.MuscleServices;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Exceptions;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Services;
+using WorkoutTracker.API.Services.MuscleServices;
 using Xunit;
 
-namespace WorkoutTrackerAPI.Tests.Services.WorkoutServices;
+namespace WorkoutTracker.API.Tests.Services.WorkoutServices;
 
 
 public class MuscleService_Tests : BaseWorkoutService_Tests<Muscle>

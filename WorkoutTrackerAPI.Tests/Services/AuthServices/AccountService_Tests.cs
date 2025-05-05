@@ -2,17 +2,17 @@
 using Microsoft.AspNetCore.Identity;
 using Moq;
 using System.Security.Claims;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data.Settings;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Services.AccountServices;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data.Settings;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Services.AccountServices;
 using Xunit;
-using WorkoutTrackerAPI.Data.Account;
-using WorkoutTrackerAPI.Exceptions;
+using WorkoutTracker.API.Data.Account;
+using WorkoutTracker.API.Exceptions;
 
-namespace WorkoutTrackerAPI.Tests.Services.AuthServices;
+namespace WorkoutTracker.API.Tests.Services.AuthServices;
 
 public class AccountService_Tests : BaseService_Tests
 {

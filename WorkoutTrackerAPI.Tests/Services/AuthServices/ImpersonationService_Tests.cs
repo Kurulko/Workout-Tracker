@@ -1,13 +1,13 @@
-﻿using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Services.ImpersonationServices;
+﻿using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Services.ImpersonationServices;
 using Moq;
-using WorkoutTrackerAPI.Exceptions;
-using WorkoutTrackerAPI.Services.RoleServices;
+using WorkoutTracker.API.Exceptions;
+using WorkoutTracker.API.Services.RoleServices;
 using Xunit;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Repositories.UserRepositories;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using System.Net.Http;
@@ -21,7 +21,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace WorkoutTrackerAPI.Tests.Services;
+namespace WorkoutTracker.API.Tests.Services;
 
 public class ImpersonationService_Tests : BaseService_Tests
 {

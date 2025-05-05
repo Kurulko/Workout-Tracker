@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Providers;
-using WorkoutTrackerAPI.Repositories;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Providers;
+using WorkoutTracker.API.Repositories;
 using Xunit;
 
-namespace WorkoutTrackerAPI.Tests.Repositories.WorkoutRepositories;
+namespace WorkoutTracker.API.Tests.Repositories.WorkoutRepositories;
 
 public class ExerciseRepository_Tests : BaseWorkoutRepository_Tests<Exercise>
 {

@@ -10,10 +10,10 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using System.Security.Claims;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Data.Models;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Data.Models;
 
-namespace WorkoutTrackerAPI.Tests;
+namespace WorkoutTracker.API.Tests;
 
 public static class IdentityHelper
 {

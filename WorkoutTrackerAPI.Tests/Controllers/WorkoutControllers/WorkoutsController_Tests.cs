@@ -1,4 +1,4 @@
-﻿using WorkoutTrackerAPI.Controllers.WorkoutControllers;
+﻿using WorkoutTracker.API.Controllers.WorkoutControllers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
@@ -6,16 +6,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Services.WorkoutServices;
-using WorkoutTrackerAPI.Services;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Services.WorkoutServices;
+using WorkoutTracker.API.Services;
 using Xunit;
-using WorkoutTrackerAPI.Initializers;
+using WorkoutTracker.API.Initializers;
 
-namespace WorkoutTrackerAPI.Tests.Controllers.WorkoutControllers;
+namespace WorkoutTracker.API.Tests.Controllers.WorkoutControllers;
 
 public class WorkoutsController_Tests : BaseWorkoutController_Tests<Workout>
 {

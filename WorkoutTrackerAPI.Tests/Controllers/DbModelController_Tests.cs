@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Controllers;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Controllers;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using System.Security.Claims;
 
-namespace WorkoutTrackerAPI.Tests.Controllers;
+namespace WorkoutTracker.API.Tests.Controllers;
 
 public class DbModelController_Tests<T> : APIController_Tests
     where T : class, IDbModel

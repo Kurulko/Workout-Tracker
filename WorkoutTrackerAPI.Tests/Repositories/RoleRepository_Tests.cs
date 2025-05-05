@@ -5,17 +5,17 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Exceptions;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Repositories;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Exceptions;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Repositories;
 using Xunit;
 using Microsoft.AspNetCore.Identity;
-using WorkoutTrackerAPI.Extentions;
+using WorkoutTracker.API.Extentions;
 
-namespace WorkoutTrackerAPI.Tests.Repositories;
+namespace WorkoutTracker.API.Tests.Repositories;
 
 public class RoleRepository_Tests
 {

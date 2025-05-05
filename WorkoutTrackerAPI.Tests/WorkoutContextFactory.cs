@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Repositories;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Repositories;
 using Newtonsoft.Json.Linq;
 using System.Data;
 
-namespace WorkoutTrackerAPI.Tests;
+namespace WorkoutTracker.API.Tests;
 
 public class WorkoutContextFactory
 {

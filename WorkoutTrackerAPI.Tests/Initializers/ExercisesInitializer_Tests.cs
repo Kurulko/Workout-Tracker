@@ -5,18 +5,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Initializers;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Services.MuscleServices;
-using WorkoutTrackerAPI.Services;
-using WorkoutTrackerAPI.Services.RoleServices;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data.Models.UserModels;
+using WorkoutTracker.API.Initializers;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Services.MuscleServices;
+using WorkoutTracker.API.Services;
+using WorkoutTracker.API.Services.RoleServices;
 using Xunit;
-using WorkoutTrackerAPI.Services.ExerciseServices;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
+using WorkoutTracker.API.Services.ExerciseServices;
+using WorkoutTracker.API.Repositories.UserRepositories;
 
-namespace WorkoutTrackerAPI.Tests.Initializers;
+namespace WorkoutTracker.API.Tests.Initializers;
 
 public class ExercisesInitializer_Tests
 {

@@ -1,18 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore.Internal;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data;
-using WorkoutTrackerAPI.Data.Models.UserModels;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
-using WorkoutTrackerAPI.Services;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data;
+using WorkoutTracker.API.Data.Models.UserModels;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Repositories.UserRepositories;
+using WorkoutTracker.API.Services;
 using Xunit;
-using WorkoutTrackerAPI.Services.BodyWeightServices;
+using WorkoutTracker.API.Services.BodyWeightServices;
 using FakeItEasy;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Moq;
 using System.Linq.Expressions;
 
-namespace WorkoutTrackerAPI.Tests.Services.UserServices;
+namespace WorkoutTracker.API.Tests.Services.UserServices;
 
 public class BodyWeightService_Tests : DbModelService_Tests<BodyWeight>
 {

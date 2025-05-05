@@ -6,14 +6,14 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using WorkoutTrackerAPI.Data.Account;
-using WorkoutTrackerAPI.Data.Models;
-using WorkoutTrackerAPI.Data.Settings;
-using WorkoutTrackerAPI.Repositories;
-using WorkoutTrackerAPI.Repositories.UserRepositories;
+using WorkoutTracker.API.Data.Account;
+using WorkoutTracker.API.Data.Models;
+using WorkoutTracker.API.Data.Settings;
+using WorkoutTracker.API.Repositories;
+using WorkoutTracker.API.Repositories.UserRepositories;
 using Xunit;
 
-namespace WorkoutTrackerAPI.Tests.Repositories;
+namespace WorkoutTracker.API.Tests.Repositories;
 
 public class JwtHandler_Tests
 {
