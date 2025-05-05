@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "WorkoutTracker", "WorkoutTracker\WorkoutTracker.esproj", "{C2CEF11B-40EF-493B-8B13-5E958A0AEE90}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "WorkoutTracker.WebUI", "WorkoutTracker\WorkoutTracker.WebUI.esproj", "{C2CEF11B-40EF-493B-8B13-5E958A0AEE90}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkoutTrackerAPI", "WorkoutTrackerAPI\WorkoutTrackerAPI.csproj", "{EB047DFB-2ABB-48C3-9EC0-E4180EF16F11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkoutTracker.API", "WorkoutTrackerAPI\WorkoutTracker.API.csproj", "{EB047DFB-2ABB-48C3-9EC0-E4180EF16F11}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutTrackerAPI.Tests", "WorkoutTrackerAPI.Tests\WorkoutTrackerAPI.Tests.csproj", "{DF65B92C-FB28-4CD4-8316-71597D0ACBD9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutTracker.API.Tests", "WorkoutTrackerAPI.Tests\WorkoutTracker.API.Tests.csproj", "{DF65B92C-FB28-4CD4-8316-71597D0ACBD9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutTracker.Application", "WorkoutTracker.Application\WorkoutTracker.Application.csproj", "{48FE97D1-2677-4FA5-86BE-674089C4CF67}"
 EndProject
@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutTracker.Infrastructu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutTracker.Persistence", "WorkoutTracker.Persistence\WorkoutTracker.Persistence.csproj", "{71A3E7FA-C03C-449A-ACE7-7B0855980A3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutTracker.Shared", "WorkoutTracker.Shared\WorkoutTracker.Shared.csproj", "{AEAD4397-0A8A-44C5-974D-CEF5666F94A8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkoutTracker.Infrastructure.Identity", "WorkoutTracker.Infrastructure.Identity\WorkoutTracker.Infrastructure.Identity.csproj", "{A627B8D2-EB22-4112-A946-7B8A80670950}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,10 +55,10 @@ Global
 		{71A3E7FA-C03C-449A-ACE7-7B0855980A3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71A3E7FA-C03C-449A-ACE7-7B0855980A3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71A3E7FA-C03C-449A-ACE7-7B0855980A3F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AEAD4397-0A8A-44C5-974D-CEF5666F94A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AEAD4397-0A8A-44C5-974D-CEF5666F94A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AEAD4397-0A8A-44C5-974D-CEF5666F94A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AEAD4397-0A8A-44C5-974D-CEF5666F94A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A627B8D2-EB22-4112-A946-7B8A80670950}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A627B8D2-EB22-4112-A946-7B8A80670950}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A627B8D2-EB22-4112-A946-7B8A80670950}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A627B8D2-EB22-4112-A946-7B8A80670950}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

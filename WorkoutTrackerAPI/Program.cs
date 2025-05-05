@@ -1,6 +1,6 @@
 using Microsoft.Extensions.FileProviders;
-using WorkoutTrackerAPI.Providers;
-using WorkoutTrackerAPI.Services.FileServices;
+using WorkoutTracker.API.Extensions;
+using WorkoutTracker.Infrastructure.Providers;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -15,18 +15,8 @@ services.AddSession();
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
-services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-services.AddMSSQLServer(config);
-
-services.AddTransient<IFileService, FileService>();
-services.AddIdentityModels();
-
-services.AddJWTAuthentication(config);
 services.AddHttpContextAccessor();
-services.AddAccountServices();
-
-services.AddWorkoutModelServices();
+services.AddProjectServices(config);
 
 var app = builder.Build();
 
