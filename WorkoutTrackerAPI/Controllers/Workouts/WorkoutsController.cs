@@ -121,7 +121,7 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
         if (serviceResult.Model is not IQueryable<Workout> workouts)
             return EntryNotFound("Workouts");
 
-        var workoutDTOs = workouts.ToList().Select(m => mapper.Map<WorkoutDTO>(m));
+        var workoutDTOs = workouts.ToList().Select(mapper.Map<WorkoutDTO>);
         return await ApiResult<WorkoutDTO>.CreateAsync(
             workoutDTOs.AsQueryable(),
             pageIndex,
