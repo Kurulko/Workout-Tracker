@@ -79,8 +79,6 @@ public static class InitializerProvider
         string adminEmail = config.GetValue<string>("Admin:Email")!;
 
         var user = await UsersInitializer.InitializeAsync(userRepository, adminName, adminEmail, adminPassword, [ Roles.AdminRole, Roles.UserRole ]);
-
-        await WorkoutInitializerProvider.InitializeWorkoutsAsync(workoutRepository, workoutRecordRepository, exerciseRecordGroupRepository, exerciseRecordRepository, exerciseSetGroupRepository, exerciseSetRepository, exerciseRepository, user.Id);
     }
 
     static async Task InitializeMusclesAsync(IMuscleRepository muscleRepository)
