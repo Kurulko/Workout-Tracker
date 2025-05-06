@@ -62,6 +62,12 @@ public class WorkoutDbContext : IdentityDbContext<User>
             .HasForeignKey(e => e.WorkoutId)
             .OnDelete(DeleteBehavior.ClientCascade);
 
+        modelBuilder.Entity<Workout>()
+            .HasOne<User>()
+            .WithMany()
+            .HasForeignKey(w => w.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         //modelBuilder.Entity<Exercise>()
         //    .HasOne(e => e.CreatedByUser)
         //    .WithMany(u => u.CreatedExercises)
