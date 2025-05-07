@@ -13,6 +13,7 @@ using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.API.Extensions;
 using WorkoutTracker.Domain.Constants;
 using WorkoutTracker.Application.Common.Extensions;
+using WorkoutTracker.API.Models.Requests;
 
 namespace WorkoutTracker.API.Controllers.WorkoutControllers;
 
@@ -237,14 +238,16 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
 
     [HttpPost]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddMuscleAsync([FromForm] MuscleCreationDTO muscleCreationDTO)
+    public async Task<IActionResult> AddMuscleAsync([FromForm] UploadWithPhoto<MuscleCreationDTO> muscleCreationDTOWithPhoto)
     {
+        var (muscleCreationDTO, imageFile) = (muscleCreationDTOWithPhoto.Model, muscleCreationDTOWithPhoto.Photo);
+
         if (muscleCreationDTO is null)
             return MuscleIsNull();
 
         try
         {
-            string? image = await fileService.GetImage(muscleCreationDTO.ImageFile, musclePhotosDirectory, maxMuscleImageSizeInMB, false);
+            string? image = await fileService.GetImage(imageFile, musclePhotosDirectory, maxMuscleImageSizeInMB, false);
             var muscle = mapper.Map<Muscle>(muscleCreationDTO);
             muscle.Image = image;
 
@@ -266,10 +269,12 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
 
     [HttpPut("{muscleId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateMuscleAsync(long muscleId, [FromForm] MuscleUpdateDTO muscleUpdateDTO)
+    public async Task<IActionResult> UpdateMuscleAsync(long muscleId, [FromForm] UploadWithPhoto<MuscleUpdateDTO> muscleUpdateDTOWithPhoto)
     {
         if (muscleId < 1)
             return InvalidMuscleID();
+
+        var (muscleUpdateDTO, imageFile) = (muscleUpdateDTOWithPhoto.Model, muscleUpdateDTOWithPhoto.Photo);
 
         if (muscleUpdateDTO is null)
             return MuscleIsNull();
@@ -279,13 +284,13 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
 
         try
         {
-            string? image = await fileService.GetImage(muscleUpdateDTO.ImageFile, musclePhotosDirectory, maxMuscleImageSizeInMB, false);
+            string? image = await fileService.GetImage(imageFile, musclePhotosDirectory, maxMuscleImageSizeInMB, false);
             var muscle = mapper.Map<Muscle>(muscleUpdateDTO);
             muscle.Image = image ?? muscleUpdateDTO.Image;
 
             var serviceResult = await muscleService.UpdateMuscleAsync(muscle);
 
-            if (serviceResult.Success && muscleUpdateDTO.ImageFile != null && muscleUpdateDTO.Image is string oldImage)
+            if (serviceResult.Success && imageFile != null && muscleUpdateDTO.Image is string oldImage)
             {
                 fileService.DeleteFile(oldImage);
             }

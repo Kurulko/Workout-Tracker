@@ -53,7 +53,7 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
             return BadRequest("Incorrect date.");
 
         if (exerciseId.HasValue && exerciseId < 1)
-            return InvalidEntryID(nameof(Exercise));
+            return InvalidExerciseID();
 
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();

@@ -13,6 +13,7 @@ using WorkoutTracker.Domain.Constants;
 using WorkoutTracker.Domain.Entities;
 using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Application.Common.Extensions;
+using WorkoutTracker.API.Models.Requests;
 
 namespace WorkoutTracker.API.Controllers;
 
@@ -342,14 +343,16 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 
     [HttpPost("internal-equipment")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddInternalEquipmentAsync([FromForm] EquipmentCreationDTO equipmentCreationDTO)
+    public async Task<IActionResult> AddInternalEquipmentAsync([FromForm] UploadWithPhoto<EquipmentCreationDTO> equipmentCreationDTOWithPhoto)
     {
+        var (equipmentCreationDTO, imageFile) = (equipmentCreationDTOWithPhoto.Model, equipmentCreationDTOWithPhoto.Photo);
+
         if (equipmentCreationDTO is null)
             return EquipmentIsNull();
 
         try
         {
-            string? image = await fileService.GetImage(equipmentCreationDTO.ImageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB, false);
+            string? image = await fileService.GetImage(imageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB, false);
             var equipment = mapper.Map<Equipment>(equipmentCreationDTO);
             equipment.Image = image;
 
@@ -370,14 +373,16 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
     }
 
     [HttpPost("user-equipment")]
-    public async Task<IActionResult> AddCurrentUserEquipmentAsync([FromForm] EquipmentCreationDTO equipmentCreationDTO)
+    public async Task<IActionResult> AddCurrentUserEquipmentAsync([FromForm] UploadWithPhoto<EquipmentCreationDTO> equipmentCreationDTOWithPhoto)
     {
+        var (equipmentCreationDTO, imageFile) = (equipmentCreationDTOWithPhoto.Model, equipmentCreationDTOWithPhoto.Photo);
+
         if (equipmentCreationDTO is null)
             return EquipmentIsNull();
 
         try
         {
-            string? image = await fileService.GetImage(equipmentCreationDTO.ImageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB);
+            string? image = await fileService.GetImage(imageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB);
             var equipment = mapper.Map<Equipment>(equipmentCreationDTO);
             equipment.Image = image;
 
@@ -400,10 +405,12 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 
     [HttpPut("internal-equipment/{equipmentId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateInternalEquipmentAsync(long equipmentId, [FromForm] EquipmentUpdateDTO equipmentUpdateDTO)
+    public async Task<IActionResult> UpdateInternalEquipmentAsync(long equipmentId, [FromForm] UploadWithPhoto<EquipmentUpdateDTO> equipmentUpdateDTOWithPhoto)
     {
         if (equipmentId < 1)
             return InvalidEquipmentID();
+
+        var (equipmentUpdateDTO, imageFile) = (equipmentUpdateDTOWithPhoto.Model, equipmentUpdateDTOWithPhoto.Photo);
 
         if (equipmentUpdateDTO is null)
             return EquipmentIsNull();
@@ -413,13 +420,13 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 
         try
         {
-            string? image = await fileService.GetImage(equipmentUpdateDTO.ImageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB, false);
+            string? image = await fileService.GetImage(imageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB, false);
             var equipment = mapper.Map<Equipment>(equipmentUpdateDTO);
             equipment.Image = image ?? equipmentUpdateDTO.Image;
 
             var serviceResult = await equipmentService.UpdateInternalEquipmentAsync(equipment);
 
-            if (serviceResult.Success && equipmentUpdateDTO.ImageFile != null && equipmentUpdateDTO.Image is string oldImage)
+            if (serviceResult.Success && imageFile != null && equipmentUpdateDTO.Image is string oldImage)
             {
                 fileService.DeleteFile(oldImage);
             }
@@ -433,10 +440,12 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
     }
 
     [HttpPut("user-equipment/{equipmentId}")]
-    public async Task<IActionResult> UpdateCurrentUserEquipmentAsync(long equipmentId, [FromForm] EquipmentUpdateDTO equipmentUpdateDTO)
+    public async Task<IActionResult> UpdateCurrentUserEquipmentAsync(long equipmentId, [FromForm] UploadWithPhoto<EquipmentUpdateDTO> equipmentUpdateDTOWithPhoto)
     {
         if (equipmentId < 1)
             return InvalidEquipmentID();
+
+        var (equipmentUpdateDTO, imageFile) = (equipmentUpdateDTOWithPhoto.Model, equipmentUpdateDTOWithPhoto.Photo);
 
         if (equipmentUpdateDTO is null)
             return EquipmentIsNull();
@@ -446,14 +455,14 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 
         try
         {
-            string? image = await fileService.GetImage(equipmentUpdateDTO.ImageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB);
+            string? image = await fileService.GetImage(imageFile, equipmentPhotosDirectory, maxEquipmentImageSizeInMB);
             var equipment = mapper.Map<Equipment>(equipmentUpdateDTO);
             equipment.Image = image ?? equipmentUpdateDTO.Image;
 
             string userId = httpContextAccessor.GetUserId()!;
             var serviceResult = await equipmentService.UpdateUserEquipmentAsync(userId, equipment);
 
-            if (serviceResult.Success && equipmentUpdateDTO.ImageFile != null && equipmentUpdateDTO.Image is string oldImage)
+            if (serviceResult.Success && imageFile != null && equipmentUpdateDTO.Image is string oldImage)
             {
                 fileService.DeleteFile(oldImage);
             }
