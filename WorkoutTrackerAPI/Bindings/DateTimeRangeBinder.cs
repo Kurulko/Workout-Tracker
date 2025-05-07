@@ -7,10 +7,7 @@ public class DateTimeRangeBinder : IModelBinder
 {
     public Task BindModelAsync(ModelBindingContext bindingContext)
     {
-        if (bindingContext == null)
-        {
-            throw new ArgumentNullException(nameof(bindingContext));
-        }
+        ArgumentNullException.ThrowIfNull(bindingContext);
 
         var firstDateValue = bindingContext.ValueProvider.GetValue("firstDate").FirstValue;
         var lastDateValue = bindingContext.ValueProvider.GetValue("lastDate").FirstValue;
