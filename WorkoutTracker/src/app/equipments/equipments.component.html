@@ -80,7 +80,7 @@
             </ng-container>
             <ng-template #editEquipmentTemplate>
               <br>
-              <app-photo-input [(ngModel)]="editingEquipment!.imageFile" [previewUrl]="getPreviewUrl(editingEquipment!)" [required]="false" width="50%" 
+              <app-photo-input [(ngModel)]="editingEquipmentPhoto" [previewUrl]="getPreviewUrl(editingEquipment!)" [required]="false" width="50%" 
                 #photoEditing="ngModel" (ngModelChange)="onPhotoChange(photoEditing)" />
             </ng-template>
           </td>

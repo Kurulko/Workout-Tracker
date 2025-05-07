@@ -10,7 +10,7 @@ import { ImpersonationManager } from '../shared/helpers/managers/impersonation-m
 import { TokenManager } from '../shared/helpers/managers/token-manager';
 import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
-import { MatSelectChange } from '@angular/material/select';
+import { UploadWithPhoto } from '../shared/models/upload-with-photo';
 
 @Component({
   selector: 'app-muscle-edit',
@@ -94,9 +94,11 @@ export class MuscleEditComponent extends EditModelComponent<Muscle> implements O
   }
 
   onSubmit() {
+    var muscleWithPhoto = <UploadWithPhoto<Muscle>>{model: this.muscle, photo: this.photo};
+    
     if (this.id) {
       // Edit mode
-      this.muscleService.updateMuscle(this.muscle)
+      this.muscleService.updateMuscle(muscleWithPhoto)
       .pipe(this.catchError())
       .subscribe(_ => {
         console.log("Muscle " + this.muscle!.id + " has been updated.");
@@ -106,7 +108,7 @@ export class MuscleEditComponent extends EditModelComponent<Muscle> implements O
     }
     else {
       // Add mode
-      this.muscleService.createMuscle(this.muscle)
+      this.muscleService.createMuscle(muscleWithPhoto)
       .pipe(this.catchError())
       .subscribe(result => {
         this.muscle = result;
@@ -118,8 +120,9 @@ export class MuscleEditComponent extends EditModelComponent<Muscle> implements O
     }
   }
 
+  photo: File | null = null;
   onPhotoUpload() {
-    if(!this.muscle.imageFile){
+    if(!this.photo){
       this.muscle.image = null;
     }
   }

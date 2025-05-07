@@ -24,7 +24,7 @@
       </div>
       <div class="col">
         <app-short-card title="Photo" width="80%">
-          <app-photo-input [(ngModel)]="exercise.imageFile" (ngModelChange)="onPhotoUpload()" [previewUrl]="previewUrl" [required]="false" width="80%" #photoInput="ngModel" />
+          <app-photo-input [(ngModel)]="photo" (ngModelChange)="onPhotoUpload()" [previewUrl]="previewUrl" [required]="false" width="80%" #photoInput="ngModel" />
         </app-short-card>
       </div>
     </div>

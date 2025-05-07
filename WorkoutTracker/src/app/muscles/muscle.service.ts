@@ -6,6 +6,7 @@ import { Muscle } from "./muscle";
 import { ApiResult } from "../shared/models/api-result";
 import { MuscleDetails } from "./muscle-details";
 import { Exercise } from "../exercises/models/exercise";
+import { UploadWithPhoto } from "../shared/models/upload-with-photo";
 
 @Injectable({
     providedIn: 'root'
@@ -58,17 +59,17 @@ export class MuscleService extends ModelsService {
         return this.webClient.get<ApiResult<Exercise>>(`${muscleId}/exercises`, httpParams);
     }
 
-    updateMuscle(muscle: Muscle): Observable<Object> {
-        const formData = this.toFormData(muscle);
-        return this.webClient.put(`/${muscle.id}`, formData);
+    updateMuscle(muscleWithPhoto: UploadWithPhoto<Muscle>): Observable<Object> {
+        const formData = this.toFormData(muscleWithPhoto);
+        return this.webClient.put(`/${muscleWithPhoto.model.id}`, formData);
     }
 
     updateMuscleChildren(muscleId: number, muscleChildIds: number[]): Observable<Object> {
         return this.webClient.put(`/${muscleId}/children`, muscleChildIds);
     }
 
-    createMuscle(muscle: Muscle): Observable<Muscle>{
-        const formData = this.toFormData(muscle);
+    createMuscle(muscleWithPhoto: UploadWithPhoto<Muscle>): Observable<Muscle>{
+        const formData = this.toFormData(muscleWithPhoto);
         return this.webClient.post<Muscle>(this.emptyPath, formData);
     }
 
@@ -84,25 +85,29 @@ export class MuscleService extends ModelsService {
         return this.webClient.get<boolean>(`muscle-exists-by-name/${name}`);
     }
 
-    private toFormData(muscle: Muscle): FormData {
+    private toFormData(muscleWithPhoto: UploadWithPhoto<Muscle>): FormData {
         let formData = new FormData();
-    
+        
+        const { model: muscle, photo } = muscleWithPhoto;
+
+        const prefix = 'model.';
+
         if(muscle.id) {
-            formData.append('id', muscle.id.toString());
+            formData.append(`${prefix}id`, muscle.id.toString());
         }
 
-        formData.append('name', muscle.name);
+        formData.append(`${prefix}name`, muscle.name);
       
         if (muscle.parentMuscleId) {
-            formData.append('parentMuscleId', muscle.parentMuscleId.toString());
+            formData.append(`${prefix}parentMuscleId`, muscle.parentMuscleId.toString());
         }
 
         if (muscle.image) {
-            formData.append('image', muscle.image);
+            formData.append(`${prefix}image`, muscle.image);
         }
 
-        if (muscle.imageFile) {
-            formData.append('imageFile', muscle.imageFile, muscle.imageFile.name);
+        if (photo) {
+            formData.append('photo', photo, photo.name);
         }
     
         return formData;

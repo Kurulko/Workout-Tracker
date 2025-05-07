@@ -6,6 +6,7 @@ import { Equipment } from "./equipment";
 import { ApiResult } from "../shared/models/api-result";
 import { EquipmentDetails } from "./equipment-details";
 import { Exercise } from "../exercises/models/exercise";
+import { UploadWithPhoto } from "../shared/models/upload-with-photo";
 
 @Injectable({
     providedIn: 'root'
@@ -35,13 +36,13 @@ export class EquipmentService extends ModelsService {
         return this.webClient.get<ApiResult<Equipment>>("internal-equipments", this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
-    updateInternalEquipment(equipment:Equipment): Observable<Object> {
-        const formData = this.toFormData(equipment);
-        return this.webClient.put(`internal-equipment/${equipment.id}`, formData);
+    updateInternalEquipment(equipmentWithPhoto: UploadWithPhoto<Equipment>): Observable<Object> {
+        const formData = this.toFormData(equipmentWithPhoto);
+        return this.webClient.put(`internal-equipment/${equipmentWithPhoto.model.id}`, formData);
     }
 
-    createInternalEquipment(equipment:Equipment): Observable<Equipment> {
-        const formData = this.toFormData(equipment);
+    createInternalEquipment(equipmentWithPhoto: UploadWithPhoto<Equipment>): Observable<Equipment> {
+        const formData = this.toFormData(equipmentWithPhoto);
         return this.webClient.post<Equipment>("internal-equipment", formData);
     }
 
@@ -78,13 +79,13 @@ export class EquipmentService extends ModelsService {
         return this.webClient.get<ApiResult<Equipment>>("user-equipments", this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
-    updateUserEquipment(equipment:Equipment): Observable<Object> {
-        const formData = this.toFormData(equipment);
-        return this.webClient.put(`user-equipment/${equipment.id}`, formData);
+    updateUserEquipment(equipmentWithPhoto: UploadWithPhoto<Equipment>): Observable<Object> {
+        const formData = this.toFormData(equipmentWithPhoto);
+        return this.webClient.put(`user-equipment/${equipmentWithPhoto.model.id}`, formData);
     }
 
-    createUserEquipment(equipment:Equipment): Observable<Equipment>{
-        const formData = this.toFormData(equipment);
+    createUserEquipment(equipmentWithPhoto: UploadWithPhoto<Equipment>): Observable<Equipment>{
+        const formData = this.toFormData(equipmentWithPhoto);
         return this.webClient.post<Equipment>("user-equipment", formData);
     }
 
@@ -120,21 +121,25 @@ export class EquipmentService extends ModelsService {
         return this.webClient.get<ApiResult<Exercise>>(`${equipmentId}/exercises`, this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
-    private toFormData(equipment: Equipment): FormData {
+    private toFormData(equipmentWithPhoto: UploadWithPhoto<Equipment>): FormData {
         let formData = new FormData();
     
+        const { model: equipment, photo } = equipmentWithPhoto;
+
+        const prefix = 'model.';
+
         if(equipment.id) {
-            formData.append('id', equipment.id.toString());
+            formData.append(`${prefix}id`, equipment.id.toString());
         }
 
-        formData.append('name', equipment.name);
+        formData.append(`${prefix}name`, equipment.name);
 
         if (equipment.image) {
-            formData.append('image', equipment.image);
+            formData.append(`${prefix}image`, equipment.image);
         }
 
-        if (equipment.imageFile) {
-            formData.append('imageFile', equipment.imageFile, equipment.imageFile.name);
+        if (photo) {
+            formData.append('photo', photo, photo.name);
         }
     
         return formData;

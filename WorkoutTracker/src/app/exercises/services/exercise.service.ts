@@ -7,12 +7,13 @@ import { ExerciseType } from "../models/exercise-type";
 import { Exercise } from "../models/exercise";
 import { ExerciseDetails } from "../models/exercise-details";
 import { Workout } from "src/app/workouts/workout";
+import { UploadWithPhoto } from "src/app/shared/models/upload-with-photo";
 
 @Injectable({
     providedIn: 'root'
 })
 export class ExerciseService extends ModelsService {
-    constructor(private httpClient: HttpClient) {
+    constructor(httpClient: HttpClient) {
         super(httpClient, 'exercises');
     }
     
@@ -36,9 +37,9 @@ export class ExerciseService extends ModelsService {
         return this.webClient.get<ApiResult<Exercise>>("internal-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
-    updateInternalExercise(exercise:Exercise): Observable<Object> {
-        const formData = this.toFormData(exercise);
-        return this.webClient.put(`internal-exercise/${exercise.id}`, formData);
+    updateInternalExercise(exerciseWithPhoto: UploadWithPhoto<Exercise>): Observable<Object> {
+        const formData = this.toFormData(exerciseWithPhoto);
+        return this.webClient.put(`internal-exercise/${exerciseWithPhoto.model.id}`, formData);
     }
 
     updateInternalExerciseMuscles(exerciseId: number, muscleIds: number[]): Observable<Object> {
@@ -49,8 +50,8 @@ export class ExerciseService extends ModelsService {
         return this.webClient.put(`internal-exercise/${exerciseId}/equipments`, equipmentIds);
     }
 
-    createInternalExercise(exercise:Exercise): Observable<Exercise>{
-        const formData = this.toFormData(exercise);
+    createInternalExercise(exerciseWithPhoto: UploadWithPhoto<Exercise>): Observable<Exercise>{
+        const formData = this.toFormData(exerciseWithPhoto);
         return this.webClient.post<Exercise>("internal-exercise", formData);
     }
 
@@ -87,9 +88,9 @@ export class ExerciseService extends ModelsService {
         return this.webClient.get<ApiResult<Exercise>>("user-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
-    updateUserExercise(exercise:Exercise): Observable<Object> {
-        const formData = this.toFormData(exercise);
-        return this.webClient.put(`user-exercise/${exercise.id}`, formData);
+    updateUserExercise(exerciseWithPhoto: UploadWithPhoto<Exercise>): Observable<Object> {
+        const formData = this.toFormData(exerciseWithPhoto);
+        return this.webClient.put(`user-exercise/${exerciseWithPhoto.model.id}`, formData);
     }
 
     updateUserExerciseMuscles(exerciseId: number, muscleIds: number[]): Observable<Object> {
@@ -100,8 +101,8 @@ export class ExerciseService extends ModelsService {
         return this.webClient.put(`user-exercise/${exerciseId}/equipments`, equipmentIds);
     }
 
-    createUserExercise(exercise: Exercise): Observable<Exercise>{
-        const formData = this.toFormData(exercise);
+    createUserExercise(exerciseWithPhoto: UploadWithPhoto<Exercise>): Observable<Exercise>{
+        const formData = this.toFormData(exerciseWithPhoto);
         return this.webClient.post<Exercise>("user-exercise", formData);
     }
 
@@ -147,26 +148,30 @@ export class ExerciseService extends ModelsService {
         return httpParams;
     }
 
-    private toFormData(exercise: Exercise): FormData {
+    private toFormData(exerciseWithPhoto: UploadWithPhoto<Exercise>): FormData {
         let formData = new FormData();
     
+        const { model: exercise, photo } = exerciseWithPhoto;
+
+        const prefix = 'model.';
+
         if(exercise.id) {
-            formData.append('id', exercise.id.toString());
+            formData.append(`${prefix}id`, exercise.id.toString());
         }
 
-        formData.append('name', exercise.name);
-        formData.append('type', exercise.type.toString());
+        formData.append(`${prefix}name`, exercise.name);
+        formData.append(`${prefix}type`, exercise.type.toString());
       
         if (exercise.description) {
-            formData.append('description', exercise.description);
+            formData.append(`${prefix}description`, exercise.description);
         }
 
         if (exercise.image) {
-            formData.append('image', exercise.image);
+            formData.append(`${prefix}image`, exercise.image);
         }
 
-        if (exercise.imageFile) {
-            formData.append('imageFile', exercise.imageFile, exercise.imageFile.name);
+        if (photo) {
+            formData.append('photo', photo, photo.name);
         }
     
         return formData;

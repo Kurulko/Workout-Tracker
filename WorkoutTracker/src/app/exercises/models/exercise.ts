@@ -6,8 +6,6 @@ import { Workout } from "src/app/workouts/workout";
 
 export interface Exercise extends WorkoutModel {
     image: string|null;
-    imageFile: File|null;
-
     description: string|null;
     type: ExerciseType;
     isCreatedByUser: boolean;

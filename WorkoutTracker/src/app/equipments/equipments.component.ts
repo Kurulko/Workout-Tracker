@@ -12,6 +12,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
+import { UploadWithPhoto } from '../shared/models/upload-with-photo';
 
 @Component({
   selector: 'app-equipments',
@@ -89,6 +90,7 @@ export class EquipmentsComponent extends ModelsTableComponent<Equipment> impleme
 
   private editingEquipmentId: number | null = null;
   editingEquipment: Equipment | null = null;
+  editingEquipmentPhoto: File | null = null;
 
   isEditingEquipment(id: number): boolean {
     return this.editingEquipmentId === id;
@@ -111,7 +113,7 @@ export class EquipmentsComponent extends ModelsTableComponent<Equipment> impleme
 
   isEditingPhotoValid: boolean = true;
   onPhotoChange(photoEditing: any): void {
-    if(!this.editingEquipment!.imageFile){
+    if(!this.editingEquipmentPhoto){
       this.editingEquipment!.image = null;
     }
 
@@ -119,9 +121,11 @@ export class EquipmentsComponent extends ModelsTableComponent<Equipment> impleme
   }
 
   saveEquipment(): void {
+    var equipmentWithPhoto = <UploadWithPhoto<Equipment>>{model: this.editingEquipment, photo: this.editingEquipmentPhoto};
+    
     (this.equipmentPageType === 'yours' ? 
-      this.equipmentService.updateUserEquipment(this.editingEquipment!) :
-      this.equipmentService.updateInternalEquipment(this.editingEquipment!)
+      this.equipmentService.updateUserEquipment(equipmentWithPhoto) :
+      this.equipmentService.updateInternalEquipment(equipmentWithPhoto)
     )
     .pipe(this.catchError())
     .subscribe(_ => {
@@ -147,10 +151,12 @@ export class EquipmentsComponent extends ModelsTableComponent<Equipment> impleme
   }
 
   addEquipment(): void {
-    var equipment = <Equipment>{ name: this.addingEquipmentName, imageFile: this.addingEquipmentPhoto };
+    var equipment = <Equipment>{ name: this.addingEquipmentName };
+    var equipmentWithPhoto = <UploadWithPhoto<Equipment>>{model: equipment, photo: this.addingEquipmentPhoto};
+
     (this.equipmentPageType === 'yours' ? 
-      this.equipmentService.createUserEquipment(equipment) :
-      this.equipmentService.createInternalEquipment(equipment)
+      this.equipmentService.createUserEquipment(equipmentWithPhoto) :
+      this.equipmentService.createInternalEquipment(equipmentWithPhoto)
     )
     .pipe(this.catchError())
     .subscribe(result => {

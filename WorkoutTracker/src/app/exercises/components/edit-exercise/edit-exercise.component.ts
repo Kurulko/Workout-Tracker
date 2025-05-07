@@ -11,6 +11,7 @@ import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-
 import { Equipment } from 'src/app/equipments/equipment';
 import { environment } from 'src/environments/environment.prod';
 import { ChildMuscle } from 'src/app/muscles/child-muscle';
+import { UploadWithPhoto } from 'src/app/shared/models/upload-with-photo';
 
 @Component({
   selector: 'app-exercise-edit',
@@ -76,11 +77,13 @@ export class ExerciseEditComponent extends EditModelComponent<Exercise> implemen
   }
 
   onSubmit() {
+    var exerciseWithPhoto = <UploadWithPhoto<Exercise>>{model: this.exercise, photo: this.photo};
+
     if (this.id) {
       // Edit mode
       (this.exercisePageType === 'yours' ? 
-        this.exerciseService.updateUserExercise(this.exercise) :
-        this.exerciseService.updateInternalExercise(this.exercise)
+        this.exerciseService.updateUserExercise(exerciseWithPhoto) :
+        this.exerciseService.updateInternalExercise(exerciseWithPhoto)
       )
       .pipe(this.catchError())
       .subscribe(_ => {
@@ -95,8 +98,8 @@ export class ExerciseEditComponent extends EditModelComponent<Exercise> implemen
     else {
       // Add mode
       (this.exercisePageType === 'yours' ? 
-        this.exerciseService.createUserExercise(this.exercise) :
-        this.exerciseService.createInternalExercise(this.exercise)
+        this.exerciseService.createUserExercise(exerciseWithPhoto) :
+        this.exerciseService.createInternalExercise(exerciseWithPhoto)
       )
       .pipe(this.catchError())
       .subscribe(result => {
@@ -138,8 +141,9 @@ export class ExerciseEditComponent extends EditModelComponent<Exercise> implemen
     });
   }
 
+  photo: File | null = null;
   onPhotoUpload() {
-    if(!this.exercise.imageFile){
+    if(!this.photo){
       this.exercise.image = null;
     }
   }
