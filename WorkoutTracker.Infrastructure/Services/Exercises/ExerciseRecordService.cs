@@ -82,11 +82,6 @@ internal class ExerciseRecordService : DbModelService<ExerciseRecord>, IExercise
 
     public async Task<ServiceResult<IQueryable<ExerciseRecord>>> GetUserExerciseRecordsAsync(string userId, long? exerciseId = null, ExerciseType? exerciseType = null, DateTimeRange? range = null)
     {
-        if (exerciseType is null)
-        {
-            throw new ArgumentNullException(nameof(exerciseType));
-        }
-
         try
         {
             await CheckUserIdAsync(userRepository, userId);
