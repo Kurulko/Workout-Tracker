@@ -12,7 +12,6 @@ public class ExerciseCreationDTO
     [MaxLength(50, ErrorMessage = "{0} must be shorter than {1} characters")]
     public string Name { get; set; } = null!;
 
-    public FileUploadModel? ImageFile { get; set; }
     public string? Description { get; set; }
     public ExerciseType Type { get; set; }
 }
