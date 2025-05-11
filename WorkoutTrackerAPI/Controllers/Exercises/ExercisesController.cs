@@ -320,26 +320,19 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (exerciseCreationDTO is null)
             return ExerciseIsNull();
 
-        try
-        {
-            string? image = await fileService.GetImage(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, false);
-            var exercise = mapper.Map<Exercise>(exerciseCreationDTO);
-            exercise.Image = image;
+        string? image = await fileService.GetImage(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, false);
+        var exercise = mapper.Map<Exercise>(exerciseCreationDTO);
+        exercise.Image = image;
 
-            var serviceResult = await exerciseService.AddInternalExerciseAsync(exercise);
+        var serviceResult = await exerciseService.AddInternalExerciseAsync(exercise);
 
-            if (!serviceResult.Success)
-                return BadRequest(serviceResult.ErrorMessage);
+        if (!serviceResult.Success)
+            return BadRequest(serviceResult.ErrorMessage);
 
-            exercise = serviceResult.Model!;
-            var exerciseDTO = mapper.Map<ExerciseDTO>(exercise);
+        exercise = serviceResult.Model!;
+        var exerciseDTO = mapper.Map<ExerciseDTO>(exercise);
 
-            return CreatedAtAction(nameof(GetInternalExerciseByIdAsync), new { exerciseId = exercise.Id }, exerciseDTO);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return CreatedAtAction(nameof(GetInternalExerciseByIdAsync), new { exerciseId = exercise.Id }, exerciseDTO);
     }
 
     [HttpPost("user-exercise")]
@@ -350,27 +343,20 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (exerciseCreationDTO is null)
             return ExerciseIsNull();
 
-        try
-        {
-            string? image = await fileService.GetImage(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB);
-            var exercise = mapper.Map<Exercise>(exerciseCreationDTO);
-            exercise.Image = image;
+        string? image = await fileService.GetImage(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB);
+        var exercise = mapper.Map<Exercise>(exerciseCreationDTO);
+        exercise.Image = image;
 
-            string userId = httpContextAccessor.GetUserId()!;
-            var serviceResult = await exerciseService.AddUserExerciseAsync(userId, exercise);
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await exerciseService.AddUserExerciseAsync(userId, exercise);
 
-            if (!serviceResult.Success)
-                return BadRequest(serviceResult.ErrorMessage);
+        if (!serviceResult.Success)
+            return BadRequest(serviceResult.ErrorMessage);
 
-            exercise = serviceResult.Model!;
-            var exerciseDTO = mapper.Map<ExerciseDTO>(exercise);
+        exercise = serviceResult.Model!;
+        var exerciseDTO = mapper.Map<ExerciseDTO>(exercise);
 
-            return CreatedAtAction(nameof(GetCurrentUserExerciseByIdAsync), new { exerciseId = exercise.Id }, exerciseDTO);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return CreatedAtAction(nameof(GetCurrentUserExerciseByIdAsync), new { exerciseId = exercise.Id }, exerciseDTO);
     }
 
 
@@ -389,25 +375,18 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (exerciseId != exerciseUpdateDTO.Id)
             return ExerciseIDsNotMatch();
 
-        try
+        string? image = await fileService.GetImage(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, false);
+        var exercise = mapper.Map<Exercise>(exerciseUpdateDTO);
+        exercise.Image = image ?? exerciseUpdateDTO.Image;
+
+        var serviceResult = await exerciseService.UpdateInternalExerciseAsync(exercise);
+
+        if (serviceResult.Success && imageFile != null && exerciseUpdateDTO.Image is string oldImage)
         {
-            string? image = await fileService.GetImage(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, false);
-            var exercise = mapper.Map<Exercise>(exerciseUpdateDTO);
-            exercise.Image = image ?? exerciseUpdateDTO.Image;
-
-            var serviceResult = await exerciseService.UpdateInternalExerciseAsync(exercise);
-
-            if (serviceResult.Success && imageFile != null && exerciseUpdateDTO.Image is string oldImage)
-            {
-                fileService.DeleteFile(oldImage);
-            }
-
-            return HandleServiceResult(serviceResult);
+            fileService.DeleteFile(oldImage);
         }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+
+        return HandleServiceResult(serviceResult);
     }
 
     [HttpPut("user-exercise/{exerciseId}")]
@@ -424,26 +403,19 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (exerciseId != exerciseUpdateDTO.Id)
             return ExerciseIDsNotMatch();
 
-        try
+        string? image = await fileService.GetImage(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB);
+        var exercise = mapper.Map<Exercise>(exerciseUpdateDTO);
+        exercise.Image = image ?? exerciseUpdateDTO.Image;
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var serviceResult = await exerciseService.UpdateUserExerciseAsync(userId, exercise);
+
+        if (serviceResult.Success && imageFile != null && exerciseUpdateDTO.Image is string oldImage)
         {
-            string? image = await fileService.GetImage(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB);
-            var exercise = mapper.Map<Exercise>(exerciseUpdateDTO);
-            exercise.Image = image ?? exerciseUpdateDTO.Image;
-
-            string userId = httpContextAccessor.GetUserId()!;
-            var serviceResult = await exerciseService.UpdateUserExerciseAsync(userId, exercise);
-
-            if (serviceResult.Success && imageFile != null && exerciseUpdateDTO.Image is string oldImage)
-            {
-                fileService.DeleteFile(oldImage);
-            }
-
-            return HandleServiceResult(serviceResult);
+            fileService.DeleteFile(oldImage);
         }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+
+        return HandleServiceResult(serviceResult);
     }
 
 
@@ -534,14 +506,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (exerciseId < 1)
             return InvalidExerciseID();
 
-        try
-        {
-            return await exerciseService.InternalExerciseExistsAsync(exerciseId);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return await exerciseService.InternalExerciseExistsAsync(exerciseId);
     }
 
     [HttpGet("user-exercise-exists/{exerciseId}")]
@@ -550,15 +515,8 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (exerciseId < 1)
             return InvalidExerciseID();
 
-        try
-        {
-            string userId = httpContextAccessor.GetUserId()!;
-            return await exerciseService.UserExerciseExistsAsync(userId, exerciseId);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        string userId = httpContextAccessor.GetUserId()!;
+        return await exerciseService.UserExerciseExistsAsync(userId, exerciseId);
     }
 
 
@@ -568,14 +526,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (string.IsNullOrEmpty(name))
             return ExerciseNameIsNullOrEmpty();
 
-        try
-        {
-            return await exerciseService.InternalExerciseExistsByNameAsync(name);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return await exerciseService.InternalExerciseExistsByNameAsync(name);
     }
 
     [HttpGet("user-exercise-exists-by-name/{name}")]
@@ -584,14 +535,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (string.IsNullOrEmpty(name))
             return ExerciseNameIsNullOrEmpty();
 
-        try
-        {
-            string userId = httpContextAccessor.GetUserId()!;
-            return await exerciseService.UserExerciseExistsByNameAsync(userId, name);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        string userId = httpContextAccessor.GetUserId()!;
+        return await exerciseService.UserExerciseExistsByNameAsync(userId, name);
     }
 }

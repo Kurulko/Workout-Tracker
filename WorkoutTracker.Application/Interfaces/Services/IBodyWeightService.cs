@@ -4,7 +4,7 @@ using WorkoutTracker.Domain.Entities;
 
 namespace WorkoutTracker.Application.Interfaces.Services;
 
-public interface IBodyWeightService
+public interface IBodyWeightService : IBaseService
 {
     Task<ServiceResult<BodyWeight>> GetUserBodyWeightByIdAsync(string userId, long bodyWeightId);
     Task<ServiceResult<BodyWeight>> GetCurrentUserBodyWeightAsync(string userId);

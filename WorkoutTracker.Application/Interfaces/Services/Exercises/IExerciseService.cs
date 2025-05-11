@@ -3,7 +3,8 @@ using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Domain.Enums;
 
 namespace WorkoutTracker.Application.Interfaces.Services.Exercises;
-public interface IExerciseService
+
+public interface IExerciseService : IBaseService
 {
     Task<ServiceResult<Exercise>> GetInternalExerciseByIdAsync(string userId, long exerciseId, bool withDetails = false);
     Task<ServiceResult<Exercise>> GetUserExerciseByIdAsync(string userId, long exerciseId, bool withDetails = false);

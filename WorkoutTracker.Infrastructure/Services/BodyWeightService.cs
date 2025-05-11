@@ -9,14 +9,21 @@ using WorkoutTracker.Infrastructure.Exceptions;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
 using WorkoutTracker.Infrastructure.Services.Base;
 using WorkoutTracker.Application.Common.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace WorkoutTracker.Infrastructure.Services;
 
-internal class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
+internal class BodyWeightService : DbModelService<BodyWeightService, BodyWeight>, IBodyWeightService
 {
     readonly IUserRepository userRepository;
-    public BodyWeightService(IBodyWeightRepository baseRepository, IUserRepository userRepository) : base(baseRepository)
-        => this.userRepository = userRepository;
+    public BodyWeightService(
+        IBodyWeightRepository baseRepository, 
+        IUserRepository userRepository, 
+        ILogger<BodyWeightService> logger
+    ) : base(baseRepository, logger)
+    {
+        this.userRepository = userRepository;
+    }
 
     readonly EntryNullException bodyWeightIsNullException = new("Body weight");
     readonly InvalidIDException invalidBodyWeightIDException = new(nameof(BodyWeight));
@@ -41,13 +48,14 @@ internal class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightServic
 
             return ServiceResult<BodyWeight>.Ok(bodyWeight);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult<BodyWeight>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("body weight", "add", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("body weight", "add", userId));
+            throw;
         }
     }
 
@@ -68,13 +76,14 @@ internal class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightServic
             await baseRepository.RemoveAsync(bodyWeightId);
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult.Fail(ex.Message);
         }
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("body weight", "delete"));
+            _logger.LogError(ex, FailedToActionForUserStr("body weight", "delete", userId));
+            throw;
         }
     }
 
@@ -94,13 +103,14 @@ internal class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightServic
 
             return ServiceResult<IQueryable<BodyWeight>>.Ok(userBodyWeights.AsQueryable());
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult<IQueryable<BodyWeight>>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<BodyWeight>>.Fail(FailedToActionStr("body weights", "get", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("body weights", "get", userId));
+            throw;
         }
     }
 
@@ -147,13 +157,14 @@ internal class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightServic
 
             return ServiceResult<BodyWeight>.Ok(userMaxBodyWeight);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult<BodyWeight>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("current body weight", "get", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("current body weight", "get", userId));
+            throw;
         }
     }
 
@@ -168,13 +179,14 @@ internal class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightServic
 
             return ServiceResult<BodyWeight>.Ok(userMaxBodyWeight);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult<BodyWeight>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("max body weight", "get", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("max body weight", "get", userId));
+            throw;
         }
     }
 
@@ -188,13 +200,14 @@ internal class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightServic
             var userMinBodyWeight = userBodyWeights?.ToList().MinBy(bw => bw.Weight);
             return ServiceResult<BodyWeight>.Ok(userMinBodyWeight);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult<BodyWeight>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("min body weight", "get", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("min body weight", "get", userId));
+            throw;
         }
     }
 
@@ -210,13 +223,14 @@ internal class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightServic
             var userBodyWeightById = await baseRepository.GetByIdAsync(bodyWeightId);
             return ServiceResult<BodyWeight>.Ok(userBodyWeightById);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult<BodyWeight>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("body weight", "get", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("body weight", "get", userId));
+            throw;
         }
     }
 
@@ -243,13 +257,14 @@ internal class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightServic
             await baseRepository.UpdateAsync(_bodyWeight);
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("body weight", "update", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("body weight", "update", userId));
+            throw;
         }
     }
 }

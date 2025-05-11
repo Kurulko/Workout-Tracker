@@ -303,15 +303,8 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
         if (workoutId < 1)
             return InvalidWorkoutID();
 
-        try
-        {
-            string userId = httpContextAccessor.GetUserId()!;
-            return await workoutService.UserWorkoutExistsAsync(userId, workoutId);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        string userId = httpContextAccessor.GetUserId()!;
+        return await workoutService.UserWorkoutExistsAsync(userId, workoutId);
     }
 
     [HttpGet("workout-exists-by-name/{name}")]
@@ -320,14 +313,7 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
         if (string.IsNullOrEmpty(name))
             return WorkoutNameIsNullOrEmpty();
 
-        try
-        {
-            string userId = httpContextAccessor.GetUserId()!;
-            return await workoutService.UserWorkoutExistsByNameAsync(userId, name);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        string userId = httpContextAccessor.GetUserId()!;
+        return await workoutService.UserWorkoutExistsByNameAsync(userId, name);
     }
 }

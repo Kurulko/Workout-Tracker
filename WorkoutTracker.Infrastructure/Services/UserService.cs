@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using WorkoutTracker.Application.Common.Exceptions;
 using WorkoutTracker.Application.Common.Results;
@@ -18,7 +19,7 @@ using WorkoutTracker.Infrastructure.Services.Base;
 
 namespace WorkoutTracker.Infrastructure.Services;
 
-internal class UserService : BaseService<User>, IUserService
+internal class UserService : BaseService<UserService, User>, IUserService
 {
     readonly IUserRepository userRepository;
     readonly IUserDetailsRepository userDetailsRepository;
@@ -26,7 +27,9 @@ internal class UserService : BaseService<User>, IUserService
     public UserService(
         IUserRepository userRepository, 
         IUserDetailsRepository userDetailsRepository, 
-        IRoleRepository roleRepository)
+        IRoleRepository roleRepository,
+        ILogger<UserService> logger
+    ) : base(logger)
     {
         this.userRepository = userRepository;
         this.userDetailsRepository = userDetailsRepository;
@@ -40,8 +43,6 @@ internal class UserService : BaseService<User>, IUserService
         => NotFoundException.NotFoundExceptionByID("Role", id);
     NotFoundException RoleNotFoundByNameException(string name)
         => NotFoundException.NotFoundExceptionByName("Role", name);
-
-    ArgumentException InvalidUserIDWhileAdding => InvalidEntryIDWhileAddingException(nameof(User), "user");
 
 
     #region CRUD
@@ -59,19 +60,24 @@ internal class UserService : BaseService<User>, IUserService
 
     public async Task<IdentityResult> CreateUserAsync(User user, string password)
     {
-        if (user is null)
-            return IdentityResultExtensions.Failed(new EntryNullException(nameof(User)));
-
-        if (string.IsNullOrEmpty(password))
-            return IdentityResultExtensions.Failed(new ArgumentNullOrEmptyException("Password"));
-
         try
         {
+            if (user is null)
+                throw userIsNullException;
+
+            if (string.IsNullOrEmpty(password))
+                throw new ArgumentNullOrEmptyException("Password");
+
             return await userRepository.CreateUserAsync(user, password);
+        }
+        catch (Exception ex) when (ex is IWorkoutException)
+        {
+            return IdentityResultExtensions.Failed(ex.Message);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtensions.Failed(FailedToActionStr("user", "create", ex));
+            _logger.LogError(ex, FailedToActionStr("user", "create"));
+            throw;
         }
     }
 
@@ -86,13 +92,14 @@ internal class UserService : BaseService<User>, IUserService
 
             return await userRepository.UpdateUserAsync(user);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return IdentityResultExtensions.Failed(ex);
+            return IdentityResultExtensions.Failed(ex.Message);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtensions.Failed(FailedToActionStr("user", "update", ex));
+            _logger.LogError(ex, FailedToActionStr("user", "update"));
+            throw;
         }
     }
 
@@ -104,13 +111,14 @@ internal class UserService : BaseService<User>, IUserService
 
             return await userRepository.DeleteUserAsync(userId);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return IdentityResultExtensions.Failed(ex);
+            return IdentityResultExtensions.Failed(ex.Message);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtensions.Failed(FailedToActionStr("user", "delete", ex));
+            _logger.LogError(ex, FailedToActionStr("user", "delete"));
+            throw;
         }
     }
 
@@ -206,13 +214,14 @@ internal class UserService : BaseService<User>, IUserService
 
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("user details", "add", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("user details", "add", userId));
+            throw;
         }
     }
 
@@ -226,6 +235,7 @@ internal class UserService : BaseService<User>, IUserService
                 throw userDetailsIsNullException;
 
             var _userDetails = await userRepository.GetUserDetailsFromUserAsync(userId);
+
             if (_userDetails is null)
             {
                 userDetails.UserId = userId;
@@ -244,15 +254,17 @@ internal class UserService : BaseService<User>, IUserService
 
                 await userDetailsRepository.UpdateAsync(_userDetails);
             }
+
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("user details", "update", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("user details", "update", userId));
+            throw;
         }
     }
 
@@ -314,13 +326,14 @@ internal class UserService : BaseService<User>, IUserService
 
             return await userRepository.ChangeUserPasswordAsync(userId, oldPassword, newPassword);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return IdentityResultExtensions.Failed(ex);
+            return IdentityResultExtensions.Failed(ex.Message);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtensions.Failed(FailedToActionStr("user password", "change", ex));
+            _logger.LogError(ex, FailedToActionStr("user password", "change"));
+            throw;
         }
     }
 
@@ -335,13 +348,14 @@ internal class UserService : BaseService<User>, IUserService
 
             return await userRepository.AddUserPasswordAsync(userId, newPassword);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return IdentityResultExtensions.Failed(ex);
+            return IdentityResultExtensions.Failed(ex.Message);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtensions.Failed(FailedToActionStr("user password", "add", ex));
+            _logger.LogError(ex, FailedToActionStr("user password", "add"));
+            throw;
         }
     }
 
@@ -400,13 +414,14 @@ internal class UserService : BaseService<User>, IUserService
 
             return await userRepository.AddRolesToUserAsync(userId, roles);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return IdentityResultExtensions.Failed(ex);
+            return IdentityResultExtensions.Failed(ex.Message);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtensions.Failed(FailedToActionStr("roles to user", "add", ex));
+            _logger.LogError(ex, FailedToActionStr("roles to user", "add"));
+            throw;
         }
     }
 
@@ -423,13 +438,14 @@ internal class UserService : BaseService<User>, IUserService
 
             return await userRepository.DeleteRoleFromUserAsync(userId, roleName);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return IdentityResultExtensions.Failed(ex);
+            return IdentityResultExtensions.Failed(ex.Message);
         }
         catch (Exception ex)
         {
-            return IdentityResultExtensions.Failed(FailedToActionStr("role from user", "delete", ex));
+            _logger.LogError(ex, FailedToActionStr("roles from user", "delete"));
+            throw;
         }
     }
 

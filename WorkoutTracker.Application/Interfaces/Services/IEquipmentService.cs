@@ -3,7 +3,7 @@ using WorkoutTracker.Domain.Entities;
 
 namespace WorkoutTracker.Application.Interfaces.Services;
 
-public interface IEquipmentService
+public interface IEquipmentService : IBaseService
 {
     Task<ServiceResult<Equipment>> GetInternalEquipmentByIdAsync(long equipmentId, bool withDetails = false);
     Task<ServiceResult<Equipment>> GetUserEquipmentByIdAsync(string userId, long equipmentId, bool withDetails = false);

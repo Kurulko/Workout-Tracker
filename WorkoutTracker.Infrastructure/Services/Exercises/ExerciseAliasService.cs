@@ -1,4 +1,5 @@
-﻿using WorkoutTracker.Application.Common.Exceptions;
+﻿using Microsoft.Extensions.Logging;
+using WorkoutTracker.Application.Common.Exceptions;
 using WorkoutTracker.Application.Common.Results;
 using WorkoutTracker.Application.Interfaces.Repositories.Exercises;
 using WorkoutTracker.Application.Interfaces.Services.Exercises;
@@ -8,10 +9,14 @@ using WorkoutTracker.Infrastructure.Services.Base;
 
 namespace WorkoutTracker.Infrastructure.Services.Exercises;
 
-internal class ExerciseAliasService : BaseWorkoutService<ExerciseAlias>, IExerciseAliasService
+internal class ExerciseAliasService : BaseWorkoutService<ExerciseAliasService, ExerciseAlias>, IExerciseAliasService
 {
     readonly IExerciseRepository exerciseRepository;
-    public ExerciseAliasService(IExerciseAliasRepository exerciseAliasRepository, IExerciseRepository exerciseRepository) : base(exerciseAliasRepository)
+    public ExerciseAliasService(
+        IExerciseAliasRepository exerciseAliasRepository, 
+        IExerciseRepository exerciseRepository,
+        ILogger<ExerciseAliasService> logger
+    ) : base(exerciseAliasRepository, logger)
     {
         this.exerciseRepository = exerciseRepository;
     }
@@ -47,13 +52,14 @@ internal class ExerciseAliasService : BaseWorkoutService<ExerciseAlias>, IExerci
 
             return ServiceResult<ExerciseAlias>.Ok(exerciseAlias);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult<ExerciseAlias>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<ExerciseAlias>.Fail(FailedToActionStr("exercise alias", "add", ex));
+            _logger.LogError(ex, FailedToActionStr("exercise alias", "add"));
+            throw;
         }
     }
 
@@ -69,13 +75,14 @@ internal class ExerciseAliasService : BaseWorkoutService<ExerciseAlias>, IExerci
             await baseWorkoutRepository.RemoveAsync(id);
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult.Fail(ex.Message);
         }
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("exercise alias", "delete"));
+            _logger.LogError(ex, FailedToActionStr("exercise alias", "delete"));
+            throw;
         }
     }
 
@@ -89,13 +96,14 @@ internal class ExerciseAliasService : BaseWorkoutService<ExerciseAlias>, IExerci
             var exerciseAliasById = await baseWorkoutRepository.GetByIdAsync(id);
             return ServiceResult<ExerciseAlias>.Ok(exerciseAliasById);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult<ExerciseAlias>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<ExerciseAlias>.Fail(FailedToActionStr("exercise alias", "get", ex));
+            _logger.LogError(ex, FailedToActionStr("exercise alias", "get"));
+            throw;
         }
     }
 
@@ -109,13 +117,14 @@ internal class ExerciseAliasService : BaseWorkoutService<ExerciseAlias>, IExerci
             var exerciseAliasById = await baseWorkoutRepository.GetByNameAsync(name);
             return ServiceResult<ExerciseAlias>.Ok(exerciseAliasById);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult<ExerciseAlias>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<ExerciseAlias>.Fail(FailedToActionStr("exercise alias", "get", ex));
+            _logger.LogError(ex, FailedToActionStr("exercise alias by name", "get"));
+            throw;
         }
     }
 
@@ -128,13 +137,14 @@ internal class ExerciseAliasService : BaseWorkoutService<ExerciseAlias>, IExerci
             var exerciseAliases = await baseWorkoutRepository.FindAsync(er => er.ExerciseId == exerciseId);
             return ServiceResult<IQueryable<ExerciseAlias>>.Ok(exerciseAliases);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult<IQueryable<ExerciseAlias>>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<ExerciseAlias>>.Fail(FailedToActionStr("exercise aliases", "get", ex));
+            _logger.LogError(ex, FailedToActionStr("exercise aliases", "get"));
+            throw;
         }
     }
 
@@ -163,13 +173,14 @@ internal class ExerciseAliasService : BaseWorkoutService<ExerciseAlias>, IExerci
 
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
             return ServiceResult.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("exercise alias", "update", ex));
+            _logger.LogError(ex, FailedToActionStr("exercise alias", "update"));
+            throw;
         }
     }
 

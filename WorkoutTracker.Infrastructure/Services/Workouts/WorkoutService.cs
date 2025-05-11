@@ -12,11 +12,13 @@ using WorkoutTracker.Domain.Entities.Workouts;
 using WorkoutTracker.Infrastructure.Exceptions;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
 using WorkoutTracker.Infrastructure.Services.Base;
-using WorkoutTracker.Application.Common.Extensions.Exercises; 
+using WorkoutTracker.Application.Common.Extensions.Exercises;
+using Microsoft.Extensions.Logging;
+using WorkoutTracker.Domain.Entities;
 
 namespace WorkoutTracker.Infrastructure.Services.Workouts;
 
-internal class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
+internal class WorkoutService : BaseWorkoutService<WorkoutService, Workout>, IWorkoutService
 {
     readonly IUserRepository userRepository;
     readonly IExerciseSetRepository exerciseSetRepository;
@@ -32,8 +34,10 @@ internal class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
         IExerciseRecordRepository exerciseRecordRepository,
         IExerciseRecordGroupRepository exerciseRecordGroupRepository,
         IWorkoutRecordRepository workoutRecordRepository,
-        IUserRepository userRepository
-    ) : base(workoutRepository)
+        IUserRepository userRepository,
+        ILogger<WorkoutService> logger
+
+    ) : base(workoutRepository, logger)
     {
         this.workoutRepository = workoutRepository;
         this.userRepository = userRepository;
@@ -81,13 +85,14 @@ internal class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             await baseWorkoutRepository.AddAsync(_workout);
             return ServiceResult<Workout>.Ok(_workout);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult<Workout>.Fail(ex);
+            return ServiceResult<Workout>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<Workout>.Fail(FailedToActionStr("workout", "add", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("workout", "add", userId));
+            throw;
         }
     }
 
@@ -110,13 +115,14 @@ internal class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
 
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult.Fail(ex);
+            return ServiceResult.Fail(ex.Message);
         }
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("workout", "delete"));
+            _logger.LogError(ex, FailedToActionForUserStr("workout", "delete", userId));
+            throw;
         }
     }
 
@@ -157,13 +163,14 @@ internal class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             await AddExerciseSetGroups(userId, workoutId, exerciseSetGroups);
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult.Fail(ex);
+            return ServiceResult.Fail(ex.Message);
         }
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("exercise record groups", "add"));
+            _logger.LogError(ex, FailedToActionForUserStr("exercise record groups", "add", userId));
+            throw;
         }
     }
 
@@ -205,13 +212,14 @@ internal class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             await AddExerciseSetGroups(userId, workoutId, exerciseSetGroups);
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult.Fail(ex);
+            return ServiceResult.Fail(ex.Message);
         }
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("exercise record groups", "update"));
+            _logger.LogError(ex, FailedToActionForUserStr("exercise record groups", "update", userId));
+            throw;
         }
     }
 
@@ -259,13 +267,14 @@ internal class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
 
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult.Fail(ex);
+            return ServiceResult.Fail(ex.Message);
         }
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("exercise record groups", "add"));
+            _logger.LogError(ex, FailedToActionForUserStr("workout", "complete", userId));
+            throw;
         }
     }
 
@@ -288,13 +297,14 @@ internal class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
 
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult.Fail(ex);
+            return ServiceResult.Fail(ex.Message);
         }
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("exercise record groups", "add"));
+            _logger.LogError(ex, FailedToActionForUserStr("pinned workout", "change", userId));
+            throw;
         }
     }
 
@@ -316,13 +326,14 @@ internal class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             var userWorkoutById = withDetails ? await workoutRepository.GetWorkoutByIdWithDetailsAsync(workoutId) : await baseWorkoutRepository.GetByIdAsync(workoutId);
             return ServiceResult<Workout>.Ok(userWorkoutById);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult<Workout>.Fail(ex);
+            return ServiceResult<Workout>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<Workout>.Fail(FailedToActionStr("workout", "get", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("workout", "get", userId));
+            throw;
         }
     }
 
@@ -338,13 +349,14 @@ internal class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             var userWorkoutByName = withDetails ? await workoutRepository.GetWorkoutByNameWithDetailsAsync(name) : await baseWorkoutRepository.GetByNameAsync(name);
             return ServiceResult<Workout>.Ok(userWorkoutByName);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult<Workout>.Fail(ex);
+            return ServiceResult<Workout>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<Workout>.Fail(FailedToActionStr("workout by name", "get", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("workout by name", "get", userId));
+            throw;
         }
     }
 
@@ -367,15 +379,17 @@ internal class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
 
             return ServiceResult<IQueryable<Workout>>.Ok(userWorkouts);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult<IQueryable<Workout>>.Fail(ex);
+            return ServiceResult<IQueryable<Workout>>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<Workout>>.Fail(FailedToActionStr("workouts", "get", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("workouts", "get", userId));
+            throw;
         }
     }
+
     public async Task<ServiceResult> UpdateUserWorkoutAsync(string userId, Workout workout)
     {
         try
@@ -404,13 +418,14 @@ internal class WorkoutService : BaseWorkoutService<Workout>, IWorkoutService
             await baseWorkoutRepository.UpdateAsync(_workout);
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult.Fail(ex);
+            return ServiceResult.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("workout", "update", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("workout", "update", userId));
+            throw;
         }
     }
 

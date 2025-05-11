@@ -18,11 +18,10 @@ public class AccountController : APIController
         this.httpContextAccessor = httpContextAccessor;
     }
 
-
     IActionResult HandleAuthResult(AuthResult authResult)
         => authResult.Success ? Ok(authResult) : BadRequest(authResult);
 
-    [HttpPost("Register")]
+    [HttpPost("register")]
     public async Task<IActionResult> RegisterAsync(RegisterModel register)
     {
         if (register is null)
@@ -32,7 +31,7 @@ public class AccountController : APIController
         return HandleAuthResult(result);
     }
 
-    [HttpPost("Login")]
+    [HttpPost("login")]
     public async Task<IActionResult> LoginAsync(LoginModel login)
     {
         if (login is null)
@@ -43,33 +42,19 @@ public class AccountController : APIController
     }
 
     [Authorize]
-    [HttpGet("Token")]
+    [HttpGet("token")]
     public async Task<IActionResult> GetTokenAsync()
     {
-        try
-        {
-            string userId = httpContextAccessor.GetUserId()!;
-            var token = await accountService.GetTokenAsync(userId);
-            return Ok(token);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        string userId = httpContextAccessor.GetUserId()!;
+        var token = await accountService.GetTokenAsync(userId);
+        return Ok(token);
     }
 
     [Authorize]
-    [HttpPost("Logout")]
+    [HttpPost("logout")]
     public async Task<IActionResult> LogoutAsync()
     {
-        try
-        {
-            await accountService.LogoutAsync();
-            return Ok();
-        }
-        catch(Exception ex) 
-        {
-            return BadRequest($"Logout failed: {ex.Message}.");
-        }
+        await accountService.LogoutAsync();
+        return Ok();
     }
 }

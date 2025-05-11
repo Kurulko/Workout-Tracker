@@ -245,26 +245,19 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (muscleCreationDTO is null)
             return MuscleIsNull();
 
-        try
-        {
-            string? image = await fileService.GetImage(imageFile, musclePhotosDirectory, maxMuscleImageSizeInMB, false);
-            var muscle = mapper.Map<Muscle>(muscleCreationDTO);
-            muscle.Image = image;
+        string? image = await fileService.GetImage(imageFile, musclePhotosDirectory, maxMuscleImageSizeInMB, false);
+        var muscle = mapper.Map<Muscle>(muscleCreationDTO);
+        muscle.Image = image;
 
-            var serviceResult = await muscleService.AddMuscleAsync(muscle);
+        var serviceResult = await muscleService.AddMuscleAsync(muscle);
 
-            if (!serviceResult.Success)
-                return BadRequest(serviceResult.ErrorMessage);
+        if (!serviceResult.Success)
+            return BadRequest(serviceResult.ErrorMessage);
 
-            muscle = serviceResult.Model!;
-            var muscleDTO = mapper.Map<MuscleDTO>(muscle);
+        muscle = serviceResult.Model!;
+        var muscleDTO = mapper.Map<MuscleDTO>(muscle);
 
-            return CreatedAtAction(nameof(GetMuscleByIdAsync), new { muscleId = muscle.Id }, muscleDTO);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return CreatedAtAction(nameof(GetMuscleByIdAsync), new { muscleId = muscle.Id }, muscleDTO);
     }
 
     [HttpPut("{muscleId}")]
@@ -282,25 +275,18 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (muscleId != muscleUpdateDTO.Id)
             return EntryIDsNotMatch(nameof(Muscle));
 
-        try
+        string? image = await fileService.GetImage(imageFile, musclePhotosDirectory, maxMuscleImageSizeInMB, false);
+        var muscle = mapper.Map<Muscle>(muscleUpdateDTO);
+        muscle.Image = image ?? muscleUpdateDTO.Image;
+
+        var serviceResult = await muscleService.UpdateMuscleAsync(muscle);
+
+        if (serviceResult.Success && imageFile != null && muscleUpdateDTO.Image is string oldImage)
         {
-            string? image = await fileService.GetImage(imageFile, musclePhotosDirectory, maxMuscleImageSizeInMB, false);
-            var muscle = mapper.Map<Muscle>(muscleUpdateDTO);
-            muscle.Image = image ?? muscleUpdateDTO.Image;
-
-            var serviceResult = await muscleService.UpdateMuscleAsync(muscle);
-
-            if (serviceResult.Success && imageFile != null && muscleUpdateDTO.Image is string oldImage)
-            {
-                fileService.DeleteFile(oldImage);
-            }
-
-            return HandleServiceResult(serviceResult);
+            fileService.DeleteFile(oldImage);
         }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+
+        return HandleServiceResult(serviceResult);
     }
 
     [HttpPut("{muscleId}/children")]
@@ -334,14 +320,7 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (muscleId < 1)
             return InvalidMuscleID();
 
-        try
-        {
-            return await muscleService.MuscleExistsAsync(muscleId);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return await muscleService.MuscleExistsAsync(muscleId);
     }
 
     [HttpGet("muscle-exists-by-name/{name}")]
@@ -350,13 +329,6 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (string.IsNullOrEmpty(name))
             return MuscleNameIsNullOrEmpty();
 
-        try
-        {
-            return await muscleService.MuscleExistsByNameAsync(name);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return await muscleService.MuscleExistsByNameAsync(name);
     }
 }

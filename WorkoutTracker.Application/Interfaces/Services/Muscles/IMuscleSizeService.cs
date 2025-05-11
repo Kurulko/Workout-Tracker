@@ -4,7 +4,8 @@ using WorkoutTracker.Application.Common.Results;
 using WorkoutTracker.Domain.Entities.Muscles;
 
 namespace WorkoutTracker.Application.Interfaces.Services.Muscles;
-public interface IMuscleSizeService
+
+public interface IMuscleSizeService : IBaseService
 {
     Task<ServiceResult<MuscleSize>> GetUserMuscleSizeByIdAsync(string userId, long muscleSizeId);
     Task<ServiceResult<MuscleSize>> GetMinUserMuscleSizeAsync(string userId, long muscleId);

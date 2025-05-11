@@ -4,7 +4,7 @@ using WorkoutTracker.Application.Common.Models;
 
 namespace WorkoutTracker.Application.Interfaces.Services.Workouts;
 
-public interface IWorkoutRecordService
+public interface IWorkoutRecordService : IBaseService
 {
     Task<ServiceResult<WorkoutRecord>> GetUserWorkoutRecordByIdAsync(string userId, long workoutRecordId);
     Task<ServiceResult<IQueryable<WorkoutRecord>>> GetUserWorkoutRecordsAsync(string userId, long? workoutId = null, DateTimeRange? range = null);

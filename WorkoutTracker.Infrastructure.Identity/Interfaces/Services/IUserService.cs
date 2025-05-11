@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using WorkoutTracker.Application.Common.Results;
+using WorkoutTracker.Application.Interfaces.Services;
 using WorkoutTracker.Domain.Entities;
 using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Domain.Entities.Exercises.ExerciseGroups;
@@ -11,7 +12,7 @@ using WorkoutTracker.Infrastructure.Identity.Entities;
 
 namespace WorkoutTracker.Infrastructure.Identity.Interfaces.Services;
 
-public interface IUserService
+public interface IUserService : IBaseService
 {
     #region CRUD
 

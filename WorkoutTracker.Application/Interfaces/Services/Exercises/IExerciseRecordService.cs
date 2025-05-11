@@ -4,7 +4,8 @@ using WorkoutTracker.Domain.Entities.Exercises.ExerciseGroups;
 using WorkoutTracker.Domain.Enums;
 
 namespace WorkoutTracker.Application.Interfaces.Services.Exercises;
-public interface IExerciseRecordService
+
+public interface IExerciseRecordService : IBaseService
 {
     Task<ServiceResult<ExerciseRecord>> GetUserExerciseRecordByIdAsync(string userId, long exerciseRecordId);
     Task<ServiceResult<IQueryable<ExerciseRecord>>> GetUserExerciseRecordsAsync(string userId, long? exerciseId = null, ExerciseType? exerciseType = null, DateTimeRange? range = null);

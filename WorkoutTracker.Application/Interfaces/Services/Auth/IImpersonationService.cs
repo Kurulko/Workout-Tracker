@@ -2,7 +2,7 @@
 
 namespace WorkoutTracker.Application.Interfaces.Services.Auth;
 
-public interface IImpersonationService
+public interface IImpersonationService : IBaseService
 {
     Task<TokenModel> ImpersonateAsync(string userId);
     Task<TokenModel> RevertAsync();

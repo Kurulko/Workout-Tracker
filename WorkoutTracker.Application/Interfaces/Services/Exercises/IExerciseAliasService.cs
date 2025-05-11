@@ -3,7 +3,7 @@ using WorkoutTracker.Domain.Entities.Exercises;
 
 namespace WorkoutTracker.Application.Interfaces.Services.Exercises;
 
-public interface IExerciseAliasService
+public interface IExerciseAliasService : IBaseService
 {
     Task<ServiceResult<ExerciseAlias>> GetExerciseAliasByIdAsync(long id);
     Task<ServiceResult<ExerciseAlias>> GetExerciseAliasByNameAsync(string name);

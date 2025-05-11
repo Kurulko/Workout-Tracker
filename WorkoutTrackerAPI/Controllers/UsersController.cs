@@ -1,14 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.IdentityModel.Tokens;
 using System.Data;
-using System.Security.Principal;
 using WorkoutTracker.API.Controllers.Base;
 using WorkoutTracker.API.Extensions;
 using WorkoutTracker.API.Results;
@@ -67,28 +61,21 @@ public class UsersController : APIController
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
-        try
-        {
-            var users = await userService.GetUsersAsync();
+        var users = await userService.GetUsersAsync();
 
-            if (users is null)
-                return EntryNotFound("Users");
+        if (users is null)
+            return EntryNotFound("Users");
 
-            var userDTOs = users.ToList().Select(mapper.Map<UserDTO>);
-            return await ApiResult<UserDTO>.CreateAsync(
-                userDTOs.AsQueryable(),
-                pageIndex,
-                pageSize,
-                sortColumn,
-                sortOrder,
-                filterColumn,
-                filterQuery
-            );
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var userDTOs = users.ToList().Select(mapper.Map<UserDTO>);
+        return await ApiResult<UserDTO>.CreateAsync(
+            userDTOs.AsQueryable(),
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
     }
 
     [HttpGet("{userId}")]
@@ -99,34 +86,20 @@ public class UsersController : APIController
         if (string.IsNullOrEmpty(userId))
             return UserIDIsNullOrEmpty();
 
-        try
-        {
-            User? user = await userService.GetUserByIdAsync(userId);
+        User? user = await userService.GetUserByIdAsync(userId);
 
-            if (user is null)
-                return UserNotFound();
+        if (user is null)
+            return UserNotFound();
 
-            return mapper.Map<UserDTO>(user);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return mapper.Map<UserDTO>(user);
     }
 
     [HttpGet("current-user")]
     public async Task<ActionResult<UserDTO>> GetCurrentUserAsync()
     {
-        try
-        {
-            string userId = httpContextAccessor.GetUserId()!;
-            User currentUser = (await userService.GetUserByIdAsync(userId))!;
-            return mapper.Map<UserDTO>(currentUser);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        string userId = httpContextAccessor.GetUserId()!;
+        User currentUser = (await userService.GetUserByIdAsync(userId))!;
+        return mapper.Map<UserDTO>(currentUser);
     }
 
     [Authorize(Roles = Roles.AdminRole)]
@@ -136,19 +109,12 @@ public class UsersController : APIController
         if (string.IsNullOrEmpty(username))
             return UserNameIsNullOrEmpty();
 
-        try
-        {
-            string? userId = await userService.GetUserIdByUsernameAsync(username);
+        string? userId = await userService.GetUserIdByUsernameAsync(username);
 
-            if (userId is null)
-                return UserNotFound();
+        if (userId is null)
+            return UserNotFound();
 
-            return userId;
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return userId;
     }
 
     [Authorize(Roles = Roles.AdminRole)]
@@ -158,19 +124,12 @@ public class UsersController : APIController
         if (string.IsNullOrEmpty(username))
             return UserNameIsNullOrEmpty();
 
-        try
-        {
-            User? user = await userService.GetUserByUsernameAsync(username);
+        User? user = await userService.GetUserByUsernameAsync(username);
 
-            if (user is null)
-                return UserNotFound();
+        if (user is null)
+            return UserNotFound();
 
-            return user;
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return user;
     }
 
     [Authorize(Roles = Roles.AdminRole)]
@@ -180,18 +139,11 @@ public class UsersController : APIController
         if (userCreationDTO is null)
             return UserIsNull();
 
-        try
-        {
-            var user = mapper.Map<User>(userCreationDTO);
-            await userService.AddUserAsync(user);
+        var user = mapper.Map<User>(userCreationDTO);
+        await userService.AddUserAsync(user);
 
-            var userDTO = mapper.Map<UserDTO>(user);
-            return CreatedAtAction(nameof(GetUserByIdAsync), new { userId = userDTO.UserId }, userDTO);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var userDTO = mapper.Map<UserDTO>(user);
+        return CreatedAtAction(nameof(GetUserByIdAsync), new { userId = userDTO.UserId }, userDTO);
     }
 
     [Authorize(Roles = Roles.AdminRole)]
@@ -226,27 +178,20 @@ public class UsersController : APIController
         if (userId != userDTO.UserId)
             return EntryIDsNotMatch("User");
 
-        try
+        string currentUserId = httpContextAccessor.GetUserId()!;
+        var roles = await userService.GetUserRolesAsync(currentUserId);
+        bool isAdmin = roles.Contains(Roles.AdminRole);
+
+        bool isCurrentUserUpdating = userDTO.UserId == currentUserId;
+
+        if (isAdmin || isCurrentUserUpdating)
         {
-            string currentUserId = httpContextAccessor.GetUserId()!;
-            var roles = await userService.GetUserRolesAsync(currentUserId);
-            bool isAdmin = roles.Contains(Roles.AdminRole);
-
-            bool isCurrentUserUpdating = userDTO.UserId == currentUserId;
-
-            if (isAdmin || isCurrentUserUpdating)
-            {
-                var user = mapper.Map<User>(userDTO);
-                var identityResult = await userService.UpdateUserAsync(user);
-                return HandleIdentityResult(identityResult);
-            }
-
-            return Forbid();
+            var user = mapper.Map<User>(userDTO);
+            var identityResult = await userService.UpdateUserAsync(user);
+            return HandleIdentityResult(identityResult);
         }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+
+        return Forbid();
     }
 
     [Authorize(Roles = Roles.AdminRole)]
@@ -256,15 +201,8 @@ public class UsersController : APIController
         if (string.IsNullOrEmpty(userId))
             return UserIDIsNullOrEmpty();
 
-        try
-        {
-            var identityResult = await userService.DeleteUserAsync(userId);
-            return HandleIdentityResult(identityResult);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var identityResult = await userService.DeleteUserAsync(userId);
+        return HandleIdentityResult(identityResult);
     }
 
     [HttpGet("user-exists/{userId}")]
@@ -273,14 +211,7 @@ public class UsersController : APIController
         if (string.IsNullOrEmpty(userId))
             return UserIDIsNullOrEmpty();
 
-        try
-        {
-            return await userService.UserExistsAsync(userId);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return await userService.UserExistsAsync(userId);
     }
 
     [HttpGet("user-exists-by-username/{userName}")]
@@ -289,14 +220,7 @@ public class UsersController : APIController
         if (string.IsNullOrEmpty(userName))
             return UserNameIsNullOrEmpty();
 
-        try
-        {
-            return await userService.UserExistsByUsernameAsync(userName);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return await userService.UserExistsByUsernameAsync(userName);
     }
 
     [HttpGet("id-by-name/{name}")]
@@ -305,19 +229,12 @@ public class UsersController : APIController
         if (string.IsNullOrEmpty(name))
             return UserNameIsNullOrEmpty();
 
-        try
-        {
-            string? userId = await userService.GetUserIdByUsernameAsync(name);
+        string? userId = await userService.GetUserIdByUsernameAsync(name);
 
-            if (userId is null)
-                return UserNotFound();
+        if (userId is null)
+            return UserNotFound();
 
-            return userId;
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return userId;
     }
 
 
@@ -327,19 +244,12 @@ public class UsersController : APIController
         if (string.IsNullOrEmpty(userId))
             return UserIDIsNullOrEmpty();
 
-        try
-        {
-            string? name = await userService.GetUserNameByIdAsync(userId);
+        string? name = await userService.GetUserNameByIdAsync(userId);
 
-            if (name is null)
-                return UserNotFound();
+        if (name is null)
+            return UserNotFound();
 
-            return name;
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return name;
     }
 
 
@@ -353,16 +263,9 @@ public class UsersController : APIController
     [HttpGet("user-details")]
     public async Task<ActionResult<UserDetailsDTO>> GetCurrentUserDetailsAsync()
     {
-        try
-        {
-            string userId = httpContextAccessor.GetUserId()!;
-            var currentUserDetails = await userService.GetUserDetailsFromUserAsync(userId);
-            return mapper.Map<UserDetailsDTO>(currentUserDetails);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        string userId = httpContextAccessor.GetUserId()!;
+        var currentUserDetails = await userService.GetUserDetailsFromUserAsync(userId);
+        return mapper.Map<UserDetailsDTO>(currentUserDetails);
     }
 
     [HttpPost("user-details")]
@@ -407,29 +310,22 @@ public class UsersController : APIController
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
-        try
-        {
-            string currentUserId = httpContextAccessor.GetUserId()!;
-            var userMuscleSizes = await userService.GetUserMuscleSizesAsync(currentUserId);
+        string currentUserId = httpContextAccessor.GetUserId()!;
+        var userMuscleSizes = await userService.GetUserMuscleSizesAsync(currentUserId);
 
-            if (userMuscleSizes is null)
-                return EntryNotFound("User muscle sizes");
+        if (userMuscleSizes is null)
+            return EntryNotFound("User muscle sizes");
 
-            var userMuscleSizeDTOs = userMuscleSizes.Select(m => mapper.Map<MuscleSizeDTO>(m));
-            return await ApiResult<MuscleSizeDTO>.CreateAsync(
-                userMuscleSizeDTOs,
-                pageIndex,
-                pageSize,
-                sortColumn,
-                sortOrder,
-                filterColumn,
-                filterQuery
-            );
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var userMuscleSizeDTOs = userMuscleSizes.Select(m => mapper.Map<MuscleSizeDTO>(m));
+        return await ApiResult<MuscleSizeDTO>.CreateAsync(
+            userMuscleSizeDTOs,
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
     }
 
     [HttpGet($"user-body_weights")]
@@ -444,29 +340,22 @@ public class UsersController : APIController
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
-        try
-        {
-            string currentUserId = httpContextAccessor.GetUserId()!;
-            var userBodyWeights = await userService.GetUserBodyWeightsAsync(currentUserId);
+        string currentUserId = httpContextAccessor.GetUserId()!;
+        var userBodyWeights = await userService.GetUserBodyWeightsAsync(currentUserId);
 
-            if (userBodyWeights is null)
-                return EntryNotFound("User body weights");
+        if (userBodyWeights is null)
+            return EntryNotFound("User body weights");
 
-            var userBodyWeightDTOs = userBodyWeights.Select(m => mapper.Map<BodyWeightDTO>(m));
-            return await ApiResult<BodyWeightDTO>.CreateAsync(
-                userBodyWeightDTOs,
-                pageIndex,
-                pageSize,
-                sortColumn,
-                sortOrder,
-                filterColumn,
-                filterQuery
-            );
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var userBodyWeightDTOs = userBodyWeights.Select(m => mapper.Map<BodyWeightDTO>(m));
+        return await ApiResult<BodyWeightDTO>.CreateAsync(
+            userBodyWeightDTOs,
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
     }
 
     [HttpGet($"user-workouts")]
@@ -481,29 +370,22 @@ public class UsersController : APIController
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
-        try
-        {
-            string currentUserId = httpContextAccessor.GetUserId()!;
-            var userWorkouts = await userService.GetUserWorkoutsAsync(currentUserId);
+        string currentUserId = httpContextAccessor.GetUserId()!;
+        var userWorkouts = await userService.GetUserWorkoutsAsync(currentUserId);
 
-            if (userWorkouts is null)
-                return EntryNotFound("User workouts");
+        if (userWorkouts is null)
+            return EntryNotFound("User workouts");
 
-            var userWorkoutDTOs = userWorkouts.Select(m => mapper.Map<WorkoutDTO>(m));
-            return await ApiResult<WorkoutDTO>.CreateAsync(
-                userWorkoutDTOs,
-                pageIndex,
-                pageSize,
-                sortColumn,
-                sortOrder,
-                filterColumn,
-                filterQuery
-            );
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var userWorkoutDTOs = userWorkouts.Select(m => mapper.Map<WorkoutDTO>(m));
+        return await ApiResult<WorkoutDTO>.CreateAsync(
+            userWorkoutDTOs,
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
     }
 
     [HttpGet($"user-exercises")]
@@ -518,29 +400,22 @@ public class UsersController : APIController
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
-        try
-        {
-            string currentUserId = httpContextAccessor.GetUserId()!;
-            var userCreatedExercises = await userService.GetUserCreatedExercisesAsync(currentUserId);
+        string currentUserId = httpContextAccessor.GetUserId()!;
+        var userCreatedExercises = await userService.GetUserCreatedExercisesAsync(currentUserId);
 
-            if (userCreatedExercises is null)
-                return EntryNotFound("User created exercises");
+        if (userCreatedExercises is null)
+            return EntryNotFound("User created exercises");
 
-            var userCreatedExerciseDTOs = userCreatedExercises.Select(m => mapper.Map<ExerciseDTO>(m));
-            return await ApiResult<ExerciseDTO>.CreateAsync(
-                userCreatedExerciseDTOs,
-                pageIndex,
-                pageSize,
-                sortColumn,
-                sortOrder,
-                filterColumn,
-                filterQuery
-            );
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var userCreatedExerciseDTOs = userCreatedExercises.Select(m => mapper.Map<ExerciseDTO>(m));
+        return await ApiResult<ExerciseDTO>.CreateAsync(
+            userCreatedExerciseDTOs,
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
     }
 
     [HttpGet($"user-exercise_records")]
@@ -555,29 +430,22 @@ public class UsersController : APIController
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
-        try
-        {
-            string currentUserId = httpContextAccessor.GetUserId()!;
-            var userExerciseRecords = await userService.GetUserExerciseRecordsAsync(currentUserId);
+        string currentUserId = httpContextAccessor.GetUserId()!;
+        var userExerciseRecords = await userService.GetUserExerciseRecordsAsync(currentUserId);
 
-            if (userExerciseRecords is null)
-                return EntryNotFound("User exercise records");
+        if (userExerciseRecords is null)
+            return EntryNotFound("User exercise records");
 
-            var userExerciseRecordDTOs = userExerciseRecords.Select(m => mapper.Map<ExerciseRecordDTO>(m));
-            return await ApiResult<ExerciseRecordDTO>.CreateAsync(
-                userExerciseRecordDTOs,
-                pageIndex,
-                pageSize,
-                sortColumn,
-                sortOrder,
-                filterColumn,
-                filterQuery
-            );
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var userExerciseRecordDTOs = userExerciseRecords.Select(m => mapper.Map<ExerciseRecordDTO>(m));
+        return await ApiResult<ExerciseRecordDTO>.CreateAsync(
+            userExerciseRecordDTOs,
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
     }
 
     [HttpGet($"user-equipments")]
@@ -592,29 +460,22 @@ public class UsersController : APIController
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
-        try
-        {
-            string currentUserId = httpContextAccessor.GetUserId()!;
-            var userEquipments = await userService.GetUserEquipmentsAsync(currentUserId);
+        string currentUserId = httpContextAccessor.GetUserId()!;
+        var userEquipments = await userService.GetUserEquipmentsAsync(currentUserId);
 
-            if (userEquipments is null)
-                return EntryNotFound("User equipments");
+        if (userEquipments is null)
+            return EntryNotFound("User equipments");
 
-            var userEquipmentDTOs = userEquipments.Select(m => mapper.Map<EquipmentDTO>(m));
-            return await ApiResult<EquipmentDTO>.CreateAsync(
-                userEquipmentDTOs,
-                pageIndex,
-                pageSize,
-                sortColumn,
-                sortOrder,
-                filterColumn,
-                filterQuery
-            );
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var userEquipmentDTOs = userEquipments.Select(m => mapper.Map<EquipmentDTO>(m));
+        return await ApiResult<EquipmentDTO>.CreateAsync(
+            userEquipmentDTOs,
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
     }
 
 
@@ -629,14 +490,7 @@ public class UsersController : APIController
         if (string.IsNullOrEmpty(userId))
             return UserIDIsNullOrEmpty();
 
-        try
-        {
-            return await userService.HasUserPasswordAsync(userId);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return await userService.HasUserPasswordAsync(userId);
     }
 
     [HttpPut("password")]
@@ -671,33 +525,19 @@ public class UsersController : APIController
     [HttpGet("current-user-roles")]
     public async Task<ActionResult<IEnumerable<string>>> GetCurrentUserRolesAsync()
     {
-        try
-        {
-            string currentUserId = httpContextAccessor.GetUserId()!;
-            var userRoles = await userService.GetUserRolesAsync(currentUserId);
-            return userRoles.ToList();
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        string currentUserId = httpContextAccessor.GetUserId()!;
+        var userRoles = await userService.GetUserRolesAsync(currentUserId);
+        return userRoles.ToList();
     }
 
     [HttpGet("user-roles/{userId}")]
     public async Task<ActionResult<IEnumerable<string>>> GetUserRolesAsync(string userId)
     {
-        try
-        {
-            if (string.IsNullOrEmpty(userId))
-                return UserIDIsNullOrEmpty();
+        if (string.IsNullOrEmpty(userId))
+            return UserIDIsNullOrEmpty();
 
-            var userRoles = await userService.GetUserRolesAsync(userId);
-            return userRoles.ToList();
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var userRoles = await userService.GetUserRolesAsync(userId);
+        return userRoles.ToList();
     }
 
     [Authorize(Roles = Roles.AdminRole)]
@@ -745,27 +585,20 @@ public class UsersController : APIController
         if (string.IsNullOrEmpty(roleName))
             return RoleNameIsNullOrEmpty();
 
-        try
-        {
-            var users = await userService.GetUsersByRoleAsync(roleName);
-            if (users is null)
-                return EntryNotFound("Users");
+        var users = await userService.GetUsersByRoleAsync(roleName);
+        if (users is null)
+            return EntryNotFound("Users");
 
-            var userDTOs = users.Select(u => mapper.Map<UserDTO>(u));
-            return await ApiResult<UserDTO>.CreateAsync(
-                userDTOs.AsQueryable(),
-                pageIndex,
-                pageSize,
-                sortColumn,
-                sortOrder,
-                filterColumn,
-                filterQuery
-            );
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var userDTOs = users.Select(u => mapper.Map<UserDTO>(u));
+        return await ApiResult<UserDTO>.CreateAsync(
+            userDTOs.AsQueryable(),
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
     }
 
     #endregion

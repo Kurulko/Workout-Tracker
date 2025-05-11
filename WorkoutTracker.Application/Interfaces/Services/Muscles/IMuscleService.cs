@@ -2,7 +2,7 @@
 using WorkoutTracker.Domain.Entities.Muscles;
 
 namespace WorkoutTracker.Application.Interfaces.Services.Muscles;
-public interface IMuscleService
+public interface IMuscleService : IBaseService
 {
     Task<ServiceResult<Muscle>> GetMuscleByIdAsync(long muscleId, string userId, bool withDetails = false);
     Task<ServiceResult<Muscle>> GetMuscleByNameAsync(string name, string userId, bool withDetails = false);

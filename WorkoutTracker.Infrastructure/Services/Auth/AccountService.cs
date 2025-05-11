@@ -10,6 +10,7 @@ using WorkoutTracker.Infrastructure.Identity.Entities;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
 using WorkoutTracker.Application.Common.Extensions;
 using WorkoutTracker.Infrastructure.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace WorkoutTracker.Infrastructure.Services.Auth;
 
@@ -17,26 +18,24 @@ internal class AccountService : IAccountService
 {
     readonly SignInManager<User> signInManager;
     readonly IUserRepository userRepository;
-    readonly IHttpContextAccessor httpContextAccessor;
     readonly JwtHandler jwtHandler;
+    readonly ILogger<AccountService> logger;
 
     public AccountService(
         SignInManager<User> signInManager, 
         IUserRepository userRepository, 
-        JwtHandler jwtHandler, 
-        IHttpContextAccessor httpContextAccessor)
+        JwtHandler jwtHandler,
+        ILogger<AccountService> logger
+    )
     {
         this.signInManager = signInManager;
         this.userRepository = userRepository;
         this.jwtHandler = jwtHandler;
-        this.httpContextAccessor = httpContextAccessor;
+        this.logger = logger;
     }
 
     public virtual async Task<AuthResult> LoginAsync(LoginModel login)
     {
-        if (login is null)
-            throw new EntryNullException("Login");
-
         var res = await signInManager.PasswordSignInAsync(login.Name, login.Password, login.RememberMe, false);
 
         if (!res.Succeeded)
@@ -50,16 +49,14 @@ internal class AccountService : IAccountService
         }
         catch (Exception ex)
         {
-            return AuthResult.Fail($"Login failed: {ex.Message}");
+            logger.LogError(ex, $"Login failed: {ex.Message}");
+            return AuthResult.Fail("Login failed");
         }
     }
 
 
     public virtual async Task<AuthResult> RegisterAsync(RegisterModel register)
     {
-        if (register is null)
-            throw new EntryNullException("Register");
-
         var existingUserByName = await userRepository.GetUserByUsernameAsync(register.Name);
         if (existingUserByName is not null)
             return AuthResult.Fail("Name already registered.");
@@ -96,7 +93,8 @@ internal class AccountService : IAccountService
         }
         catch (Exception ex)
         {
-            return AuthResult.Fail($"Register failed: {ex.Message}");
+            logger.LogError(ex, $"Register failed: {ex.Message}");
+            return AuthResult.Fail("Register failed");
         }
     }
 

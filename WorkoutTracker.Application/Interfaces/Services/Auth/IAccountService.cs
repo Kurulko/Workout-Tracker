@@ -3,7 +3,7 @@ using WorkoutTracker.Application.DTOs.Account;
 
 namespace WorkoutTracker.Application.Interfaces.Services.Auth;
 
-public interface IAccountService
+public interface IAccountService : IBaseService
 {
     Task<AuthResult> LoginAsync(LoginModel model);
     Task<AuthResult> RegisterAsync(RegisterModel model);

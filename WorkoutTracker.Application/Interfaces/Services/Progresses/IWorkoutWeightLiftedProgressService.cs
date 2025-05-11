@@ -3,7 +3,7 @@ using WorkoutTracker.Domain.Entities.Workouts;
 
 namespace WorkoutTracker.Application.Interfaces.Services.Progresses;
 
-public interface IWorkoutWeightLiftedProgressService
+public interface IWorkoutWeightLiftedProgressService : IBaseService
 {
     WorkoutWeightLiftedProgress CalculateWorkoutWeightLiftedProgress(IEnumerable<WorkoutRecord> workoutRecords);
 }

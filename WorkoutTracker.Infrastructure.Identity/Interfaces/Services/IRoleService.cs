@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using WorkoutTracker.Application.Interfaces.Services;
 
 namespace WorkoutTracker.Infrastructure.Identity.Interfaces.Services;
 
-public interface IRoleService
+public interface IRoleService : IBaseService
 {
     Task<IdentityRole?> GetRoleByIdAsync(string key);
     Task<string?> GetRoleIdByNameAsync(string name);

@@ -44,28 +44,21 @@ public class RolesController : APIController
         if (pageIndex < 0 || pageSize <= 0)
             return InvalidPageIndexOrPageSize();
 
-        try
-        {
-            var roles = await roleService.GetRolesAsync();
+        var roles = await roleService.GetRolesAsync();
 
-            if (roles is null)
-                return EntryNotFound("Roles");
+        if (roles is null)
+            return EntryNotFound("Roles");
 
-            var roleDTOs = roles.ToList().Select(mapper.Map<RoleDTO>);
-            return await ApiResult<RoleDTO>.CreateAsync(
-                roleDTOs.AsQueryable(),
-                pageIndex,
-                pageSize,
-                sortColumn,
-                sortOrder,
-                filterColumn,
-                filterQuery
-            );
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var roleDTOs = roles.ToList().Select(mapper.Map<RoleDTO>);
+        return await ApiResult<RoleDTO>.CreateAsync(
+            roleDTOs.AsQueryable(),
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
     }
 
     [HttpGet("{roleId}")]
@@ -75,19 +68,12 @@ public class RolesController : APIController
         if (string.IsNullOrEmpty(roleId))
             return RoleIDIsNullOrEmpty();
 
-        try
-        {
-            IdentityRole? role = await roleService.GetRoleByIdAsync(roleId);
+        IdentityRole? role = await roleService.GetRoleByIdAsync(roleId);
 
-            if (role is null)
-                return RoleNotFound();
+        if (role is null)
+            return RoleNotFound();
 
-            return mapper.Map<RoleDTO>(role);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return mapper.Map<RoleDTO>(role);
     }
 
     [HttpGet("by-name/{name}")]
@@ -96,19 +82,12 @@ public class RolesController : APIController
         if (string.IsNullOrEmpty(name))
             return RoleNameIsNullOrEmpty();
 
-        try
-        {
-            IdentityRole? role = await roleService.GetRoleByNameAsync(name);
+        IdentityRole? role = await roleService.GetRoleByNameAsync(name);
 
-            if (role is null)
-                return RoleNotFound();
+        if (role is null)
+            return RoleNotFound();
 
-            return mapper.Map<RoleDTO>(role);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return mapper.Map<RoleDTO>(role);
     }
 
     [HttpPost]
@@ -117,18 +96,11 @@ public class RolesController : APIController
         if (roleCreationDTO is null)
             return RoleIsNull();
 
-        try
-        {
-            var role = mapper.Map<IdentityRole>(roleCreationDTO);
-            role = await roleService.AddRoleAsync(role);
+        var role = mapper.Map<IdentityRole>(roleCreationDTO);
+        role = await roleService.AddRoleAsync(role);
 
-            var roleDTO = mapper.Map<RoleDTO>(role);
-            return CreatedAtAction(nameof(GetRoleByIdAsync), new { roleId = roleDTO.Id }, roleDTO);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var roleDTO = mapper.Map<RoleDTO>(role);
+        return CreatedAtAction(nameof(GetRoleByIdAsync), new { roleId = roleDTO.Id }, roleDTO);
     }
 
     [HttpPut("{roleId}")]
@@ -165,19 +137,12 @@ public class RolesController : APIController
         if (string.IsNullOrEmpty(name))
             return RoleNameIsNullOrEmpty();
 
-        try
-        {
-            string? roleId = await roleService.GetRoleIdByNameAsync(name);
+        string? roleId = await roleService.GetRoleIdByNameAsync(name);
 
-            if (roleId is null)
-                return RoleNotFound();
+        if (roleId is null)
+            return RoleNotFound();
 
-            return roleId;
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return roleId;
     }
 
 
@@ -187,19 +152,12 @@ public class RolesController : APIController
         if (string.IsNullOrEmpty(roleId))
             return RoleIDIsNullOrEmpty();
 
-        try
-        {
-            string? name = await roleService.GetRoleNameByIdAsync(roleId);
+        string? name = await roleService.GetRoleNameByIdAsync(roleId);
 
-            if (name is null)
-                return RoleNotFound();
+        if (name is null)
+            return RoleNotFound();
 
-            return name;
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return name;
     }
 
     [HttpGet("role-exists/{roleId}")]
@@ -208,14 +166,7 @@ public class RolesController : APIController
         if (string.IsNullOrEmpty(roleId))
             return RoleIDIsNullOrEmpty();
 
-        try
-        {
-            return await roleService.RoleExistsAsync(roleId);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return await roleService.RoleExistsAsync(roleId);
     }
 
     [HttpGet("role-exists-by-name/{name}")]
@@ -224,13 +175,6 @@ public class RolesController : APIController
         if (string.IsNullOrEmpty(name))
             return RoleNameIsNullOrEmpty();
 
-        try
-        {
-            return await roleService.RoleExistsByNameAsync(name);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        return await roleService.RoleExistsByNameAsync(name);
     }
 }

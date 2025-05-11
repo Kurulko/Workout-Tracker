@@ -10,14 +10,21 @@ using WorkoutTracker.Infrastructure.Exceptions;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
 using WorkoutTracker.Infrastructure.Services.Base;
 using WorkoutTracker.Application.Common.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace WorkoutTracker.Infrastructure.Services.Exercises;
 
-internal class ExerciseRecordService : DbModelService<ExerciseRecord>, IExerciseRecordService
+internal class ExerciseRecordService : DbModelService<ExerciseRecordService, ExerciseRecord>, IExerciseRecordService
 {
     readonly IUserRepository userRepository;
-    public ExerciseRecordService(IExerciseRecordRepository baseRepository, IUserRepository userRepository) : base(baseRepository)
-        => this.userRepository = userRepository;
+    public ExerciseRecordService(
+        IExerciseRecordRepository baseRepository, 
+        IUserRepository userRepository,
+        ILogger<ExerciseRecordService> logger
+    ) : base(baseRepository, logger)
+    {
+        this.userRepository = userRepository;
+    }
 
     readonly EntryNullException exerciseRecordIsNullException = new("Exercise record");
     readonly InvalidIDException invalidExerciseRecordIDException = new(nameof(ExerciseRecord));
@@ -43,13 +50,14 @@ internal class ExerciseRecordService : DbModelService<ExerciseRecord>, IExercise
 
             return ServiceResult<ExerciseRecord>.Ok(exerciseRecord);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult<ExerciseRecord>.Fail(ex);
+            return ServiceResult<ExerciseRecord>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<ExerciseRecord>.Fail(FailedToActionStr("exercise record", "add", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("exercise record", "add", userId));
+            throw;
         }
     }
 
@@ -70,13 +78,14 @@ internal class ExerciseRecordService : DbModelService<ExerciseRecord>, IExercise
             await baseRepository.RemoveAsync(exerciseRecordId);
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult.Fail(ex);
+            return ServiceResult.Fail(ex.Message);
         }
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("exercise record", "delete"));
+            _logger.LogError(ex, FailedToActionForUserStr("exercise record", "delete", userId));
+            throw;
         }
     }
 
@@ -104,19 +113,19 @@ internal class ExerciseRecordService : DbModelService<ExerciseRecord>, IExercise
 
             return ServiceResult<IQueryable<ExerciseRecord>>.Ok(userExerciseRecords.AsQueryable());
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult<IQueryable<ExerciseRecord>>.Fail(ex);
+            return ServiceResult<IQueryable<ExerciseRecord>>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<ExerciseRecord>>.Fail(FailedToActionStr("exercise records", "get", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("exercise records", "get", userId));
+            throw;
         }
     }
 
     public async Task<ServiceResult<ExerciseRecord>> GetUserExerciseRecordByIdAsync(string userId, long exerciseRecordId)
     {
-
         try
         {
             await CheckUserIdAsync(userRepository, userId);
@@ -127,13 +136,14 @@ internal class ExerciseRecordService : DbModelService<ExerciseRecord>, IExercise
             var userExerciseRecordById = await baseRepository.GetByIdAsync(exerciseRecordId);
             return ServiceResult<ExerciseRecord>.Ok(userExerciseRecordById);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult<ExerciseRecord>.Fail(ex);
+            return ServiceResult<ExerciseRecord>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<ExerciseRecord>.Fail(FailedToActionStr("exercise record", "get", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("exercise record", "get", userId));
+            throw;
         }
     }
 
@@ -164,13 +174,14 @@ internal class ExerciseRecordService : DbModelService<ExerciseRecord>, IExercise
 
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult.Fail(ex);
+            return ServiceResult.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("exercise record", "update", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("exercise record", "update", userId));
+            throw;
         }
     }
 }

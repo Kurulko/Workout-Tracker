@@ -4,7 +4,7 @@ using WorkoutTracker.Domain.Entities.Workouts;
 
 namespace WorkoutTracker.Application.Interfaces.Services.Workouts;
 
-public interface IWorkoutService
+public interface IWorkoutService : IBaseService
 {
     Task<ServiceResult<Workout>> GetUserWorkoutByIdAsync(string userId, long workoutId, bool withDetails = false);
     Task<ServiceResult<Workout>> GetUserWorkoutByNameAsync(string userId, string name, bool withDetails = false);

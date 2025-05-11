@@ -82,7 +82,7 @@ public static class ServiceCollectionExtensions
 
         services.AddControllers(options =>
         {
-            options.Filters.Add<ValidateModelStateAttribute>();
+            options.Filters.Add<ValidateModelStateFilter>();
             options.ModelBinderProviders.Insert(0, new DateTimeRangeBinderProvider());
         })
         .AddNewtonsoftJson(options =>

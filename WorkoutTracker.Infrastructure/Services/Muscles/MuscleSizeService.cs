@@ -9,14 +9,22 @@ using WorkoutTracker.Infrastructure.Exceptions;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
 using WorkoutTracker.Infrastructure.Services.Base;
 using WorkoutTracker.Application.Common.Extensions;
+using Microsoft.Extensions.Logging;
+using WorkoutTracker.Domain.Entities;
 
 namespace WorkoutTracker.Infrastructure.Services.Muscles;
 
-internal class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
+internal class MuscleSizeService : DbModelService<MuscleSizeService, MuscleSize>, IMuscleSizeService
 {
     readonly IUserRepository userRepository;
-    public MuscleSizeService(IMuscleSizeRepository baseRepository, IUserRepository userRepository) : base(baseRepository)
-        => this.userRepository = userRepository;
+    public MuscleSizeService(
+        IMuscleSizeRepository baseRepository, 
+        IUserRepository userRepository,
+        ILogger<MuscleSizeService> logger
+    ) : base(baseRepository, logger)
+    {
+        this.userRepository = userRepository;
+    }
 
     readonly EntryNullException muscleSizeIsNullException = new("Muscle size");
     readonly InvalidIDException invalidMuscleSizeIDException = new(nameof(MuscleSize));
@@ -41,13 +49,14 @@ internal class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeServic
 
             return ServiceResult<MuscleSize>.Ok(muscleSize);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult<MuscleSize>.Fail(ex);
+            return ServiceResult<MuscleSize>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("muscle size", "add", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("muscle size", "add", userId));
+            throw;
         }
     }
 
@@ -68,13 +77,14 @@ internal class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeServic
             await baseRepository.RemoveAsync(muscleSizeId);
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult.Fail(ex);
+            return ServiceResult.Fail(ex.Message);
         }
-        catch
+        catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("muscle size", "delete"));
+            _logger.LogError(ex, FailedToActionForUserStr("muscle size", "delete", userId));
+            throw;
         }
     }
     
@@ -100,13 +110,14 @@ internal class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeServic
 
             return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizes.AsQueryable());
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult<IQueryable<MuscleSize>>.Fail(ex);
+            return ServiceResult<IQueryable<MuscleSize>>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<IQueryable<MuscleSize>>.Fail(FailedToActionStr("muscle sizes", "get", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("muscle sizes", "delete", userId));
+            throw;
         }
     }
 
@@ -155,13 +166,14 @@ internal class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeServic
             var userMaxMuscleSize = userMuscleSizes?.ToList().MaxBy(bw => bw.Size);
             return ServiceResult<MuscleSize>.Ok(userMaxMuscleSize);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult<MuscleSize>.Fail(ex);
+            return ServiceResult<MuscleSize>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("max muscle size", "get", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("max muscle size", "add", userId));
+            throw;
         }
     }
 
@@ -178,13 +190,14 @@ internal class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeServic
             var userMinMuscleSize = userMuscleSizes?.ToList().MinBy(bw => bw.Size);
             return ServiceResult<MuscleSize>.Ok(userMinMuscleSize);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult<MuscleSize>.Fail(ex);
+            return ServiceResult<MuscleSize>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("min muscle size", "get", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("min muscle size", "add", userId));
+            throw;
         }
     }
 
@@ -200,13 +213,14 @@ internal class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeServic
             var userMuscleSizeById = await baseRepository.GetByIdAsync(muscleSizeId);
             return ServiceResult<MuscleSize>.Ok(userMuscleSizeById);
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult<MuscleSize>.Fail(ex);
+            return ServiceResult<MuscleSize>.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("muscle size", "get", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("muscle size", "get", userId));
+            throw;
         }
     }
 
@@ -234,13 +248,14 @@ internal class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeServic
             await baseRepository.UpdateAsync(_muscleSize);
             return ServiceResult.Ok();
         }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IWorkoutException)
         {
-            return ServiceResult.Fail(ex);
+            return ServiceResult.Fail(ex.Message);
         }
         catch (Exception ex)
         {
-            return ServiceResult.Fail(FailedToActionStr("muscle size", "update", ex));
+            _logger.LogError(ex, FailedToActionForUserStr("muscle size", "update", userId));
+            throw;
         }
     }
 }
