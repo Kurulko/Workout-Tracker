@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Linq.Expressions;
 using WorkoutTracker.Domain.Enums;
 using WorkoutTracker.Domain.ValueObjects;
@@ -7,14 +7,15 @@ namespace WorkoutTracker.Persistence.Extensions;
 
 internal static class ModelBuilderExtensions
 {
-    public static void ApplyModelWeightConversion<TEntity>(this ModelBuilder modelBuilder, Expression<Func<TEntity, ModelWeight?>> propertyExpression) where TEntity : class
+    public static void ApplyModelWeightConversion<TEntity>(this EntityTypeBuilder<TEntity> builder, Expression<Func<TEntity, ModelWeight?>> propertyExpression) where TEntity : class
     {
-        modelBuilder.Entity<TEntity>()
+        builder
             .Property(propertyExpression)
             .HasConversion(
                 v => SerializeModelWeight(v), // Serialize ModelWeight to string
                 v => DeserializeModelWeight(v)); // Deserialize ModelWeight
     }
+
 
     private static string? SerializeModelWeight(ModelWeight? weight)
     {
@@ -37,9 +38,9 @@ internal static class ModelBuilderExtensions
         };
     }
 
-    public static void ApplyModelSizeConversion<TEntity>(this ModelBuilder modelBuilder, Expression<Func<TEntity, ModelSize?>> propertyExpression) where TEntity : class
+    public static void ApplyModelSizeConversion<TEntity>(this EntityTypeBuilder<TEntity> builder, Expression<Func<TEntity, ModelSize?>> propertyExpression) where TEntity : class
     {
-        modelBuilder.Entity<TEntity>()
+        builder
             .Property(propertyExpression)
             .HasConversion(
                 v => SerializeModelSize(v), // Serialize ModelSize to string
