@@ -41,7 +41,6 @@ public interface IUserRepository
     #region User Models
 
     Task<UserDetails?> GetUserDetailsFromUserAsync(string userId);
-    Task<IQueryable<ExerciseRecord>?> GetUserExerciseRecordsAsync(string userId);
     Task<IQueryable<MuscleSize>?> GetUserMuscleSizesAsync(string userId);
     Task<IQueryable<BodyWeight>?> GetUserBodyWeightsAsync(string userId);
     Task<IQueryable<Workout>?> GetUserWorkoutsAsync(string userId);

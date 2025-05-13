@@ -28,8 +28,6 @@ internal class UserRepository : IUserRepository
 
     static IdentityResult UserNotFoundByIDResult(string userId)
         => IdentityResultExtensions.Failed($"User (ID '{userId}') not found.");
-    static IdentityResult UserNotFoundByNameResult(string name)
-        => IdentityResultExtensions.Failed($"User (Name '{name}') not found.");
 
     static IdentityResult UserIDIsNullOrEmptyResult => IdentityResultExtensions.Failed("User ID cannot not be null or empty.");
 
@@ -122,12 +120,6 @@ internal class UserRepository : IUserRepository
     {
         User userWithUserDetails = await db.Users.Include(u => u.UserDetails).SingleAsync(u => u.Id == userId);
         return userWithUserDetails.UserDetails;
-    }
-
-    public virtual async Task<IQueryable<ExerciseRecord>?> GetUserExerciseRecordsAsync(string userId)
-    {
-        User userWithExerciseRecords = await db.Users.Include(u => u.ExerciseRecords).SingleAsync(u => u.Id == userId);
-        return userWithExerciseRecords.ExerciseRecords?.AsQueryable();
     }
 
     public virtual async Task<IQueryable<MuscleSize>?> GetUserMuscleSizesAsync(string userId)
