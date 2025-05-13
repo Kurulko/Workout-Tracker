@@ -1,5 +1,4 @@
 ﻿using WorkoutTracker.Domain.Base;
-using WorkoutTracker.Domain.Entities.Users;
 using WorkoutTracker.Domain.ValueObjects;
 
 namespace WorkoutTracker.Domain.Entities.Exercises.ExerciseSets;
@@ -17,6 +16,4 @@ public class ExerciseSet : IDbModel
 
     public long ExerciseSetGroupId { get; set; }
     public ExerciseSetGroup? ExerciseSetGroup { get; set; }
-
-    public string UserId { get; set; } = null!;
 }

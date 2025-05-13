@@ -17,6 +17,4 @@ public class ExerciseRecord : IDbModel
 
     public long ExerciseRecordGroupId { get; set; }
     public ExerciseRecordGroup? ExerciseRecordGroup { get; set; }
-
-    public string UserId { get; set; } = null!;
 }
