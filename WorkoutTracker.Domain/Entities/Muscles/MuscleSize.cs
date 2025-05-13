@@ -1,5 +1,4 @@
 ﻿using WorkoutTracker.Domain.Base;
-using WorkoutTracker.Domain.Entities.Users;
 using WorkoutTracker.Domain.ValueObjects;
 
 namespace WorkoutTracker.Domain.Entities.Muscles;
