@@ -418,36 +418,6 @@ public class UsersController : APIController
         );
     }
 
-    [HttpGet($"user-exercise_records")]
-    public async Task<ActionResult<ApiResult<ExerciseRecordDTO>>> GetCurrentUserExerciseRecordsAsync(
-        int pageIndex = 0,
-        int pageSize = 10,
-        string? sortColumn = null,
-        string? sortOrder = null,
-        string? filterColumn = null,
-        string? filterQuery = null)
-    {
-        if (pageIndex < 0 || pageSize <= 0)
-            return InvalidPageIndexOrPageSize();
-
-        string currentUserId = httpContextAccessor.GetUserId()!;
-        var userExerciseRecords = await userService.GetUserExerciseRecordsAsync(currentUserId);
-
-        if (userExerciseRecords is null)
-            return EntryNotFound("User exercise records");
-
-        var userExerciseRecordDTOs = userExerciseRecords.Select(m => mapper.Map<ExerciseRecordDTO>(m));
-        return await ApiResult<ExerciseRecordDTO>.CreateAsync(
-            userExerciseRecordDTOs,
-            pageIndex,
-            pageSize,
-            sortColumn,
-            sortOrder,
-            filterColumn,
-            filterQuery
-        );
-    }
-
     [HttpGet($"user-equipments")]
     public async Task<ActionResult<ApiResult<EquipmentDTO>>> GetCurrentUserEquipmentsAsync(
         int pageIndex = 0,

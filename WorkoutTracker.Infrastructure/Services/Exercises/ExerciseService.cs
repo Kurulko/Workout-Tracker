@@ -7,13 +7,12 @@ using WorkoutTracker.Application.Interfaces.Repositories.Exercises.ExerciseRecor
 using WorkoutTracker.Application.Interfaces.Repositories.Muscles;
 using WorkoutTracker.Application.Interfaces.Services;
 using WorkoutTracker.Application.Interfaces.Services.Exercises;
-using WorkoutTracker.Domain.Entities;
 using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Domain.Enums;
 using WorkoutTracker.Infrastructure.Exceptions;
-using WorkoutTracker.Infrastructure.Identity.Entities;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
 using WorkoutTracker.Infrastructure.Services.Base;
+using WorkoutTracker.Application.Common.Extensions.Exercises;
 
 namespace WorkoutTracker.Infrastructure.Services.Exercises;
 
@@ -49,9 +48,6 @@ internal class ExerciseService : BaseWorkoutService<ExerciseService, Exercise>, 
 
     NotFoundException ExerciseNotFoundByIDException(long id)
         => NotFoundException.NotFoundExceptionByID(nameof(Exercise), id);
-    NotFoundException ExerciseNotFoundByNameException(string name)
-        => NotFoundException.NotFoundExceptionByName(nameof(Exercise), name);
-
     ArgumentException ExerciseNameMustBeUnique()
         => EntryNameMustBeUnique(nameof(Exercise));
 
@@ -676,9 +672,12 @@ internal class ExerciseService : BaseWorkoutService<ExerciseService, Exercise>, 
         try
         {
             await CheckUserIdAsync(userRepository, userId);
-            var usedExercises = (await exerciseRecordRepository.FindAsync(er => er.UserId == userId))
+            var usedExercises = (await exerciseRecordRepository.GetExerciseRecordsByUserIdAsync(userId))
                 .Select(er => er.Exercise!)
                 .Distinct();
+            //var usedExercises = (await exerciseRecordRepository.FindAsync(er => er.GetUserId() == userId))
+            //    .Select(er => er.Exercise!)
+            //    .Distinct();
 
             if (exerciseType is ExerciseType _exerciseType)
                 usedExercises = usedExercises.Where(e => e.Type == exerciseType);

@@ -9,6 +9,7 @@ using WorkoutTracker.Infrastructure.Exceptions;
 using WorkoutTracker.Application.Common.Results;
 using Microsoft.Extensions.Logging;
 using WorkoutTracker.Infrastructure.Identity.Entities;
+using WorkoutTracker.Application.Common.Extensions.Exercises;
 
 namespace WorkoutTracker.Infrastructure.Services;
 
@@ -541,7 +542,7 @@ internal class EquipmentService : BaseWorkoutService<EquipmentService, Equipment
         {
             await CheckUserIdAsync(userRepository, userId);
 
-            var usedEquipments = (await exerciseRecordRepository.FindAsync(er => er.UserId == userId))
+            var usedEquipments = (await exerciseRecordRepository.GetExerciseRecordsByUserIdAsync(userId))
                 .SelectMany(er => er.Exercise!.Equipments)
                 .Distinct();
 

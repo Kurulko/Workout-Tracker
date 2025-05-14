@@ -14,7 +14,6 @@ using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
 using WorkoutTracker.Infrastructure.Services.Base;
 using WorkoutTracker.Application.Common.Extensions.Exercises;
 using Microsoft.Extensions.Logging;
-using WorkoutTracker.Domain.Entities;
 
 namespace WorkoutTracker.Infrastructure.Services.Workouts;
 
@@ -140,7 +139,6 @@ internal class WorkoutService : BaseWorkoutService<WorkoutService, Workout>, IWo
             {
                 exerciseSet.ExerciseSetGroupId = exerciseSetGroup.Id;
                 exerciseSet.ExerciseId = exerciseSetGroup.ExerciseId;
-                exerciseSet.UserId = userId;
                 await exerciseSetRepository.AddAsync(exerciseSet);
             }
         }

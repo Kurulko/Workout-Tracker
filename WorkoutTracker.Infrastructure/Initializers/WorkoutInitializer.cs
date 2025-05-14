@@ -60,7 +60,6 @@ internal static class WorkoutInitializer
                 Date = date,
                 ExerciseId = exerciseId,
                 ExerciseRecordGroupId = exerciseRecordGroupId,
-                UserId = userId,
                 Weight = weight,
                 Time = time,
                 Reps = reps
@@ -89,7 +88,6 @@ internal static class WorkoutInitializer
             {
                 ExerciseId = exerciseId,
                 ExerciseSetGroupId = exerciseSetGroupId,
-                UserId = userId,
                 Weight = weight,
                 Time = time,
                 Reps = reps

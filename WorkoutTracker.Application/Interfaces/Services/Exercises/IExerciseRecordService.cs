@@ -9,7 +9,7 @@ public interface IExerciseRecordService : IBaseService
 {
     Task<ServiceResult<ExerciseRecord>> GetUserExerciseRecordByIdAsync(string userId, long exerciseRecordId);
     Task<ServiceResult<IQueryable<ExerciseRecord>>> GetUserExerciseRecordsAsync(string userId, long? exerciseId = null, ExerciseType? exerciseType = null, DateTimeRange? range = null);
-    Task<ServiceResult<ExerciseRecord>> AddExerciseRecordToUserAsync(string userId, ExerciseRecord exerciseRecord);
+    Task<ServiceResult<ExerciseRecord>> AddExerciseRecordToExerciseRecordGroupAsync(long exerciseRecordGroupId, string userId, ExerciseRecord exerciseRecord);
     Task<ServiceResult> UpdateUserExerciseRecordAsync(string userId, ExerciseRecord model);
     Task<ServiceResult> DeleteExerciseRecordFromUserAsync(string userId, long exerciseRecordId);
 }

@@ -91,15 +91,18 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
         return HandleExerciseRecordDTOServiceResult(serviceResult);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> AddExerciseRecordToCurrentUserAsync(ExerciseRecordCreationDTO exerciseRecordCreationDTO)
+    [HttpPost("{exerciseRecordGroupId}")]
+    public async Task<IActionResult> AddExerciseRecordToExerciseRecordGroupAsync(long exerciseRecordGroupId, ExerciseRecordCreationDTO exerciseRecordCreationDTO)
     {
+        if (exerciseRecordGroupId < 1)
+            return InvalidEntryID(nameof(ExerciseRecordGroup)); ;
+
         if (exerciseRecordCreationDTO is null)
             return ExerciseRecordIsNull();
 
         string userId = httpContextAccessor.GetUserId()!;
         var exerciseRecord = mapper.Map<ExerciseRecord>(exerciseRecordCreationDTO);
-        var serviceResult = await exerciseRecordService.AddExerciseRecordToUserAsync(userId, exerciseRecord);
+        var serviceResult = await exerciseRecordService.AddExerciseRecordToExerciseRecordGroupAsync(exerciseRecordGroupId, userId, exerciseRecord);
 
         if (!serviceResult.Success)
             return BadRequest(serviceResult.ErrorMessage);

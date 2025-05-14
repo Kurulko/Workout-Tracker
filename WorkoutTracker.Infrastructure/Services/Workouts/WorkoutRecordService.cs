@@ -231,7 +231,6 @@ internal class WorkoutRecordService : DbModelService<WorkoutRecordService, Worko
                 exerciseRecord.Date = date;
                 exerciseRecord.ExerciseRecordGroupId = exerciseRecordGroup.Id;
                 exerciseRecord.ExerciseId = exerciseRecordGroup.ExerciseId;
-                exerciseRecord.UserId = userId;
                 await exerciseRecordRepository.AddAsync(exerciseRecord);
             }
         }

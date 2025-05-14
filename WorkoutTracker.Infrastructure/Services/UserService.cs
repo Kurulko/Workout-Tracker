@@ -39,8 +39,6 @@ internal class UserService : BaseService<UserService, User>, IUserService
     readonly EntryNullException userIsNullException = new EntryNullException(nameof(User));
     readonly ArgumentNullOrEmptyException userNameIsNullOrEmptyException = new("User name");
 
-    NotFoundException RoleNotFoundByIDException(string id)
-        => NotFoundException.NotFoundExceptionByID("Role", id);
     NotFoundException RoleNotFoundByNameException(string name)
         => NotFoundException.NotFoundExceptionByName("Role", name);
 
@@ -271,12 +269,6 @@ internal class UserService : BaseService<UserService, User>, IUserService
     #endregion
 
     #region User Models
-
-    public async Task<IQueryable<ExerciseRecord>?> GetUserExerciseRecordsAsync(string userId)
-    {
-        await CheckUserIdAsync(userId);
-        return await userRepository.GetUserExerciseRecordsAsync(userId);
-    }
 
     public async Task<IQueryable<MuscleSize>?> GetUserMuscleSizesAsync(string userId)
     {
