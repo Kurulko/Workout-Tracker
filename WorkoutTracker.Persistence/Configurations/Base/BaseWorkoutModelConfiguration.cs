@@ -12,6 +12,6 @@ internal  abstract class BaseWorkoutModelConfiguration<T> : DbModelConfiguration
 
         builder.Property(w => w.Name)
             .IsRequired()
-            .HasMaxLength(20);
+            .HasMaxLength(50);
     }
 }
