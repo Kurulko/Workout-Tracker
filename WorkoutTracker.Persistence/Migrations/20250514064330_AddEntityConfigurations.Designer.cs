@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WorkoutTracker.Persistence.Context;
 
@@ -11,9 +12,11 @@ using WorkoutTracker.Persistence.Context;
 namespace WorkoutTracker.Persistence.Migrations
 {
     [DbContext(typeof(WorkoutDbContext))]
-    partial class WorkoutDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250514064330_AddEntityConfigurations")]
+    partial class AddEntityConfigurations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -820,7 +823,7 @@ namespace WorkoutTracker.Persistence.Migrations
                     b.HasOne("WorkoutTracker.Domain.Entities.Exercises.ExerciseGroups.ExerciseRecordGroup", "ExerciseRecordGroup")
                         .WithMany("ExerciseRecords")
                         .HasForeignKey("ExerciseRecordGroupId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Exercise");
@@ -858,7 +861,7 @@ namespace WorkoutTracker.Persistence.Migrations
                     b.HasOne("WorkoutTracker.Domain.Entities.Exercises.ExerciseSets.ExerciseSetGroup", "ExerciseSetGroup")
                         .WithMany("ExerciseSets")
                         .HasForeignKey("ExerciseSetGroupId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Exercise");
@@ -890,7 +893,7 @@ namespace WorkoutTracker.Persistence.Migrations
                     b.HasOne("WorkoutTracker.Domain.Entities.Muscles.Muscle", "ParentMuscle")
                         .WithMany("ChildMuscles")
                         .HasForeignKey("ParentMuscleId")
-                        .OnDelete(DeleteBehavior.ClientCascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ParentMuscle");
                 });
@@ -941,7 +944,7 @@ namespace WorkoutTracker.Persistence.Migrations
                     b.HasOne("WorkoutTracker.Domain.Entities.Workouts.Workout", "Workout")
                         .WithMany("WorkoutRecords")
                         .HasForeignKey("WorkoutId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Workout");
