@@ -14,6 +14,6 @@ internal class ExerciseRecordGroupConfiguration : DbModelConfiguration<ExerciseR
         builder.HasMany(er => er.ExerciseRecords)
             .WithOne(erg => erg.ExerciseRecordGroup)
             .HasForeignKey(er => er.ExerciseRecordGroupId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

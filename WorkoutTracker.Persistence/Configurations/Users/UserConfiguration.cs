@@ -53,7 +53,7 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMany(u => u.CreatedExercises)
             .WithOne()
             .HasForeignKey(m => m.CreatedByUserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder
             .HasMany(u => u.UserEquipments)

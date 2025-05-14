@@ -21,7 +21,7 @@ internal class MuscleConfiguration : BaseWorkoutModelConfiguration<Muscle>
         builder.HasOne(m => m.ParentMuscle)
             .WithMany(m => m.ChildMuscles)
             .HasForeignKey(m => m.ParentMuscleId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.ClientCascade);
 
         builder.HasMany(e => e.MuscleSizes)
             .WithOne(ea => ea.Muscle)

@@ -36,6 +36,6 @@ internal class WorkoutConfiguration : BaseWorkoutModelConfiguration<Workout>
         builder.HasMany(e => e.WorkoutRecords)
            .WithOne(esg => esg.Workout)
            .HasForeignKey(esg => esg.WorkoutId) 
-           .OnDelete(DeleteBehavior.Cascade);
+           .OnDelete(DeleteBehavior.ClientCascade);
     }
 }
