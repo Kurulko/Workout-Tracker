@@ -11,7 +11,7 @@ using WorkoutTracker.Infrastructure.Identity.Entities;
 
 namespace WorkoutTracker.Persistence.Context;
 
-internal class WorkoutDbContext : IdentityDbContext<User>
+public class WorkoutDbContext : IdentityDbContext<User>
 {
     public DbSet<UserDetails> UsersDetails => Set<UserDetails>();
     public DbSet<Exercise> Exercises => Set<Exercise>();
