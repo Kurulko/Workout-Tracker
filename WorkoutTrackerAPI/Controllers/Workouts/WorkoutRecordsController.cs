@@ -116,6 +116,7 @@ public class WorkoutRecordsController : DbModelController<WorkoutRecordDTO, Work
         string userId = httpContextAccessor.GetUserId()!;
         var workoutRecord = mapper.Map<WorkoutRecord>(workoutRecordDTO);
         workoutRecord.Id = workoutRecordId;
+
         var serviceResult = await workoutRecordService.UpdateUserWorkoutRecordAsync(userId, workoutRecord);
         return HandleServiceResult(serviceResult);
     }

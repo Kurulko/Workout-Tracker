@@ -9,6 +9,7 @@ using WorkoutTracker.Application.Common.Results;
 using WorkoutTracker.Application.DTOs.Muscles.MuscleSizes;
 using WorkoutTracker.Application.Interfaces.Services.Muscles;
 using WorkoutTracker.Domain.Entities.Muscles;
+using WorkoutTracker.Domain.Entities.Workouts;
 
 namespace WorkoutTracker.API.Controllers.Muscles;
 
@@ -158,9 +159,6 @@ public class MuscleSizesController : DbModelController<MuscleSizeDTO, MuscleSize
         if (muscleSizeCreationDTO is null)
             return MuscleSizeIsNull();
 
-        if (muscleSizeCreationDTO.Id != 0)
-            return InvalidEntryIDWhileAdding(nameof(MuscleSize), "muscle size");
-
         string userId = httpContextAccessor.GetUserId()!;
         var muscleSize = mapper.Map<MuscleSize>(muscleSizeCreationDTO);
         var serviceResult = await muscleSizeService.AddMuscleSizeToUserAsync(userId, muscleSize);
@@ -183,11 +181,10 @@ public class MuscleSizesController : DbModelController<MuscleSizeDTO, MuscleSize
         if (muscleSizeDTO is null)
             return MuscleSizeIsNull();
 
-        if (muscleSizeId != muscleSizeDTO.Id)
-            return EntryIDsNotMatch(nameof(MuscleSize));
-
         string userId = httpContextAccessor.GetUserId()!;
         var muscleSize = mapper.Map<MuscleSize>(muscleSizeDTO);
+        muscleSize.Id = muscleSizeId;
+
         var serviceResult = await muscleSizeService.UpdateUserMuscleSizeAsync(userId, muscleSize);
         return HandleServiceResult(serviceResult);
     }

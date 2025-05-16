@@ -6,10 +6,9 @@ using System.Data;
 using WorkoutTracker.API.Controllers.Base;
 using WorkoutTracker.API.Extensions;
 using WorkoutTracker.API.Results;
-using WorkoutTracker.Application.DTOs;
 using WorkoutTracker.Application.DTOs.Account;
+using WorkoutTracker.Application.DTOs.BodyWeights;
 using WorkoutTracker.Application.DTOs.Equipments;
-using WorkoutTracker.Application.DTOs.Exercises.ExerciseRecords.ExerciseRecords;
 using WorkoutTracker.Application.DTOs.Exercises.Exercises;
 using WorkoutTracker.Application.DTOs.Muscles.MuscleSizes;
 using WorkoutTracker.Application.DTOs.Users;
@@ -167,7 +166,7 @@ public class UsersController : APIController
     }
 
     [HttpPut("{userId}")]
-    public async Task<IActionResult> UpdateUserAsync(string userId, UserDTO userDTO)
+    public async Task<IActionResult> UpdateUserAsync(string userId, UserUpdateDTO userDTO)
     {
         if (string.IsNullOrEmpty(userId))
             return UserIDIsNullOrEmpty();

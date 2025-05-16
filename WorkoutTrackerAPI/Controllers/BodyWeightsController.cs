@@ -6,9 +6,10 @@ using WorkoutTracker.API.Extensions;
 using WorkoutTracker.API.Results;
 using WorkoutTracker.Application.Common.Models;
 using WorkoutTracker.Application.Common.Results;
-using WorkoutTracker.Application.DTOs;
+using WorkoutTracker.Application.DTOs.BodyWeights;
 using WorkoutTracker.Application.Interfaces.Services;
 using WorkoutTracker.Domain.Entities;
+using WorkoutTracker.Domain.Entities.Workouts;
 
 namespace WorkoutTracker.API.Controllers;
 
@@ -135,16 +136,13 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddBodyWeightToCurrentUserAsync([FromBody] BodyWeightDTO bodyWeightDTO)
+    public async Task<IActionResult> AddBodyWeightToCurrentUserAsync([FromBody] BodyWeightCreationDTO bodyWeightCreationDTO)
     {
-        if (bodyWeightDTO is null)
+        if (bodyWeightCreationDTO is null)
             return BodyWeightIsNull();
 
-        if (bodyWeightDTO.Id != 0)
-            return InvalidEntryIDWhileAdding(nameof(BodyWeight), "body weight");
-
         string userId = httpContextAccessor.GetUserId()!;
-        var bodyWeight = mapper.Map<BodyWeight>(bodyWeightDTO);
+        var bodyWeight = mapper.Map<BodyWeight>(bodyWeightCreationDTO);
         var serviceResult = await bodyWeightService.AddBodyWeightToUserAsync(userId, bodyWeight);
 
         if (!serviceResult.Success)
@@ -152,12 +150,12 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
 
         bodyWeight = serviceResult.Model!;
 
-        bodyWeightDTO = mapper.Map<BodyWeightDTO>(bodyWeight);
+        var bodyWeightDTO = mapper.Map<BodyWeightDTO>(bodyWeight);
         return CreatedAtAction(nameof(GetCurrentUserBodyWeightByIdAsync), new { bodyWeightId = bodyWeight.Id }, bodyWeightDTO);
     }
 
     [HttpPut("{bodyWeightId}")]
-    public async Task<IActionResult> UpdateCurrentUserBodyWeightAsync(long bodyWeightId, [FromBody] BodyWeightDTO bodyWeightDTO)
+    public async Task<IActionResult> UpdateCurrentUserBodyWeightAsync(long bodyWeightId, [FromBody] BodyWeightCreationDTO bodyWeightDTO)
     {
         if (bodyWeightId < 1)
             return InvalidBodyWeightID();
@@ -165,11 +163,10 @@ public class BodyWeightsController : DbModelController<BodyWeightDTO, BodyWeight
         if (bodyWeightDTO is null)
             return BodyWeightIsNull();
 
-        if (bodyWeightId != bodyWeightDTO.Id)
-            return EntryIDsNotMatch(nameof(BodyWeight));
-
         string userId = httpContextAccessor.GetUserId()!;
         var bodyWeight = mapper.Map<BodyWeight>(bodyWeightDTO);
+        bodyWeight.Id = bodyWeightId;
+
         var serviceResult = await bodyWeightService.UpdateUserBodyWeightAsync(userId, bodyWeight);
         return HandleServiceResult(serviceResult);
     }
