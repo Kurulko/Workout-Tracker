@@ -10,6 +10,7 @@ using WorkoutTracker.Infrastructure.Identity.Entities;
 using WorkoutTracker.Persistence.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using WorkoutTracker.Application.Common.Settings;
+using FluentValidation.AspNetCore;
 
 namespace WorkoutTracker.API.Extensions;
 
@@ -20,6 +21,8 @@ public static class ServiceCollectionExtensions
         services.AddPersistence(configuration);
         services.AddInfrastructure(configuration);
         services.AddApplication();
+
+        services.AddFluentValidationAutoValidation();
 
         services.AddIdentity();
         services.AddIdentityOptions();
