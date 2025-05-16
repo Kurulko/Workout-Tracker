@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using WorkoutTracker.Domain.Enums;
 using WorkoutTracker.Application.DTOs.Equipments;
 using WorkoutTracker.Application.DTOs.Muscles.Muscles;

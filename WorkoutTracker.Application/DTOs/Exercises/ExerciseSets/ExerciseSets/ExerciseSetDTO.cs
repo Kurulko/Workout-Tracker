@@ -1,6 +1,4 @@
-﻿using WorkoutTracker.Application.Common.Models;
-using WorkoutTracker.Application.Common.ValidationAttributes;
-using WorkoutTracker.Domain.Enums;
+﻿using WorkoutTracker.Domain.Enums;
 using WorkoutTracker.Domain.ValueObjects;
 
 namespace WorkoutTracker.Application.DTOs.Exercises.ExerciseSets.ExerciseSets;
@@ -15,8 +13,6 @@ public class ExerciseSetDTO
 
     public ModelWeight? Weight { get; set; }
     public TimeSpanModel? Time { get; set; }
-
-    [PositiveNumber]
     public int? Reps { get; set; } = null;
 
     public long ExerciseId { get; set; }

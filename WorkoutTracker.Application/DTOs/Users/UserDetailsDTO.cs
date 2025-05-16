@@ -1,5 +1,4 @@
-﻿using WorkoutTracker.Application.Common.Models;
-using WorkoutTracker.Domain.Enums;
+﻿using WorkoutTracker.Domain.Enums;
 using WorkoutTracker.Domain.ValueObjects;
 
 namespace WorkoutTracker.Application.DTOs.Users;

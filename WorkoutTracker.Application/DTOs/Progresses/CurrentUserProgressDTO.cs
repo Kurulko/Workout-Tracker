@@ -1,6 +1,4 @@
-﻿using WorkoutTracker.Application.Common.Models;
-using WorkoutTracker.Application.Models.Progresses;
-using WorkoutTracker.Domain.Enums;
+﻿using WorkoutTracker.Domain.Enums;
 using WorkoutTracker.Domain.ValueObjects;
 
 namespace WorkoutTracker.Application.DTOs.Progresses;
