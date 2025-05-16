@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using WorkoutTracker.Application.DTOs;
+using WorkoutTracker.Application.DTOs.BodyWeights;
 using WorkoutTracker.Domain.Entities;
 
 namespace WorkoutTracker.Application.Profiles;
