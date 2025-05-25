@@ -1,6 +1,6 @@
 ﻿namespace WorkoutTracker.Application.Common.Exceptions;
 
-public class EntryNullException : ArgumentException, IWorkoutException
+public class EntryNullException : ArgumentNullException, IWorkoutException
 {
     public string ErrorCode => "NULL_ERROR";
     public string? CustomMessage => Message;
