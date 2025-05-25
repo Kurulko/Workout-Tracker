@@ -22,15 +22,6 @@ public class RolesController : APIController
         this.mapper = mapper;
     }
 
-    ActionResult RoleIDIsNullOrEmpty()
-        => BadRequest("Role ID is null or empty.");
-    ActionResult RoleNameIsNullOrEmpty()
-        => BadRequest("Role name is null or empty.");
-    ActionResult RoleIsNull()
-        => EntryIsNull("Role");
-    ActionResult RoleNotFound()
-        => EntryNotFound("Role");
-
 
     [HttpGet]
     public async Task<ActionResult<ApiResult<RoleDTO>>> GetRolesAsync(
@@ -41,13 +32,10 @@ public class RolesController : APIController
         string? filterColumn = null,
         string? filterQuery = null)
     {
-        if (pageIndex < 0 || pageSize <= 0)
+        if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         var roles = await roleService.GetRolesAsync();
-
-        if (roles is null)
-            return EntryNotFound("Roles");
 
         var roleDTOs = roles.ToList().Select(mapper.Map<RoleDTO>);
         return await ApiResult<RoleDTO>.CreateAsync(
@@ -65,29 +53,21 @@ public class RolesController : APIController
     [ActionName(nameof(GetRoleByIdAsync))]
     public async Task<ActionResult<RoleDTO>> GetRoleByIdAsync(string roleId)
     {
-        if (string.IsNullOrEmpty(roleId))
+        if (!IsValidID(roleId))
             return RoleIDIsNullOrEmpty();
 
-        IdentityRole? role = await roleService.GetRoleByIdAsync(roleId);
-
-        if (role is null)
-            return RoleNotFound();
-
-        return mapper.Map<RoleDTO>(role);
+        var role = await roleService.GetRoleByIdAsync(roleId);
+        return ToRoleDTO(role);
     }
 
     [HttpGet("by-name/{name}")]
     public async Task<ActionResult<RoleDTO>> GetRoleByNameAsync(string name)
     {
-        if (string.IsNullOrEmpty(name))
+        if (!IsNameValid(name))
             return RoleNameIsNullOrEmpty();
 
-        IdentityRole? role = await roleService.GetRoleByNameAsync(name);
-
-        if (role is null)
-            return RoleNotFound();
-
-        return mapper.Map<RoleDTO>(role);
+        var role = await roleService.GetRoleByNameAsync(name);
+        return ToRoleDTO(role);
     }
 
     [HttpPost]
@@ -106,35 +86,35 @@ public class RolesController : APIController
     [HttpPut("{roleId}")]
     public async Task<IActionResult> UpdateRoleAsync(string roleId, RoleDTO roleDTO)
     {
-        if (string.IsNullOrEmpty(roleId))
+        if (!IsValidID(roleId))
             return RoleIDIsNullOrEmpty();
 
         if (roleDTO is null)
             return RoleIsNull();
 
-        if (roleId != roleDTO.Id)
+        if (!AreIdsEqual(roleId, roleDTO.Id))
             return EntryIDsNotMatch("Role");
 
         var role = mapper.Map<IdentityRole>(roleDTO);
-        var identityResult = await roleService.UpdateRoleAsync(role);
-        return HandleIdentityResult(identityResult);
+        await roleService.UpdateRoleAsync(role);
+        return Ok();
     }
 
     [HttpDelete("{roleId}")]
     public async Task<IActionResult> DeleteRoleAsync(string roleId)
     {
-        if (string.IsNullOrEmpty(roleId))
+        if (!IsValidID(roleId))
             return RoleIDIsNullOrEmpty();
 
-        var identityResult = await roleService.DeleteRoleAsync(roleId);
-        return HandleIdentityResult(identityResult);
+        await roleService.DeleteRoleAsync(roleId);
+        return Ok();
     }
 
 
     [HttpGet("id-by-name/{name}")]
     public async Task<ActionResult<string>> GetRoleIdByNameAsync(string name)
     {
-        if (string.IsNullOrEmpty(name))
+        if (!IsNameValid(name))
             return RoleNameIsNullOrEmpty();
 
         string? roleId = await roleService.GetRoleIdByNameAsync(name);
@@ -149,7 +129,7 @@ public class RolesController : APIController
     [HttpGet("name-by-id/{roleId}")]
     public async Task<ActionResult<string>> GetRoleNameByIdAsync(string roleId)
     {
-        if (string.IsNullOrEmpty(roleId))
+        if (!IsValidID(roleId))
             return RoleIDIsNullOrEmpty();
 
         string? name = await roleService.GetRoleNameByIdAsync(roleId);
@@ -160,21 +140,26 @@ public class RolesController : APIController
         return name;
     }
 
-    [HttpGet("role-exists/{roleId}")]
-    public async Task<ActionResult<bool>> RoleExistsAsync(string roleId)
+
+    bool IsValidID(string id) => !string.IsNullOrEmpty(id);
+    bool IsNameValid(string name) => !string.IsNullOrEmpty(name);
+    bool AreIdsEqual(string id1, string id2) => id1 == id2;
+
+    ActionResult RoleIDIsNullOrEmpty()
+        => BadRequest("Role ID is null or empty.");
+    ActionResult RoleNameIsNullOrEmpty()
+        => BadRequest("Role name is null or empty.");
+    ActionResult RoleIsNull()
+        => EntryIsNull("Role");
+    ActionResult RoleNotFound()
+        => EntryNotFound("Role");
+
+    ActionResult<RoleDTO> ToRoleDTO(IdentityRole? role)
     {
-        if (string.IsNullOrEmpty(roleId))
-            return RoleIDIsNullOrEmpty();
+        if (role is null)
+            return NotFound("Role not found.");
 
-        return await roleService.RoleExistsAsync(roleId);
-    }
-
-    [HttpGet("role-exists-by-name/{name}")]
-    public async Task<ActionResult<bool>> RoleExistsByNameAsync(string name)
-    {
-        if (string.IsNullOrEmpty(name))
-            return RoleNameIsNullOrEmpty();
-
-        return await roleService.RoleExistsByNameAsync(name);
+        var roleDTO = mapper.Map<RoleDTO>(role);
+        return roleDTO;
     }
 }

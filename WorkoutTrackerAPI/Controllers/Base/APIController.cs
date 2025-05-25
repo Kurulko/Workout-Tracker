@@ -2,16 +2,30 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using WorkoutTracker.Application.Common.Exceptions;
+using WorkoutTracker.Application.Common.Models;
 using WorkoutTracker.Application.Common.Results;
+using WorkoutTracker.Application.DTOs;
 
 namespace WorkoutTracker.API.Controllers.Base;
 
 [ApiController]
-[Route($"api/[controller]")]
+[Route("api/[controller]")]
 public abstract class APIController : Controller
 {
+    protected bool IsValidPageIndexAndPageSize(int pageIndex, int pageSize)
+        => pageIndex >= 0 && pageSize > 0;
+
+    protected bool IsDateInFuture(DateTime date)
+        => date > DateTime.UtcNow.Date;
+    protected bool IsDateInFuture(DateTimeRange range)
+        => IsDateInFuture(range.LastDate);
+    protected bool IsDateInFuture(DateAndTime dateAndTime)
+        => IsDateInFuture(dateAndTime.Date);
+
     protected ActionResult InvalidPageIndexOrPageSize()
         => BadRequest("Invalid page index or page size.");
+    protected ActionResult DateInFuture()
+        => BadRequest("Date cannot be in future.");
     protected ActionResult InvalidEntryID(string entryName)
         => BadRequest($"Invalid {entryName} ID.");
     protected ActionResult InvalidEntryIDWhileAdding(string entryName, string modelName)
@@ -22,35 +36,4 @@ public abstract class APIController : Controller
         => NotFound($"{entryName} not found.");
     protected ActionResult EntryIDsNotMatch(string entryName)
         => BadRequest($"{entryName} IDs do not match.");
-
-    protected IActionResult HandleIdentityResult(IdentityResult identityResult)
-    {
-        if (identityResult.Succeeded)
-            return Ok();
-
-        return BadRequest(GetIdentityErrorsStr(identityResult.Errors));
-    }
-
-    protected IActionResult HandleServiceResult(ServiceResult serviceResult)
-    {
-        if (serviceResult.Success)
-            return Ok();
-
-        return BadRequest(serviceResult.ErrorMessage);
-    }
-
-    protected ActionResult<T> HandleServiceResult<T>(ServiceResult<T> serviceResult, string? notFoundMessage = null)
-        where T : class
-    {
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
-
-        if (serviceResult.Model is T model)
-            return model;
-
-        return NotFound(notFoundMessage);
-    }
-
-    string[] GetIdentityErrorsStr(IEnumerable<IdentityError> identityErrors)
-        => identityErrors.Select(e => e.Description).ToArray();
 }

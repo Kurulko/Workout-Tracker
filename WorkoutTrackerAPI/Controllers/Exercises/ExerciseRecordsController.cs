@@ -5,7 +5,6 @@ using WorkoutTracker.API.Controllers.Base;
 using WorkoutTracker.Application.DTOs.Exercises.ExerciseRecords.ExerciseRecords;
 using WorkoutTracker.Application.Interfaces.Services.Exercises;
 using WorkoutTracker.Domain.Entities.Exercises.ExerciseGroups;
-using WorkoutTracker.Application.Common.Results;
 using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.API.Results;
 using WorkoutTracker.Domain.Enums;
@@ -19,55 +18,42 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
 {
     readonly IExerciseRecordService exerciseRecordService;
     readonly IHttpContextAccessor httpContextAccessor;
-    public ExerciseRecordsController(IExerciseRecordService exerciseRecordService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
-        : base(mapper)
+    public ExerciseRecordsController(
+        IExerciseRecordService exerciseRecordService,
+        IHttpContextAccessor httpContextAccessor,
+        IMapper mapper
+    ) : base(mapper)
     {
         this.exerciseRecordService = exerciseRecordService;
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    ActionResult<ExerciseRecordDTO> HandleExerciseRecordDTOServiceResult(ServiceResult<ExerciseRecord> serviceResult)
-        => HandleDTOServiceResult<ExerciseRecord, ExerciseRecordDTO>(serviceResult, "Exercise record not found.");
-
-    ActionResult InvalidExerciseRecordID()
-        => InvalidEntryID(nameof(ExerciseRecord));
-    ActionResult InvalidExerciseID()
-        => InvalidEntryID(nameof(Exercise));
-    ActionResult ExerciseRecordIsNull()
-        => EntryIsNull("Exercise record");
-
 
     [HttpGet]
     public async Task<ActionResult<ApiResult<ExerciseRecordDTO>>> GetCurrentUserExerciseRecordsAsync(
-        [FromQuery] long? exerciseId = null,
-        [FromQuery] ExerciseType? exerciseType = null,
-        [FromQuery] DateTimeRange? range = null,
-        [FromQuery] int pageIndex = 0,
-        [FromQuery] int pageSize = 10,
-        [FromQuery] string? sortColumn = null,
-        [FromQuery] string? sortOrder = null,
-        [FromQuery] string? filterColumn = null,
-        [FromQuery] string? filterQuery = null)
+        long? exerciseId = null,
+        ExerciseType? exerciseType = null,
+        DateTimeRange? range = null,
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? sortColumn = null,
+        string? sortOrder = null,
+        string? filterColumn = null,
+        string? filterQuery = null)
     {
-        if (range is DateTimeRange _range && _range.LastDate > DateTime.Now.Date)
-            return BadRequest("Incorrect date.");
+        if (range is DateTimeRange _range && IsDateInFuture(_range))
+            return DateInFuture();
 
-        if (exerciseId.HasValue && exerciseId < 1)
+        if (exerciseId.HasValue && !IsValidID(exerciseId.Value))
             return InvalidExerciseID();
 
-        if (pageIndex < 0 || pageSize <= 0)
+        if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await exerciseRecordService.GetUserExerciseRecordsAsync(userId, exerciseId, exerciseType, range);
+        var exerciseRecords = await exerciseRecordService.GetUserExerciseRecordsAsync(userId, exerciseId, exerciseType, range);
 
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
-
-        if (serviceResult.Model is not IQueryable<ExerciseRecord> exerciseRecords)
-            return EntryNotFound("Exercise records");
-
-        var exerciseRecordDTOs = exerciseRecords.ToList().Select(m => mapper.Map<ExerciseRecordDTO>(m));
+        var exerciseRecordDTOs = exerciseRecords.ToList().Select(mapper.Map<ExerciseRecordDTO>);
         return await ApiResult<ExerciseRecordDTO>.CreateAsync(
             exerciseRecordDTOs.AsQueryable(),
             pageIndex,
@@ -83,31 +69,26 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
     [ActionName(nameof(GetCurrentUserExerciseRecordByIdAsync))]
     public async Task<ActionResult<ExerciseRecordDTO>> GetCurrentUserExerciseRecordByIdAsync(long exerciseRecordId)
     {
-        if (exerciseRecordId < 1)
+        if (!IsValidID(exerciseRecordId))
             return InvalidExerciseRecordID();
-       
+
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await exerciseRecordService.GetUserExerciseRecordByIdAsync(userId, exerciseRecordId);
-        return HandleExerciseRecordDTOServiceResult(serviceResult);
+        var exerciseRecord = await exerciseRecordService.GetUserExerciseRecordByIdAsync(userId, exerciseRecordId);
+        return ToExerciseRecordDTO(exerciseRecord);
     }
 
     [HttpPost("{exerciseRecordGroupId}")]
     public async Task<IActionResult> AddExerciseRecordToExerciseRecordGroupAsync(long exerciseRecordGroupId, ExerciseRecordCreationDTO exerciseRecordCreationDTO)
     {
-        if (exerciseRecordGroupId < 1)
-            return InvalidEntryID(nameof(ExerciseRecordGroup)); ;
+        if (!IsValidID(exerciseRecordGroupId))
+            return InvalidEntryID(nameof(ExerciseRecordGroup));
 
         if (exerciseRecordCreationDTO is null)
             return ExerciseRecordIsNull();
 
         string userId = httpContextAccessor.GetUserId()!;
         var exerciseRecord = mapper.Map<ExerciseRecord>(exerciseRecordCreationDTO);
-        var serviceResult = await exerciseRecordService.AddExerciseRecordToExerciseRecordGroupAsync(exerciseRecordGroupId, userId, exerciseRecord);
-
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
-
-        exerciseRecord = serviceResult.Model!;
+        exerciseRecord = await exerciseRecordService.AddExerciseRecordToExerciseRecordGroupAsync(exerciseRecordGroupId, userId, exerciseRecord);
 
         var exerciseRecordDTO = mapper.Map<ExerciseRecordDTO>(exerciseRecord);
         return CreatedAtAction(nameof(GetCurrentUserExerciseRecordByIdAsync), new { exerciseRecordId = exerciseRecord.Id }, exerciseRecordDTO);
@@ -116,29 +97,41 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
     [HttpPut("{exerciseRecordId}")]
     public async Task<IActionResult> UpdateCurrentUserExerciseRecordAsync(long exerciseRecordId, ExerciseRecordUpdateDTO exerciseRecordDTO)
     {
-        if (exerciseRecordId < 1)
+        if (!IsValidID(exerciseRecordId))
             return InvalidExerciseRecordID();
 
         if (exerciseRecordDTO is null)
             return ExerciseRecordIsNull();
 
-        if (exerciseRecordId != exerciseRecordDTO.Id)
+        if (!AreIdsEqual(exerciseRecordId, exerciseRecordDTO.Id))
             return EntryIDsNotMatch(nameof(ExerciseRecord));
 
         string userId = httpContextAccessor.GetUserId()!;
         var exerciseRecord = mapper.Map<ExerciseRecord>(exerciseRecordDTO);
-        var serviceResult = await exerciseRecordService.UpdateUserExerciseRecordAsync(userId, exerciseRecord);
-        return HandleServiceResult(serviceResult);
+        await exerciseRecordService.UpdateUserExerciseRecordAsync(userId, exerciseRecord);
+
+        return Ok();
     }
 
     [HttpDelete("{exerciseRecordId}")]
     public async Task<IActionResult> DeleteExerciseRecordFromCurrentUserAsync(long exerciseRecordId)
     {
-        if (exerciseRecordId < 1)
+        if (!IsValidID(exerciseRecordId))
             return InvalidExerciseRecordID();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await exerciseRecordService.DeleteExerciseRecordFromUserAsync(userId, exerciseRecordId);
-        return HandleServiceResult(serviceResult);
+        await exerciseRecordService.DeleteExerciseRecordFromUserAsync(userId, exerciseRecordId);
+        return Ok();
     }
+
+
+    ActionResult<ExerciseRecordDTO> ToExerciseRecordDTO(ExerciseRecord? exerciseRecord)
+        => ToDTO<ExerciseRecord, ExerciseRecordDTO>(exerciseRecord, "Exercise record not found.");
+
+    ActionResult InvalidExerciseRecordID()
+        => InvalidEntryID(nameof(ExerciseRecord));
+    ActionResult InvalidExerciseID()
+        => InvalidEntryID(nameof(Exercise));
+    ActionResult ExerciseRecordIsNull()
+        => EntryIsNull("Exercise record");
 }

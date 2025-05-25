@@ -14,7 +14,7 @@ using WorkoutTracker.Application.DTOs.Muscles.MuscleSizes;
 using WorkoutTracker.Application.DTOs.Users;
 using WorkoutTracker.Application.DTOs.Workouts.Workouts;
 using WorkoutTracker.Domain.Constants;
-using WorkoutTracker.Domain.Entities.Users;
+using WorkoutTracker.Domain.Entities;
 using WorkoutTracker.Infrastructure.Identity.Entities;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Services;
 
@@ -26,24 +26,16 @@ public class UsersController : APIController
     readonly IUserService userService;
     readonly IMapper mapper;
     readonly IHttpContextAccessor httpContextAccessor;
-    public UsersController(IUserService userService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+    public UsersController (
+        IUserService userService, 
+        IHttpContextAccessor httpContextAccessor,
+        IMapper mapper
+    )
     {
         this.userService = userService;
         this.httpContextAccessor = httpContextAccessor;
         this.mapper = mapper;
     }
-
-    ActionResult UserIDIsNullOrEmpty()
-        => BadRequest("User ID is null or empty.");
-    ActionResult UserNameIsNullOrEmpty()
-        => BadRequest("User name is null or empty.");
-    ActionResult RoleNameIsNullOrEmpty()
-        => BadRequest("Role name is null or empty.");
-    ActionResult UserIsNull()
-        => EntryIsNull("User");
-    ActionResult UserNotFound()
-        => EntryNotFound("User");
-
 
     #region CRUD
 
@@ -57,13 +49,10 @@ public class UsersController : APIController
         string? filterColumn = null,
         string? filterQuery = null)
     {
-        if (pageIndex < 0 || pageSize <= 0)
+        if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         var users = await userService.GetUsersAsync();
-
-        if (users is null)
-            return EntryNotFound("Users");
 
         var userDTOs = users.ToList().Select(mapper.Map<UserDTO>);
         return await ApiResult<UserDTO>.CreateAsync(
@@ -82,15 +71,11 @@ public class UsersController : APIController
     [ActionName(nameof(GetUserByIdAsync))]
     public async Task<ActionResult<UserDTO>> GetUserByIdAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
+        if (!IsValidID(userId))
             return UserIDIsNullOrEmpty();
 
-        User? user = await userService.GetUserByIdAsync(userId);
-
-        if (user is null)
-            return UserNotFound();
-
-        return mapper.Map<UserDTO>(user);
+        var user = await userService.GetUserByIdAsync(userId);
+        return ToUserDTO(user);
     }
 
     [HttpGet("current-user")]
@@ -98,14 +83,14 @@ public class UsersController : APIController
     {
         string userId = httpContextAccessor.GetUserId()!;
         User currentUser = (await userService.GetUserByIdAsync(userId))!;
-        return mapper.Map<UserDTO>(currentUser);
+        return ToUserDTO(currentUser);
     }
 
     [Authorize(Roles = Roles.AdminRole)]
     [HttpGet("userid-by-name/{username}")]
     public async Task<ActionResult<string>> GetUserIdByUserNameAsync(string username)
     {
-        if (string.IsNullOrEmpty(username))
+        if (!IsNameValid(username))
             return UserNameIsNullOrEmpty();
 
         string? userId = await userService.GetUserIdByUsernameAsync(username);
@@ -118,17 +103,13 @@ public class UsersController : APIController
 
     [Authorize(Roles = Roles.AdminRole)]
     [HttpGet("username")]
-    public async Task<ActionResult<User>> GetUserByUsernameAsync(string username)
+    public async Task<ActionResult<UserDTO>> GetUserByUsernameAsync(string username)
     {
-        if (string.IsNullOrEmpty(username))
+        if (!IsNameValid(username))
             return UserNameIsNullOrEmpty();
 
-        User? user = await userService.GetUserByUsernameAsync(username);
-
-        if (user is null)
-            return UserNotFound();
-
-        return user;
+        var user = await userService.GetUserByUsernameAsync(username);
+        return ToUserDTO(user);
     }
 
     [Authorize(Roles = Roles.AdminRole)]
@@ -152,14 +133,11 @@ public class UsersController : APIController
         if (userCreationDTO is null)
             return UserIsNull();
 
-        if (string.IsNullOrEmpty(password))
-            return BadRequest("Password is null or empty.");
+        if (IsPasswordValid(password))
+            return PasswordIsNullOrEmpty();
 
         var user = mapper.Map<User>(userCreationDTO);
-        var result = await userService.CreateUserAsync(user, password);
-
-        if (!result.Succeeded)
-            return HandleIdentityResult(result);
+        await userService.CreateUserAsync(user, password);
 
         var userDTO = mapper.Map<UserDTO>(user);
         return CreatedAtAction(nameof(GetUserByIdAsync), new { userId = userDTO.UserId }, userDTO);
@@ -168,14 +146,14 @@ public class UsersController : APIController
     [HttpPut("{userId}")]
     public async Task<IActionResult> UpdateUserAsync(string userId, UserUpdateDTO userDTO)
     {
-        if (string.IsNullOrEmpty(userId))
+        if (!IsValidID(userId))
             return UserIDIsNullOrEmpty();
 
         if (userDTO is null)
             return UserIsNull();
 
-        if (userId != userDTO.UserId)
-            return EntryIDsNotMatch("User");
+        if (!AreIdsEqual(userId, userDTO.UserId))
+            return EntryIDsNotMatch(nameof(User));
 
         string currentUserId = httpContextAccessor.GetUserId()!;
         var roles = await userService.GetUserRolesAsync(currentUserId);
@@ -183,49 +161,29 @@ public class UsersController : APIController
 
         bool isCurrentUserUpdating = userDTO.UserId == currentUserId;
 
-        if (isAdmin || isCurrentUserUpdating)
-        {
-            var user = mapper.Map<User>(userDTO);
-            var identityResult = await userService.UpdateUserAsync(user);
-            return HandleIdentityResult(identityResult);
-        }
+        if (!isAdmin && !isCurrentUserUpdating)
+            return Forbid();
 
-        return Forbid();
+        var user = mapper.Map<User>(userDTO);
+        await userService.UpdateUserAsync(user);
+        return Ok();
     }
 
     [Authorize(Roles = Roles.AdminRole)]
     [HttpDelete("{userId}")]
     public async Task<IActionResult> DeleteUserAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
+        if (!IsValidID(userId))
             return UserIDIsNullOrEmpty();
 
-        var identityResult = await userService.DeleteUserAsync(userId);
-        return HandleIdentityResult(identityResult);
-    }
-
-    [HttpGet("user-exists/{userId}")]
-    public async Task<ActionResult<bool>> UserExistsAsync(string userId)
-    {
-        if (string.IsNullOrEmpty(userId))
-            return UserIDIsNullOrEmpty();
-
-        return await userService.UserExistsAsync(userId);
-    }
-
-    [HttpGet("user-exists-by-username/{userName}")]
-    public async Task<ActionResult<bool>> UserExistsByUsernameAsync(string userName)
-    {
-        if (string.IsNullOrEmpty(userName))
-            return UserNameIsNullOrEmpty();
-
-        return await userService.UserExistsByUsernameAsync(userName);
+        await userService.DeleteUserAsync(userId);
+        return Ok();
     }
 
     [HttpGet("id-by-name/{name}")]
     public async Task<ActionResult<string>> GetUserIdByUsernameAsync(string name)
     {
-        if (string.IsNullOrEmpty(name))
+        if (!IsNameValid(name))
             return UserNameIsNullOrEmpty();
 
         string? userId = await userService.GetUserIdByUsernameAsync(name);
@@ -236,11 +194,10 @@ public class UsersController : APIController
         return userId;
     }
 
-
     [HttpGet("name-by-id/{userId}")]
     public async Task<ActionResult<string>> GetUserNameByIdAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
+        if (!IsValidID(userId))
             return UserIDIsNullOrEmpty();
 
         string? name = await userService.GetUserNameByIdAsync(userId);
@@ -251,13 +208,9 @@ public class UsersController : APIController
         return name;
     }
 
-
     #endregion
 
     #region User Details
-
-    ActionResult UserDetailsIsNull()
-        => EntryIsNull("UserDetails");
 
     [HttpGet("user-details")]
     public async Task<ActionResult<UserDetailsDTO>> GetCurrentUserDetailsAsync()
@@ -275,9 +228,9 @@ public class UsersController : APIController
 
         string userId = httpContextAccessor.GetUserId()!;
         var userDetails = mapper.Map<UserDetails>(userDetailsDTO);
-        var serviceResult = await userService.AddUserDetailsToUserAsync(userId, userDetails);
+        await userService.AddUserDetailsToUserAsync(userId, userDetails);
 
-        return HandleServiceResult(serviceResult);
+        return Ok();
     }
 
     [HttpPut("user-details")]
@@ -288,9 +241,9 @@ public class UsersController : APIController
 
         string userId = httpContextAccessor.GetUserId()!;
         var userDetails = mapper.Map<UserDetails>(userDetailsDTO);
-        var serviceResult = await userService.UpdateUserDetailsFromUserAsync(userId, userDetails);
+        await userService.UpdateUserDetailsFromUserAsync(userId, userDetails);
 
-        return HandleServiceResult(serviceResult);
+        return Ok();
     }
 
     #endregion
@@ -306,7 +259,7 @@ public class UsersController : APIController
         string? filterColumn = null,
         string? filterQuery = null)
     {
-        if (pageIndex < 0 || pageSize <= 0)
+        if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         string currentUserId = httpContextAccessor.GetUserId()!;
@@ -336,7 +289,7 @@ public class UsersController : APIController
         string? filterColumn = null,
         string? filterQuery = null)
     {
-        if (pageIndex < 0 || pageSize <= 0)
+        if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         string currentUserId = httpContextAccessor.GetUserId()!;
@@ -366,7 +319,7 @@ public class UsersController : APIController
         string? filterColumn = null,
         string? filterQuery = null)
     {
-        if (pageIndex < 0 || pageSize <= 0)
+        if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         string currentUserId = httpContextAccessor.GetUserId()!;
@@ -396,7 +349,7 @@ public class UsersController : APIController
         string? filterColumn = null,
         string? filterQuery = null)
     {
-        if (pageIndex < 0 || pageSize <= 0)
+        if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         string currentUserId = httpContextAccessor.GetUserId()!;
@@ -426,7 +379,7 @@ public class UsersController : APIController
         string? filterColumn = null,
         string? filterQuery = null)
     {
-        if (pageIndex < 0 || pageSize <= 0)
+        if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         string currentUserId = httpContextAccessor.GetUserId()!;
@@ -456,7 +409,7 @@ public class UsersController : APIController
     [HttpGet("{userId}/has-password")]
     public async Task<ActionResult<bool>> HasUserPasswordAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
+        if (!IsValidID(userId))
             return UserIDIsNullOrEmpty();
 
         return await userService.HasUserPasswordAsync(userId);
@@ -469,22 +422,22 @@ public class UsersController : APIController
             return EntryIsNull("Password");
 
         string currentUserId = httpContextAccessor.GetUserId()!;
-        var identityResult = await userService.ChangeUserPasswordAsync(currentUserId, passwordModel.OldPassword!, passwordModel.NewPassword);
-        return HandleIdentityResult(identityResult);
+        await userService.ChangeUserPasswordAsync(currentUserId, passwordModel.OldPassword!, passwordModel.NewPassword);
+        return Ok();
     }
 
     [Authorize(Roles = Roles.AdminRole)]
     [HttpPost("password")]
     public async Task<IActionResult> CreateUserPasswordAsync(string userId, string newPassword)
     {
-        if (string.IsNullOrEmpty(userId))
+        if (!IsValidID(userId))
             return UserIDIsNullOrEmpty();
 
-        if (string.IsNullOrEmpty(newPassword))
-            return BadRequest("Password is null or empty.");
+        if (IsPasswordValid(newPassword))
+            return PasswordIsNullOrEmpty();
 
-        var identityResult = await userService.AddUserPasswordAsync(userId, newPassword);
-        return HandleIdentityResult(identityResult);
+        await userService.AddUserPasswordAsync(userId, newPassword);
+        return Ok();
     }
 
     #endregion
@@ -502,7 +455,7 @@ public class UsersController : APIController
     [HttpGet("user-roles/{userId}")]
     public async Task<ActionResult<IEnumerable<string>>> GetUserRolesAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
+        if (!IsValidID(userId))
             return UserIDIsNullOrEmpty();
 
         var userRoles = await userService.GetUserRolesAsync(userId);
@@ -513,28 +466,28 @@ public class UsersController : APIController
     [HttpPost("{userId}/role")]
     public async Task<IActionResult> AddRolesToUserAsync(string userId, string[] roles)
     {
-        if (string.IsNullOrEmpty(userId))
+        if (!IsValidID(userId))
             return UserIDIsNullOrEmpty();
 
         if (roles is null || roles.Length == 0)
             return BadRequest("User cannot have no roles.");
 
-        var identityResult = await userService.AddRolesToUserAsync(userId, roles);
-        return HandleIdentityResult(identityResult);
+        await userService.AddRolesToUserAsync(userId, roles);
+        return Ok();
     }
 
     [Authorize(Roles = Roles.AdminRole)]
     [HttpDelete("{userId}/{roleName}")]
     public async Task<IActionResult> DeleteRoleFromUserAsync(string userId, string roleName)
     {
-        if (string.IsNullOrEmpty(userId))
+        if (!IsValidID(userId))
             return UserIDIsNullOrEmpty();
 
-        if (string.IsNullOrEmpty(roleName))
+        if (!IsNameValid(roleName))
             return RoleNameIsNullOrEmpty();
 
-        var identityResult = await userService.DeleteRoleFromUserAsync(userId, roleName);
-        return HandleIdentityResult(identityResult);
+        await userService.DeleteRoleFromUserAsync(userId, roleName);
+        return Ok();
     }
 
     [Authorize(Roles = Roles.AdminRole)]
@@ -548,17 +501,15 @@ public class UsersController : APIController
         string? filterColumn = null,
         string? filterQuery = null)
     {
-        if (pageIndex < 0 || pageSize <= 0)
+        if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
-        if (string.IsNullOrEmpty(roleName))
+        if (!IsNameValid(roleName))
             return RoleNameIsNullOrEmpty();
 
         var users = await userService.GetUsersByRoleAsync(roleName);
-        if (users is null)
-            return EntryNotFound("Users");
 
-        var userDTOs = users.Select(u => mapper.Map<UserDTO>(u));
+        var userDTOs = users.Select(mapper.Map<UserDTO>);
         return await ApiResult<UserDTO>.CreateAsync(
             userDTOs.AsQueryable(),
             pageIndex,
@@ -571,4 +522,33 @@ public class UsersController : APIController
     }
 
     #endregion
+
+    bool IsValidID(string id) => !string.IsNullOrEmpty(id);
+    bool IsNameValid(string name) => !string.IsNullOrEmpty(name);
+    bool IsPasswordValid(string password) => !string.IsNullOrEmpty(password);
+    bool AreIdsEqual(string id1, string id2) => id1 == id2;
+
+    ActionResult UserIDIsNullOrEmpty()
+        => BadRequest("User ID is null or empty.");
+    ActionResult UserNameIsNullOrEmpty()
+        => BadRequest("User name is null or empty.");
+    ActionResult RoleNameIsNullOrEmpty()
+        => BadRequest("Role name is null or empty.");
+    ActionResult PasswordIsNullOrEmpty()
+        => BadRequest("Password is null or empty.");
+    ActionResult UserIsNull()
+        => EntryIsNull(nameof(User));
+    ActionResult UserNotFound()
+        => EntryNotFound(nameof(User));
+    ActionResult UserDetailsIsNull()
+        => EntryIsNull(nameof(UserDetails));
+
+    ActionResult<UserDTO> ToUserDTO(User? user)
+    {
+        if (user is null)
+            return NotFound("User not found.");
+
+        var userDTO = mapper.Map<UserDTO>(user);
+        return userDTO;
+    }
 }

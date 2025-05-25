@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using WorkoutTracker.API.Controllers.Base;
 using WorkoutTracker.API.Results;
-using WorkoutTracker.Application.Common.Results;
 using WorkoutTracker.Application.DTOs.Exercises.ExerciseAliases;
 using WorkoutTracker.Application.Interfaces.Services.Exercises;
 using WorkoutTracker.Domain.Entities.Exercises;
@@ -19,16 +18,6 @@ public class ExerciseAliasesController : BaseWorkoutController<ExerciseAliasDTO,
         this.exerciseAliasService = exerciseAliasService;
     }
 
-    ActionResult<ExerciseAliasDTO> HandleExerciseAliasDTOServiceResult(ServiceResult<ExerciseAlias> serviceResult)
-        => HandleDTOServiceResult<ExerciseAlias, ExerciseAliasDTO>(serviceResult, "Exercise alias not found.");
-
-    ActionResult InvalidExerciseAliasID()
-        => InvalidEntryID(nameof(ExerciseAlias));
-    ActionResult ExerciseAliasIsNull()
-        => EntryIsNull("Exercise alias");
-    ActionResult ExerciseAliasNameIsNullOrEmpty()
-        => EntryNameIsNullOrEmpty(nameof(ExerciseAlias));
-
     [HttpGet]
     public async Task<ActionResult<ApiResult<ExerciseAliasDTO>>> GetUserExerciseAliasesAsync(
         long exerciseId,
@@ -39,15 +28,10 @@ public class ExerciseAliasesController : BaseWorkoutController<ExerciseAliasDTO,
         string? filterColumn = null,
         string? filterQuery = null)
     {
-        if (pageIndex < 0 || pageSize <= 0)
+        if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
-        var serviceResult = await exerciseAliasService.GetExerciseAliasesByExerciseIdAsync(exerciseId);
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
-
-        if (serviceResult.Model is not IQueryable<ExerciseAlias> exerciseAliases)
-            return EntryNotFound("Exercise aliases");
+        var exerciseAliases = await exerciseAliasService.GetExerciseAliasesByExerciseIdAsync(exerciseId);
 
         var exerciseAliasDTOs = exerciseAliases.ToList().Select(mapper.Map<ExerciseAliasDTO>);
         return await ApiResult<ExerciseAliasDTO>.CreateAsync(
@@ -65,22 +49,22 @@ public class ExerciseAliasesController : BaseWorkoutController<ExerciseAliasDTO,
     [ActionName(nameof(GetExerciseAliasByIdAsync))]
     public async Task<ActionResult<ExerciseAliasDTO>> GetExerciseAliasByIdAsync(long exerciseAliasId)
     {
-        if (exerciseAliasId < 1)
+        if (!IsValidID(exerciseAliasId))
             return InvalidExerciseAliasID();
 
-        var serviceResult = await exerciseAliasService.GetExerciseAliasByIdAsync(exerciseAliasId);
-        return HandleExerciseAliasDTOServiceResult(serviceResult);
+        var exerciseAliase = await exerciseAliasService.GetExerciseAliasByIdAsync(exerciseAliasId);
+        return ToExerciseAliasDTO(exerciseAliase);
     }
 
     [HttpGet("{name}/by-name")]
     [ActionName(nameof(GetExerciseAliasByNameAsync))]
     public async Task<ActionResult<ExerciseAliasDTO>> GetExerciseAliasByNameAsync(string name)
     {
-        if (string.IsNullOrEmpty(name))
+        if (!IsNameValid(name))
             return ExerciseAliasNameIsNullOrEmpty();
 
-        var serviceResult = await exerciseAliasService.GetExerciseAliasByNameAsync(name);
-        return HandleExerciseAliasDTOServiceResult(serviceResult);
+        var exerciseAliase = await exerciseAliasService.GetExerciseAliasByNameAsync(name);
+        return ToExerciseAliasDTO(exerciseAliase);
     }
 
     [HttpPost("{exerciseId}")]
@@ -89,16 +73,11 @@ public class ExerciseAliasesController : BaseWorkoutController<ExerciseAliasDTO,
         if (exerciseAliasDTO is null)
             return ExerciseAliasIsNull();
 
-        if (exerciseAliasDTO.Id != 0)
+        if (!IsValidIDWhileAdding(exerciseAliasDTO.Id))
             return InvalidEntryIDWhileAdding(nameof(ExerciseAlias), "exercise alias");
 
         var exerciseAlias = mapper.Map<ExerciseAlias>(exerciseAliasDTO);
-        var serviceResult = await exerciseAliasService.AddExerciseAliasToExerciseAsync(exerciseId, exerciseAlias);
-
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
-
-        exerciseAlias = serviceResult.Model!;
+        exerciseAlias = await exerciseAliasService.AddExerciseAliasToExerciseAsync(exerciseId, exerciseAlias);
 
         exerciseAliasDTO = mapper.Map<ExerciseAliasDTO>(exerciseAlias);
         return CreatedAtAction(nameof(GetExerciseAliasByIdAsync), new { exerciseAliasId = exerciseAlias.Id }, exerciseAliasDTO);
@@ -107,27 +86,38 @@ public class ExerciseAliasesController : BaseWorkoutController<ExerciseAliasDTO,
     [HttpPut("{exerciseAliasId}")]
     public async Task<IActionResult> UpdateExerciseAliasAsync(long exerciseAliasId, [FromBody] ExerciseAliasDTO exerciseAliasDTO)
     {
-        if (exerciseAliasId < 1)
+        if (!IsValidID(exerciseAliasId))
             return InvalidExerciseAliasID();
 
         if (exerciseAliasDTO is null)
             return ExerciseAliasIsNull();
 
-        if (exerciseAliasId != exerciseAliasDTO.Id)
+        if (!AreIdsEqual(exerciseAliasId, exerciseAliasDTO.Id))
             return EntryIDsNotMatch(nameof(ExerciseAlias));
 
         var exerciseAlias = mapper.Map<ExerciseAlias>(exerciseAliasDTO);
-        var serviceResult = await exerciseAliasService.UpdateExerciseAliasAsync(exerciseAlias);
-        return HandleServiceResult(serviceResult);
+        await exerciseAliasService.UpdateExerciseAliasAsync(exerciseAlias);
+        return Ok();
     }
 
     [HttpDelete("{exerciseAliasId}")]
     public async Task<IActionResult> DeleteExerciseAliasAsync(long exerciseAliasId)
     {
-        if (exerciseAliasId < 1)
+        if (!IsValidID(exerciseAliasId))
             return InvalidExerciseAliasID();
 
-        var serviceResult = await exerciseAliasService.DeleteExerciseAliasAsync(exerciseAliasId);
-        return HandleServiceResult(serviceResult);
+        await exerciseAliasService.DeleteExerciseAliasAsync(exerciseAliasId);
+        return Ok();
     }
+
+
+    ActionResult<ExerciseAliasDTO> ToExerciseAliasDTO(ExerciseAlias? exerciseAlias)
+        => ToDTO<ExerciseAlias, ExerciseAliasDTO>(exerciseAlias, "Exercise alias not found.");
+
+    ActionResult InvalidExerciseAliasID()
+        => InvalidEntryID(nameof(ExerciseAlias));
+    ActionResult ExerciseAliasIsNull()
+        => EntryIsNull("Exercise alias");
+    ActionResult ExerciseAliasNameIsNullOrEmpty()
+        => EntryNameIsNullOrEmpty(nameof(ExerciseAlias));
 }
