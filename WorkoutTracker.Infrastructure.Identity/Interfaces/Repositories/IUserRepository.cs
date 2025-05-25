@@ -1,15 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WorkoutTracker.Application.Common.Exceptions;
-using WorkoutTracker.Domain.Entities.Exercises.ExerciseGroups;
-using WorkoutTracker.Domain.Entities.Exercises;
+﻿using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Domain.Entities.Muscles;
-using WorkoutTracker.Domain.Entities.Users;
 using WorkoutTracker.Domain.Entities.Workouts;
 using WorkoutTracker.Domain.Entities;
 using WorkoutTracker.Infrastructure.Identity.Entities;
@@ -21,10 +11,10 @@ public interface IUserRepository
     #region CRUD
 
     Task<User> AddUserAsync(User user);
-    Task<IdentityResult> CreateUserAsync(User user, string password);
+    Task CreateUserAsync(User user, string password);
 
-    Task<IdentityResult> UpdateUserAsync(User user);
-    Task<IdentityResult> DeleteUserAsync(string userId);
+    Task UpdateUserAsync(User user);
+    Task DeleteUserAsync(string userId);
 
     Task<User?> GetUserByUsernameAsync(string userName);
     Task<User?> GetUserByEmailAsync(string email);
@@ -52,17 +42,17 @@ public interface IUserRepository
 
     #region Password
 
-    Task<IdentityResult> ChangeUserPasswordAsync(string userId, string oldPassword, string newPassword);
-    Task<IdentityResult> AddUserPasswordAsync(string userId, string newPassword);
+    Task ChangeUserPasswordAsync(string userId, string oldPassword, string newPassword);
+    Task AddUserPasswordAsync(string userId, string newPassword);
     Task<bool> HasUserPasswordAsync(string userId);
 
     #endregion
 
     #region Roles
 
-   Task<IEnumerable<string>> GetUserRolesAsync(string userId);
-    Task<IdentityResult> AddRolesToUserAsync(string userId, string[] roles);
-    Task<IdentityResult> DeleteRoleFromUserAsync(string userId, string roleName);
+    Task<IEnumerable<string>> GetUserRolesAsync(string userId);
+    Task AddRolesToUserAsync(string userId, string[] roles);
+    Task DeleteRoleFromUserAsync(string userId, string roleName);
 
     #endregion
 }
