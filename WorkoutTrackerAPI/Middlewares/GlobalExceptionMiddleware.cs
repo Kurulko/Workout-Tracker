@@ -1,6 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using WorkoutTracker.Application.Common.Exceptions;
-using WorkoutTracker.Infrastructure.Exceptions;
 
 namespace WorkoutTracker.API.Middlewares;
 
@@ -16,7 +15,6 @@ public class GlobalExceptionMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-
         try
         {
             await next(context);
@@ -48,7 +46,7 @@ public class GlobalExceptionMiddleware
             };
 
             string errorMessage = "Unhandled exception occurred.";
-            logger.LogError(ex, "Unhandled exception occurred.");
+            logger.LogError(ex, errorMessage);
 
             context.Response.StatusCode = statusCode;
             context.Response.ContentType = "application/json";
