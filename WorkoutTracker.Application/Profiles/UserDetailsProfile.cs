@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using WorkoutTracker.Application.DTOs.Users;
-using WorkoutTracker.Domain.Entities.Users;
+using WorkoutTracker.Domain.Entities;
 
 namespace WorkoutTracker.Application.Profiles;
 
