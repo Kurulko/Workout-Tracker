@@ -3,140 +3,176 @@ using Microsoft.EntityFrameworkCore;
 using WorkoutTracker.Application.Common.Exceptions;
 using WorkoutTracker.Domain.Entities;
 using WorkoutTracker.Domain.Entities.Exercises;
-using WorkoutTracker.Domain.Entities.Exercises.ExerciseGroups;
 using WorkoutTracker.Domain.Entities.Muscles;
-using WorkoutTracker.Domain.Entities.Users;
 using WorkoutTracker.Domain.Entities.Workouts;
 using WorkoutTracker.Infrastructure.Identity.Entities;
 using WorkoutTracker.Infrastructure.Identity.Extensions;
-using WorkoutTracker.Persistence.Context;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
+using WorkoutTracker.Application.Common.Validators;
 
 namespace WorkoutTracker.Persistence.Repositories.Users;
 
-internal class UserRepository : IUserRepository
+public class UserRepository : IUserRepository
 {
     readonly UserManager<User> userManager;
-    readonly WorkoutDbContext db;
-    public UserRepository(UserManager<User> userManager, WorkoutDbContext db)
-    {
-        this.userManager = userManager;
-        this.db = db;
-    }
+    public UserRepository(UserManager<User> userManager)
+        => this.userManager = userManager;
 
     IQueryable<User> Users => userManager.Users;
 
-    static IdentityResult UserNotFoundByIDResult(string userId)
-        => IdentityResultExtensions.Failed($"User (ID '{userId}') not found.");
-
-    static IdentityResult UserIDIsNullOrEmptyResult => IdentityResultExtensions.Failed("User ID cannot not be null or empty.");
-
     #region CRUD
 
-    public virtual async Task<User> AddUserAsync(User user)
+    readonly string userEntityName = nameof(User);
+
+    public async Task<User> AddUserAsync(User user)
     {
-        User? existingUser = await GetUserByIdAsync(user.Id);
+        var existingUser = await GetByIdAsync(user.Id);
 
         if (existingUser is null)
         {
-            if (await UserExistsByUsernameAsync(user.UserName!))
-                throw new DbUpdateException("User name must be unique.");
+            await ArgumentValidator.EnsureNonExistsByNameAsync(GetByUsernameAsync, user.UserName!);
 
-            await userManager.CreateAsync(user);
+            var result = await userManager.CreateAsync(user);
+
+            if (!result.Succeeded)
+                throw new ValidationException($"Failed to add user: {result.IdentityErrorsToString()}");
+
             return user;
         }
 
         return existingUser;
     }
 
-    public virtual async Task<IdentityResult> CreateUserAsync(User user, string password)
-        => await userManager.CreateAsync(user, password);
-
-    public virtual async Task<IdentityResult> UpdateUserAsync(User user)
+    public async Task CreateUserAsync(User user, string password)
     {
-        if (string.IsNullOrEmpty(user.Id))
-            return UserIDIsNullOrEmptyResult;
+        var existingUser = await GetByIdAsync(user.Id);
 
-        User? existingUser = await GetUserByIdAsync(user.Id);
-
-        if (existingUser is not null)
+        if (existingUser is null)
         {
-            if (existingUser.UserName != user.UserName)
-                await userManager.SetUserNameAsync(existingUser, user.UserName);
+            ArgumentValidator.ThrowIfArgumentNullOrEmpty(password, nameof(password));
 
-            if (existingUser.Email != user.Email)
-                await userManager.SetEmailAsync(existingUser, user.Email);
+            var result = await userManager.CreateAsync(user, password);
 
-            existingUser.CountOfTrainings = user.CountOfTrainings;
-            existingUser.Registered = user.Registered;
-            existingUser.StartedWorkingOut = user.StartedWorkingOut;
-            return await userManager.UpdateAsync(existingUser);
+            if (!result.Succeeded)
+                throw new ValidationException($"Failed to create user: {result.IdentityErrorsToString()}");
         }
-
-        return UserNotFoundByIDResult(user.Id);
     }
 
-    public virtual async Task<IdentityResult> DeleteUserAsync(string userId)
+    public async Task UpdateUserAsync(User user)
     {
-        if (string.IsNullOrEmpty(userId))
-            return UserIDIsNullOrEmptyResult;
+        var existingUser = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, user.Id, userEntityName);
 
-        User? user = await GetUserByIdAsync(userId);
+        if (existingUser.UserName != user.UserName)
+            await userManager.SetUserNameAsync(existingUser, user.UserName);
 
-        if (user is not null)
-            return await userManager.DeleteAsync(user);
+        if (existingUser.Email != user.Email)
+            await userManager.SetEmailAsync(existingUser, user.Email);
 
-        return UserNotFoundByIDResult(userId);
+        existingUser.CountOfTrainings = user.CountOfTrainings;
+        existingUser.Registered = user.Registered;
+        existingUser.StartedWorkingOut = user.StartedWorkingOut;
+
+        var result = await userManager.UpdateAsync(existingUser);
+
+        if (!result.Succeeded)
+            throw new ValidationException($"Failed to update user: {result.IdentityErrorsToString()}");
     }
 
-    public virtual async Task<User?> GetUserByUsernameAsync(string userName)
-        => await userManager.FindByNameAsync(userName);
-    public virtual async Task<User?> GetUserByEmailAsync(string email)
-        => await userManager.FindByEmailAsync(email);
+    public async Task DeleteUserAsync(string userId)
+    {
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
+
+        var user = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, userId, userEntityName);
+
+        var result = await userManager.DeleteAsync(user);
+
+        if (!result.Succeeded)
+            throw new ValidationException($"Failed to delete user: {result.IdentityErrorsToString()}");
+    }
+
+    public async Task<User?> GetUserByIdAsync(string userId)
+    {
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
+
+        return await GetByIdAsync(userId);
+    }
+
+    public async Task<User?> GetUserByUsernameAsync(string userName)
+    {
+        ArgumentValidator.ThrowIfArgumentNullOrEmpty(userName, nameof(User.UserName));
+
+        return await GetByUsernameAsync(userName);
+    }
+
+    public async Task<User?> GetUserByEmailAsync(string email)
+    {
+        ArgumentValidator.ThrowIfArgumentNullOrEmpty(email, nameof(User.Email));
+
+        return await GetByEmailAsync(email);
+
+    }
 
     public virtual async Task<IQueryable<User>> GetUsersAsync()
         => await Task.FromResult(Users);
 
-    public virtual async Task<User?> GetUserByIdAsync(string userId)
-        => await userManager.FindByIdAsync(userId);
 
-    public virtual async Task<bool> AnyUsersAsync()
+    public async Task<bool> AnyUsersAsync()
         => await Users.AnyAsync();
 
-    public virtual async Task<bool> UserExistsAsync(string userId)
-        => await Users.AnyAsync(u => u.Id == userId);
+    public async Task<bool> UserExistsAsync(string userId)
+    {
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
 
-    public virtual async Task<bool> UserExistsByUsernameAsync(string userName)
-        => await Users.AnyAsync(r => r.UserName!.ToLower() == userName.ToLower());
+        return await GetByIdAsync(userId) != null;
+    }
 
-    public virtual async Task<bool> UserExistsByEmailAsync(string email)
-        => await Users.AnyAsync(r => r.Email!.ToLower() == email.ToLower());
+    public async Task<bool> UserExistsByUsernameAsync(string userName)
+    {
+        ArgumentValidator.ThrowIfArgumentNullOrEmpty(userName, nameof(User.UserName));
+
+        return await GetByUsernameAsync(userName) != null;
+    }
+
+    public async Task<bool> UserExistsByEmailAsync(string email)
+    {
+        ArgumentValidator.ThrowIfArgumentNullOrEmpty(email, nameof(User.Email));
+
+        return await GetByEmailAsync(email) != null;
+    }
 
     #endregion
 
     #region User Models
 
-    public virtual async Task<UserDetails?> GetUserDetailsFromUserAsync(string userId)
+    public async Task<UserDetails?> GetUserDetailsFromUserAsync(string userId)
     {
-        User userWithUserDetails = await db.Users.Include(u => u.UserDetails).SingleAsync(u => u.Id == userId);
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
+
+        User userWithUserDetails = await Users.Include(u => u.UserDetails).SingleAsync(u => u.Id == userId);
         return userWithUserDetails.UserDetails;
     }
 
-    public virtual async Task<IQueryable<MuscleSize>?> GetUserMuscleSizesAsync(string userId)
+    public async Task<IQueryable<MuscleSize>?> GetUserMuscleSizesAsync(string userId)
     {
-        User userWithMuscleSizes = await db.Users.Include(u => u.MuscleSizes).SingleAsync(u => u.Id == userId);
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
+
+        User userWithMuscleSizes = await Users.Include(u => u.MuscleSizes).SingleAsync(u => u.Id == userId);
         return userWithMuscleSizes.MuscleSizes?.AsQueryable();
     }
 
-    public virtual async Task<IQueryable<BodyWeight>?> GetUserBodyWeightsAsync(string userId)
+    public async Task<IQueryable<BodyWeight>?> GetUserBodyWeightsAsync(string userId)
     {
-        User userWithBodyWeights = await db.Users.Include(u => u.BodyWeights).SingleAsync(u => u.Id == userId);
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
+
+        User userWithBodyWeights = await Users.Include(u => u.BodyWeights).SingleAsync(u => u.Id == userId);
         return userWithBodyWeights.BodyWeights?.AsQueryable();
     }
 
-    public virtual async Task<IQueryable<Workout>?> GetUserWorkoutsAsync(string userId)
+    public async Task<IQueryable<Workout>?> GetUserWorkoutsAsync(string userId)
     {
-        User userWithWorkouts = await db.Users
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
+
+        User userWithWorkouts = await Users
             .Include(u => u.Workouts)!
             .ThenInclude(u => u.WorkoutRecords)!
             .ThenInclude(u => u.ExerciseRecordGroups)
@@ -145,9 +181,11 @@ internal class UserRepository : IUserRepository
         return userWithWorkouts.Workouts?.AsQueryable();
     }
 
-    public virtual async Task<IQueryable<WorkoutRecord>?> GetUserWorkoutRecordsAsync(string userId)
+    public async Task<IQueryable<WorkoutRecord>?> GetUserWorkoutRecordsAsync(string userId)
     {
-        User userWithWorkoutRecords = await db.Users
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
+
+        User userWithWorkoutRecords = await Users
             .Include(u => u.WorkoutRecords)!
             .ThenInclude(u => u.ExerciseRecordGroups)
             .ThenInclude(u => u.ExerciseRecords)
@@ -155,15 +193,19 @@ internal class UserRepository : IUserRepository
         return userWithWorkoutRecords.WorkoutRecords?.AsQueryable();
     }
 
-    public virtual async Task<IQueryable<Exercise>?> GetUserCreatedExercisesAsync(string userId)
+    public async Task<IQueryable<Exercise>?> GetUserCreatedExercisesAsync(string userId)
     {
-        User userWithCreatedExercises = await db.Users.Include(u => u.CreatedExercises).SingleAsync(u => u.Id == userId);
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
+
+        User userWithCreatedExercises = await Users.Include(u => u.CreatedExercises).SingleAsync(u => u.Id == userId);
         return userWithCreatedExercises.CreatedExercises?.AsQueryable();
     }
 
     public virtual async Task<IQueryable<Equipment>?> GetUserEquipmentsAsync(string userId)
     {
-        User userWithCreatedExercises = await db.Users.Include(u => u.UserEquipments).SingleAsync(u => u.Id == userId);
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
+
+        User userWithCreatedExercises = await Users.Include(u => u.UserEquipments).SingleAsync(u => u.Id == userId);
         return userWithCreatedExercises.UserEquipments?.AsQueryable();
     }
 
@@ -171,29 +213,35 @@ internal class UserRepository : IUserRepository
 
     #region Password
 
-    public virtual async Task<IdentityResult> ChangeUserPasswordAsync(string userId, string oldPassword, string newPassword)
+    public async Task ChangeUserPasswordAsync(string userId, string oldPassword, string newPassword)
     {
-        User? user = await GetUserByIdAsync(userId);
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
+        ArgumentValidator.ThrowIfArgumentNullOrEmpty(oldPassword, "Old Password");
+        ArgumentValidator.ThrowIfArgumentNullOrEmpty(newPassword, "New Password");
 
-        if (user is null)
-            return UserNotFoundByIDResult(userId);
+        var user = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, userId, userEntityName);
+        var result = await userManager.ChangePasswordAsync(user, oldPassword, newPassword);
 
-        return await userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+        if (!result.Succeeded)
+            throw new ValidationException($"Failed to change password: {result.IdentityErrorsToString()}");
     }
 
-    public virtual async Task<IdentityResult> AddUserPasswordAsync(string userId, string newPassword)
+    public async Task AddUserPasswordAsync(string userId, string newPassword)
     {
-        User? user = await GetUserByIdAsync(userId);
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
+        ArgumentValidator.ThrowIfArgumentNullOrEmpty(newPassword, "New Password");
 
-        if (user is null)
-            return UserNotFoundByIDResult(userId);
+        var user = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, userId, userEntityName);
+        var result = await userManager.AddPasswordAsync(user, newPassword);
 
-        return await userManager.AddPasswordAsync(user, newPassword);
+        if (!result.Succeeded)
+            throw new ValidationException($"Failed to add password: {result.IdentityErrorsToString()}");
     }
 
-    public virtual async Task<bool> HasUserPasswordAsync(string userId)
+    public async Task<bool> HasUserPasswordAsync(string userId)
     {
-        var user = await GetUserByIdAsync(userId) ?? throw NotFoundException.NotFoundExceptionByID(nameof(User), userId);
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
+        var user = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, userId, userEntityName);
 
         return await userManager.HasPasswordAsync(user);
     }
@@ -202,32 +250,42 @@ internal class UserRepository : IUserRepository
 
     #region Roles
 
-    public virtual async Task<IEnumerable<string>> GetUserRolesAsync(string userId)
+    public async Task<IEnumerable<string>> GetUserRolesAsync(string userId)
     {
-        var user = await GetUserByIdAsync(userId) ?? throw NotFoundException.NotFoundExceptionByID(nameof(User), userId);
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
+        var user = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, userId, userEntityName);
 
         return await userManager.GetRolesAsync(user);
     }
 
-    public virtual async Task<IdentityResult> AddRolesToUserAsync(string userId, string[] roles)
+    public async Task AddRolesToUserAsync(string userId, string[] roles)
     {
-        User? user = await GetUserByIdAsync(userId);
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
 
-        if (user is null)
-            return UserNotFoundByIDResult(userId);
+        var user = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, userId, userEntityName);
+        var result = await userManager.AddToRolesAsync(user, roles);
 
-        return await userManager.AddToRolesAsync(user, roles);
+        if (!result.Succeeded)
+            throw new ValidationException($"Failed to add roles: {result.IdentityErrorsToString()}");
     }
 
-    public virtual async Task<IdentityResult> DeleteRoleFromUserAsync(string userId, string roleName)
+    public async Task DeleteRoleFromUserAsync(string userId, string roleName)
     {
-        User? user = await GetUserByIdAsync(userId);
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
 
-        if (user is null)
-            return UserNotFoundByIDResult(userId);
+        var user = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, userId, userEntityName);
+        var result = await userManager.RemoveFromRoleAsync(user, roleName);
 
-        return await userManager.RemoveFromRoleAsync(user, roleName);
+        if (!result.Succeeded)
+            throw new ValidationException($"Failed to remove role: {result.IdentityErrorsToString()}");
     }
 
     #endregion
+
+    async Task<User?> GetByIdAsync(string userId)
+        => await userManager.FindByIdAsync(userId);
+    async Task<User?> GetByUsernameAsync(string userName)
+        => await userManager.FindByNameAsync(userName);
+    async Task<User?> GetByEmailAsync(string email)
+        => await userManager.FindByEmailAsync(email);
 }
