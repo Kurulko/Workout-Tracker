@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using WorkoutTracker.API.Controllers.Base;
 using WorkoutTracker.API.Extensions;
 using WorkoutTracker.API.Results;
-using WorkoutTracker.Application.Common.Results;
 using WorkoutTracker.Application.DTOs;
 using WorkoutTracker.Application.DTOs.Equipments;
 using WorkoutTracker.Application.DTOs.Exercises.ExerciseSets.ExerciseSetGroups;
@@ -21,39 +20,223 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
 {
     readonly IWorkoutService workoutService;
     readonly IHttpContextAccessor httpContextAccessor;
-    public WorkoutsController(IWorkoutService workoutService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
-        : base(mapper)
+    public WorkoutsController (
+        IWorkoutService workoutService, 
+        IHttpContextAccessor httpContextAccessor,
+        IMapper mapper
+    ) : base(mapper)
     {
         this.workoutService = workoutService;
         this.httpContextAccessor = httpContextAccessor;
     }
 
 
-    const string workoutNotFoundStr = "Workout not found.";
-    ActionResult<WorkoutDTO> HandleWorkoutDTOServiceResult(ServiceResult<Workout> serviceResult)
-        => HandleDTOServiceResult<Workout, WorkoutDTO>(serviceResult, workoutNotFoundStr);
-    ActionResult<WorkoutDetailsDTO> HandleWorkoutDetailsDTOServiceResult(ServiceResult<Workout> serviceResult)
+    [HttpGet]
+    public async Task<ActionResult<ApiResult<WorkoutDTO>>> GetCurrentUserWorkoutsAsync(
+        long? exerciseId = null,
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? sortColumn = null,
+        string? sortOrder = null,
+        string? filterColumn = null,
+        string? filterQuery = null)
     {
-        ServiceResult<WorkoutDetailsDTO> serviceResultDTO;
+        if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
+            return InvalidPageIndexOrPageSize();
 
-        if (serviceResult.Success)
-        {
-            var workoutDetailsDTO = GetWorkoutDetailsDTO(serviceResult.Model);
-            serviceResultDTO = ServiceResult<WorkoutDetailsDTO>.Ok(workoutDetailsDTO);
-        }
-        else
-        {
-            serviceResultDTO = ServiceResult<WorkoutDetailsDTO>.Fail(serviceResult.ErrorMessage!);
-        }
+        if (exerciseId.HasValue && !IsValidID(exerciseId.Value))
+            return InvalidEntryID(nameof(Exercise));
 
-        return HandleServiceResult(serviceResultDTO, workoutNotFoundStr);
+        string userId = httpContextAccessor.GetUserId()!;
+        var workouts = await workoutService.GetUserWorkoutsAsync(userId, exerciseId);
+
+        var workoutDTOs = workouts.ToList().Select(mapper.Map<WorkoutDTO>);
+        return await ApiResult<WorkoutDTO>.CreateAsync(
+            workoutDTOs.AsQueryable(),
+            pageIndex,
+            pageSize,
+            sortColumn,
+            sortOrder,
+            filterColumn,
+            filterQuery
+        );
     }
 
-    WorkoutDetailsDTO? GetWorkoutDetailsDTO(Workout? workout)
-    {
-        if (workout == null)
-            return null;
 
+    [HttpGet("{workoutId}")]
+    [ActionName(nameof(GetCurrentUserWorkoutByIdAsync))]
+    public async Task<ActionResult<WorkoutDTO>> GetCurrentUserWorkoutByIdAsync(long workoutId)
+    {
+        if (!IsValidID(workoutId))
+            return InvalidWorkoutID();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var workout = await workoutService.GetUserWorkoutByIdAsync(userId, workoutId);
+        return ToWorkoutDTO(workout);
+    }
+
+    [HttpGet("{workoutId}/details")]
+    [ActionName(nameof(GetCurrentUserWorkoutDetailsByIdAsync))]
+    public async Task<ActionResult<WorkoutDetailsDTO>> GetCurrentUserWorkoutDetailsByIdAsync(long workoutId)
+    {
+        if (!IsValidID(workoutId))
+            return InvalidWorkoutID();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var workoutWithDetails = await workoutService.GetUserWorkoutByIdAsync(userId, workoutId, true);
+        return ToWorkoutDetailsDTO(workoutWithDetails);
+    }
+
+
+    [HttpGet("by-name/{name}")]
+    public async Task<ActionResult<WorkoutDTO>> GetCurrentUserWorkoutByNameAsync(string name)
+    {
+        if (!IsNameValid(name))
+            return WorkoutNameIsNullOrEmpty();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var workout = await workoutService.GetUserWorkoutByNameAsync(userId, name);
+        return ToWorkoutDTO(workout);
+    }
+
+    [HttpGet("by-name/{name}/details")]
+    public async Task<ActionResult<WorkoutDetailsDTO>> GetCurrentUserWorkoutDetailsByNameAsync(string name)
+    {
+        if (!IsNameValid(name))
+            return WorkoutNameIsNullOrEmpty();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var workoutWithDetails = await workoutService.GetUserWorkoutByNameAsync(userId, name, true);
+        return ToWorkoutDetailsDTO(workoutWithDetails);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddCurrentUserWorkoutAsync(WorkoutCreationDTO workoutCreationDTO)
+    {
+        if (workoutCreationDTO is null)
+            return WorkoutIsNull();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var workout = mapper.Map<Workout>(workoutCreationDTO);
+        workout = await workoutService.AddUserWorkoutAsync(userId, workout);
+
+        var workoutDTO = mapper.Map<WorkoutDTO>(workout);
+        return CreatedAtAction(nameof(GetCurrentUserWorkoutByIdAsync), new { workoutId = workout.Id }, workoutDTO);
+    }
+
+    [HttpPost("exercise-set-groups/{workoutId}")]
+    public async Task<IActionResult> AddExerciseSetGroupsToCurrentUserWorkoutAsync([FromRoute] long workoutId, [FromBody] IEnumerable<ExerciseSetGroupCreationDTO> exerciseSetGroupCreationDTOs)
+    {
+        if (!IsValidID(workoutId))
+            return InvalidWorkoutID();
+
+        if (exerciseSetGroupCreationDTOs is null)
+            return EntryIsNull("Exercise Set Groups");
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var exerciseSetGroups = exerciseSetGroupCreationDTOs.ToList().Select(mapper.Map<ExerciseSetGroup>);
+        await workoutService.AddExerciseSetGroupsToUserWorkoutAsync(userId, workoutId, exerciseSetGroups);
+        
+        return Ok();
+    }
+
+    [HttpPut("exercise-set-groups/{workoutId}")]
+    public async Task<IActionResult> UpdateCurrentUserWorkoutExerciseSetGroupsAsync([FromRoute] long workoutId, [FromBody] IEnumerable<ExerciseSetGroupCreationDTO> exerciseSetGroupCreationDTOs)
+    {
+        if (!IsValidID(workoutId))
+            return InvalidWorkoutID();
+
+        if (exerciseSetGroupCreationDTOs is null)
+            return EntryIsNull("Exercise Set Groups");
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var exerciseSetGroups = exerciseSetGroupCreationDTOs.ToList().Select(mapper.Map<ExerciseSetGroup>);
+        await workoutService.UpdateUserWorkoutExerciseSetGroupsAsync(userId, workoutId, exerciseSetGroups);
+
+        return Ok();
+    }
+
+    [HttpPut("complete/{workoutId}")]
+    public async Task<IActionResult> CompleteCurrentUserWorkout([FromRoute] long workoutId, [FromBody] DateAndTime dateAndTime)
+    {
+        if (!IsValidID(workoutId))
+            return InvalidWorkoutID();
+
+        if (IsDateInFuture(dateAndTime))
+            return DateInFuture();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        await workoutService.CompleteUserWorkout(userId, workoutId, dateAndTime.Date, (TimeSpan)dateAndTime.Time);
+        return Ok();
+    }
+
+    [HttpPut("pin/{workoutId}")]
+    public async Task<IActionResult> PinCurrentUserWorkout(long workoutId)
+    {
+        if (!IsValidID(workoutId))
+            return InvalidWorkoutID();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        await workoutService.PinUserWorkout(userId, workoutId);
+        return Ok();
+    }
+
+    [HttpPut("unpin/{workoutId}")]
+    public async Task<IActionResult> UnpinCurrentUserWorkout(long workoutId)
+    {
+        if (!IsValidID(workoutId))
+            return InvalidWorkoutID();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        await workoutService.UnpinUserWorkout(userId, workoutId);
+        return Ok();
+    }
+
+    [HttpPut("{workoutId}")]
+    public async Task<IActionResult> UpdateCurrentUserWorkoutAsync(long workoutId, WorkoutDTO workoutDTO)
+    {
+        if (!IsValidID(workoutId))
+            return InvalidWorkoutID();
+
+        if (workoutDTO is null)
+            return WorkoutIsNull();
+
+        if (!AreIdsEqual(workoutId, workoutDTO.Id))
+            return EntryIDsNotMatch(nameof(Workout));
+
+        string userId = httpContextAccessor.GetUserId()!;
+        var workout = mapper.Map<Workout>(workoutDTO);
+        await workoutService.UpdateUserWorkoutAsync(userId, workout);
+
+        return Ok();
+    }
+
+    [HttpDelete("{workoutId}")]
+    public async Task<IActionResult> DeleteCurrentUserWorkoutAsync(long workoutId)
+    {
+        if (!IsValidID(workoutId))
+            return InvalidWorkoutID();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        await workoutService.DeleteUserWorkoutAsync(userId, workoutId);
+        return Ok();
+    }
+
+
+    const string workoutNotFoundStr = "Workout not found.";
+    ActionResult<WorkoutDTO> ToWorkoutDTO(Workout? workout)
+        => ToDTO<Workout, WorkoutDTO>(workout, workoutNotFoundStr);
+    ActionResult<WorkoutDetailsDTO> ToWorkoutDetailsDTO(Workout? workout)
+    {
+        if(workout == null)
+            return null!;
+
+        var workoutDetailsDTO = GetWorkoutDetailsDTO(workout);
+        return workoutDetailsDTO;
+    }
+
+    WorkoutDetailsDTO GetWorkoutDetailsDTO(Workout workout)
+    {
         var workoutDetailsDTO = new WorkoutDetailsDTO();
 
         var workoutDTO = mapper.Map<WorkoutDTO>(workout);
@@ -94,240 +277,4 @@ public class WorkoutsController : BaseWorkoutController<WorkoutDTO, WorkoutCreat
         => EntryNameIsNullOrEmpty(nameof(Workout));
     ActionResult WorkoutIsNull()
         => EntryIsNull(nameof(Workout));
-
-
-    [HttpGet]
-    public async Task<ActionResult<ApiResult<WorkoutDTO>>> GetCurrentUserWorkoutsAsync(
-        long? exerciseId = null,
-        int pageIndex = 0,
-        int pageSize = 10,
-        string? sortColumn = null,
-        string? sortOrder = null,
-        string? filterColumn = null,
-        string? filterQuery = null)
-    {
-        if (pageIndex < 0 || pageSize <= 0)
-            return InvalidPageIndexOrPageSize();
-
-        if (exerciseId.HasValue && exerciseId < 1)
-            return InvalidEntryID(nameof(Exercise));
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutService.GetUserWorkoutsAsync(userId, exerciseId);
-
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
-
-        if (serviceResult.Model is not IQueryable<Workout> workouts)
-            return EntryNotFound("Workouts");
-
-        var workoutDTOs = workouts.ToList().Select(mapper.Map<WorkoutDTO>);
-        return await ApiResult<WorkoutDTO>.CreateAsync(
-            workoutDTOs.AsQueryable(),
-            pageIndex,
-            pageSize,
-            sortColumn,
-            sortOrder,
-            filterColumn,
-            filterQuery
-        );
-    }
-
-
-    [HttpGet("{workoutId}")]
-    [ActionName(nameof(GetCurrentUserWorkoutByIdAsync))]
-    public async Task<ActionResult<WorkoutDTO>> GetCurrentUserWorkoutByIdAsync(long workoutId)
-    {
-        if (workoutId < 1)
-            return InvalidWorkoutID();
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutService.GetUserWorkoutByIdAsync(userId, workoutId);
-        return HandleWorkoutDTOServiceResult(serviceResult);
-    }
-
-    [HttpGet("{workoutId}/details")]
-    [ActionName(nameof(GetCurrentUserWorkoutDetailsByIdAsync))]
-    public async Task<ActionResult<WorkoutDetailsDTO>> GetCurrentUserWorkoutDetailsByIdAsync(long workoutId)
-    {
-        if (workoutId < 1)
-            return InvalidWorkoutID();
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutService.GetUserWorkoutByIdAsync(userId, workoutId, true);
-        return HandleWorkoutDetailsDTOServiceResult(serviceResult);
-    }
-
-
-    [HttpGet("by-name/{name}")]
-    public async Task<ActionResult<WorkoutDTO>> GetCurrentUserWorkoutByNameAsync(string name)
-    {
-        if (string.IsNullOrEmpty(name))
-            return WorkoutNameIsNullOrEmpty();
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutService.GetUserWorkoutByNameAsync(userId, name);
-        return HandleWorkoutDTOServiceResult(serviceResult);
-    }
-
-    [HttpGet("by-name/{name}/details")]
-    public async Task<ActionResult<WorkoutDetailsDTO>> GetCurrentUserWorkoutDetailsByNameAsync(string name)
-    {
-        if (string.IsNullOrEmpty(name))
-            return WorkoutNameIsNullOrEmpty();
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutService.GetUserWorkoutByNameAsync(userId, name, true);
-        return HandleWorkoutDetailsDTOServiceResult(serviceResult);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> AddCurrentUserWorkoutAsync(WorkoutCreationDTO workoutCreationDTO)
-    {
-        if (workoutCreationDTO is null)
-            return WorkoutIsNull();
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var workout = mapper.Map<Workout>(workoutCreationDTO);
-        var serviceResult = await workoutService.AddUserWorkoutAsync(userId, workout);
-
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
-
-        workout = serviceResult.Model!;
-        var workoutDTO = mapper.Map<WorkoutDTO>(workout);
-
-        return CreatedAtAction(nameof(GetCurrentUserWorkoutByIdAsync), new { workoutId = workout.Id }, workoutDTO);
-    }
-
-    [HttpPost("exercise-set-groups/{workoutId}")]
-    public async Task<IActionResult> AddExerciseSetGroupsToCurrentUserWorkoutAsync([FromRoute] long workoutId, [FromBody] IEnumerable<ExerciseSetGroupCreationDTO> exerciseSetGroupCreationDTOs)
-    {
-        if (workoutId < 1)
-            return InvalidWorkoutID();
-
-        if (exerciseSetGroupCreationDTOs is null)
-            return EntryIsNull("Exercise Set Groups");
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var exerciseSetGroups = exerciseSetGroupCreationDTOs.ToList().Select(mapper.Map<ExerciseSetGroup>);
-        var serviceResult = await workoutService.AddExerciseSetGroupsToUserWorkoutAsync(userId, workoutId, exerciseSetGroups);
-        return HandleServiceResult(serviceResult);
-    }
-
-    [HttpPut("exercise-set-groups/{workoutId}")]
-    public async Task<IActionResult> UpdateCurrentUserWorkoutExerciseSetGroupsAsync([FromRoute] long workoutId, [FromBody] IEnumerable<ExerciseSetGroupCreationDTO> exerciseSetGroupCreationDTOs)
-    {
-        if (workoutId < 1)
-            return InvalidWorkoutID();
-
-        if (exerciseSetGroupCreationDTOs is null)
-            return EntryIsNull("Exercise Set Groups");
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var exerciseSetGroups = exerciseSetGroupCreationDTOs.ToList().Select(mapper.Map<ExerciseSetGroup>);
-        var serviceResult = await workoutService.UpdateUserWorkoutExerciseSetGroupsAsync(userId, workoutId, exerciseSetGroups);
-        return HandleServiceResult(serviceResult);
-    }
-
-    [HttpPut("complete/{workoutId}")]
-    public async Task<IActionResult> CompleteCurrentUserWorkout([FromRoute] long workoutId, [FromBody] DateAndTime dateAndTime)
-    {
-        if (workoutId < 1)
-            return InvalidWorkoutID();
-
-        if (dateAndTime.Date.Date > DateTime.Now.Date)
-            return BadRequest("Incorrect date.");
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutService.CompleteUserWorkout(userId, workoutId, dateAndTime.Date, (TimeSpan)dateAndTime.Time);
-        return HandleServiceResult(serviceResult);
-    }
-
-    [HttpPut("pin/{workoutId}")]
-    public async Task<IActionResult> PinCurrentUserWorkout([FromRoute] long workoutId)
-    {
-        if (workoutId < 1)
-            return InvalidWorkoutID();
-
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutService.PinUserWorkout(userId, workoutId);
-        return HandleServiceResult(serviceResult);
-    }
-
-    [HttpPut("unpin/{workoutId}")]
-    public async Task<IActionResult> UnpinCurrentUserWorkout([FromRoute] long workoutId)
-    {
-        if (workoutId < 1)
-            return InvalidWorkoutID();
-
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutService.UnpinUserWorkout(userId, workoutId);
-        return HandleServiceResult(serviceResult);
-    }
-
-    [HttpPut("{workoutId}")]
-    public async Task<IActionResult> UpdateCurrentUserWorkoutAsync(long workoutId, WorkoutDTO workoutDTO)
-    {
-        if (workoutId < 1)
-            return InvalidWorkoutID();
-
-        if (workoutDTO is null)
-            return WorkoutIsNull();
-
-        if (workoutId != workoutDTO.Id)
-            return EntryIDsNotMatch(nameof(Workout));
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var workout = mapper.Map<Workout>(workoutDTO);
-        var serviceResult = await workoutService.UpdateUserWorkoutAsync(userId, workout);
-        return HandleServiceResult(serviceResult);
-    }
-
-    [HttpDelete("{workoutId}")]
-    public async Task<IActionResult> DeleteCurrentUserWorkoutAsync(long workoutId)
-    {
-        if (workoutId < 1)
-            return InvalidWorkoutID();
-
-        string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutService.DeleteUserWorkoutAsync(userId, workoutId);
-        return HandleServiceResult(serviceResult);
-    }
-
-    [HttpGet("workout-exists/{workoutId}")]
-    public async Task<ActionResult<bool>> CurrentUserWorkoutExistsAsync(long workoutId)
-    {
-        if (workoutId < 1)
-            return InvalidWorkoutID();
-
-        try
-        {
-            string userId = httpContextAccessor.GetUserId()!;
-            return await workoutService.UserWorkoutExistsAsync(userId, workoutId);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
-    }
-
-    [HttpGet("workout-exists-by-name/{name}")]
-    public async Task<ActionResult<bool>> CurrentUserWorkoutExistsByNameAsync(string name)
-    {
-        if (string.IsNullOrEmpty(name))
-            return WorkoutNameIsNullOrEmpty();
-
-        try
-        {
-            string userId = httpContextAccessor.GetUserId()!;
-            return await workoutService.UserWorkoutExistsByNameAsync(userId, name);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
-    }
 }

@@ -12,7 +12,6 @@ public static class ExerciseRecordExtensions
             Date = date,
             ExerciseId = exerciseSet.ExerciseId,
             ExerciseRecordGroupId = exerciseRecordGroupId,
-            UserId = exerciseSet.UserId,
             Reps = exerciseSet.Reps,
             Weight = exerciseSet.Weight,
             Time = exerciseSet.Time,
@@ -20,4 +19,10 @@ public static class ExerciseRecordExtensions
 
         return exerciseRecord;
     }
+
+    public static string GetUserId(this ExerciseRecord exerciseRecord)
+        => exerciseRecord.ExerciseRecordGroup.GetUserId();
+
+    public static string GetUserId(this ExerciseRecordGroup exerciseRecordGroup)
+        => exerciseRecordGroup.WorkoutRecord.UserId;
 }

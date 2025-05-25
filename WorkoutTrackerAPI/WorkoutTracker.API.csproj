@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
@@ -23,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WorkoutTracker.Application\WorkoutTracker.Application.csproj" />
+    <ProjectReference Include="..\WorkoutTracker.Domain\WorkoutTracker.Domain.csproj" />
     <ProjectReference Include="..\WorkoutTracker.Infrastructure\WorkoutTracker.Infrastructure.csproj" />
     <ProjectReference Include="..\WorkoutTracker.Persistence\WorkoutTracker.Persistence.csproj" />
   </ItemGroup>

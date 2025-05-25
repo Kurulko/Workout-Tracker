@@ -1,17 +1,16 @@
-﻿using WorkoutTracker.Application.Common.Results;
-using WorkoutTracker.Domain.Entities.Exercises;
+﻿using WorkoutTracker.Domain.Entities.Exercises;
 
 namespace WorkoutTracker.Application.Interfaces.Services.Exercises;
 
-public interface IExerciseAliasService
+public interface IExerciseAliasService : IBaseService
 {
-    Task<ServiceResult<ExerciseAlias>> GetExerciseAliasByIdAsync(long id);
-    Task<ServiceResult<ExerciseAlias>> GetExerciseAliasByNameAsync(string name);
+    Task<ExerciseAlias?> GetExerciseAliasByIdAsync(long id);
+    Task<ExerciseAlias?> GetExerciseAliasByNameAsync(string name);
 
-    Task<ServiceResult<IQueryable<ExerciseAlias>>> GetExerciseAliasesByExerciseIdAsync(long exerciseId);
+    Task<IQueryable<ExerciseAlias>> GetExerciseAliasesByExerciseIdAsync(long exerciseId);
 
-    Task<ServiceResult<ExerciseAlias>> AddExerciseAliasToExerciseAsync(long exerciseId, ExerciseAlias exerciseAlias);
-    Task<ServiceResult> UpdateExerciseAliasAsync(ExerciseAlias exerciseAlias);
+    Task<ExerciseAlias> AddExerciseAliasToExerciseAsync(long exerciseId, ExerciseAlias exerciseAlias);
+    Task UpdateExerciseAliasAsync(ExerciseAlias exerciseAlias);
 
-    Task<ServiceResult> DeleteExerciseAliasAsync(long id);
+    Task DeleteExerciseAliasAsync(long id);
 }

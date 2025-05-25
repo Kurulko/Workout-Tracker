@@ -3,7 +3,7 @@ using WorkoutTracker.Application.Models.Progresses;
 
 namespace WorkoutTracker.Application.Interfaces.Services.Progresses;
 
-public interface IWorkoutProgressService
+public interface IWorkoutProgressService : IBaseService
 {
     Task<CurrentUserProgress> CalculateCurrentUserProgressAsync(string userId);
 

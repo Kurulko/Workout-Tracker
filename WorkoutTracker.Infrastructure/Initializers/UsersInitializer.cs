@@ -16,15 +16,11 @@ internal class UsersInitializer
             {
                 UserName = name,
                 Email = email,
-                Registered = DateTime.Now
+                Registered = DateTime.UtcNow
             };
 
-            IdentityResult result = await userRepository.CreateUserAsync(user, password);
-
-            if (result.Succeeded)
-            {
-                await userRepository.AddRolesToUserAsync(user.Id, rolesStr);
-            }
+            await userRepository.CreateUserAsync(user, password);
+            await userRepository.AddRolesToUserAsync(user.Id, rolesStr);
         }
 
         return user;

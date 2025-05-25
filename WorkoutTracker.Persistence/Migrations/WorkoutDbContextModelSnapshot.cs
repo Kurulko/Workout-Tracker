@@ -208,7 +208,10 @@ namespace WorkoutTracker.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BodyWeights");
+                    b.ToTable("BodyWeights", t =>
+                        {
+                            t.HasCheckConstraint("CK_BodyWeight_Date", "Date <= GETDATE()");
+                        });
                 });
 
             modelBuilder.Entity("WorkoutTracker.Domain.Entities.Equipment", b =>
@@ -224,17 +227,15 @@ namespace WorkoutTracker.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("OwnedByUserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("OwnedByUserId");
 
                     b.HasIndex("Name", "OwnedByUserId")
                         .IsUnique()
@@ -255,24 +256,23 @@ namespace WorkoutTracker.Persistence.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("CreatedByUserId");
 
                     b.HasIndex("Name", "CreatedByUserId")
                         .IsUnique()
@@ -294,11 +294,15 @@ namespace WorkoutTracker.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ExerciseId");
+
+                    b.HasIndex("Name", "ExerciseId")
+                        .IsUnique();
 
                     b.ToTable("ExerciseAliases");
                 });
@@ -326,10 +330,6 @@ namespace WorkoutTracker.Persistence.Migrations
                     b.Property<TimeSpan?>("Time")
                         .HasColumnType("time");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Weight")
                         .HasColumnType("nvarchar(max)");
 
@@ -339,9 +339,10 @@ namespace WorkoutTracker.Persistence.Migrations
 
                     b.HasIndex("ExerciseRecordGroupId");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ExerciseRecords");
+                    b.ToTable("ExerciseRecords", t =>
+                        {
+                            t.HasCheckConstraint("CK_ExerciseRecord_Date", "Date <= GETDATE()");
+                        });
                 });
 
             modelBuilder.Entity("WorkoutTracker.Domain.Entities.Exercises.ExerciseGroups.ExerciseRecordGroup", b =>
@@ -386,10 +387,6 @@ namespace WorkoutTracker.Persistence.Migrations
 
                     b.Property<TimeSpan?>("Time")
                         .HasColumnType("time");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Weight")
                         .HasColumnType("nvarchar(max)");
@@ -438,11 +435,14 @@ namespace WorkoutTracker.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsMeasurable")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<long?>("ParentMuscleId")
                         .HasColumnType("bigint");
@@ -485,7 +485,10 @@ namespace WorkoutTracker.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("MuscleSizes");
+                    b.ToTable("MuscleSizes", t =>
+                        {
+                            t.HasCheckConstraint("CK_MuscleSize_Date", "Date <= GETDATE()");
+                        });
                 });
 
             modelBuilder.Entity("WorkoutTracker.Domain.Entities.Users.UserDetails", b =>
@@ -520,7 +523,12 @@ namespace WorkoutTracker.Persistence.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UsersDetails");
+                    b.ToTable("UsersDetails", t =>
+                        {
+                            t.HasCheckConstraint("CK_UserDetails_BodyFatPercentage", "[BodyFatPercentage] >= 0 AND [BodyFatPercentage] <= 100");
+
+                            t.HasCheckConstraint("CK_UserDetails_DateOfBirth", "DateOfBirth <= GETDATE()");
+                        });
                 });
 
             modelBuilder.Entity("WorkoutTracker.Domain.Entities.Workouts.Workout", b =>
@@ -532,38 +540,42 @@ namespace WorkoutTracker.Persistence.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<int>("CountOfTrainings")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsPinned")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId1")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex("UserId1");
-
                     b.HasIndex("Name", "UserId")
                         .IsUnique();
 
-                    b.ToTable("Workouts");
+                    b.ToTable("Workouts", t =>
+                        {
+                            t.HasCheckConstraint("CK_Workout_Created", "Created <= GETDATE()");
+                        });
                 });
 
             modelBuilder.Entity("WorkoutTracker.Domain.Entities.Workouts.WorkoutRecord", b =>
@@ -593,7 +605,10 @@ namespace WorkoutTracker.Persistence.Migrations
 
                     b.HasIndex("WorkoutId");
 
-                    b.ToTable("WorkoutRecords");
+                    b.ToTable("WorkoutRecords", t =>
+                        {
+                            t.HasCheckConstraint("CK_WorkoutRecord_Date", "Date <= GETDATE()");
+                        });
                 });
 
             modelBuilder.Entity("WorkoutTracker.Infrastructure.Identity.Entities.User", b =>
@@ -609,7 +624,9 @@ namespace WorkoutTracker.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("CountOfTrainings")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -667,7 +684,12 @@ namespace WorkoutTracker.Persistence.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("AspNetUsers", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_User_Registered", "Registered <= GETDATE()");
+
+                            t.HasCheckConstraint("CK_User_StartedWorkingOut", "StartedWorkingOut <= GETDATE()");
+                        });
                 });
 
             modelBuilder.Entity("EquipmentExercise", b =>
@@ -764,14 +786,16 @@ namespace WorkoutTracker.Persistence.Migrations
                 {
                     b.HasOne("WorkoutTracker.Infrastructure.Identity.Entities.User", null)
                         .WithMany("UserEquipments")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("OwnedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("WorkoutTracker.Domain.Entities.Exercises.Exercise", b =>
                 {
                     b.HasOne("WorkoutTracker.Infrastructure.Identity.Entities.User", null)
                         .WithMany("CreatedExercises")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("WorkoutTracker.Domain.Entities.Exercises.ExerciseAlias", b =>
@@ -797,12 +821,6 @@ namespace WorkoutTracker.Persistence.Migrations
                         .WithMany("ExerciseRecords")
                         .HasForeignKey("ExerciseRecordGroupId")
                         .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
-
-                    b.HasOne("WorkoutTracker.Infrastructure.Identity.Entities.User", null)
-                        .WithMany("ExerciseRecords")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Exercise");
@@ -871,7 +889,8 @@ namespace WorkoutTracker.Persistence.Migrations
                 {
                     b.HasOne("WorkoutTracker.Domain.Entities.Muscles.Muscle", "ParentMuscle")
                         .WithMany("ChildMuscles")
-                        .HasForeignKey("ParentMuscleId");
+                        .HasForeignKey("ParentMuscleId")
+                        .OnDelete(DeleteBehavior.ClientCascade);
 
                     b.Navigation("ParentMuscle");
                 });
@@ -905,14 +924,10 @@ namespace WorkoutTracker.Persistence.Migrations
             modelBuilder.Entity("WorkoutTracker.Domain.Entities.Workouts.Workout", b =>
                 {
                     b.HasOne("WorkoutTracker.Infrastructure.Identity.Entities.User", null)
-                        .WithMany()
+                        .WithMany("Workouts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("WorkoutTracker.Infrastructure.Identity.Entities.User", null)
-                        .WithMany("Workouts")
-                        .HasForeignKey("UserId1");
                 });
 
             modelBuilder.Entity("WorkoutTracker.Domain.Entities.Workouts.WorkoutRecord", b =>
@@ -978,11 +993,10 @@ namespace WorkoutTracker.Persistence.Migrations
 
                     b.Navigation("CreatedExercises");
 
-                    b.Navigation("ExerciseRecords");
-
                     b.Navigation("MuscleSizes");
 
-                    b.Navigation("UserDetails");
+                    b.Navigation("UserDetails")
+                        .IsRequired();
 
                     b.Navigation("UserEquipments");
 

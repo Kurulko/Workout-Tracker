@@ -1,5 +1,5 @@
-﻿using WorkoutTracker.Domain.Entities.Users;
-using WorkoutTracker.Application.Interfaces.Repositories.Base;
+﻿using WorkoutTracker.Application.Interfaces.Repositories.Base;
+using WorkoutTracker.Domain.Entities;
 
 namespace WorkoutTracker.Application.Interfaces.Repositories;
 

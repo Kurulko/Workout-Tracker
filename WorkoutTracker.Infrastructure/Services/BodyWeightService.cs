@@ -5,251 +5,133 @@ using WorkoutTracker.Application.Interfaces.Repositories;
 using WorkoutTracker.Application.Interfaces.Services;
 using WorkoutTracker.Domain.Entities;
 using WorkoutTracker.Domain.ValueObjects;
-using WorkoutTracker.Infrastructure.Exceptions;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
 using WorkoutTracker.Infrastructure.Services.Base;
 using WorkoutTracker.Application.Common.Extensions;
+using Microsoft.Extensions.Logging;
+using WorkoutTracker.Infrastructure.Extensions;
+using WorkoutTracker.Infrastructure.Validators.Services;
 
 namespace WorkoutTracker.Infrastructure.Services;
 
-internal class BodyWeightService : DbModelService<BodyWeight>, IBodyWeightService
+internal class BodyWeightService : DbModelService<BodyWeightService, BodyWeight>, IBodyWeightService
 {
-    readonly IUserRepository userRepository;
-    public BodyWeightService(IBodyWeightRepository baseRepository, IUserRepository userRepository) : base(baseRepository)
-        => this.userRepository = userRepository;
+    readonly BodyWeightServiceValidator bodyWeightServiceValidator;
 
-    readonly EntryNullException bodyWeightIsNullException = new("Body weight");
-    readonly InvalidIDException invalidBodyWeightIDException = new(nameof(BodyWeight));
-
-    NotFoundException BodyWeightNotFoundByIDException(long id)
-        => NotFoundException.NotFoundExceptionByID("Body weight", id);
-
-    public async Task<ServiceResult<BodyWeight>> AddBodyWeightToUserAsync(string userId, BodyWeight bodyWeight)
+    public BodyWeightService(
+        IBodyWeightRepository baseRepository,
+        BodyWeightServiceValidator bodyWeightServiceValidator,
+        ILogger<BodyWeightService> logger
+    ) : base(baseRepository, logger)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
-
-            if (bodyWeight is null)
-                throw bodyWeightIsNullException;
-
-            if (bodyWeight.Id != 0)
-                throw InvalidEntryIDWhileAddingException(nameof(BodyWeight), "body weight");
-
-            bodyWeight.UserId = userId;
-            await baseRepository.AddAsync(bodyWeight);
-
-            return ServiceResult<BodyWeight>.Ok(bodyWeight);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<BodyWeight>.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("body weight", "add", ex));
-        }
+        this.bodyWeightServiceValidator = bodyWeightServiceValidator;
     }
 
-    public async Task<ServiceResult> DeleteBodyWeightFromUserAsync(string userId, long bodyWeightId)
+    public async Task<BodyWeight> AddBodyWeightToUserAsync(string userId, BodyWeight bodyWeight)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
+        await bodyWeightServiceValidator.ValidateAddAsync(userId, bodyWeight);
 
-            if (bodyWeightId < 1)
-                throw invalidBodyWeightIDException;
+        bodyWeight.UserId = userId;
 
-            BodyWeight? bodyWeight = await baseRepository.GetByIdAsync(bodyWeightId) ?? throw BodyWeightNotFoundByIDException(bodyWeightId);
-            
-            if (bodyWeight.UserId != userId)
-                throw UserNotHavePermissionException("delete", "body weight");
-
-            await baseRepository.RemoveAsync(bodyWeightId);
-            return ServiceResult.Ok();
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
-        {
-            return ServiceResult.Fail(ex.Message);
-        }
-        catch
-        {
-            return ServiceResult.Fail(FailedToActionStr("body weight", "delete"));
-        }
+        return await baseRepository.AddAsync(bodyWeight)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weight", "add", userId));
     }
 
-    async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsAsync(string userId, DateTimeRange? range = null)
+    public async Task UpdateUserBodyWeightAsync(string userId, BodyWeight bodyWeight)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
+        await bodyWeightServiceValidator.ValidateUpdateAsync(userId, bodyWeight);
 
-            if (range is DateTimeRange _range && _range.LastDate > DateTime.Now.Date)
-                throw new ArgumentException("Incorrect date.");
+        var _bodyWeight = (await baseRepository.GetByIdAsync(bodyWeight.Id))!;
 
-            IEnumerable<BodyWeight> userBodyWeights = (await baseRepository.FindAsync(wr => wr.UserId == userId)).ToList();
+        _bodyWeight.Weight = bodyWeight.Weight;
+        _bodyWeight.Date = bodyWeight.Date;
 
-            if (range is not null)
-                userBodyWeights = userBodyWeights.Where(bw => range.IsDateInRange(bw.Date, true));
-
-            return ServiceResult<IQueryable<BodyWeight>>.Ok(userBodyWeights.AsQueryable());
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<IQueryable<BodyWeight>>.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<IQueryable<BodyWeight>>.Fail(FailedToActionStr("body weights", "get", ex));
-        }
+        await baseRepository.UpdateAsync(_bodyWeight)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weight", "update", userId));
     }
 
-    public async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInPoundsAsync(string userId, DateTimeRange? range = null)
+    public async Task DeleteBodyWeightFromUserAsync(string userId, long bodyWeightId)
     {
-        var serviceResult = await GetUserBodyWeightsAsync(userId, range);
+        await bodyWeightServiceValidator.ValidateDeleteAsync(userId, bodyWeightId);
 
-        if (!serviceResult.Success)
-            return serviceResult;
+        await baseRepository.RemoveAsync(bodyWeightId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weight", "delete", userId));
+    }
 
-        var userBodyWeightsInPounds = serviceResult.Model!.ToList().Select(m =>
+    async Task<IQueryable<BodyWeight>> GetUserBodyWeightsAsync(string userId, DateTimeRange? range = null)
+    {
+        await bodyWeightServiceValidator.ValidateGetAllAsync(userId, range);
+
+        IEnumerable<BodyWeight> userBodyWeights = (await baseRepository.FindAsync(wr => wr.UserId == userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weights", "get", userId)))
+            .ToList();
+
+        if (range is not null)
+            userBodyWeights = userBodyWeights.Where(bw => range.IsDateInRange(bw.Date, true));
+
+        return userBodyWeights.AsQueryable();
+    }
+
+    public async Task<IQueryable<BodyWeight>> GetUserBodyWeightsInPoundsAsync(string userId, DateTimeRange? range = null)
+    {
+        var userBodyWeights = await GetUserBodyWeightsAsync(userId, range);
+
+        var userBodyWeightsInPounds = userBodyWeights.ToList().Select(m =>
         {
             m.Weight = ModelWeight.GetModelWeightInPounds(m.Weight);
             return m;
         }).AsQueryable();
 
-        return ServiceResult<IQueryable<BodyWeight>>.Ok(userBodyWeightsInPounds);
+        return userBodyWeightsInPounds;
     }
 
-    public async Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInKilogramsAsync(string userId, DateTimeRange? range = null)
+    public async Task<IQueryable<BodyWeight>> GetUserBodyWeightsInKilogramsAsync(string userId, DateTimeRange? range = null)
     {
-        var serviceResult = await GetUserBodyWeightsAsync(userId, range);
+        var userBodyWeights = await GetUserBodyWeightsAsync(userId, range);
 
-        if (!serviceResult.Success)
-            return serviceResult;
-
-        var userBodyWeightsInKilograms = serviceResult.Model!.ToList().Select(m =>
+        var userBodyWeightsInKilograms = userBodyWeights.ToList().Select(m =>
         {
             m.Weight = ModelWeight.GetModelWeightInKilos(m.Weight);
             return m;
         }).AsQueryable();
 
-        return ServiceResult<IQueryable<BodyWeight>>.Ok(userBodyWeightsInKilograms);
+        return userBodyWeightsInKilograms;
     }
 
-    public async Task<ServiceResult<BodyWeight>> GetCurrentUserBodyWeightAsync(string userId)
+    public async Task<BodyWeight?> GetCurrentUserBodyWeightAsync(string userId)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
+        await bodyWeightServiceValidator.ValidateGetCurrentAsync(userId);
 
-            var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId);
-            var userMaxBodyWeight = userBodyWeights?.ToList().MaxBy(bw => bw.Date);
-
-            return ServiceResult<BodyWeight>.Ok(userMaxBodyWeight);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<BodyWeight>.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("current body weight", "get", ex));
-        }
+        var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("current body weight", "get", userId));
+        return userBodyWeights?.ToList().MaxBy(bw => bw.Date);
     }
 
-    public async Task<ServiceResult<BodyWeight>> GetMaxUserBodyWeightAsync(string userId)
+    public async Task<BodyWeight?> GetMaxUserBodyWeightAsync(string userId)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
+        await bodyWeightServiceValidator.ValidateGetMaxAsync(userId);
 
-            var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId);
-            var userMaxBodyWeight = userBodyWeights?.ToList().MaxBy(bw => bw.Weight);
+        var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("max body weight", "get", userId));
 
-            return ServiceResult<BodyWeight>.Ok(userMaxBodyWeight);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<BodyWeight>.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("max body weight", "get", ex));
-        }
+        return userBodyWeights?.ToList().MaxBy(bw => bw.Weight);
     }
 
-    public async Task<ServiceResult<BodyWeight>> GetMinUserBodyWeightAsync(string userId)
+    public async Task<BodyWeight?> GetMinUserBodyWeightAsync(string userId)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
+        await bodyWeightServiceValidator.ValidateGetAllAsync(userId, null);
 
-            var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId);
-            var userMinBodyWeight = userBodyWeights?.ToList().MinBy(bw => bw.Weight);
-            return ServiceResult<BodyWeight>.Ok(userMinBodyWeight);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<BodyWeight>.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("min body weight", "get", ex));
-        }
+        var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("min body weight", "get", userId));
+
+        return userBodyWeights?.ToList().MinBy(bw => bw.Weight);
     }
 
-    public async Task<ServiceResult<BodyWeight>> GetUserBodyWeightByIdAsync(string userId, long bodyWeightId)
+    public async Task<BodyWeight?> GetUserBodyWeightByIdAsync(string userId, long bodyWeightId)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
+        await bodyWeightServiceValidator.ValidateGetByIdAsync(userId, bodyWeightId);
 
-            if (bodyWeightId < 1)
-                throw invalidBodyWeightIDException;
-
-            var userBodyWeightById = await baseRepository.GetByIdAsync(bodyWeightId);
-            return ServiceResult<BodyWeight>.Ok(userBodyWeightById);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<BodyWeight>.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<BodyWeight>.Fail(FailedToActionStr("body weight", "get", ex));
-        }
-    }
-
-    public async Task<ServiceResult> UpdateUserBodyWeightAsync(string userId, BodyWeight bodyWeight)
-    {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
-
-            if (bodyWeight is null)
-                throw bodyWeightIsNullException;
-
-            if (bodyWeight.Id < 1)
-                throw invalidBodyWeightIDException;
-
-            var _bodyWeight = await baseRepository.GetByIdAsync(bodyWeight.Id) ?? throw BodyWeightNotFoundByIDException(bodyWeight.Id);
-            
-            if (_bodyWeight.UserId != userId)
-                throw UserNotHavePermissionException("update", "body weight");
-
-            _bodyWeight.Weight = bodyWeight.Weight;
-            _bodyWeight.Date = bodyWeight.Date;
-
-            await baseRepository.UpdateAsync(_bodyWeight);
-            return ServiceResult.Ok();
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
-        {
-            return ServiceResult.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult.Fail(FailedToActionStr("body weight", "update", ex));
-        }
+        return await baseRepository.GetByIdAsync(bodyWeightId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weight", "get", userId));
     }
 }

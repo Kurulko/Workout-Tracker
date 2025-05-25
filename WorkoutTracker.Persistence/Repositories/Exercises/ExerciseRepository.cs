@@ -3,6 +3,7 @@ using WorkoutTracker.Persistence.Repositories.Base;
 using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Application.Interfaces.Repositories.Exercises;
 using WorkoutTracker.Persistence.Context;
+using WorkoutTracker.Application.Common.Extensions.Exercises;
 
 namespace WorkoutTracker.Persistence.Repositories.Exercises;
 
@@ -54,7 +55,7 @@ internal class ExerciseRepository : BaseWorkoutRepository<Exercise>, IExerciseRe
         if (exercise != null)
         {
             exercise.ExerciseRecords = exercise.ExerciseRecords?
-                .Where(er => er.UserId == userId)
+                .Where(er => er.GetUserId() == userId)
                 .ToList();
         }
 
@@ -74,7 +75,7 @@ internal class ExerciseRepository : BaseWorkoutRepository<Exercise>, IExerciseRe
         if (exercise != null)
         {
             exercise.ExerciseRecords = exercise.ExerciseRecords?
-                .Where(er => er.UserId == userId)
+                .Where(er => er.GetUserId() == userId)
                 .ToList();
         }
 

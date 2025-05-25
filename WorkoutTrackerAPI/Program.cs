@@ -1,5 +1,6 @@
 using Microsoft.Extensions.FileProviders;
 using WorkoutTracker.API.Extensions;
+using WorkoutTracker.API.Middlewares;
 using WorkoutTracker.Infrastructure.Providers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.UseDeveloperExceptionPage();
 }
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

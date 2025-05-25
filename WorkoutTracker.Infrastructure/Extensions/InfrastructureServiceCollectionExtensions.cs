@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using WorkoutTracker.Application.Common.Settings;
 using WorkoutTracker.Application.Interfaces.Services;
 using WorkoutTracker.Application.Interfaces.Services.Auth;
 using WorkoutTracker.Application.Interfaces.Services.Exercises;
@@ -18,6 +15,8 @@ using WorkoutTracker.Infrastructure.Services.Muscles;
 using WorkoutTracker.Infrastructure.Services.Progresses;
 using WorkoutTracker.Infrastructure.Services.Workouts;
 using WorkoutTracker.Infrastructure.Identity.Extensions;
+using WorkoutTracker.Infrastructure.Validators.Models.Workouts;
+using WorkoutTracker.Infrastructure.Validators.Services.Workouts;
 
 namespace WorkoutTracker.Infrastructure.Extensions;
 
@@ -25,14 +24,40 @@ public static class InfrastructureServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddTransient<IFileService, FileService>();
+        services.AddValidators();
 
+        services.AddTransient<IFileService, FileService>();
         services.AddAccountServices();
         services.AddWorkoutModelServices();
 
         services.AddIdentityInfrastructure();
 
         return services;
+    }
+
+    static void AddValidators(this IServiceCollection services)
+    {
+        services.AddModelValidators();
+        services.AddServiceValidators();
+    }
+
+    static void AddModelValidators(this IServiceCollection services)
+    {
+        services.Scan(scan => scan
+            .FromAssemblyOf<WorkoutValidator>()
+            .AddClasses(c => 
+                c.Where(t => t.Name.EndsWith("Validator") && !t.Name.EndsWith("ServiceValidator")))
+            .AsSelf()
+            .WithScopedLifetime());
+    }
+
+    static void AddServiceValidators(this IServiceCollection services)
+    {
+        services.Scan(scan => scan
+            .FromAssemblyOf<WorkoutServiceValidator>()
+            .AddClasses(c => c.Where(t => t.Name.EndsWith("ServiceValidator")))
+            .AsSelf()
+            .WithScopedLifetime());
     }
 
     static void AddAccountServices(this IServiceCollection services)

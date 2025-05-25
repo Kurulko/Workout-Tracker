@@ -1,18 +1,21 @@
 ﻿using WorkoutTracker.Application.Common.Models;
-using WorkoutTracker.Application.Common.Results;
 using WorkoutTracker.Domain.Entities;
 
 namespace WorkoutTracker.Application.Interfaces.Services;
 
-public interface IBodyWeightService
+public interface IBodyWeightService : IBaseService
 {
-    Task<ServiceResult<BodyWeight>> GetUserBodyWeightByIdAsync(string userId, long bodyWeightId);
-    Task<ServiceResult<BodyWeight>> GetCurrentUserBodyWeightAsync(string userId);
-    Task<ServiceResult<BodyWeight>> GetMinUserBodyWeightAsync(string userId);
-    Task<ServiceResult<BodyWeight>> GetMaxUserBodyWeightAsync(string userId);
-    Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInPoundsAsync(string userId, DateTimeRange? range = null);
-    Task<ServiceResult<IQueryable<BodyWeight>>> GetUserBodyWeightsInKilogramsAsync(string userId, DateTimeRange? range = null);
-    Task<ServiceResult<BodyWeight>> AddBodyWeightToUserAsync(string userId, BodyWeight bodyWeight);
-    Task<ServiceResult> UpdateUserBodyWeightAsync(string userId, BodyWeight bodyWeight);
-    Task<ServiceResult> DeleteBodyWeightFromUserAsync(string userId, long bodyWeightId);
+    Task<BodyWeight?> GetUserBodyWeightByIdAsync(string userId, long bodyWeightId);
+    Task<BodyWeight?> GetCurrentUserBodyWeightAsync(string userId);
+
+    Task<BodyWeight?> GetMinUserBodyWeightAsync(string userId);
+    Task<BodyWeight?> GetMaxUserBodyWeightAsync(string userId);
+
+    Task<IQueryable<BodyWeight>> GetUserBodyWeightsInPoundsAsync(string userId, DateTimeRange? range = null);
+    Task<IQueryable<BodyWeight>> GetUserBodyWeightsInKilogramsAsync(string userId, DateTimeRange? range = null);
+
+    Task<BodyWeight> AddBodyWeightToUserAsync(string userId, BodyWeight bodyWeight);
+    Task UpdateUserBodyWeightAsync(string userId, BodyWeight bodyWeight);
+
+    Task DeleteBodyWeightFromUserAsync(string userId, long bodyWeightId);
 }

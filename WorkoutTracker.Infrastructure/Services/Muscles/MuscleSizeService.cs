@@ -1,246 +1,136 @@
-﻿using WorkoutTracker.Application.Common.Exceptions;
-using WorkoutTracker.Application.Common.Models;
-using WorkoutTracker.Application.Common.Results;
+﻿using WorkoutTracker.Application.Common.Models;
 using WorkoutTracker.Application.Interfaces.Repositories.Muscles;
 using WorkoutTracker.Application.Interfaces.Services.Muscles;
 using WorkoutTracker.Domain.Entities.Muscles;
 using WorkoutTracker.Domain.ValueObjects;
-using WorkoutTracker.Infrastructure.Exceptions;
-using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
 using WorkoutTracker.Infrastructure.Services.Base;
 using WorkoutTracker.Application.Common.Extensions;
+using Microsoft.Extensions.Logging;
+using WorkoutTracker.Infrastructure.Extensions;
+using WorkoutTracker.Infrastructure.Validators.Services.Muscles;
 
 namespace WorkoutTracker.Infrastructure.Services.Muscles;
 
-internal class MuscleSizeService : DbModelService<MuscleSize>, IMuscleSizeService
+internal class MuscleSizeService : DbModelService<MuscleSizeService, MuscleSize>, IMuscleSizeService
 {
-    readonly IUserRepository userRepository;
-    public MuscleSizeService(IMuscleSizeRepository baseRepository, IUserRepository userRepository) : base(baseRepository)
-        => this.userRepository = userRepository;
+    readonly IMuscleSizeRepository muscleSizeRepository;
+    readonly MuscleSizeServiceValidator muscleSizeServiceValidator;
 
-    readonly EntryNullException muscleSizeIsNullException = new("Muscle size");
-    readonly InvalidIDException invalidMuscleSizeIDException = new(nameof(MuscleSize));
-
-    NotFoundException MuscleSizeNotFoundByIDException(long id)
-        => NotFoundException.NotFoundExceptionByID("Muscle size", id);
-
-    public async Task<ServiceResult<MuscleSize>> AddMuscleSizeToUserAsync(string userId, MuscleSize muscleSize)
+    public MuscleSizeService(
+        IMuscleSizeRepository muscleSizeRepository,
+        MuscleSizeServiceValidator muscleSizeServiceValidator,
+        ILogger<MuscleSizeService> logger
+    ) : base(muscleSizeRepository, logger)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
-
-            if (muscleSize is null)
-                throw muscleSizeIsNullException;
-
-            if (muscleSize.Id != 0)
-                throw InvalidEntryIDWhileAddingException(nameof(MuscleSize), "muscle size");
-
-            muscleSize.UserId = userId;
-            await baseRepository.AddAsync(muscleSize);
-
-            return ServiceResult<MuscleSize>.Ok(muscleSize);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<MuscleSize>.Fail(ex);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("muscle size", "add", ex));
-        }
+        this.muscleSizeRepository = muscleSizeRepository;
+        this.muscleSizeServiceValidator = muscleSizeServiceValidator;
     }
 
-    public async Task<ServiceResult> DeleteMuscleSizeFromUserAsync(string userId, long muscleSizeId)
+    const string muscleSizeEntityName = "muscle size";
+
+    public async Task<MuscleSize> AddMuscleSizeToUserAsync(string userId, MuscleSize muscleSize)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
+        await muscleSizeServiceValidator.ValidateAddAsync(userId, muscleSize);
 
-            if (muscleSizeId < 1)
-                throw invalidMuscleSizeIDException;
+        muscleSize.UserId = userId;
+        muscleSize.Date = DateTime.UtcNow;
 
-            var muscleSize = await baseRepository.GetByIdAsync(muscleSizeId) ?? throw MuscleSizeNotFoundByIDException(muscleSizeId);
-
-            if (muscleSize.UserId != userId)
-                throw UserNotHavePermissionException("delete", "muscle size");
-
-            await baseRepository.RemoveAsync(muscleSizeId);
-            return ServiceResult.Ok();
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
-        {
-            return ServiceResult.Fail(ex);
-        }
-        catch
-        {
-            return ServiceResult.Fail(FailedToActionStr("muscle size", "delete"));
-        }
-    }
-    
-    async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesAsync(string userId, long? muscleId = null, DateTimeRange? range = null)
-    {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
-
-            if (range is DateTimeRange _range && _range.LastDate > DateTime.Now.Date)
-                throw new ArgumentException("Incorrect date.");
-
-            if (muscleId.HasValue && muscleId < 1)
-                throw new InvalidIDException(nameof(Muscle));
-
-            IEnumerable<MuscleSize> userMuscleSizes = (await baseRepository.FindAsync(wr => wr.UserId == userId)).ToList();
-
-            if (range is not null)
-                userMuscleSizes = userMuscleSizes.Where(ms => range.IsDateInRange(ms.Date, true));
-
-            if (muscleId.HasValue)
-                userMuscleSizes = userMuscleSizes.Where(ms => ms.MuscleId == muscleId);
-
-            return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizes.AsQueryable());
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<IQueryable<MuscleSize>>.Fail(ex);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<IQueryable<MuscleSize>>.Fail(FailedToActionStr("muscle sizes", "get", ex));
-        }
+        return await baseRepository.AddAsync(muscleSize)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(muscleSizeEntityName, "add", userId));
     }
 
-    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInInchesAsync(string userId, long? muscleId = null, DateTimeRange? range = null)
+    public async Task UpdateUserMuscleSizeAsync(string userId, MuscleSize muscleSize)
     {
-        var serviceResult = await GetUserMuscleSizesAsync(userId, muscleId, range);
+        await muscleSizeServiceValidator.ValidateUpdateAsync(userId, muscleSize);
 
-        if (!serviceResult.Success)
-            return serviceResult;
+        var _muscleSize = (await muscleSizeRepository.GetByIdAsync(muscleSize.Id))!;
 
-        var userMuscleSizesInInches = serviceResult.Model!.ToList().Select(m =>
+        _muscleSize.Date = muscleSize.Date;
+        _muscleSize.Size = muscleSize.Size;
+        _muscleSize.MuscleId = muscleSize.MuscleId;
+
+        await baseRepository.UpdateAsync(_muscleSize)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(muscleSizeEntityName, "update", userId));
+    }
+
+    public async Task DeleteMuscleSizeFromUserAsync(string userId, long muscleSizeId)
+    {
+        await muscleSizeServiceValidator.ValidateDeleteAsync(userId, muscleSizeId);
+
+        await baseRepository.RemoveAsync(muscleSizeId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(muscleSizeEntityName, "delete", userId));
+    }
+
+    async Task<IQueryable<MuscleSize>> GetUserMuscleSizesAsync(string userId, long? muscleId = null, DateTimeRange? range = null)
+    {
+        await muscleSizeServiceValidator.ValidateGetAllAsync(userId, muscleId, range);
+
+        IEnumerable<MuscleSize> userMuscleSizes = (await baseRepository.FindAsync(wr => wr.UserId == userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("muscle sizes", "get", userId)))
+            .ToList();
+
+        if (range is not null)
+            userMuscleSizes = userMuscleSizes.Where(ms => range.IsDateInRange(ms.Date, true));
+
+        if (muscleId.HasValue)
+            userMuscleSizes = userMuscleSizes.Where(ms => ms.MuscleId == muscleId);
+
+        return userMuscleSizes.AsQueryable();
+    }
+
+    public async Task<IQueryable<MuscleSize>> GetUserMuscleSizesInInchesAsync(string userId, long? muscleId = null, DateTimeRange? range = null)
+    {
+        var userMuscleSizes = await GetUserMuscleSizesAsync(userId, muscleId, range);
+
+        var userMuscleSizesInInches = userMuscleSizes.ToList().Select(m =>
         {
             m.Size = ModelSize.GetModelSizeInInches(m.Size);
             return m;
         }).AsQueryable();
 
-        return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizesInInches);
+        return userMuscleSizesInInches;
     }
 
-    public async Task<ServiceResult<IQueryable<MuscleSize>>> GetUserMuscleSizesInCentimetersAsync(string userId, long? muscleId = null, DateTimeRange? range = null)
+    public async Task<IQueryable<MuscleSize>> GetUserMuscleSizesInCentimetersAsync(string userId, long? muscleId = null, DateTimeRange? range = null)
     {
-        var serviceResult = await GetUserMuscleSizesAsync(userId, muscleId, range);
+        var userMuscleSizes = await GetUserMuscleSizesAsync(userId, muscleId, range);
 
-        if (!serviceResult.Success)
-            return serviceResult;
-
-        var userMuscleSizesInCentimeter = serviceResult.Model!.ToList().Select(m =>
+        var userMuscleSizesInCentimeter = userMuscleSizes.ToList().Select(m =>
         {
             m.Size = ModelSize.GetModelSizeInCentimeters(m.Size);
             return m;
         }).AsQueryable();
 
-        return ServiceResult<IQueryable<MuscleSize>>.Ok(userMuscleSizesInCentimeter);
+        return userMuscleSizesInCentimeter;
     }
 
-    public async Task<ServiceResult<MuscleSize>> GetMaxUserMuscleSizeAsync(string userId, long muscleId)
+    public async Task<MuscleSize?> GetUserMuscleSizeByIdAsync(string userId, long muscleSizeId)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
+        await muscleSizeServiceValidator.ValidateGetByIdAsync(userId, muscleSizeId);
 
-            if (muscleId < 1)
-                throw invalidMuscleSizeIDException;
-
-            var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId && ms.MuscleId == muscleId);
-            var userMaxMuscleSize = userMuscleSizes?.ToList().MaxBy(bw => bw.Size);
-            return ServiceResult<MuscleSize>.Ok(userMaxMuscleSize);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<MuscleSize>.Fail(ex);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("max muscle size", "get", ex));
-        }
+        return await baseRepository.GetByIdAsync(muscleSizeId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(muscleSizeEntityName, "get", userId));
     }
 
-    public async Task<ServiceResult<MuscleSize>> GetMinUserMuscleSizeAsync(string userId, long muscleId)
+    public async Task<MuscleSize?> GetMaxUserMuscleSizeAsync(string userId, long muscleId)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
+        await muscleSizeServiceValidator.ValidateGetMaxAsync(userId, muscleId);
 
-            if (muscleId < 1)
-                throw invalidMuscleSizeIDException;
+        var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId && ms.MuscleId == muscleId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(muscleSizeEntityName, "get", userId));
 
-            var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId && ms.MuscleId == muscleId);
-            var userMinMuscleSize = userMuscleSizes?.ToList().MinBy(bw => bw.Size);
-            return ServiceResult<MuscleSize>.Ok(userMinMuscleSize);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<MuscleSize>.Fail(ex);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("min muscle size", "get", ex));
-        }
+        var userMaxMuscleSize = userMuscleSizes?.ToList().MaxBy(bw => bw.Size);
+        return userMaxMuscleSize;
     }
 
-    public async Task<ServiceResult<MuscleSize>> GetUserMuscleSizeByIdAsync(string userId, long muscleSizeId)
+    public async Task<MuscleSize?> GetMinUserMuscleSizeAsync(string userId, long muscleId)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
+        await muscleSizeServiceValidator.ValidateGetMinAsync(userId, muscleId);
 
-            if (muscleSizeId < 1)
-                throw invalidMuscleSizeIDException;
+        var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId && ms.MuscleId == muscleId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(muscleSizeEntityName, "get", userId));
 
-            var userMuscleSizeById = await baseRepository.GetByIdAsync(muscleSizeId);
-            return ServiceResult<MuscleSize>.Ok(userMuscleSizeById);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<MuscleSize>.Fail(ex);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<MuscleSize>.Fail(FailedToActionStr("muscle size", "get", ex));
-        }
-    }
-
-    public async Task<ServiceResult> UpdateUserMuscleSizeAsync(string userId, MuscleSize muscleSize)
-    {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
-
-            if (muscleSize is null)
-                throw muscleSizeIsNullException;
-
-            if (muscleSize.Id < 1)
-                throw invalidMuscleSizeIDException;
-
-            var _muscleSize = await baseRepository.GetByIdAsync(muscleSize.Id) ?? throw MuscleSizeNotFoundByIDException(muscleSize.Id);
-
-            if (_muscleSize.UserId != userId)
-                throw UserNotHavePermissionException("update", "muscle size");
-
-            _muscleSize.Date = muscleSize.Date;
-            _muscleSize.Size = muscleSize.Size;
-            _muscleSize.MuscleId = muscleSize.MuscleId;
-
-            await baseRepository.UpdateAsync(_muscleSize);
-            return ServiceResult.Ok();
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException || ex is UnauthorizedAccessException)
-        {
-            return ServiceResult.Fail(ex);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult.Fail(FailedToActionStr("muscle size", "update", ex));
-        }
+        var userMinMuscleSize = userMuscleSizes?.ToList().MinBy(bw => bw.Size);
+        return userMinMuscleSize;
     }
 }

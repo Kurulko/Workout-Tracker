@@ -10,6 +10,7 @@ public class Muscle : BaseWorkoutModel
 
     public long? ParentMuscleId { get; set; }
     public Muscle? ParentMuscle { get; set; }
+
     public ICollection<Muscle>? ChildMuscles { get; set; }
     public IEnumerable<Exercise>? Exercises { get; set; }
     public IEnumerable<MuscleSize>? MuscleSizes { get; set; }

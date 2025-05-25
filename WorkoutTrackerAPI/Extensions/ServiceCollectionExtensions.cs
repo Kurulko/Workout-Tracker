@@ -10,6 +10,7 @@ using WorkoutTracker.Infrastructure.Identity.Entities;
 using WorkoutTracker.Persistence.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using WorkoutTracker.Application.Common.Settings;
+using FluentValidation.AspNetCore;
 
 namespace WorkoutTracker.API.Extensions;
 
@@ -21,10 +22,13 @@ public static class ServiceCollectionExtensions
         services.AddInfrastructure(configuration);
         services.AddApplication();
 
+        services.AddFluentValidationAutoValidation();
+
         services.AddIdentity();
         services.AddIdentityOptions();
 
         services.AddJWTAuthentication(configuration);
+        services.AddJSessionKeys(configuration);
         services.AddDefaultCors();
 
         return services;
@@ -58,8 +62,12 @@ public static class ServiceCollectionExtensions
         .AddJwtBearer(options =>
             options.TokenValidationParameters = jwtSettings.ToTokenValidationParameters()
         );
-
-       
+    } 
+    
+    static void AddJSessionKeys(this IServiceCollection services, IConfiguration configuration)
+    {
+        var sessionKeys = configuration.GetSection("SessionKeys").Get<SessionKeys>()!;
+        services.AddSingleton(sessionKeys);
     }
 
     static void AddDefaultCors(this IServiceCollection services)
@@ -82,7 +90,7 @@ public static class ServiceCollectionExtensions
 
         services.AddControllers(options =>
         {
-            options.Filters.Add<ValidateModelStateAttribute>();
+            options.Filters.Add<ValidateModelStateFilter>();
             options.ModelBinderProviders.Insert(0, new DateTimeRangeBinderProvider());
         })
         .AddNewtonsoftJson(options =>

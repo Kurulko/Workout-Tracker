@@ -1,7 +1,7 @@
 ﻿using WorkoutTracker.Persistence.Repositories.Base;
-using WorkoutTracker.Domain.Entities.Users;
 using WorkoutTracker.Application.Interfaces.Repositories;
 using WorkoutTracker.Persistence.Context;
+using WorkoutTracker.Domain.Entities;
 
 namespace WorkoutTracker.Persistence.Repositories.Users;
 

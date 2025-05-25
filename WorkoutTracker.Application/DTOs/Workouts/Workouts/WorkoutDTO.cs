@@ -1,5 +1,4 @@
-﻿using WorkoutTracker.Application.Common.Models;
-using WorkoutTracker.Application.DTOs.Exercises.Exercises;
+﻿using WorkoutTracker.Application.DTOs.Exercises.Exercises;
 using WorkoutTracker.Application.DTOs.Exercises.ExerciseSets.ExerciseSetGroups;
 using WorkoutTracker.Domain.ValueObjects;
 

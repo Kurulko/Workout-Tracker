@@ -1,18 +1,19 @@
-﻿using WorkoutTracker.Application.Common.Results;
-using WorkoutTracker.Domain.Entities.Muscles;
+﻿using WorkoutTracker.Domain.Entities.Muscles;
 
 namespace WorkoutTracker.Application.Interfaces.Services.Muscles;
-public interface IMuscleService
+
+public interface IMuscleService : IBaseService
 {
-    Task<ServiceResult<Muscle>> GetMuscleByIdAsync(long muscleId, string userId, bool withDetails = false);
-    Task<ServiceResult<Muscle>> GetMuscleByNameAsync(string name, string userId, bool withDetails = false);
-    Task<ServiceResult<IQueryable<Muscle>>> GetMusclesAsync(long? parentMuscleId = null, bool? isMeasurable = null);
-    Task<ServiceResult<IQueryable<Muscle>>> GetParentMusclesAsync();
-    Task<ServiceResult<IQueryable<Muscle>>> GetChildMusclesAsync();
-    Task<ServiceResult<Muscle>> AddMuscleAsync(Muscle muscle);
-    Task<ServiceResult> UpdateMuscleAsync(Muscle muscle);
-    Task<ServiceResult> UpdateMuscleChildrenAsync(long muscleId, IEnumerable<long>? muscleChildIDs);
-    Task<ServiceResult> DeleteMuscleAsync(long muscleId);
-    Task<bool> MuscleExistsAsync(long muscleId);
-    Task<bool> MuscleExistsByNameAsync(string name);
+    Task<Muscle?> GetMuscleByIdAsync(long muscleId, string userId, bool withDetails = false);
+    Task<Muscle?> GetMuscleByNameAsync(string name, string userId, bool withDetails = false);
+
+    Task<IQueryable<Muscle>> GetMusclesAsync(long? parentMuscleId = null, bool? isMeasurable = null);
+    Task<IQueryable<Muscle>> GetParentMusclesAsync();
+    Task<IQueryable<Muscle>> GetChildMusclesAsync();
+
+    Task<Muscle> AddMuscleAsync(Muscle muscle);
+    Task UpdateMuscleAsync(Muscle muscle);
+    Task UpdateMuscleChildrenAsync(long muscleId, IEnumerable<long>? muscleChildIDs);
+
+    Task DeleteMuscleAsync(long muscleId);
 }

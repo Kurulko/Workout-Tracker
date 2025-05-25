@@ -1,192 +1,81 @@
-﻿using WorkoutTracker.Application.Common.Exceptions;
-using WorkoutTracker.Application.Common.Results;
+﻿using Microsoft.Extensions.Logging;
 using WorkoutTracker.Application.Interfaces.Repositories.Exercises;
 using WorkoutTracker.Application.Interfaces.Services.Exercises;
 using WorkoutTracker.Domain.Entities.Exercises;
-using WorkoutTracker.Infrastructure.Exceptions;
+using WorkoutTracker.Infrastructure.Extensions;
 using WorkoutTracker.Infrastructure.Services.Base;
+using WorkoutTracker.Infrastructure.Validators.Services.Exercises;
 
 namespace WorkoutTracker.Infrastructure.Services.Exercises;
 
-internal class ExerciseAliasService : BaseWorkoutService<ExerciseAlias>, IExerciseAliasService
+internal class ExerciseAliasService : BaseWorkoutService<ExerciseAliasService, ExerciseAlias>, IExerciseAliasService
 {
-    readonly IExerciseRepository exerciseRepository;
-    public ExerciseAliasService(IExerciseAliasRepository exerciseAliasRepository, IExerciseRepository exerciseRepository) : base(exerciseAliasRepository)
+    readonly IExerciseAliasRepository exerciseAliasRepository;
+    readonly ExerciseAliasServiceValidator exerciseAliasServiceValidator;
+
+    public ExerciseAliasService(
+        IExerciseAliasRepository exerciseAliasRepository,
+        ExerciseAliasServiceValidator exerciseAliasServiceValidator,
+        ILogger<ExerciseAliasService> logger
+    ) : base(exerciseAliasRepository, logger)
     {
-        this.exerciseRepository = exerciseRepository;
+        this.exerciseAliasRepository = exerciseAliasRepository;
+        this.exerciseAliasServiceValidator = exerciseAliasServiceValidator;
     }
 
-    readonly InvalidIDException invalidExerciseIDException = new(nameof(Exercise));
+    const string exerciseAliasEntityName = "exercise alias";
 
-    readonly EntryNullException exerciseAliasIsNullException = new("Exercise record");
-    readonly InvalidIDException invalidExerciseAliasIDException = new(nameof(ExerciseAlias));
-    readonly ArgumentNullOrEmptyException exerciseAliasNameIsNullOrEmptyException = new("Exercise alias name");
-
-    NotFoundException ExerciseNotFoundByIDException(long id)
-        => NotFoundException.NotFoundExceptionByID(nameof(Exercise), id);
-    NotFoundException ExerciseAliasNotFoundByIDException(long id)
-        => NotFoundException.NotFoundExceptionByID("Exercise record", id);
-
-    ArgumentException ExerciseAliasNameMustBeUnique()
-        => EntryNameMustBeUnique("Exercise alias");
-
-    public async Task<ServiceResult<ExerciseAlias>> AddExerciseAliasToExerciseAsync(long exerciseId, ExerciseAlias exerciseAlias)
+    public async Task<ExerciseAlias> AddExerciseAliasToExerciseAsync(long exerciseId, ExerciseAlias exerciseAlias)
     {
-        try
-        {
-            await CheckExerciseIdAsync(exerciseId);
+        await exerciseAliasServiceValidator.ValidateAddAsync(exerciseId, exerciseAlias);
 
-            if (exerciseAlias is null)
-                throw exerciseAliasIsNullException;
-
-            if (exerciseAlias.Id != 0)
-                throw InvalidEntryIDWhileAddingException(nameof(ExerciseAlias), "exercise alias");
-
-            exerciseAlias.ExerciseId = exerciseId;
-            await baseWorkoutRepository.AddAsync(exerciseAlias);
-
-            return ServiceResult<ExerciseAlias>.Ok(exerciseAlias);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<ExerciseAlias>.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<ExerciseAlias>.Fail(FailedToActionStr("exercise alias", "add", ex));
-        }
+        exerciseAlias.ExerciseId = exerciseId;
+        return await exerciseAliasRepository.AddAsync(exerciseAlias)
+            .LogExceptionsAsync(_logger, FailedToActionStr(exerciseAliasEntityName, "add"));
     }
 
-    public async Task<ServiceResult> DeleteExerciseAliasAsync(long id)
+    public async Task DeleteExerciseAliasAsync(long id)
     {
-        try
-        {
-            if (id < 1)
-                throw invalidExerciseAliasIDException;
+        await exerciseAliasServiceValidator.ValidateDeleteAsync(id);
 
-            var _ = await baseWorkoutRepository.GetByIdAsync(id) ?? throw ExerciseAliasNotFoundByIDException(id);
-
-            await baseWorkoutRepository.RemoveAsync(id);
-            return ServiceResult.Ok();
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult.Fail(ex.Message);
-        }
-        catch
-        {
-            return ServiceResult.Fail(FailedToActionStr("exercise alias", "delete"));
-        }
+        await exerciseAliasRepository.RemoveAsync(id)
+            .LogExceptionsAsync(_logger, FailedToActionStr(exerciseAliasEntityName, "delete"));
     }
 
-    public async Task<ServiceResult<ExerciseAlias>> GetExerciseAliasByIdAsync(long id)
+    public async Task<ExerciseAlias?> GetExerciseAliasByIdAsync(long id)
     {
-        try
-        {
-            if (id < 1)
-                throw invalidExerciseAliasIDException;
+        await exerciseAliasServiceValidator.ValidateGetByIdAsync(id);
 
-            var exerciseAliasById = await baseWorkoutRepository.GetByIdAsync(id);
-            return ServiceResult<ExerciseAlias>.Ok(exerciseAliasById);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<ExerciseAlias>.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<ExerciseAlias>.Fail(FailedToActionStr("exercise alias", "get", ex));
-        }
+        return await exerciseAliasRepository.GetByIdAsync(id)
+            .LogExceptionsAsync(_logger, FailedToActionStr(exerciseAliasEntityName, "get"));
     }
 
-    public async Task<ServiceResult<ExerciseAlias>> GetExerciseAliasByNameAsync(string name)
+    public async Task<ExerciseAlias?> GetExerciseAliasByNameAsync(string name)
     {
-        try
-        {
-            if (string.IsNullOrEmpty(name))
-                throw exerciseAliasNameIsNullOrEmptyException;
+        await exerciseAliasServiceValidator.ValidateGetByNameAsync(name);
 
-            var exerciseAliasById = await baseWorkoutRepository.GetByNameAsync(name);
-            return ServiceResult<ExerciseAlias>.Ok(exerciseAliasById);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<ExerciseAlias>.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<ExerciseAlias>.Fail(FailedToActionStr("exercise alias", "get", ex));
-        }
+        return await exerciseAliasRepository.GetByNameAsync(name)
+            .LogExceptionsAsync(_logger, FailedToActionStr(exerciseAliasEntityName, "get"));
     }
 
-    public async Task<ServiceResult<IQueryable<ExerciseAlias>>> GetExerciseAliasesByExerciseIdAsync(long exerciseId)
+    public async Task<IQueryable<ExerciseAlias>> GetExerciseAliasesByExerciseIdAsync(long exerciseId)
     {
-        try
-        {
-            await CheckExerciseIdAsync(exerciseId);
+        await exerciseAliasServiceValidator.ValidateGetAllAsync(exerciseId);
 
-            var exerciseAliases = await baseWorkoutRepository.FindAsync(er => er.ExerciseId == exerciseId);
-            return ServiceResult<IQueryable<ExerciseAlias>>.Ok(exerciseAliases);
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult<IQueryable<ExerciseAlias>>.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<IQueryable<ExerciseAlias>>.Fail(FailedToActionStr("exercise aliases", "get", ex));
-        }
+        return await exerciseAliasRepository.FindAsync(er => er.ExerciseId == exerciseId)
+            .LogExceptionsAsync(_logger, FailedToActionStr("exercise aliases", "get"));
     }
 
-    public async Task<ServiceResult> UpdateExerciseAliasAsync(ExerciseAlias exerciseAlias)
+    public async Task UpdateExerciseAliasAsync(ExerciseAlias exerciseAlias)
     {
-        try
-        {
-            if (exerciseAlias is null)
-                throw exerciseAliasIsNullException;
+        await exerciseAliasServiceValidator.ValidateUpdateAsync(exerciseAlias);
 
-            if (exerciseAlias.Id < 1)
-                throw invalidExerciseAliasIDException;
+        var _exerciseAlias = (await exerciseAliasRepository.GetByIdAsync(exerciseAlias.Id))!;
 
-            await CheckExerciseIdAsync(exerciseAlias.ExerciseId);
+        _exerciseAlias.Name = exerciseAlias.Name;
+        _exerciseAlias.ExerciseId = exerciseAlias.ExerciseId;
 
-            var _exerciseAlias = await baseWorkoutRepository.GetByIdAsync(exerciseAlias.Id) ?? throw ExerciseAliasNotFoundByIDException(exerciseAlias.Id);
-
-            var isSameName = _exerciseAlias.Name != exerciseAlias.Name;
-            var isUniqueEquipmentName = isSameName || await IsUniqueExerciseAliasNameForExerciseAsync(exerciseAlias.Name, exerciseAlias.ExerciseId);
-            if (!isUniqueEquipmentName)
-                throw ExerciseAliasNameMustBeUnique();
-
-            _exerciseAlias.Name = exerciseAlias.Name;
-            _exerciseAlias.ExerciseId = exerciseAlias.ExerciseId;
-            await baseWorkoutRepository.UpdateAsync(_exerciseAlias);
-
-            return ServiceResult.Ok();
-        }
-        catch (Exception ex) when (ex is ArgumentException || ex is NotFoundException)
-        {
-            return ServiceResult.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult.Fail(FailedToActionStr("exercise alias", "update", ex));
-        }
-    }
-
-
-    async Task CheckExerciseIdAsync(long exerciseId)
-    {
-        if (exerciseId < 1)
-            throw invalidExerciseIDException;
-
-        bool exerciseExists = await exerciseRepository.ExistsAsync(exerciseId);
-        if (!exerciseExists)
-            throw ExerciseNotFoundByIDException(exerciseId);
-    }
-
-    async Task<bool> IsUniqueExerciseAliasNameForExerciseAsync(string name, long exerciseId)
-    {
-        var isAnyExerciseAliasNames = await baseWorkoutRepository.AnyAsync(ea => ea.Name == name && ea.ExerciseId == exerciseId);
-        return !isAnyExerciseAliasNames;
+        await exerciseAliasRepository.UpdateAsync(exerciseAlias)
+            .LogExceptionsAsync(_logger, FailedToActionStr(exerciseAliasEntityName, "update"));
     }
 }

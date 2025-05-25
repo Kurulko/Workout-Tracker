@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using WorkoutTracker.Application.Common.Exceptions;
+using WorkoutTracker.Application.Common.Validators;
 using WorkoutTracker.Application.Interfaces.Repositories.Base;
 using WorkoutTracker.Domain.Base;
 using WorkoutTracker.Persistence.Context;
@@ -18,27 +18,21 @@ internal class DbModelRepository<T> : IDisposable, IBaseRepository<T>
         dbSet = db.Set<T>();
     }
 
+    protected readonly string entityName = typeof(T).Name;
+
     public virtual async Task<T> AddAsync(T model)
     {
-        if (model.Id != 0)
-            throw new DbUpdateException($"Entity of type {typeof(T).Name} should not have an ID assigned.");
+        ArgumentValidator.ThrowIfIdNonZero(model.Id, entityName);
 
-        T? existingModel = await GetByIdAsync(model.Id);
-
-        if (existingModel is null)
-        {
-            await dbSet.AddAsync(model);
-            await SaveChangesAsync();
-            return model;
-        }
-
-        return existingModel;
+        await dbSet.AddAsync(model);
+        await SaveChangesAsync();
+        return model;
     }
 
     public virtual async Task AddRangeAsync(IEnumerable<T> entities)
     {
-        if (entities.Any(e => e.Id != 0))
-            throw new DbUpdateException($"New entities of type {typeof(T).Name} should not have an ID assigned.");
+        foreach (var entity in entities)
+            ArgumentValidator.ThrowIfIdNonZero(entity.Id, entityName);
 
         await dbSet.AddRangeAsync(entities);
         await SaveChangesAsync();
@@ -46,10 +40,9 @@ internal class DbModelRepository<T> : IDisposable, IBaseRepository<T>
 
     public virtual async Task RemoveAsync(long key)
     {
-        if (key <= 0)
-            throw new DbUpdateException($"Entity of type {typeof(T).Name} must have a positive ID to be removed.");
+        ArgumentValidator.ThrowIfIdNonPositive(key, entityName);
 
-        T? model = await GetByIdAsync(key) ?? throw NotFoundException.NotFoundExceptionByID(typeof(T).Name, key);
+        var model = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, key, entityName);
 
         dbSet.Remove(model);
         await SaveChangesAsync();
@@ -57,8 +50,8 @@ internal class DbModelRepository<T> : IDisposable, IBaseRepository<T>
 
     public virtual async Task RemoveRangeAsync(IEnumerable<T> entities)
     {
-        if (entities.Any(e => e.Id <= 0))
-            throw new DbUpdateException($"Entities of type {typeof(T).Name} must have a positive ID to be removed.");
+        foreach (var entity in entities)
+            ArgumentValidator.ThrowIfIdNonPositive(entity.Id, entityName);
 
         dbSet.RemoveRange(entities);
         await SaveChangesAsync();
@@ -69,6 +62,8 @@ internal class DbModelRepository<T> : IDisposable, IBaseRepository<T>
 
     public virtual async Task<T?> GetByIdAsync(long key)
     {
+        ArgumentValidator.ThrowIfIdNonPositive(key, entityName);
+
         var models = await GetAllAsync();
         return await models.SingleOrDefaultAsync(m => m.Id == key);
     }
@@ -80,12 +75,15 @@ internal class DbModelRepository<T> : IDisposable, IBaseRepository<T>
     }
 
     public virtual async Task<bool> ExistsAsync(long key)
-        => await dbSet.AnyAsync(m => m.Id == key);
+    {
+        ArgumentValidator.ThrowIfIdNonPositive(key, entityName);
+
+        return await dbSet.AnyAsync(m => m.Id == key);
+    }
 
     public virtual async Task UpdateAsync(T model)
     {
-        if (model.Id < 0)
-            throw new DbUpdateException($"Modified entities of type {typeof(T).Name} must have a positive ID.");
+        ArgumentValidator.ThrowIfIdNonPositive(model.Id, entityName);
 
         dbSet.Update(model);
         await SaveChangesAsync();

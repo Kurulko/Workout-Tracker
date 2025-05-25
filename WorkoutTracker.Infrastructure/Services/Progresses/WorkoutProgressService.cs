@@ -50,7 +50,7 @@ internal class WorkoutProgressService : IWorkoutProgressService
         if (string.IsNullOrEmpty(userId))
             throw new ArgumentNullOrEmptyException("User ID");
 
-        var workoutRecords = (await workoutRecordService.GetUserWorkoutRecordsAsync(userId)).Model?.ToList();
+        var workoutRecords = (await workoutRecordService.GetUserWorkoutRecordsAsync(userId))?.ToList();
 
         if (workoutRecords is null || !workoutRecords.Any())
             return new CurrentUserProgress();
@@ -59,7 +59,7 @@ internal class WorkoutProgressService : IWorkoutProgressService
 
         currentUserProgress.CurrentWorkoutStrikeDays = GetCurrentWorkoutStrikeInDays(workoutRecords);
 
-        currentUserProgress.CurrentBodyWeight = (await bodyWeightService.GetCurrentUserBodyWeightAsync(userId)).Model!.Weight;
+        currentUserProgress.CurrentBodyWeight = (await bodyWeightService.GetCurrentUserBodyWeightAsync(userId))!.Weight;
 
         var firstWorkoutDate = workoutRecords.MinBy(wr => wr.Date)!.Date;
         currentUserProgress.FirstWorkoutDate = firstWorkoutDate;
@@ -88,8 +88,8 @@ internal class WorkoutProgressService : IWorkoutProgressService
         if (string.IsNullOrEmpty(userId))
             throw new ArgumentNullOrEmptyException("User ID");
 
-        var workoutRecordsForMonth = (await workoutRecordService.GetUserWorkoutRecordsAsync(userId, range: range)).Model!.ToList();
-        var bodyWeightsForMonth = (await bodyWeightService.GetUserBodyWeightsInKilogramsAsync(userId, range: range)).Model!.ToList();
+        var workoutRecordsForMonth = (await workoutRecordService.GetUserWorkoutRecordsAsync(userId, range: range))!.ToList();
+        var bodyWeightsForMonth = (await bodyWeightService.GetUserBodyWeightsInKilogramsAsync(userId, range: range))!.ToList();
 
         return CalculateWorkoutProgress(workoutRecordsForMonth, bodyWeightsForMonth, range);
     }

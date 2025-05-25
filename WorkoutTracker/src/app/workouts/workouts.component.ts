@@ -33,7 +33,7 @@ export class WorkoutsComponent extends ModelsTableComponent<Workout> implements 
   {
     super(impersonationManager, tokenManager, preferencesManager, snackBar);
 
-    this.pageSize = 5;
+    this.pageSize = 10;
     this.filterColumn = "name";
     this.sortColumn = "isPinned";
     this.sortOrder = "desc";

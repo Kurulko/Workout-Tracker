@@ -1,5 +1,4 @@
-﻿using WorkoutTracker.Application.Common.Models;
-using WorkoutTracker.Domain.ValueObjects;
+﻿using WorkoutTracker.Domain.ValueObjects;
 
 namespace WorkoutTracker.Application.DTOs.Progresses;
 

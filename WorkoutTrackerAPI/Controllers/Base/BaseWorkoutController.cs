@@ -9,8 +9,11 @@ public abstract class BaseWorkoutController<TDTO, TCreationDTO> : DbModelControl
 {
     public BaseWorkoutController(IMapper mapper) : base(mapper)
     {
-        
+
     }
+
+    protected bool IsNameValid(string name)
+        => !string.IsNullOrEmpty(name);
 
     protected ActionResult EntryNameIsNullOrEmpty(string entryName)
         => BadRequest($"{entryName} name is null or empty.");

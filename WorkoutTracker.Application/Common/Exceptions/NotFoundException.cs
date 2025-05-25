@@ -1,7 +1,10 @@
 ﻿namespace WorkoutTracker.Application.Common.Exceptions;
 
-public class NotFoundException : Exception
+public class NotFoundException : Exception, IWorkoutException
 {
+    public string ErrorCode => "NOT_FOUND";
+    public string? CustomMessage => Message;
+
     public string ParamName { get; init; }
     public NotFoundException(string paramName) : base($"{paramName} not found.") 
         => ParamName = paramName;

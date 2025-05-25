@@ -4,7 +4,6 @@ using WorkoutTracker.API.Controllers.Base;
 using WorkoutTracker.API.Extensions;
 using WorkoutTracker.API.Results;
 using WorkoutTracker.Application.Common.Models;
-using WorkoutTracker.Application.Common.Results;
 using WorkoutTracker.Application.DTOs.Workouts.WorkoutRecords;
 using WorkoutTracker.Application.Interfaces.Services.Workouts;
 using WorkoutTracker.Domain.Entities.Workouts;
@@ -16,49 +15,39 @@ public class WorkoutRecordsController : DbModelController<WorkoutRecordDTO, Work
 {
     readonly IHttpContextAccessor httpContextAccessor;
     readonly IWorkoutRecordService workoutRecordService;
-    public WorkoutRecordsController(IWorkoutRecordService workoutRecordService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
-        : base(mapper)
+    public WorkoutRecordsController(
+        IWorkoutRecordService workoutRecordService, 
+        IHttpContextAccessor httpContextAccessor,
+        IMapper mapper
+    ) : base(mapper)
     {
         this.workoutRecordService = workoutRecordService;
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    ActionResult<WorkoutRecordDTO> HandleWorkoutRecordDTOServiceResult(ServiceResult<WorkoutRecord> serviceResult)
-        => HandleDTOServiceResult<WorkoutRecord, WorkoutRecordDTO>(serviceResult, "Workout record not found.");
-
-    ActionResult InvalidWorkoutRecordID()
-        => InvalidEntryID(nameof(WorkoutRecord));
-    ActionResult WorkoutRecordIsNull()
-        => EntryIsNull("Workout record");
 
     [HttpGet]
     public async Task<ActionResult<ApiResult<WorkoutRecordDTO>>> GetCurrentUserWorkoutRecordsAsync(
-        [FromQuery] long? workoutId,
-        [FromQuery] DateTimeRange? range = null,
-        [FromQuery] int pageIndex = 0,
-        [FromQuery] int pageSize = 10,
-        [FromQuery] string? sortColumn = null,
-        [FromQuery] string? sortOrder = null,
-        [FromQuery] string? filterColumn = null,
-        [FromQuery] string? filterQuery = null)
+        long? workoutId,
+        DateTimeRange? range = null,
+        int pageIndex = 0,
+        int pageSize = 10,
+        string? sortColumn = null,
+        string? sortOrder = null,
+        string? filterColumn = null,
+        string? filterQuery = null)
     {
-        if (workoutId.HasValue && workoutId < 1)
-            return InvalidEntryID(nameof(Workout));
+        if (range is DateTimeRange _range && IsDateInFuture(_range))
+            return DateInFuture();
 
-        if (range is not null && range.LastDate.Date > DateTime.Now.Date)
-            return BadRequest("Incorrect date.");
+        if (workoutId.HasValue && !IsValidID(workoutId.Value))
+            return InvalidWorkoutID();
 
-        if (pageIndex < 0 || pageSize <= 0)
+        if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutRecordService.GetUserWorkoutRecordsAsync(userId, workoutId, range);
-
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
-
-        if (serviceResult.Model is not IQueryable<WorkoutRecord> workoutRecords)
-            return EntryNotFound("Workout records");
+        var workoutRecords = await workoutRecordService.GetUserWorkoutRecordsAsync(userId, workoutId, range);
 
         var workoutRecordDTOs = workoutRecords.ToList().Select(mapper.Map<WorkoutRecordDTO>);
         return await ApiResult<WorkoutRecordDTO>.CreateAsync(
@@ -77,12 +66,12 @@ public class WorkoutRecordsController : DbModelController<WorkoutRecordDTO, Work
     [ActionName(nameof(GetCurrentUserWorkoutRecordByIdAsync))]
     public async Task<ActionResult<WorkoutRecordDTO>> GetCurrentUserWorkoutRecordByIdAsync(long workoutRecordId)
     {
-        if (workoutRecordId < 1)
+        if (!IsValidID(workoutRecordId))
             return InvalidWorkoutRecordID();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutRecordService.GetUserWorkoutRecordByIdAsync(userId, workoutRecordId);
-        return HandleWorkoutRecordDTOServiceResult(serviceResult);
+        var workoutRecord = await workoutRecordService.GetUserWorkoutRecordByIdAsync(userId, workoutRecordId);
+        return ToWorkoutRecordDTO(workoutRecord);
     }
 
     [HttpPost]
@@ -93,12 +82,7 @@ public class WorkoutRecordsController : DbModelController<WorkoutRecordDTO, Work
 
         string userId = httpContextAccessor.GetUserId()!;
         var workoutRecord = mapper.Map<WorkoutRecord>(workoutRecordCreationDTO);
-        var serviceResult = await workoutRecordService.AddWorkoutRecordToUserAsync(userId, workoutRecord);
-
-        if (!serviceResult.Success)
-            return BadRequest(serviceResult.ErrorMessage);
-
-        workoutRecord = serviceResult.Model!;
+        workoutRecord = await workoutRecordService.AddWorkoutRecordToUserAsync(userId, workoutRecord);
 
         var workoutRecordDTO = mapper.Map<WorkoutRecordDTO>(workoutRecord);
         return CreatedAtAction(nameof(GetCurrentUserWorkoutRecordByIdAsync), new { workoutRecordId = workoutRecord.Id }, workoutRecordDTO);
@@ -107,7 +91,7 @@ public class WorkoutRecordsController : DbModelController<WorkoutRecordDTO, Work
     [HttpPut("{workoutRecordId}")]
     public async Task<IActionResult> UpdateCurrentUserWorkoutRecordAsync(long workoutRecordId, [FromBody] WorkoutRecordCreationDTO workoutRecordDTO)
     {
-        if (workoutRecordId < 1)
+        if (!IsValidID(workoutRecordId))
             return InvalidWorkoutRecordID();
 
         if (workoutRecordDTO is null)
@@ -116,18 +100,29 @@ public class WorkoutRecordsController : DbModelController<WorkoutRecordDTO, Work
         string userId = httpContextAccessor.GetUserId()!;
         var workoutRecord = mapper.Map<WorkoutRecord>(workoutRecordDTO);
         workoutRecord.Id = workoutRecordId;
-        var serviceResult = await workoutRecordService.UpdateUserWorkoutRecordAsync(userId, workoutRecord);
-        return HandleServiceResult(serviceResult);
+
+        await workoutRecordService.UpdateUserWorkoutRecordAsync(userId, workoutRecord);
+        return Ok();
     }
 
     [HttpDelete("{workoutRecordId}")]
     public async Task<IActionResult> DeleteWorkoutRecordFromCurrentUserAsync(long workoutRecordId)
     {
-        if (workoutRecordId < 1)
+        if (!IsValidID(workoutRecordId))
             return InvalidWorkoutRecordID();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var serviceResult = await workoutRecordService.DeleteWorkoutRecordFromUserAsync(userId, workoutRecordId);
-        return HandleServiceResult(serviceResult);
+        await workoutRecordService.DeleteWorkoutRecordFromUserAsync(userId, workoutRecordId);
+        return Ok();
     }
+
+    ActionResult<WorkoutRecordDTO> ToWorkoutRecordDTO(WorkoutRecord? workoutRecord)
+        => ToDTO<WorkoutRecord, WorkoutRecordDTO>(workoutRecord, "Workout record not found.");
+
+    ActionResult InvalidWorkoutRecordID()
+        => InvalidEntryID(nameof(WorkoutRecord));
+    ActionResult InvalidWorkoutID()
+        => InvalidEntryID(nameof(Workout));
+    ActionResult WorkoutRecordIsNull()
+        => EntryIsNull("Workout record");
 }

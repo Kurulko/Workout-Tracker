@@ -13,41 +13,29 @@ public class ImpersonationController : APIController
         => this.impersonationService = impersonationService;
 
 
-    [HttpPost("impersonate/{userId}")]
     [Authorize(Roles = Roles.AdminRole)]
+    [HttpPost("impersonate/{userId}")]
     public async Task<ActionResult> ImpersonateAsync(string userId)
     {
-       if(string.IsNullOrEmpty(userId))
-           return BadRequest("User ID is null or empty.");
+        if (string.IsNullOrEmpty(userId))
+            return BadRequest("User ID is null or empty.");
 
-        try
-        {
-            var token = await impersonationService.ImpersonateAsync(userId);
-            return Ok(token);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var token = await impersonationService.ImpersonateAsync(userId);
+        return Ok(token);
     }
 
-    [HttpPost("revert")]
     [Authorize]
+    [HttpPost("revert")]
     public async Task<ActionResult> RevertAsync()
     {
-        try
-        {
-            var token = await impersonationService.RevertAsync();
-            return Ok(token);
-        }
-        catch (Exception ex)
-        {
-            return HandleException(ex);
-        }
+        var token = await impersonationService.RevertAsync();
+        return Ok(token);
     }
 
-    [HttpGet("is-impersonating")]
     [Authorize]
-    public ActionResult<bool>  IsImpersonating()
-        => impersonationService.IsImpersonating();
+    [HttpGet("is-impersonating")]
+    public ActionResult<bool> IsImpersonating()
+    {
+        return impersonationService.IsImpersonating();
+    }
 }
