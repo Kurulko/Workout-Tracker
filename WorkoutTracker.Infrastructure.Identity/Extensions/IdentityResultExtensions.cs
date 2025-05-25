@@ -31,4 +31,7 @@ public static class IdentityResultExtensions
 
         return identityResult.Errors.Any(e => e.Description.Contains(errorMessage));
     }
+
+    public static string IdentityErrorsToString(this IdentityResult identityResult)
+        => string.Join("; ", identityResult.Errors.Select(e => e.Description));
 }
