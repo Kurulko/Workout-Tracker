@@ -2,7 +2,6 @@
 using WorkoutTracker.Domain.Entities;
 using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Domain.Entities.Muscles;
-using WorkoutTracker.Domain.Entities.Users;
 using WorkoutTracker.Domain.Entities.Workouts;
 
 namespace WorkoutTracker.Infrastructure.Identity.Entities;
