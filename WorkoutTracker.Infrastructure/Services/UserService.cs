@@ -1,21 +1,16 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System.Security.Claims;
-using WorkoutTracker.Application.Common.Exceptions;
-using WorkoutTracker.Application.Common.Results;
 using WorkoutTracker.Application.Interfaces.Repositories;
 using WorkoutTracker.Domain.Entities;
 using WorkoutTracker.Domain.Entities.Exercises;
-using WorkoutTracker.Domain.Entities.Exercises.ExerciseGroups;
 using WorkoutTracker.Domain.Entities.Muscles;
-using WorkoutTracker.Domain.Entities.Users;
 using WorkoutTracker.Domain.Entities.Workouts;
-using WorkoutTracker.Infrastructure.Exceptions;
+using WorkoutTracker.Infrastructure.Extensions;
 using WorkoutTracker.Infrastructure.Identity.Entities;
-using WorkoutTracker.Infrastructure.Identity.Extensions;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Services;
 using WorkoutTracker.Infrastructure.Services.Base;
+using WorkoutTracker.Infrastructure.Validators.Services;
 
 namespace WorkoutTracker.Infrastructure.Services;
 
@@ -23,246 +18,165 @@ internal class UserService : BaseService<UserService, User>, IUserService
 {
     readonly IUserRepository userRepository;
     readonly IUserDetailsRepository userDetailsRepository;
-    readonly IRoleRepository roleRepository;
+    readonly UserServiceValidator userServiceValidator;
+
     public UserService(
-        IUserRepository userRepository, 
-        IUserDetailsRepository userDetailsRepository, 
-        IRoleRepository roleRepository,
+        IUserRepository userRepository,
+        IUserDetailsRepository userDetailsRepository,
+        UserServiceValidator userServiceValidator,
         ILogger<UserService> logger
     ) : base(logger)
     {
         this.userRepository = userRepository;
         this.userDetailsRepository = userDetailsRepository;
-        this.roleRepository = roleRepository;
+        this.userServiceValidator = userServiceValidator;
     }
-
-    readonly EntryNullException userIsNullException = new EntryNullException(nameof(User));
-    readonly ArgumentNullOrEmptyException userNameIsNullOrEmptyException = new("User name");
-
-    NotFoundException RoleNotFoundByNameException(string name)
-        => NotFoundException.NotFoundExceptionByName("Role", name);
 
 
     #region CRUD
 
+    const string userEntityName = "user";
+
     public async Task<User> AddUserAsync(User user)
     {
-        if (user is null)
-            throw userIsNullException;
+        await userServiceValidator.ValidateAddAsync(user);
 
-        if (await UserExistsAsync(user.Id) || await UserExistsByUsernameAsync(user.UserName!))
-            throw new Exception("User already exists.");
-
-        return await userRepository.AddUserAsync(user);
+        return await userRepository.AddUserAsync(user)
+            .LogExceptionsAsync(_logger, FailedToActionStr(userEntityName, "add"));
     }
 
-    public async Task<IdentityResult> CreateUserAsync(User user, string password)
+    public async Task CreateUserAsync(User user, string password)
     {
-        try
-        {
-            if (user is null)
-                throw userIsNullException;
+        await userServiceValidator.ValidateCreateAsync(user, password);
 
-            if (string.IsNullOrEmpty(password))
-                throw new ArgumentNullOrEmptyException("Password");
-
-            return await userRepository.CreateUserAsync(user, password);
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return IdentityResultExtensions.Failed(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionStr("user", "create"));
-            throw;
-        }
+        await userRepository.CreateUserAsync(user, password)
+            .LogExceptionsAsync(_logger, FailedToActionStr(userEntityName, "create"));
     }
 
-    public async Task<IdentityResult> UpdateUserAsync(User user)
+    public async Task UpdateUserAsync(User user)
     {
-        try
-        {
-            if (user is null)
-                throw userIsNullException;
+        await userServiceValidator.ValidateUpdateAsync(user);
 
-            await CheckUserIdAsync(user.Id);
-
-            return await userRepository.UpdateUserAsync(user);
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return IdentityResultExtensions.Failed(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionStr("user", "update"));
-            throw;
-        }
+        await userRepository.UpdateUserAsync(user)
+            .LogExceptionsAsync(_logger, FailedToActionStr(userEntityName, "update"));
     }
 
-    public async Task<IdentityResult> DeleteUserAsync(string userId)
+    public async Task DeleteUserAsync(string userId)
     {
-        try
-        {
-            await CheckUserIdAsync(userId);
+        await userServiceValidator.ValidateDeleteAsync(userId);
 
-            return await userRepository.DeleteUserAsync(userId);
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return IdentityResultExtensions.Failed(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionStr("user", "delete"));
-            throw;
-        }
+        await userRepository.DeleteUserAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionStr(userEntityName, "delete"));
+    }
+
+    public async Task<User?> GetUserByIdAsync(string userId)
+    {
+        await userServiceValidator.ValidateGetByIdAsync(userId);
+
+        return await userRepository.GetUserByIdAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionStr(userEntityName, "get"));
+    }
+
+    public async Task<User?> GetUserByUsernameAsync(string userName)
+    {
+        await userServiceValidator.ValidateGetByUsernameAsync(userName);
+
+        return await userRepository.GetUserByUsernameAsync(userName)
+            .LogExceptionsAsync(_logger, FailedToActionStr(userEntityName, "get"));
+    }
+
+    public async Task<User?> GetUserByEmailAsync(string email)
+    {
+        await userServiceValidator.ValidateGetByEmailAsync(email);
+
+        return await userRepository.GetUserByEmailAsync(email)
+            .LogExceptionsAsync(_logger, FailedToActionStr(userEntityName, "get"));
+    }
+
+    public async Task<IQueryable<User>> GetUsersAsync()
+    {
+        await userServiceValidator.ValidateGetAllAsync();
+
+        return await userRepository.GetUsersAsync()
+            .LogExceptionsAsync(_logger, FailedToActionStr("users", "get"));
     }
 
     public async Task<User?> GetUserByClaimsAsync(ClaimsPrincipal claims)
     {
-        if (claims is null)
-            throw new EntryNullException("Claims");
+        await userServiceValidator.ValidateGetByClaimsAsync(claims);
 
         return await GetUserByUsernameAsync(claims.Identity?.Name!);
     }
 
     public async Task<string?> GetUserIdByUsernameAsync(string userName)
     {
-        if (string.IsNullOrEmpty(userName))
-            throw userNameIsNullOrEmptyException;
+        await userServiceValidator.ValidateGetByUsernameAsync(userName);
 
-        var userByUsername = await userRepository.GetUserByUsernameAsync(userName);
+        var userByUsername = await userRepository.GetUserByUsernameAsync(userName)
+            .LogExceptionsAsync(_logger, FailedToActionStr(userEntityName, "get"));
+
         return userByUsername?.Id;
     }
 
     public async Task<string?> GetUserNameByIdAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
-            throw userIdIsNullOrEmptyException;
+        await userServiceValidator.ValidateGetByIdAsync(userId);
 
-        var userById = await userRepository.GetUserByIdAsync(userId);
+        var userById = await userRepository.GetUserByIdAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionStr(userEntityName, "get"));
+
         return userById?.UserName;
     }
 
-    public async Task<User?> GetUserByUsernameAsync(string userName)
-    {
-        if (string.IsNullOrEmpty(userName))
-            throw userNameIsNullOrEmptyException;
-
-        return await userRepository.GetUserByUsernameAsync(userName);
-    }
-
-    public async Task<IQueryable<User>> GetUsersAsync()
-        => await userRepository.GetUsersAsync();
-
-    public async Task<User?> GetUserByIdAsync(string userId)
-    {
-        if (string.IsNullOrEmpty(userId))
-            throw userIdIsNullOrEmptyException;
-
-        return await userRepository.GetUserByIdAsync(userId);
-    }
-
-    public async Task<bool> UserExistsAsync(string userId)
-    {
-        if (string.IsNullOrEmpty(userId))
-            throw userIdIsNullOrEmptyException;
-
-        return await userRepository.UserExistsAsync(userId);
-    }
-
-    public async Task<bool> UserExistsByUsernameAsync(string userName)
-    {
-        if (string.IsNullOrEmpty(userName))
-            throw userNameIsNullOrEmptyException;
-
-        return await userRepository.UserExistsByUsernameAsync(userName);
-    }
 
     #endregion
 
     #region User Details
 
-    readonly EntryNullException userDetailsIsNullException = new("User details");
-    readonly InvalidIDException invalidUserDetailsIDException = new(nameof(UserDetails));
-    readonly NotFoundException userDetailsNotFoundException = new("User details");
+    const string userDetailsEntityName = "user details";
 
     public async Task<UserDetails?> GetUserDetailsFromUserAsync(string userId)
     {
-        await CheckUserIdAsync(userId);
-        return await userRepository.GetUserDetailsFromUserAsync(userId);
+        await userServiceValidator.ValidateGetUserDetailsAsync(userId);
+
+        return await userRepository.GetUserDetailsFromUserAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionStr(userDetailsEntityName, "get"));
     }
 
-    public async Task<ServiceResult> AddUserDetailsToUserAsync(string userId, UserDetails userDetails)
+    public async Task AddUserDetailsToUserAsync(string userId, UserDetails userDetails)
     {
-        try
+        await userServiceValidator.ValidateAddUserDetails(userId, userDetails);
+
+        userDetails.UserId = userId;
+
+        await userDetailsRepository.AddAsync(userDetails)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(userDetailsEntityName, "add", userId));
+    }
+
+    public async Task UpdateUserDetailsFromUserAsync(string userId, UserDetails userDetails)
+    {
+        await userServiceValidator.ValidateUpdateUserDetailsAsync(userId, userDetails);
+
+        var _userDetails = await userRepository.GetUserDetailsFromUserAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(userDetailsEntityName, "get", userId));
+
+        if (_userDetails is null)
         {
-            await CheckUserIdAsync(userId);
-
-            if (userDetails is null)
-                throw userDetailsIsNullException;
-
-            if (userDetails.Id != 0)
-                throw InvalidEntryIDWhileAddingException(nameof(UserDetails), "user details");
-
             userDetails.UserId = userId;
-            await userDetailsRepository.AddAsync(userDetails);
 
-            return ServiceResult.Ok();
+            await userDetailsRepository.AddAsync(userDetails)
+                .LogExceptionsAsync(_logger, FailedToActionForUserStr(userDetailsEntityName, "add", userId));
         }
-        catch (Exception ex) when (ex is IWorkoutException)
+        else
         {
-            return ServiceResult.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionForUserStr("user details", "add", userId));
-            throw;
-        }
-    }
+            _userDetails.Gender = userDetails.Gender;
+            _userDetails.Weight = userDetails.Weight;
+            _userDetails.Height = userDetails.Height;
+            _userDetails.DateOfBirth = userDetails.DateOfBirth;
+            _userDetails.BodyFatPercentage = userDetails.BodyFatPercentage;
 
-    public async Task<ServiceResult> UpdateUserDetailsFromUserAsync(string userId, UserDetails userDetails)
-    {
-        try
-        {
-            await CheckUserIdAsync(userId);
-
-            if (userDetails is null)
-                throw userDetailsIsNullException;
-
-            var _userDetails = await userRepository.GetUserDetailsFromUserAsync(userId);
-
-            if (_userDetails is null)
-            {
-                userDetails.UserId = userId;
-                await userDetailsRepository.AddAsync(userDetails);
-            }
-            else
-            {
-                if (_userDetails.UserId != userId)
-                    throw UserNotHavePermissionException("update", "user details");
-
-                _userDetails.Gender = userDetails.Gender;
-                _userDetails.Weight = userDetails.Weight;
-                _userDetails.Height = userDetails.Height;
-                _userDetails.DateOfBirth = userDetails.DateOfBirth;
-                _userDetails.BodyFatPercentage = userDetails.BodyFatPercentage;
-
-                await userDetailsRepository.UpdateAsync(_userDetails);
-            }
-
-            return ServiceResult.Ok();
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return ServiceResult.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionForUserStr("user details", "update", userId));
-            throw;
+            await userDetailsRepository.UpdateAsync(_userDetails)
+                .LogExceptionsAsync(_logger, FailedToActionForUserStr(userDetailsEntityName, "update", userId));
         }
     }
 
@@ -272,113 +186,105 @@ internal class UserService : BaseService<UserService, User>, IUserService
 
     public async Task<IQueryable<MuscleSize>?> GetUserMuscleSizesAsync(string userId)
     {
-        await CheckUserIdAsync(userId);
-        return await userRepository.GetUserMuscleSizesAsync(userId);
+        await userServiceValidator.ValidateGetUserMuscleSizesAsync(userId);
+
+        return await userRepository.GetUserMuscleSizesAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("muscle sizes", "get", userId));
     }
 
     public async Task<IQueryable<BodyWeight>?> GetUserBodyWeightsAsync(string userId)
     {
-        await CheckUserIdAsync(userId);
-        return await userRepository.GetUserBodyWeightsAsync(userId);
+        await userServiceValidator.ValidateGetUserBodyWeightsAsync(userId);
+
+        return await userRepository.GetUserBodyWeightsAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weights", "get", userId));
     }
 
     public async Task<IQueryable<Workout>?> GetUserWorkoutsAsync(string userId)
     {
-        await CheckUserIdAsync(userId);
-        return await userRepository.GetUserWorkoutsAsync(userId);
+        await userServiceValidator.ValidateGetUserWorkoutsAsync(userId);
+
+        return await userRepository.GetUserWorkoutsAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("workouts", "get", userId));
+    }
+
+    public async Task<IQueryable<WorkoutRecord>?> GetUserWorkoutRecordsAsync(string userId)
+    {
+        await userServiceValidator.ValidateGetUserWorkoutRecordsAsync(userId);
+
+        return await userRepository.GetUserWorkoutRecordsAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("workout records", "get", userId));
     }
 
     public async Task<IQueryable<Exercise>?> GetUserCreatedExercisesAsync(string userId)
     {
-        await CheckUserIdAsync(userId);
-        return await userRepository.GetUserCreatedExercisesAsync(userId);
+        await userServiceValidator.ValidateGetUserCreatedExercisesAsync(userId);
+
+        return await userRepository.GetUserCreatedExercisesAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("created exercises", "get", userId));
     }
 
     public async Task<IQueryable<Equipment>?> GetUserEquipmentsAsync(string userId)
     {
-        await CheckUserIdAsync(userId);
-        return await userRepository.GetUserEquipmentsAsync(userId);
+        await userServiceValidator.ValidateGetUserEquipmentsAsync(userId);
+
+        return await userRepository.GetUserEquipmentsAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("equipments", "get", userId));
     }
 
     #endregion
 
     #region Password
 
-    public async Task<IdentityResult> ChangeUserPasswordAsync(string userId, string oldPassword, string newPassword)
+    const string passwordEntityName = "user password";
+
+    public async Task ChangeUserPasswordAsync(string userId, string oldPassword, string newPassword)
     {
-        try
-        {
-            await CheckUserIdAsync(userId);
+        await userServiceValidator.ValidateChangePasswordAsync(userId, oldPassword, newPassword);
 
-            if (string.IsNullOrEmpty(oldPassword) || string.IsNullOrEmpty(newPassword))
-                throw new ArgumentNullOrEmptyException("Old or new password");
-
-            if (oldPassword == newPassword)
-                throw new ArgumentException("The old password cannot be equal to the new one.");
-
-            return await userRepository.ChangeUserPasswordAsync(userId, oldPassword, newPassword);
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return IdentityResultExtensions.Failed(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionStr("user password", "change"));
-            throw;
-        }
+        await userRepository.ChangeUserPasswordAsync(userId, oldPassword, newPassword)
+            .LogExceptionsAsync(_logger, FailedToActionStr(passwordEntityName, "change"));
     }
 
-    public async Task<IdentityResult> AddUserPasswordAsync(string userId, string newPassword)
+    public async Task AddUserPasswordAsync(string userId, string newPassword)
     {
-        try
-        {
-            await CheckUserIdAsync(userId);
+        await userServiceValidator.ValidateAddPasswordAsync(userId, newPassword);
 
-            if (string.IsNullOrEmpty(newPassword))
-                throw new ArgumentNullOrEmptyException("Password");
-
-            return await userRepository.AddUserPasswordAsync(userId, newPassword);
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return IdentityResultExtensions.Failed(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionStr("user password", "add"));
-            throw;
-        }
+        await userRepository.AddUserPasswordAsync(userId, newPassword)
+            .LogExceptionsAsync(_logger, FailedToActionStr(passwordEntityName, "add"));
     }
 
     public async Task<bool> HasUserPasswordAsync(string userId)
     {
-        await CheckUserIdAsync(userId);
+        await userServiceValidator.ValidateHasPasswordAsync(userId);
 
-        return await userRepository.HasUserPasswordAsync(userId);
+        return await userRepository.HasUserPasswordAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionStr(passwordEntityName, "check"));
     }
 
     #endregion
 
     #region Roles
 
-    readonly ArgumentNullOrEmptyException roleNameIsNullOrEmptyException = new("Role name");
+    const string roleEntityName = "user role";
 
     public async Task<IEnumerable<string>> GetUserRolesAsync(string userId)
     {
-        await CheckUserIdAsync(userId);
+        await userServiceValidator.ValidateGetUserRolesAsync(userId);
 
-        return await userRepository.GetUserRolesAsync(userId);
+        return await userRepository.GetUserRolesAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("user roles", "get", userId));
     }
 
     public async Task<IEnumerable<User>> GetUsersByRoleAsync(string roleName)
     {
-        await CheckRoleNameAsync(roleName);
+        await userServiceValidator.ValidateGetUsersByRoleAsync(roleName);
 
-        var allUser = await userRepository.GetUsersAsync();
+        var allUsers = await userRepository.GetUsersAsync()
+            .LogExceptionsAsync(_logger, FailedToActionStr("users", "get"));
 
-        List<User> usersByRole = new();
-        foreach (User user in allUser)
+        var usersByRole = new List<User>();
+        foreach (User user in allUsers)
         {
             var userRoles = (await userRepository.GetUserRolesAsync(user.Id))!;
             if (userRoles.Contains(roleName))
@@ -388,71 +294,21 @@ internal class UserService : BaseService<UserService, User>, IUserService
         return usersByRole;
     }
 
-    public async Task<IdentityResult> AddRolesToUserAsync(string userId, string[] roles)
+    public async Task AddRolesToUserAsync(string userId, string[] roles)
     {
-        try
-        {
-            await CheckUserIdAsync(userId);
+        await userServiceValidator.ValidateAddRolesToUserAsync(userId, roles);
 
-            if (roles.Length == 0)
-                throw new ArgumentException("User cannot have no roles.");
-
-            foreach (var roleStr in roles)
-            {
-                var roleExists = await roleRepository.RoleExistsByNameAsync(roleStr);
-                if (!roleExists)
-                    throw RoleNotFoundByNameException(roleStr);
-            }
-
-            return await userRepository.AddRolesToUserAsync(userId, roles);
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return IdentityResultExtensions.Failed(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionStr("roles to user", "add"));
-            throw;
-        }
+        await userRepository.AddRolesToUserAsync(userId, roles)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("roles to user", "add", userId));
     }
 
-    public async Task<IdentityResult> DeleteRoleFromUserAsync(string userId, string roleName)
+    public async Task DeleteRoleFromUserAsync(string userId, string roleName)
     {
-        try
-        {
-            await CheckUserIdAsync(userId);
-            await CheckRoleNameAsync(roleName);
+        await userServiceValidator.ValidateDeleteRoleFromUserAsync(userId, roleName);
 
-            var userRoles = await userRepository.GetUserRolesAsync(userId);
-            if (!userRoles.Contains(roleName))
-                return IdentityResultExtensions.Failed($"User does not have '{roleName}' role");
-
-            return await userRepository.DeleteRoleFromUserAsync(userId, roleName);
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return IdentityResultExtensions.Failed(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionStr("roles from user", "delete"));
-            throw;
-        }
+        await userRepository.DeleteRoleFromUserAsync(userId, roleName)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(roleEntityName, "delete", userId));
     }
 
     #endregion
-
-    async Task CheckUserIdAsync(string userId)
-        => await CheckUserIdAsync(userRepository, userId);
-
-    async Task CheckRoleNameAsync(string roleName)
-    {
-        if (string.IsNullOrEmpty(roleName))
-            throw roleNameIsNullOrEmptyException;
-
-        bool roleExists = await roleRepository.RoleExistsByNameAsync(roleName);
-        if (!roleExists)
-            throw RoleNotFoundByNameException(roleName);
-    }
 }

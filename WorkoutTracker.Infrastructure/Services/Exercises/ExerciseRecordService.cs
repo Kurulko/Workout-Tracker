@@ -1,203 +1,94 @@
-﻿using WorkoutTracker.Application.Common.Exceptions;
-using WorkoutTracker.Application.Common.Models;
-using WorkoutTracker.Application.Common.Results;
+﻿using WorkoutTracker.Application.Common.Models;
 using WorkoutTracker.Application.Interfaces.Repositories.Exercises.ExerciseRecords;
 using WorkoutTracker.Application.Interfaces.Services.Exercises;
-using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Domain.Entities.Exercises.ExerciseGroups;
 using WorkoutTracker.Domain.Enums;
-using WorkoutTracker.Infrastructure.Exceptions;
-using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
 using WorkoutTracker.Infrastructure.Services.Base;
 using WorkoutTracker.Application.Common.Extensions;
 using Microsoft.Extensions.Logging;
-using WorkoutTracker.Application.Common.Extensions.Exercises;
-using WorkoutTracker.Infrastructure.Identity.Entities;
+using WorkoutTracker.Infrastructure.Extensions;
+using WorkoutTracker.Infrastructure.Validators.Services.Exercises;
 
 namespace WorkoutTracker.Infrastructure.Services.Exercises;
 
 internal class ExerciseRecordService : DbModelService<ExerciseRecordService, ExerciseRecord>, IExerciseRecordService
 {
-    readonly IUserRepository userRepository;
-    readonly IExerciseRecordGroupRepository exerciseRecordGroupRepository;
     readonly IExerciseRecordRepository exerciseRecordRepository;
+    readonly ExerciseRecordServiceValidator exerciseRecordServiceValidator;
 
     public ExerciseRecordService(
-        IExerciseRecordRepository exerciseRecordRepository, 
-        IUserRepository userRepository,
-        IExerciseRecordGroupRepository exerciseRecordGroupRepository,
+        IExerciseRecordRepository exerciseRecordRepository,
+        ExerciseRecordServiceValidator exerciseRecordServiceValidator,
         ILogger<ExerciseRecordService> logger
     ) : base(exerciseRecordRepository, logger)
     {
-        this.userRepository = userRepository;
-        this.exerciseRecordGroupRepository = exerciseRecordGroupRepository;
         this.exerciseRecordRepository = exerciseRecordRepository;
+        this.exerciseRecordServiceValidator = exerciseRecordServiceValidator;
     }
 
-    readonly EntryNullException exerciseRecordIsNullException = new("Exercise record");
-    readonly InvalidIDException invalidExerciseRecordIDException = new(nameof(ExerciseRecord));
-    NotFoundException ExerciseRecordNotFoundByIDException(long id)
-        => NotFoundException.NotFoundExceptionByID("Exercise record", id);
+    const string exerciseRecordEntityName = "exercise record";
 
-    public async Task<ServiceResult<ExerciseRecord>> AddExerciseRecordToExerciseRecordGroupAsync(long exerciseRecordGroupId, string userId, ExerciseRecord exerciseRecord)
+    public async Task<ExerciseRecord> AddExerciseRecordToExerciseRecordGroupAsync(long exerciseRecordGroupId, string userId, ExerciseRecord exerciseRecord)
     {
-        try
-        {
-            if (exerciseRecord is null)
-                throw exerciseRecordIsNullException;
+        await exerciseRecordServiceValidator.ValidateAddAsync(exerciseRecordGroupId, userId, exerciseRecord);
 
-            if (exerciseRecord.Id != 0)
-                throw InvalidEntryIDWhileAddingException(nameof(ExerciseRecord), "exercise record");
+        exerciseRecord.ExerciseRecordGroupId = exerciseRecordGroupId;
+        exerciseRecord.Date = DateTime.UtcNow;
 
-            var _exerciseRecordGroup = await exerciseRecordGroupRepository.GetByIdAsync(exerciseRecordGroupId) ?? throw NotFoundException.NotFoundExceptionByID("Exercise record group", exerciseRecordGroupId);
-
-            if (_exerciseRecordGroup.GetUserId() != userId)
-                throw UserNotHavePermissionException("get", "exercise record group");
-
-            exerciseRecord.ExerciseRecordGroupId = exerciseRecordGroupId;
-            exerciseRecord.Date = DateTime.Now;
-
-            await baseRepository.AddAsync(exerciseRecord);
-
-            return ServiceResult<ExerciseRecord>.Ok(exerciseRecord);
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return ServiceResult<ExerciseRecord>.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionForUserStr("exercise record", "add", userId));
-            throw;
-        }
+        return await baseRepository.AddAsync(exerciseRecord)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(exerciseRecordEntityName, "add", userId));
     }
 
-    public async Task<ServiceResult> DeleteExerciseRecordFromUserAsync(string userId, long exerciseRecordId)
+    public async Task UpdateUserExerciseRecordAsync(string userId, ExerciseRecord exerciseRecord)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
+        await exerciseRecordServiceValidator.ValidateUpdateAsync(userId, exerciseRecord);
 
-            if (exerciseRecordId < 1)
-                throw invalidExerciseRecordIDException;
+        var _exerciseRecord = (await exerciseRecordRepository.GetByIdAsync(exerciseRecord.Id))!;
 
-            var _userId = await exerciseRecordRepository.GetUserIdByExerciseRecordIdAsync(exerciseRecordId) ?? throw ExerciseRecordNotFoundByIDException(exerciseRecordId);
+        _exerciseRecord.Date = exerciseRecord.Date;
+        _exerciseRecord.Weight = exerciseRecord.Weight;
+        _exerciseRecord.Time = exerciseRecord.Time;
+        _exerciseRecord.Reps = exerciseRecord.Reps;
+        _exerciseRecord.ExerciseId = exerciseRecord.ExerciseId;
+        _exerciseRecord.ExerciseRecordGroupId = exerciseRecord.ExerciseRecordGroupId;
 
-            if (_userId != userId)
-                throw UserNotHavePermissionException("delete", "exercise record");
-
-            await baseRepository.RemoveAsync(exerciseRecordId);
-            return ServiceResult.Ok();
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return ServiceResult.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionForUserStr("exercise record", "delete", userId));
-            throw;
-        }
+        await baseRepository.UpdateAsync(_exerciseRecord)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(exerciseRecordEntityName, "update", userId));
     }
 
-    public async Task<ServiceResult<IQueryable<ExerciseRecord>>> GetUserExerciseRecordsAsync(string userId, long? exerciseId = null, ExerciseType? exerciseType = null, DateTimeRange? range = null)
+    public async Task DeleteExerciseRecordFromUserAsync(string userId, long exerciseRecordId)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
+        await exerciseRecordServiceValidator.ValidateDeleteAsync(userId, exerciseRecordId);
 
-            if (range is DateTimeRange _range && _range.LastDate > DateTime.Now.Date)
-                throw new ArgumentException("Incorrect date.");
-
-            if (exerciseId.HasValue && exerciseId < 1)
-                throw new InvalidIDException(nameof(Exercise));
-
-            IEnumerable<ExerciseRecord> userExerciseRecords = (await exerciseRecordRepository.GetExerciseRecordsByUserIdAsync(userId)).ToList();
-
-            if (range is not null)
-                userExerciseRecords = userExerciseRecords.Where(ms => range.IsDateInRange(ms.Date, true));
-
-            if (exerciseId.HasValue)
-                userExerciseRecords = userExerciseRecords.Where(ms => ms.ExerciseId == exerciseId);
-            else if(exerciseType.HasValue)
-                userExerciseRecords = userExerciseRecords.Where(ms => ms.Exercise!.Type == exerciseType);
-
-            return ServiceResult<IQueryable<ExerciseRecord>>.Ok(userExerciseRecords.AsQueryable());
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return ServiceResult<IQueryable<ExerciseRecord>>.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionForUserStr("exercise records", "get", userId));
-            throw;
-        }
+        await baseRepository.RemoveAsync(exerciseRecordId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(exerciseRecordEntityName, "delete", userId));
     }
 
-    public async Task<ServiceResult<ExerciseRecord>> GetUserExerciseRecordByIdAsync(string userId, long exerciseRecordId)
+    public async Task<IQueryable<ExerciseRecord>> GetUserExerciseRecordsAsync(string userId, long? exerciseId = null, ExerciseType? exerciseType = null, DateTimeRange? range = null)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
+        await exerciseRecordServiceValidator.ValidateGetAllAsync(userId, exerciseId, exerciseType, range);
 
-            if (exerciseRecordId < 1)
-                throw invalidExerciseRecordIDException;
+        IEnumerable<ExerciseRecord> userExerciseRecords = (await exerciseRecordRepository.GetExerciseRecordsByUserIdAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("exercise records", "get", userId)))
+            .ToList();
 
-            var _userId = await exerciseRecordRepository.GetUserIdByExerciseRecordIdAsync(exerciseRecordId);
+        if (range is not null)
+            userExerciseRecords = userExerciseRecords.Where(ms => range.IsDateInRange(ms.Date, true));
 
-            if (_userId != null && _userId != userId)
-                throw UserNotHavePermissionException("get", "exercise record");
+        if (exerciseId.HasValue)
+            userExerciseRecords = userExerciseRecords.Where(ms => ms.ExerciseId == exerciseId);
+        else if (exerciseType.HasValue)
+            userExerciseRecords = userExerciseRecords.Where(ms => ms.Exercise!.Type == exerciseType);
 
-            var userExerciseRecordById = await baseRepository.GetByIdAsync(exerciseRecordId);
-            return ServiceResult<ExerciseRecord>.Ok(userExerciseRecordById);
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return ServiceResult<ExerciseRecord>.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionForUserStr("exercise record", "get", userId));
-            throw;
-        }
+
+        return userExerciseRecords.AsQueryable();
     }
 
-    public async Task<ServiceResult> UpdateUserExerciseRecordAsync(string userId, ExerciseRecord exerciseRecord)
+    public async Task<ExerciseRecord?> GetUserExerciseRecordByIdAsync(string userId, long exerciseRecordId)
     {
-        try
-        {
-            await CheckUserIdAsync(userRepository, userId);
+        await exerciseRecordServiceValidator.ValidateGetAsync(userId, exerciseRecordId);
 
-            if (exerciseRecord is null)
-                throw exerciseRecordIsNullException;
-
-            if (exerciseRecord.Id < 1)
-                throw invalidExerciseRecordIDException;
-
-            var _exerciseRecord = await baseRepository.GetByIdAsync(exerciseRecord.Id) ?? throw ExerciseRecordNotFoundByIDException(exerciseRecord.Id);
-
-            if (_exerciseRecord.GetUserId() != userId)
-                throw UserNotHavePermissionException("update", "exercise record");
-
-            _exerciseRecord.Date = exerciseRecord.Date;
-            _exerciseRecord.Weight = exerciseRecord.Weight;
-            _exerciseRecord.Time = exerciseRecord.Time;
-            _exerciseRecord.Reps = exerciseRecord.Reps;
-            _exerciseRecord.ExerciseId = exerciseRecord.ExerciseId;
-
-            await baseRepository.UpdateAsync(_exerciseRecord);
-
-            return ServiceResult.Ok();
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return ServiceResult.Fail(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionForUserStr("exercise record", "update", userId));
-            throw;
-        }
+        return await baseRepository.GetByIdAsync(exerciseRecordId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(exerciseRecordEntityName, "get", userId));
     }
 }

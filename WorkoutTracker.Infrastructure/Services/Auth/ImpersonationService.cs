@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using WorkoutTracker.Application.Common.Exceptions;
+using WorkoutTracker.Application.Common.Settings;
 using WorkoutTracker.Application.DTOs.Account;
 using WorkoutTracker.Application.Interfaces.Services.Auth;
 using WorkoutTracker.Infrastructure.Auth;
 using WorkoutTracker.Infrastructure.Identity.Entities;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
+using WorkoutTracker.Infrastructure.Validators.Services.Auth;
 
 namespace WorkoutTracker.Infrastructure.Services.Auth;
 
@@ -17,27 +19,36 @@ internal class ImpersonationService : IImpersonationService
     readonly SignInManager<User> signInManager;
     readonly IHttpContextAccessor httpContextAccessor;
     readonly JwtHandler jwtHandler;
-    public ImpersonationService(IUserRepository userRepository, SignInManager<User> signInManager, IHttpContextAccessor httpContextAccessor, JwtHandler jwtHandler)
+    readonly SessionKeys sessionKeys;
+    readonly ImpersonationServiceValidator impersonationServiceValidator;
+
+    public ImpersonationService(
+        IUserRepository userRepository,
+        SignInManager<User> signInManager,
+        IHttpContextAccessor httpContextAccessor,
+        JwtHandler jwtHandler,
+        SessionKeys sessionKeys,
+        ImpersonationServiceValidator impersonationServiceValidator
+    )
     {
         this.userRepository = userRepository;
         this.signInManager = signInManager;
         this.httpContextAccessor = httpContextAccessor;
         this.jwtHandler = jwtHandler;
+        this.sessionKeys = sessionKeys;
+        this.impersonationServiceValidator = impersonationServiceValidator;
     }
 
-    const string originalUserIdSessionKey = "OriginalUserId";
     HttpContext HttpContext => httpContextAccessor.HttpContext!;
 
-    public virtual async Task<TokenModel> ImpersonateAsync(string userId)
+    public async Task<TokenModel> ImpersonateAsync(string userId)
     {
-        if (string.IsNullOrEmpty(userId))
-            throw new ArgumentNullOrEmptyException("User ID");
+        await impersonationServiceValidator.ValidateImpersonateAsync(userId);
 
-        User userToImpersonate = await userRepository.GetUserByIdAsync(userId) ?? throw NotFoundException.NotFoundExceptionByID("User to impersonate", userId);
+        User userToImpersonate = (await userRepository.GetUserByIdAsync(userId))!;
 
-        string originalUserId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException("Original user not authenticated"); 
-        
-        HttpContext.Session.SetString(originalUserIdSessionKey, originalUserId);
+        string originalUserId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        HttpContext.Session.SetString(sessionKeys.OriginalUserId, originalUserId);
 
         await signInManager.SignOutAsync();
         await signInManager.SignInAsync(userToImpersonate, isPersistent: false);
@@ -46,32 +57,24 @@ internal class ImpersonationService : IImpersonationService
         return token;
     }
 
-    public virtual async Task<TokenModel> RevertAsync()
+    public async Task<TokenModel> RevertAsync()
     {
-        string? originalUserId = HttpContext.Session.GetString(originalUserIdSessionKey);
-        if (string.IsNullOrEmpty(originalUserId))
-            throw new ArgumentNullOrEmptyException("Original User ID");
+        await impersonationServiceValidator.ValidateRevertAsync();
 
-        User? originalUser = await userRepository.GetUserByIdAsync(originalUserId) ?? throw NotFoundException.NotFoundExceptionByID("Original User", originalUserId);
+        string originalUserId = HttpContext.Session.GetString(sessionKeys.OriginalUserId)!;
+        User originalUser = (await userRepository.GetUserByIdAsync(originalUserId))!;
 
         await signInManager.SignOutAsync();
         await signInManager.SignInAsync(originalUser, isPersistent: false);
-        HttpContext.Session.Remove(originalUserIdSessionKey);
+        HttpContext.Session.Remove(sessionKeys.OriginalUserId);
 
         var token = await jwtHandler.GenerateJwtTokenAsync(originalUser);
         return token;
     }
 
-    public virtual bool IsImpersonating()
+    public bool IsImpersonating()
     {
-        try
-        {
-            string? originalUserId = HttpContext.Session.GetString(originalUserIdSessionKey);
-            return !string.IsNullOrEmpty(originalUserId);
-        }
-        catch
-        {
-            return false;
-        }
+        string? originalUserId = HttpContext.Session.GetString(sessionKeys.OriginalUserId);
+        return !string.IsNullOrEmpty(originalUserId);
     }
 }

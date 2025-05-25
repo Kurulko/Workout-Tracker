@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using WorkoutTracker.Application.Common.Exceptions;
+﻿using Microsoft.AspNetCore.Identity;
 using WorkoutTracker.Application.Common.Results;
 using WorkoutTracker.Application.DTOs.Account;
 using WorkoutTracker.Application.Interfaces.Services.Auth;
@@ -8,9 +6,9 @@ using WorkoutTracker.Domain.Constants;
 using WorkoutTracker.Infrastructure.Auth;
 using WorkoutTracker.Infrastructure.Identity.Entities;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
-using WorkoutTracker.Application.Common.Extensions;
 using WorkoutTracker.Infrastructure.Extensions;
 using Microsoft.Extensions.Logging;
+using WorkoutTracker.Infrastructure.Validators.Services.Auth;
 
 namespace WorkoutTracker.Infrastructure.Services.Auth;
 
@@ -19,30 +17,36 @@ internal class AccountService : IAccountService
     readonly SignInManager<User> signInManager;
     readonly IUserRepository userRepository;
     readonly JwtHandler jwtHandler;
+    readonly AccountServiceValidator accountServiceValidator;
     readonly ILogger<AccountService> logger;
 
     public AccountService(
         SignInManager<User> signInManager, 
         IUserRepository userRepository, 
         JwtHandler jwtHandler,
+        AccountServiceValidator accountServiceValidator,
         ILogger<AccountService> logger
     )
     {
         this.signInManager = signInManager;
         this.userRepository = userRepository;
         this.jwtHandler = jwtHandler;
+        this.accountServiceValidator = accountServiceValidator;
         this.logger = logger;
     }
 
+
     public virtual async Task<AuthResult> LoginAsync(LoginModel login)
     {
-        var res = await signInManager.PasswordSignInAsync(login.Name, login.Password, login.RememberMe, false);
-
-        if (!res.Succeeded)
-            return AuthResult.Fail("Password or/and login invalid");
+        await accountServiceValidator.ValidateLoginAsync(login);
 
         try
         {
+            var res = await signInManager.PasswordSignInAsync(login.Name, login.Password, login.RememberMe, false);
+
+            if (!res.Succeeded)
+                return AuthResult.Fail("Password or/and login invalid");
+
             var user = await userRepository.GetUserByUsernameAsync(login.Name);
             var token = await jwtHandler.GenerateJwtTokenAsync(user!);
             return AuthResult.Ok("Login successful", token);
@@ -57,36 +61,18 @@ internal class AccountService : IAccountService
 
     public virtual async Task<AuthResult> RegisterAsync(RegisterModel register)
     {
-        var existingUserByName = await userRepository.GetUserByUsernameAsync(register.Name);
-        if (existingUserByName is not null)
-            return AuthResult.Fail("Name already registered.");
-
-        if (!string.IsNullOrEmpty(register.Email))
-        {
-            var existingUserByEmail = await userRepository.GetUserByEmailAsync(register.Email!);
-            if (existingUserByEmail is not null)
-                return AuthResult.Fail("Email already registered.");
-        }
+        await accountServiceValidator.ValidateRegisterAsync(register);
 
         try
         {
-            static string IdentityErrorsToString(IEnumerable<IdentityError> identityErrors)
-                => string.Join("; ", identityErrors.Select(e => e.Description));
-
             User user = register.ToUser();
             user.Registered = DateTime.Now;
 
-            IdentityResult result = await userRepository.CreateUserAsync(user, register.Password);
-            if (!result.Succeeded)
-                throw new Exception(IdentityErrorsToString(result.Errors));
-
+            await userRepository.CreateUserAsync(user, register.Password);
             await signInManager.SignInAsync(user, register.RememberMe);
 
             string userRole = Roles.UserRole;
-
-            var identityResult = await userRepository.AddRolesToUserAsync(user.Id, new[] { userRole });
-            if (!identityResult.Succeeded)
-                throw new Exception(IdentityErrorsToString(identityResult.Errors));
+            await userRepository.AddRolesToUserAsync(user.Id, [ userRole ]);
 
             var token = await jwtHandler.GenerateJwtTokenAsync(user);
             return AuthResult.Ok("Register successful", token);
@@ -99,12 +85,17 @@ internal class AccountService : IAccountService
     }
 
     public virtual async Task LogoutAsync()
-        => await signInManager.SignOutAsync();
+    {
+        await accountServiceValidator.ValidateLogoutAsync();
+
+        await signInManager.SignOutAsync();
+    }
 
     public virtual async Task<TokenModel> GetTokenAsync(string userId)
     {
-        var user = await userRepository.GetUserByIdAsync(userId);
+        await accountServiceValidator.ValidateGetTokenAsync(userId);
 
+        var user = await userRepository.GetUserByIdAsync(userId);
         return await jwtHandler.GenerateJwtTokenAsync(user!);
     }
 }

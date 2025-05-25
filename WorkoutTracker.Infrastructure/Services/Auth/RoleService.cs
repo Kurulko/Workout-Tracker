@@ -1,139 +1,96 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using WorkoutTracker.Application.Common.Exceptions;
 using WorkoutTracker.Application.Interfaces.Repositories;
+using WorkoutTracker.Infrastructure.Extensions;
 using WorkoutTracker.Infrastructure.Identity.Entities;
-using WorkoutTracker.Infrastructure.Identity.Extensions;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Services;
 using WorkoutTracker.Infrastructure.Services.Base;
+using WorkoutTracker.Infrastructure.Validators.Services.Auth;
 
 namespace WorkoutTracker.Infrastructure.Services.Auth;
 
 internal class RoleService : BaseService<RoleService, User>, IRoleService
 {
     readonly IRoleRepository roleRepository;
-    public RoleService(IRoleRepository roleRepository, ILogger<RoleService> logger) : base(logger)
-        => this.roleRepository = roleRepository;
+    readonly RoleServiceValidator roleServiceValidator;
+    public RoleService(
+        IRoleRepository roleRepository,
+        RoleServiceValidator roleServiceValidator,
+        ILogger<RoleService> logger
+    ) : base(logger)
+    {
+        this.roleRepository = roleRepository;
+        this.roleServiceValidator = roleServiceValidator;
+    }
 
-    readonly EntryNullException roleIsNullException = new EntryNullException("Role");
-    readonly ArgumentNullOrEmptyException roleNameIsNullOrEmptyException = new("Role name");
-    readonly ArgumentNullOrEmptyException roleIdIsNullOrEmptyException = new("Role ID");
+    const string roleEntityName = "role";
 
-    NotFoundException RoleNotFoundByIDException(string id)
-        => NotFoundException.NotFoundExceptionByID("Role", id);
 
     public async Task<IdentityRole> AddRoleAsync(IdentityRole role)
     {
-        if (role is null)
-            throw roleIsNullException;
+        await roleServiceValidator.ValidateAddAsync(role);
 
-        if (await RoleExistsAsync(role.Id) || await RoleExistsByNameAsync(role.Name!))
-            throw new Exception("Role already exists.");
-
-        return await roleRepository.AddRoleAsync(role);
+        return await roleRepository.AddRoleAsync(role)
+            .LogExceptionsAsync(_logger, FailedToActionStr(roleEntityName, "add"));
     }
 
-    public async Task<IdentityResult> DeleteRoleAsync(string roleId)
+    public async Task DeleteRoleAsync(string roleId)
     {
-        try
-        {
-            await CheckRoleIdAsync(roleId);
+        await roleServiceValidator.ValidateDeleteAsync(roleId);
 
-            return await roleRepository.DeleteRoleAsync(roleId);
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return IdentityResultExtensions.Failed(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionStr("role", "delete"));
-            throw;
-        }
+        await roleRepository.DeleteRoleAsync(roleId)
+            .LogExceptionsAsync(_logger, FailedToActionStr(roleEntityName, "delete"));
     }
 
     public async Task<IQueryable<IdentityRole>> GetRolesAsync()
-        => await roleRepository.GetRolesAsync();
+    {
+        await roleServiceValidator.ValidateGetAllAsync();
+
+        return await roleRepository.GetRolesAsync()
+            .LogExceptionsAsync(_logger, FailedToActionStr("roles", "get"));
+    }
 
     public async Task<IdentityRole?> GetRoleByIdAsync(string roleId)
     {
-        if (string.IsNullOrEmpty(roleId))
-            throw roleIdIsNullOrEmptyException;
+        await roleServiceValidator.ValidateGetByIdAsync(roleId);
 
-        return await roleRepository.GetRoleByIdAsync(roleId);
+        return await roleRepository.GetRoleByIdAsync(roleId)
+            .LogExceptionsAsync(_logger, FailedToActionStr(roleEntityName, "get"));
     }
 
     public async Task<IdentityRole?> GetRoleByNameAsync(string name)
     {
-        if (string.IsNullOrEmpty(name))
-            throw roleNameIsNullOrEmptyException;
+        await roleServiceValidator.ValidateGetByNameAsync(name);
 
-        return await roleRepository.GetRoleByNameAsync(name);
+        return await roleRepository.GetRoleByNameAsync(name)
+            .LogExceptionsAsync(_logger, FailedToActionStr(roleEntityName, "get"));
     }
 
-    public async Task<IdentityResult> UpdateRoleAsync(IdentityRole role)
+    public async Task UpdateRoleAsync(IdentityRole role)
     {
-        try
-        {
-            if (role is null)
-                throw roleIsNullException;
+        await roleServiceValidator.ValidateUpdateAsync(role);
 
-            await CheckRoleIdAsync(role.Id);
-
-            return await roleRepository.UpdateRoleAsync(role);
-        }
-        catch (Exception ex) when (ex is IWorkoutException)
-        {
-            return IdentityResultExtensions.Failed(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, FailedToActionStr("role", "update"));
-            throw;
-        }
+        await roleRepository.UpdateRoleAsync(role)
+            .LogExceptionsAsync(_logger, FailedToActionStr(roleEntityName, "update"));
     }
 
     public async Task<string?> GetRoleIdByNameAsync(string name)
     {
-        if (string.IsNullOrEmpty(name))
-            throw roleNameIsNullOrEmptyException;
+        await roleServiceValidator.ValidateGetByNameAsync(name);
 
-        var roleByName = await roleRepository.GetRoleByNameAsync(name);
+        var roleByName = await roleRepository.GetRoleByNameAsync(name)
+            .LogExceptionsAsync(_logger, FailedToActionStr(roleEntityName, "get"));
+
         return roleByName?.Id;
     }
 
     public async Task<string?> GetRoleNameByIdAsync(string roleId)
     {
-        if (string.IsNullOrEmpty(roleId))
-            throw roleIdIsNullOrEmptyException;
+        await roleServiceValidator.ValidateGetByIdAsync(roleId);
 
-        var roleById = await roleRepository.GetRoleByIdAsync(roleId);
+        var roleById = await roleRepository.GetRoleByIdAsync(roleId)
+            .LogExceptionsAsync(_logger, FailedToActionStr(roleEntityName, "get"));
+
         return roleById?.Name;
-    }
-
-    public async Task<bool> RoleExistsAsync(string roleId)
-    {
-        if (string.IsNullOrEmpty(roleId))
-            throw roleIdIsNullOrEmptyException;
-
-        return await roleRepository.RoleExistsAsync(roleId);
-    }
-
-    public async Task<bool> RoleExistsByNameAsync(string name)
-    {
-        if (string.IsNullOrEmpty(name))
-            throw roleNameIsNullOrEmptyException;
-
-        return await roleRepository.RoleExistsByNameAsync(name);
-    }
-
-    async Task CheckRoleIdAsync(string roleId)
-    {
-        if (string.IsNullOrEmpty(roleId))
-            throw roleIdIsNullOrEmptyException;
-
-        bool roleExists = await roleRepository.RoleExistsAsync(roleId);
-        if (!roleExists)
-            throw RoleNotFoundByIDException(roleId);
     }
 }
