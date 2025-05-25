@@ -28,6 +28,7 @@ public static class ServiceCollectionExtensions
         services.AddIdentityOptions();
 
         services.AddJWTAuthentication(configuration);
+        services.AddJSessionKeys(configuration);
         services.AddDefaultCors();
 
         return services;
@@ -61,8 +62,12 @@ public static class ServiceCollectionExtensions
         .AddJwtBearer(options =>
             options.TokenValidationParameters = jwtSettings.ToTokenValidationParameters()
         );
-
-       
+    } 
+    
+    static void AddJSessionKeys(this IServiceCollection services, IConfiguration configuration)
+    {
+        var sessionKeys = configuration.GetSection("SessionKeys").Get<SessionKeys>()!;
+        services.AddSingleton(sessionKeys);
     }
 
     static void AddDefaultCors(this IServiceCollection services)
