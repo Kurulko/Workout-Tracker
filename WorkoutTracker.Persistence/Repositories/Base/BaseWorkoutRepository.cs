@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WorkoutTracker.Application.Common.Validators;
 using WorkoutTracker.Application.Interfaces.Repositories.Base;
 using WorkoutTracker.Domain.Base;
 using WorkoutTracker.Persistence.Context;
@@ -14,12 +15,16 @@ internal class BaseWorkoutRepository<T> : DbModelRepository<T>, IBaseWorkoutRepo
 
     public virtual async Task<T?> GetByNameAsync(string name)
     {
+        ArgumentValidator.ThrowIfArgumentNullOrEmpty(name, nameof(BaseWorkoutModel.Name));
+
         var workoutModels = await GetAllAsync();
         return await workoutModels.SingleOrDefaultAsync(m => m.Name == name);
     }
 
     public virtual async Task<bool> ExistsByNameAsync(string name)
     {
+        ArgumentValidator.ThrowIfArgumentNullOrEmpty(name, nameof(BaseWorkoutModel.Name));
+
         var workoutModels = await GetAllAsync();
         return await workoutModels.AnyAsync(m => m.Name == name);
     }
