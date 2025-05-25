@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using WorkoutTracker.Persistence.Configurations.Base;
-using WorkoutTracker.Domain.Entities.Users;
 using WorkoutTracker.Persistence.Extensions;
+using WorkoutTracker.Domain.Entities;
 
 namespace WorkoutTracker.Persistence.Configurations.Users;
 
