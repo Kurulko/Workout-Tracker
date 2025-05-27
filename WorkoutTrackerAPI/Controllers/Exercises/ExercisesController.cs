@@ -40,20 +40,21 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
     [HttpGet("internal-exercises")]
     public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetInternalExercisesAsync(
-        ExerciseType? type = null,
-        int pageIndex = 0,
-        int pageSize = 10,
-        string? sortColumn = null,
-        string? sortOrder = null,
-        string? filterColumn = null,
-        string? filterQuery = null)
+        CancellationToken cancellationToken,
+        [FromQuery] ExerciseType? type = null,
+        [FromQuery] int pageIndex = 0,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? sortColumn = null,
+        [FromQuery] string? sortOrder = null,
+        [FromQuery] string? filterColumn = null,
+        [FromQuery] string? filterQuery = null)
     {
         if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
-        var internalExercises = await exerciseService.GetInternalExercisesAsync(type);
+        var internalExercises = await exerciseService.GetInternalExercisesAsync(type, cancellationToken);
 
-        var exerciseDTOs = internalExercises.ToList().Select(mapper.Map<ExerciseDTO>);
+        var exerciseDTOs = internalExercises.Select(mapper.Map<ExerciseDTO>);
         return await ApiResult<ExerciseDTO>.CreateAsync(
             exerciseDTOs.AsQueryable(),
             pageIndex,
@@ -67,64 +68,64 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
     [HttpGet("internal-exercise/{exerciseId}")]
     [ActionName(nameof(GetInternalExerciseByIdAsync))]
-    public async Task<ActionResult<ExerciseDTO>> GetInternalExerciseByIdAsync(long exerciseId)
+    public async Task<ActionResult<ExerciseDTO>> GetInternalExerciseByIdAsync(long exerciseId, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var internalExercise = await exerciseService.GetInternalExerciseByIdAsync(userId, exerciseId);
+        var internalExercise = await exerciseService.GetInternalExerciseByIdAsync(userId, exerciseId, cancellationToken);
         return ToExerciseDTO(internalExercise);
     }
 
     [HttpGet("internal-exercise/{exerciseId}/details")]
     [ActionName(nameof(GetInternalExerciseDetailsByIdAsync))]
-    public async Task<ActionResult<ExerciseDetailsDTO>> GetInternalExerciseDetailsByIdAsync(long exerciseId)
+    public async Task<ActionResult<ExerciseDetailsDTO>> GetInternalExerciseDetailsByIdAsync(long exerciseId, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var internalExerciseWithDetails = await exerciseService.GetInternalExerciseByIdAsync(userId, exerciseId, true);
+        var internalExerciseWithDetails = await exerciseService.GetInternalExerciseByIdWithDetailsAsync(userId, exerciseId, cancellationToken);
         return ToExerciseDetailsDTO(internalExerciseWithDetails);
     }
 
     [HttpGet("internal-exercise/by-name/{name}")]
-    public async Task<ActionResult<ExerciseDTO>> GetInternalExerciseByNameAsync(string name)
+    public async Task<ActionResult<ExerciseDTO>> GetInternalExerciseByNameAsync(string name, CancellationToken cancellationToken)
     {
         if (!IsNameValid(name))
             return ExerciseNameIsNullOrEmpty();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var internalExercise = await exerciseService.GetInternalExerciseByNameAsync(userId, name);
+        var internalExercise = await exerciseService.GetInternalExerciseByNameAsync(userId, name, cancellationToken);
         return ToExerciseDTO(internalExercise);
     }
 
     [HttpGet("internal-exercise/by-name/{name}/details")]
-    public async Task<ActionResult<ExerciseDetailsDTO>> GetInternalExerciseDetailsByNameAsync(string name)
+    public async Task<ActionResult<ExerciseDetailsDTO>> GetInternalExerciseDetailsByNameAsync(string name, CancellationToken cancellationToken)
     {
         if (!IsNameValid(name))
             return ExerciseNameIsNullOrEmpty();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var internalExerciseWithDetails = await exerciseService.GetInternalExerciseByNameAsync(userId, name, true);
+        var internalExerciseWithDetails = await exerciseService.GetInternalExerciseByNameWithDetailsAsync(userId, name, cancellationToken);
         return ToExerciseDetailsDTO(internalExerciseWithDetails);
     }
 
     [HttpPost("internal-exercise")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddInternalExerciseAsync([FromForm] UploadWithPhoto<ExerciseCreationDTO> exerciseCreationDTOWithPhoto)
+    public async Task<IActionResult> AddInternalExerciseAsync([FromForm] UploadWithPhoto<ExerciseCreationDTO> exerciseCreationDTOWithPhoto, CancellationToken cancellationToken)
     {
         var (exerciseCreationDTO, imageFile) = (exerciseCreationDTOWithPhoto.Model, exerciseCreationDTOWithPhoto.Photo);
 
         if (exerciseCreationDTO is null)
             return ExerciseIsNull();
 
-        string? image = await fileService.GetImage(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, false);
+        string? image = await fileService.GetImageAsync(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, false, cancellationToken);
         var exercise = mapper.Map<Exercise>(exerciseCreationDTO);
         exercise.Image = image;
 
-        exercise = await exerciseService.AddInternalExerciseAsync(exercise);
+        exercise = await exerciseService.AddInternalExerciseAsync(exercise, cancellationToken);
         var exerciseDTO = mapper.Map<ExerciseDTO>(exercise);
 
         return CreatedAtAction(nameof(GetInternalExerciseByIdAsync), new { exerciseId = exercise.Id }, exerciseDTO);
@@ -133,7 +134,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
     [HttpPut("internal-exercise/{exerciseId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateInternalExerciseAsync(long exerciseId, [FromForm] UploadWithPhoto<ExerciseUpdateDTO> exerciseUpdateDTOWithPhoto)
+    public async Task<IActionResult> UpdateInternalExerciseAsync(long exerciseId, [FromForm] UploadWithPhoto<ExerciseUpdateDTO> exerciseUpdateDTOWithPhoto, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
@@ -146,11 +147,11 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (!AreIdsEqual(exerciseId, exerciseUpdateDTO.Id))
             return ExerciseIDsNotMatch();
 
-        string? image = await fileService.GetImage(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, false);
+        string? image = await fileService.GetImageAsync(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, false, cancellationToken);
         var exercise = mapper.Map<Exercise>(exerciseUpdateDTO);
         exercise.Image = image ?? exerciseUpdateDTO.Image;
 
-        await exerciseService.UpdateInternalExerciseAsync(exercise);
+        await exerciseService.UpdateInternalExerciseAsync(exercise, cancellationToken);
 
         if (imageFile != null && exerciseUpdateDTO.Image is string oldImage)
             fileService.DeleteFile(oldImage);
@@ -160,7 +161,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
     [HttpPut("internal-exercise/{exerciseId}/muscles")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateInternalExerciseMusclesAsync(long exerciseId, IEnumerable<long> muscleIds)
+    public async Task<IActionResult> UpdateInternalExerciseMusclesAsync(long exerciseId, IEnumerable<long> muscleIds, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
@@ -168,13 +169,13 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (muscleIds is null)
             return EntryIsNull("Muscle's Ids");
 
-        await exerciseService.UpdateInternalExerciseMusclesAsync(exerciseId, muscleIds);
+        await exerciseService.UpdateInternalExerciseMusclesAsync(exerciseId, muscleIds, cancellationToken);
         return Ok();
     }
 
     [HttpPut("internal-exercise/{exerciseId}/equipments")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateInternalExerciseEquipmentsAsync(long exerciseId, IEnumerable<long> equipmentsIds)
+    public async Task<IActionResult> UpdateInternalExerciseEquipmentsAsync(long exerciseId, IEnumerable<long> equipmentsIds, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
@@ -182,18 +183,18 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (equipmentsIds is null)
             return EntryIsNull("Equipment's Ids");
 
-        await exerciseService.UpdateInternalExerciseEquipmentsAsync(exerciseId, equipmentsIds);
+        await exerciseService.UpdateInternalExerciseEquipmentsAsync(exerciseId, equipmentsIds, cancellationToken);
         return Ok();
     }
 
     [HttpDelete("internal-exercise/{exerciseId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> DeleteInternalExerciseAsync(long exerciseId)
+    public async Task<IActionResult> DeleteInternalExerciseAsync(long exerciseId, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
 
-        await exerciseService.DeleteInternalExerciseAsync(exerciseId);
+        await exerciseService.DeleteInternalExerciseAsync(exerciseId, cancellationToken);
         return Ok();
     }
 
@@ -202,22 +203,22 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
     #region User Exercises
 
     [HttpGet("user-exercises")]
-    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetCurrentUserExercisesAsync(
-        ExerciseType? type = null,
-        int pageIndex = 0,
-        int pageSize = 10,
-        string? sortColumn = null,
-        string? sortOrder = null,
-        string? filterColumn = null,
-        string? filterQuery = null)
+    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetCurrentUserExercisesAsync(CancellationToken cancellationToken,
+        [FromQuery] ExerciseType? type = null,
+        [FromQuery] int pageIndex = 0,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? sortColumn = null,
+        [FromQuery] string? sortOrder = null,
+        [FromQuery] string? filterColumn = null,
+        [FromQuery] string? filterQuery = null)
     {
         if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var usedExercises = await exerciseService.GetUserExercisesAsync(userId, type);
+        var usedExercises = await exerciseService.GetUserExercisesAsync(userId, type, cancellationToken);
 
-        var exerciseDTOs = usedExercises.ToList().Select(mapper.Map<ExerciseDTO>);
+        var exerciseDTOs = usedExercises.Select(mapper.Map<ExerciseDTO>);
         return await ApiResult<ExerciseDTO>.CreateAsync(
             exerciseDTOs.AsQueryable(),
             pageIndex,
@@ -231,71 +232,71 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
     [HttpGet("user-exercise/{exerciseId}")]
     [ActionName(nameof(GetCurrentUserExerciseByIdAsync))]
-    public async Task<ActionResult<ExerciseDTO>> GetCurrentUserExerciseByIdAsync(long exerciseId)
+    public async Task<ActionResult<ExerciseDTO>> GetCurrentUserExerciseByIdAsync(long exerciseId, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var userExercise = await exerciseService.GetUserExerciseByIdAsync(userId, exerciseId);
+        var userExercise = await exerciseService.GetUserExerciseByIdAsync(userId, exerciseId, cancellationToken);
         return ToExerciseDTO(userExercise);
     }
 
     [HttpGet("user-exercise/{exerciseId}/details")]
     [ActionName(nameof(GetCurrentUserExerciseDetailsByIdAsync))]
-    public async Task<ActionResult<ExerciseDetailsDTO>> GetCurrentUserExerciseDetailsByIdAsync(long exerciseId)
+    public async Task<ActionResult<ExerciseDetailsDTO>> GetCurrentUserExerciseDetailsByIdAsync(long exerciseId, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var userExerciseWithDetails = await exerciseService.GetUserExerciseByIdAsync(userId, exerciseId, true);
+        var userExerciseWithDetails = await exerciseService.GetUserExerciseByIdWithDetailsAsync(userId, exerciseId, cancellationToken);
         return ToExerciseDetailsDTO(userExerciseWithDetails);
     }
 
     [HttpGet("user-exercise/by-name/{name}")]
-    public async Task<ActionResult<ExerciseDTO>> GetCurrentUserExerciseByNameAsync(string name)
+    public async Task<ActionResult<ExerciseDTO>> GetCurrentUserExerciseByNameAsync(string name, CancellationToken cancellationToken)
     {
         if (!IsNameValid(name))
             return ExerciseNameIsNullOrEmpty();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var userExercise = await exerciseService.GetUserExerciseByNameAsync(userId, name);
+        var userExercise = await exerciseService.GetUserExerciseByNameAsync(userId, name, cancellationToken);
         return ToExerciseDTO(userExercise);
     }
 
     [HttpGet("user-exercise/by-name/{name}/details")]
-    public async Task<ActionResult<ExerciseDetailsDTO>> GetCurrentUserExerciseDetailsByNameAsync(string name)
+    public async Task<ActionResult<ExerciseDetailsDTO>> GetCurrentUserExerciseDetailsByNameAsync(string name, CancellationToken cancellationToken)
     {
         if (!IsNameValid(name))
             return ExerciseNameIsNullOrEmpty();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var userExerciseWithDetails = await exerciseService.GetUserExerciseByNameAsync(userId, name, true);
+        var userExerciseWithDetails = await exerciseService.GetUserExerciseByNameWithDetailsAsync(userId, name, cancellationToken);
         return ToExerciseDetailsDTO(userExerciseWithDetails);
     }
 
     [HttpPost("user-exercise")]
-    public async Task<IActionResult> AddCurrentUserExerciseAsync([FromForm] UploadWithPhoto<ExerciseCreationDTO> exerciseCreationDTOWithPhoto)
+    public async Task<IActionResult> AddCurrentUserExerciseAsync([FromForm] UploadWithPhoto<ExerciseCreationDTO> exerciseCreationDTOWithPhoto, CancellationToken cancellationToken)
     {
         var (exerciseCreationDTO, imageFile) = (exerciseCreationDTOWithPhoto.Model, exerciseCreationDTOWithPhoto.Photo);
 
         if (exerciseCreationDTO is null)
             return ExerciseIsNull();
 
-        string? image = await fileService.GetImage(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB);
+        string? image = await fileService.GetImageAsync(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, true, cancellationToken);
         var exercise = mapper.Map<Exercise>(exerciseCreationDTO);
         exercise.Image = image;
 
         string userId = httpContextAccessor.GetUserId()!;
-        exercise = await exerciseService.AddUserExerciseAsync(userId, exercise);
+        exercise = await exerciseService.AddUserExerciseAsync(userId, exercise, cancellationToken);
         var exerciseDTO = mapper.Map<ExerciseDTO>(exercise);
 
         return CreatedAtAction(nameof(GetCurrentUserExerciseByIdAsync), new { exerciseId = exercise.Id }, exerciseDTO);
     }
 
     [HttpPut("user-exercise/{exerciseId}")]
-    public async Task<IActionResult> UpdateCurrentUserExerciseAsync(long exerciseId, [FromForm] UploadWithPhoto<ExerciseUpdateDTO> exerciseUpdateDTOWithPhoto)
+    public async Task<IActionResult> UpdateCurrentUserExerciseAsync(long exerciseId, [FromForm] UploadWithPhoto<ExerciseUpdateDTO> exerciseUpdateDTOWithPhoto, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
@@ -308,12 +309,12 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (!AreIdsEqual(exerciseId, exerciseUpdateDTO.Id))
             return ExerciseIDsNotMatch();
 
-        string? image = await fileService.GetImage(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB);
+        string? image = await fileService.GetImageAsync(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, true, cancellationToken);
         var exercise = mapper.Map<Exercise>(exerciseUpdateDTO);
         exercise.Image = image ?? exerciseUpdateDTO.Image;
 
         string userId = httpContextAccessor.GetUserId()!;
-        await exerciseService.UpdateUserExerciseAsync(userId, exercise);
+        await exerciseService.UpdateUserExerciseAsync(userId, exercise, cancellationToken);
 
         if (imageFile != null && exerciseUpdateDTO.Image is string oldImage)
             fileService.DeleteFile(oldImage);
@@ -322,7 +323,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
     }
 
     [HttpPut("user-exercise/{exerciseId}/muscles")]
-    public async Task<IActionResult> UpdateCurrentUserExerciseMusclesAsync(long exerciseId, IEnumerable<long> muscleIds)
+    public async Task<IActionResult> UpdateCurrentUserExerciseMusclesAsync(long exerciseId, IEnumerable<long> muscleIds, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
@@ -331,12 +332,12 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
             return EntryIsNull("Muscle's Ids");
 
         string userId = httpContextAccessor.GetUserId()!;
-        await exerciseService.UpdateUserExerciseMusclesAsync(userId, exerciseId, muscleIds);
+        await exerciseService.UpdateUserExerciseMusclesAsync(userId, exerciseId, muscleIds, cancellationToken);
         return Ok();
     }
 
     [HttpPut("user-exercise/{exerciseId}/equipments")]
-    public async Task<IActionResult> UpdateCurrentUserExerciseEquipmentsAsync(long exerciseId, IEnumerable<long> equipmentsIds)
+    public async Task<IActionResult> UpdateCurrentUserExerciseEquipmentsAsync(long exerciseId, IEnumerable<long> equipmentsIds, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
@@ -345,18 +346,18 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
             return EntryIsNull("Equipment's Ids");
 
         string userId = httpContextAccessor.GetUserId()!;
-        await exerciseService.UpdateUserExerciseEquipmentsAsync(userId, exerciseId, equipmentsIds);
+        await exerciseService.UpdateUserExerciseEquipmentsAsync(userId, exerciseId, equipmentsIds, cancellationToken);
         return Ok();
     }
 
     [HttpDelete("user-exercise/{exerciseId}")]
-    public async Task<IActionResult> DeleteExerciseFromCurrentUserAsync(long exerciseId)
+    public async Task<IActionResult> DeleteExerciseFromCurrentUserAsync(long exerciseId, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
 
         string userId = httpContextAccessor.GetUserId()!;
-        await exerciseService.DeleteExerciseFromUserAsync(userId, exerciseId);
+        await exerciseService.DeleteExerciseFromUserAsync(userId, exerciseId, cancellationToken);
         return Ok();
     }
 
@@ -365,22 +366,22 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
     #region All Exercises
 
     [HttpGet("all-exercises")]
-    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetAllExercisesAsync(
-        ExerciseType? type = null,
-        int pageIndex = 0,
-        int pageSize = 10,
-        string? sortColumn = null,
-        string? sortOrder = null,
-        string? filterColumn = null,
-        string? filterQuery = null)
+    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetAllExercisesAsync(CancellationToken cancellationToken,
+        [FromQuery] ExerciseType? type = null,
+        [FromQuery] int pageIndex = 0,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? sortColumn = null,
+        [FromQuery] string? sortOrder = null,
+        [FromQuery] string? filterColumn = null,
+        [FromQuery] string? filterQuery = null)
     {
         if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var allExercises = await exerciseService.GetAllExercisesAsync(userId, type);
+        var allExercises = await exerciseService.GetAllExercisesAsync(userId, type, cancellationToken);
 
-        var exerciseDTOs = allExercises.ToList().Select(mapper.Map<ExerciseDTO>);
+        var exerciseDTOs = allExercises.Select(mapper.Map<ExerciseDTO>);
         return await ApiResult<ExerciseDTO>.CreateAsync(
             exerciseDTOs.AsQueryable(),
             pageIndex,
@@ -393,22 +394,22 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
     }
 
     [HttpGet("used-exercises")]
-    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetUsedExercisesAsync(
-        ExerciseType? type = null,
-        int pageIndex = 0,
-        int pageSize = 10,
-        string? sortColumn = null,
-        string? sortOrder = null,
-        string? filterColumn = null,
-        string? filterQuery = null)
+    public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetUsedExercisesAsync(CancellationToken cancellationToken,
+        [FromQuery] ExerciseType? type = null,
+        [FromQuery] int pageIndex = 0,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? sortColumn = null,
+        [FromQuery] string? sortOrder = null,
+        [FromQuery] string? filterColumn = null,
+        [FromQuery] string? filterQuery = null)
     {
         if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var usedExercises = await exerciseService.GetUsedExercisesAsync(userId, type);
+        var usedExercises = await exerciseService.GetUsedExercisesAsync(userId, type, cancellationToken);
 
-        var exerciseDTOs = usedExercises.ToList().Select(mapper.Map<ExerciseDTO>);
+        var exerciseDTOs = usedExercises.Select(mapper.Map<ExerciseDTO>);
         return await ApiResult<ExerciseDTO>.CreateAsync(
             exerciseDTOs.AsQueryable(),
             pageIndex,
@@ -422,24 +423,24 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
     [HttpGet("exercise/{exerciseId}")]
     [ActionName(nameof(GetCurrentExerciseByIdAsync))]
-    public async Task<ActionResult<ExerciseDTO>> GetCurrentExerciseByIdAsync(long exerciseId)
+    public async Task<ActionResult<ExerciseDTO>> GetCurrentExerciseByIdAsync(long exerciseId, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var exercise = await exerciseService.GetExerciseByIdAsync(userId, exerciseId);
+        var exercise = await exerciseService.GetExerciseByIdAsync(userId, exerciseId, cancellationToken);
         return ToExerciseDTO(exercise);
     }
 
     [HttpGet("exercise/by-name/{name}")]
-    public async Task<ActionResult<ExerciseDTO>> GetExerciseByNameAsync(string name)
+    public async Task<ActionResult<ExerciseDTO>> GetExerciseByNameAsync(string name, CancellationToken cancellationToken)
     {
         if (!IsNameValid(name))
             return ExerciseNameIsNullOrEmpty();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var exercise = await exerciseService.GetExerciseByNameAsync(userId, name);
+        var exercise = await exerciseService.GetExerciseByNameAsync(userId, name, cancellationToken);
         return ToExerciseDTO(exercise);
     }
 
