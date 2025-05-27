@@ -5,4 +5,5 @@ namespace WorkoutTracker.Application.Interfaces.Repositories.Exercises;
 
 public interface IExerciseAliasRepository : IBaseWorkoutRepository<ExerciseAlias>
 {
+    IQueryable<ExerciseAlias> GetExerciseAliasesByExerciseId(long exerciseId);
 }
