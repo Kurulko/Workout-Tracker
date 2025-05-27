@@ -45,12 +45,12 @@ internal class WorkoutProgressService : IWorkoutProgressService
         this.bodyWeightProgressService = bodyWeightProgressService;
     }
 
-    public async Task<CurrentUserProgress> CalculateCurrentUserProgressAsync(string userId)
+    public async Task<CurrentUserProgress> CalculateCurrentUserProgressAsync(string userId, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(userId))
             throw new ArgumentNullOrEmptyException("User ID");
 
-        var workoutRecords = (await workoutRecordService.GetUserWorkoutRecordsAsync(userId))?.ToList();
+        var workoutRecords = (await workoutRecordService.GetUserWorkoutRecordsAsync(userId, cancellationToken: cancellationToken))?.ToList();
 
         if (workoutRecords is null || !workoutRecords.Any())
             return new CurrentUserProgress();
@@ -59,7 +59,7 @@ internal class WorkoutProgressService : IWorkoutProgressService
 
         currentUserProgress.CurrentWorkoutStrikeDays = GetCurrentWorkoutStrikeInDays(workoutRecords);
 
-        currentUserProgress.CurrentBodyWeight = (await bodyWeightService.GetCurrentUserBodyWeightAsync(userId))!.Weight;
+        currentUserProgress.CurrentBodyWeight = (await bodyWeightService.GetCurrentUserBodyWeightAsync(userId, cancellationToken))!.Weight;
 
         var firstWorkoutDate = workoutRecords.MinBy(wr => wr.Date)!.Date;
         currentUserProgress.FirstWorkoutDate = firstWorkoutDate;
@@ -83,27 +83,27 @@ internal class WorkoutProgressService : IWorkoutProgressService
         return lastStrike.IsWorkoutStrike ? lastStrike.Range.CountOfDays : 0;
     }
 
-    public async Task<WorkoutProgress> CalculateWorkoutProgressAsync(string userId, DateTimeRange? range)
+    public async Task<WorkoutProgress> CalculateWorkoutProgressAsync(string userId, DateTimeRange? range, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(userId))
             throw new ArgumentNullOrEmptyException("User ID");
 
-        var workoutRecordsForMonth = (await workoutRecordService.GetUserWorkoutRecordsAsync(userId, range: range))!.ToList();
-        var bodyWeightsForMonth = (await bodyWeightService.GetUserBodyWeightsInKilogramsAsync(userId, range: range))!.ToList();
+        var workoutRecordsForMonth = (await workoutRecordService.GetUserWorkoutRecordsAsync(userId, range: range, cancellationToken: cancellationToken))!.ToList();
+        var bodyWeightsForMonth = (await bodyWeightService.GetUserBodyWeightsInKilogramsAsync(userId, range: range, cancellationToken: cancellationToken))!.ToList();
 
         return CalculateWorkoutProgress(workoutRecordsForMonth, bodyWeightsForMonth, range);
     }
 
-    public async Task<WorkoutProgress> CalculateWorkoutProgressForMonthAsync(string userId, YearMonth yearMonth)
+    public async Task<WorkoutProgress> CalculateWorkoutProgressForMonthAsync(string userId, YearMonth yearMonth, CancellationToken cancellationToken)
     {
         var rangeForMonth = DateTimeRange.GetRangeRangeByMonth(yearMonth);
-        return await CalculateWorkoutProgressAsync(userId, rangeForMonth);
+        return await CalculateWorkoutProgressAsync(userId, rangeForMonth, cancellationToken);
     }
 
-    public async Task<WorkoutProgress> CalculateWorkoutProgressForYearAsync(string userId, int year)
+    public async Task<WorkoutProgress> CalculateWorkoutProgressForYearAsync(string userId, int year, CancellationToken cancellationToken)
     {
         var rangeForYear = DateTimeRange.GetRangeRangeByYear(year);
-        return await CalculateWorkoutProgressAsync(userId, rangeForYear);
+        return await CalculateWorkoutProgressAsync(userId, rangeForYear, cancellationToken);
     }
 
     WorkoutProgress CalculateWorkoutProgress(IEnumerable<WorkoutRecord> workoutRecords, IEnumerable<BodyWeight> bodyWeights, DateTimeRange? range = null)

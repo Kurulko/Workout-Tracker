@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using System.Threading;
 using WorkoutTracker.Application.Interfaces.Repositories;
 using WorkoutTracker.Domain.Entities;
 using WorkoutTracker.Domain.Entities.Exercises;
@@ -93,11 +95,13 @@ internal class UserService : BaseService<UserService, User>, IUserService
             .LogExceptionsAsync(_logger, FailedToActionStr(userEntityName, "get"));
     }
 
-    public async Task<IQueryable<User>> GetUsersAsync()
+    public async Task<IEnumerable<User>> GetUsersAsync()
     {
         await userServiceValidator.ValidateGetAllAsync();
 
-        return await userRepository.GetUsersAsync()
+        var users = userRepository.GetUsers();
+
+        return await users.ToListAsync()
             .LogExceptionsAsync(_logger, FailedToActionStr("users", "get"));
     }
 
@@ -112,20 +116,16 @@ internal class UserService : BaseService<UserService, User>, IUserService
     {
         await userServiceValidator.ValidateGetByUsernameAsync(userName);
 
-        var userByUsername = await userRepository.GetUserByUsernameAsync(userName)
+        return await userRepository.GetUserIdByUsernameAsync(userName)
             .LogExceptionsAsync(_logger, FailedToActionStr(userEntityName, "get"));
-
-        return userByUsername?.Id;
     }
 
     public async Task<string?> GetUserNameByIdAsync(string userId)
     {
         await userServiceValidator.ValidateGetByIdAsync(userId);
 
-        var userById = await userRepository.GetUserByIdAsync(userId)
+        return await userRepository.GetUserNameByIdAsync(userId)
             .LogExceptionsAsync(_logger, FailedToActionStr(userEntityName, "get"));
-
-        return userById?.UserName;
     }
 
 
@@ -143,9 +143,9 @@ internal class UserService : BaseService<UserService, User>, IUserService
             .LogExceptionsAsync(_logger, FailedToActionStr(userDetailsEntityName, "get"));
     }
 
-    public async Task AddUserDetailsToUserAsync(string userId, UserDetails userDetails)
+    public async Task AddUserDetailsToUserAsync(string userId, UserDetails userDetails, CancellationToken cancellationToken)
     {
-        await userServiceValidator.ValidateAddUserDetails(userId, userDetails);
+        await userServiceValidator.ValidateAddUserDetails(userId, userDetails, cancellationToken);
 
         userDetails.UserId = userId;
 
@@ -153,9 +153,9 @@ internal class UserService : BaseService<UserService, User>, IUserService
             .LogExceptionsAsync(_logger, FailedToActionForUserStr(userDetailsEntityName, "add", userId));
     }
 
-    public async Task UpdateUserDetailsFromUserAsync(string userId, UserDetails userDetails)
+    public async Task UpdateUserDetailsFromUserAsync(string userId, UserDetails userDetails, CancellationToken cancellationToken)
     {
-        await userServiceValidator.ValidateUpdateUserDetailsAsync(userId, userDetails);
+        await userServiceValidator.ValidateUpdateUserDetailsAsync(userId, userDetails, cancellationToken);
 
         var _userDetails = await userRepository.GetUserDetailsFromUserAsync(userId)
             .LogExceptionsAsync(_logger, FailedToActionForUserStr(userDetailsEntityName, "get", userId));
@@ -169,13 +169,17 @@ internal class UserService : BaseService<UserService, User>, IUserService
         }
         else
         {
-            _userDetails.Gender = userDetails.Gender;
-            _userDetails.Weight = userDetails.Weight;
-            _userDetails.Height = userDetails.Height;
-            _userDetails.DateOfBirth = userDetails.DateOfBirth;
-            _userDetails.BodyFatPercentage = userDetails.BodyFatPercentage;
 
-            await userDetailsRepository.UpdateAsync(_userDetails)
+            var updateAction = new Action<UserDetails>(ud =>
+            {
+                ud.Gender = userDetails.Gender;
+                ud.Weight = userDetails.Weight;
+                ud.Height = userDetails.Height;
+                ud.DateOfBirth = userDetails.DateOfBirth;
+                ud.BodyFatPercentage = userDetails.BodyFatPercentage;
+            });
+
+            await userDetailsRepository.UpdatePartialAsync(userDetails.Id, updateAction)
                 .LogExceptionsAsync(_logger, FailedToActionForUserStr(userDetailsEntityName, "update", userId));
         }
     }
@@ -184,52 +188,58 @@ internal class UserService : BaseService<UserService, User>, IUserService
 
     #region User Models
 
-    public async Task<IQueryable<MuscleSize>?> GetUserMuscleSizesAsync(string userId)
+    public async Task<IEnumerable<MuscleSize>?> GetUserMuscleSizesAsync(string userId)
     {
         await userServiceValidator.ValidateGetUserMuscleSizesAsync(userId);
 
-        return await userRepository.GetUserMuscleSizesAsync(userId)
-            .LogExceptionsAsync(_logger, FailedToActionForUserStr("muscle sizes", "get", userId));
+        return (await userRepository.GetUserMuscleSizesAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("muscle sizes", "get", userId)))
+            ?.ToList();
     }
 
-    public async Task<IQueryable<BodyWeight>?> GetUserBodyWeightsAsync(string userId)
+    public async Task<IEnumerable<BodyWeight>?> GetUserBodyWeightsAsync(string userId)
     {
         await userServiceValidator.ValidateGetUserBodyWeightsAsync(userId);
 
-        return await userRepository.GetUserBodyWeightsAsync(userId)
-            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weights", "get", userId));
+        return (await userRepository.GetUserBodyWeightsAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weights", "get", userId)))
+            ?.ToList();
     }
 
-    public async Task<IQueryable<Workout>?> GetUserWorkoutsAsync(string userId)
+    public async Task<IEnumerable<Workout>?> GetUserWorkoutsAsync(string userId)
     {
         await userServiceValidator.ValidateGetUserWorkoutsAsync(userId);
 
-        return await userRepository.GetUserWorkoutsAsync(userId)
-            .LogExceptionsAsync(_logger, FailedToActionForUserStr("workouts", "get", userId));
+        return (await userRepository.GetUserWorkoutsAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("workouts", "get", userId)))
+            ?.ToList();
     }
 
-    public async Task<IQueryable<WorkoutRecord>?> GetUserWorkoutRecordsAsync(string userId)
+    public async Task<IEnumerable<WorkoutRecord>?> GetUserWorkoutRecordsAsync(string userId)
     {
         await userServiceValidator.ValidateGetUserWorkoutRecordsAsync(userId);
 
-        return await userRepository.GetUserWorkoutRecordsAsync(userId)
-            .LogExceptionsAsync(_logger, FailedToActionForUserStr("workout records", "get", userId));
+        return (await userRepository.GetUserWorkoutRecordsAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("workout records", "get", userId)))
+            ?.ToList();
     }
 
-    public async Task<IQueryable<Exercise>?> GetUserCreatedExercisesAsync(string userId)
+    public async Task<IEnumerable<Exercise>?> GetUserCreatedExercisesAsync(string userId)
     {
         await userServiceValidator.ValidateGetUserCreatedExercisesAsync(userId);
 
-        return await userRepository.GetUserCreatedExercisesAsync(userId)
-            .LogExceptionsAsync(_logger, FailedToActionForUserStr("created exercises", "get", userId));
+        return (await userRepository.GetUserCreatedExercisesAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("created exercises", "get", userId)))
+            ?.ToList();
     }
 
-    public async Task<IQueryable<Equipment>?> GetUserEquipmentsAsync(string userId)
+    public async Task<IEnumerable<Equipment>?> GetUserEquipmentsAsync(string userId)
     {
         await userServiceValidator.ValidateGetUserEquipmentsAsync(userId);
 
-        return await userRepository.GetUserEquipmentsAsync(userId)
-            .LogExceptionsAsync(_logger, FailedToActionForUserStr("equipments", "get", userId));
+        return (await userRepository.GetUserEquipmentsAsync(userId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("equipments", "get", userId)))
+            ?.ToList();
     }
 
     #endregion
@@ -280,18 +290,8 @@ internal class UserService : BaseService<UserService, User>, IUserService
     {
         await userServiceValidator.ValidateGetUsersByRoleAsync(roleName);
 
-        var allUsers = await userRepository.GetUsersAsync()
+        return await userRepository.GetUsersByRoleAsync(roleName)
             .LogExceptionsAsync(_logger, FailedToActionStr("users", "get"));
-
-        var usersByRole = new List<User>();
-        foreach (User user in allUsers)
-        {
-            var userRoles = (await userRepository.GetUserRolesAsync(user.Id))!;
-            if (userRoles.Contains(roleName))
-                usersByRole.Add(user);
-        }
-
-        return usersByRole;
     }
 
     public async Task AddRolesToUserAsync(string userId, string[] roles)

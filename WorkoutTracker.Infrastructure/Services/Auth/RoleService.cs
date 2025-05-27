@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using WorkoutTracker.Application.Interfaces.Repositories;
 using WorkoutTracker.Infrastructure.Extensions;
@@ -42,11 +43,13 @@ internal class RoleService : BaseService<RoleService, User>, IRoleService
             .LogExceptionsAsync(_logger, FailedToActionStr(roleEntityName, "delete"));
     }
 
-    public async Task<IQueryable<IdentityRole>> GetRolesAsync()
+    public async Task<IEnumerable<IdentityRole>> GetRolesAsync()
     {
         await roleServiceValidator.ValidateGetAllAsync();
 
-        return await roleRepository.GetRolesAsync()
+        var roles = roleRepository.GetRoles();
+
+        return await roles.ToListAsync()
             .LogExceptionsAsync(_logger, FailedToActionStr("roles", "get"));
     }
 
@@ -78,19 +81,15 @@ internal class RoleService : BaseService<RoleService, User>, IRoleService
     {
         await roleServiceValidator.ValidateGetByNameAsync(name);
 
-        var roleByName = await roleRepository.GetRoleByNameAsync(name)
-            .LogExceptionsAsync(_logger, FailedToActionStr(roleEntityName, "get"));
-
-        return roleByName?.Id;
+        return await roleRepository.GetRoleIdByNameAsync(name)
+            .LogExceptionsAsync(_logger, FailedToActionStr("role ID", "get"));
     }
 
     public async Task<string?> GetRoleNameByIdAsync(string roleId)
     {
         await roleServiceValidator.ValidateGetByIdAsync(roleId);
 
-        var roleById = await roleRepository.GetRoleByIdAsync(roleId)
-            .LogExceptionsAsync(_logger, FailedToActionStr(roleEntityName, "get"));
-
-        return roleById?.Name;
+        return await roleRepository.GetRoleNameByIdAsync(roleId)
+            .LogExceptionsAsync(_logger, FailedToActionStr("role name", "get"));
     }
 }

@@ -13,7 +13,4 @@ internal class BaseWorkoutService<TService, TModel> : BaseService<TService, TMod
     protected readonly IBaseWorkoutRepository<TModel> baseWorkoutRepository;
     public BaseWorkoutService(IBaseWorkoutRepository<TModel> baseWorkoutRepository, ILogger<TService> logger) : base(logger)
         => this.baseWorkoutRepository = baseWorkoutRepository;
-
-    protected ValidationException EntryNameMustBeUnique(string entryName)
-        => new ValidationException($"{entryName} name must be unique.");
 }

@@ -2,12 +2,11 @@
 using WorkoutTracker.Application.Interfaces.Repositories.Muscles;
 using WorkoutTracker.Application.Interfaces.Services.Muscles;
 using WorkoutTracker.Domain.Entities.Muscles;
-using WorkoutTracker.Domain.ValueObjects;
 using WorkoutTracker.Infrastructure.Services.Base;
-using WorkoutTracker.Application.Common.Extensions;
 using Microsoft.Extensions.Logging;
 using WorkoutTracker.Infrastructure.Extensions;
 using WorkoutTracker.Infrastructure.Validators.Services.Muscles;
+using Microsoft.EntityFrameworkCore;
 
 namespace WorkoutTracker.Infrastructure.Services.Muscles;
 
@@ -28,109 +27,77 @@ internal class MuscleSizeService : DbModelService<MuscleSizeService, MuscleSize>
 
     const string muscleSizeEntityName = "muscle size";
 
-    public async Task<MuscleSize> AddMuscleSizeToUserAsync(string userId, MuscleSize muscleSize)
+    public async Task<MuscleSize> AddMuscleSizeToUserAsync(string userId, MuscleSize muscleSize, CancellationToken cancellationToken)
     {
-        await muscleSizeServiceValidator.ValidateAddAsync(userId, muscleSize);
+        await muscleSizeServiceValidator.ValidateAddAsync(userId, muscleSize, cancellationToken);
 
         muscleSize.UserId = userId;
         muscleSize.Date = DateTime.UtcNow;
 
-        return await baseRepository.AddAsync(muscleSize)
+        return await muscleSizeRepository.AddAsync(muscleSize)
             .LogExceptionsAsync(_logger, FailedToActionForUserStr(muscleSizeEntityName, "add", userId));
     }
 
-    public async Task UpdateUserMuscleSizeAsync(string userId, MuscleSize muscleSize)
+    public async Task UpdateUserMuscleSizeAsync(string userId, MuscleSize muscleSize, CancellationToken cancellationToken)
     {
-        await muscleSizeServiceValidator.ValidateUpdateAsync(userId, muscleSize);
+        await muscleSizeServiceValidator.ValidateUpdateAsync(userId, muscleSize, cancellationToken);
 
-        var _muscleSize = (await muscleSizeRepository.GetByIdAsync(muscleSize.Id))!;
+        var updateAction = new Action<MuscleSize>(ms =>
+        {
+            ms.Date = muscleSize.Date;
+            ms.Size = muscleSize.Size;
+            ms.MuscleId = muscleSize.MuscleId;
+        });
 
-        _muscleSize.Date = muscleSize.Date;
-        _muscleSize.Size = muscleSize.Size;
-        _muscleSize.MuscleId = muscleSize.MuscleId;
-
-        await baseRepository.UpdateAsync(_muscleSize)
+        await muscleSizeRepository.UpdatePartialAsync(muscleSize.Id, updateAction, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionForUserStr(muscleSizeEntityName, "update", userId));
     }
 
-    public async Task DeleteMuscleSizeFromUserAsync(string userId, long muscleSizeId)
+    public async Task DeleteMuscleSizeFromUserAsync(string userId, long muscleSizeId, CancellationToken cancellationToken)
     {
-        await muscleSizeServiceValidator.ValidateDeleteAsync(userId, muscleSizeId);
+        await muscleSizeServiceValidator.ValidateDeleteAsync(userId, muscleSizeId, cancellationToken);
 
-        await baseRepository.RemoveAsync(muscleSizeId)
+        await muscleSizeRepository.RemoveAsync(muscleSizeId)
             .LogExceptionsAsync(_logger, FailedToActionForUserStr(muscleSizeEntityName, "delete", userId));
     }
 
-    async Task<IQueryable<MuscleSize>> GetUserMuscleSizesAsync(string userId, long? muscleId = null, DateTimeRange? range = null)
+    public async Task<IEnumerable<MuscleSize>> GetUserMuscleSizesInInchesAsync(string userId, long? muscleId, DateTimeRange? range, CancellationToken cancellationToken)
     {
-        await muscleSizeServiceValidator.ValidateGetAllAsync(userId, muscleId, range);
+        await muscleSizeServiceValidator.ValidateGetAllAsync(userId, muscleId, range, cancellationToken);
 
-        IEnumerable<MuscleSize> userMuscleSizes = (await baseRepository.FindAsync(wr => wr.UserId == userId)
-            .LogExceptionsAsync(_logger, FailedToActionForUserStr("muscle sizes", "get", userId)))
-            .ToList();
-
-        if (range is not null)
-            userMuscleSizes = userMuscleSizes.Where(ms => range.IsDateInRange(ms.Date, true));
-
-        if (muscleId.HasValue)
-            userMuscleSizes = userMuscleSizes.Where(ms => ms.MuscleId == muscleId);
-
-        return userMuscleSizes.AsQueryable();
+        return await muscleSizeRepository.GetUserMuscleSizesInInchesAsync(userId, muscleId, range, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("muscle sizes in inches", "get", userId));
     }
 
-    public async Task<IQueryable<MuscleSize>> GetUserMuscleSizesInInchesAsync(string userId, long? muscleId = null, DateTimeRange? range = null)
+    public async Task<IEnumerable<MuscleSize>> GetUserMuscleSizesInCentimetersAsync(string userId, long? muscleId, DateTimeRange? range, CancellationToken cancellationToken)
     {
-        var userMuscleSizes = await GetUserMuscleSizesAsync(userId, muscleId, range);
+        await muscleSizeServiceValidator.ValidateGetAllAsync(userId, muscleId, range, cancellationToken);
 
-        var userMuscleSizesInInches = userMuscleSizes.ToList().Select(m =>
-        {
-            m.Size = ModelSize.GetModelSizeInInches(m.Size);
-            return m;
-        }).AsQueryable();
-
-        return userMuscleSizesInInches;
+        return await muscleSizeRepository.GetUserMuscleSizesInCentimetersAsync(userId, muscleId, range, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("muscle sizes in centimeters", "get", userId));
     }
 
-    public async Task<IQueryable<MuscleSize>> GetUserMuscleSizesInCentimetersAsync(string userId, long? muscleId = null, DateTimeRange? range = null)
+    public async Task<MuscleSize?> GetUserMuscleSizeByIdAsync(string userId, long muscleSizeId, CancellationToken cancellationToken)
     {
-        var userMuscleSizes = await GetUserMuscleSizesAsync(userId, muscleId, range);
+        await muscleSizeServiceValidator.ValidateGetByIdAsync(userId, muscleSizeId, cancellationToken);
 
-        var userMuscleSizesInCentimeter = userMuscleSizes.ToList().Select(m =>
-        {
-            m.Size = ModelSize.GetModelSizeInCentimeters(m.Size);
-            return m;
-        }).AsQueryable();
-
-        return userMuscleSizesInCentimeter;
-    }
-
-    public async Task<MuscleSize?> GetUserMuscleSizeByIdAsync(string userId, long muscleSizeId)
-    {
-        await muscleSizeServiceValidator.ValidateGetByIdAsync(userId, muscleSizeId);
-
-        return await baseRepository.GetByIdAsync(muscleSizeId)
+        return await muscleSizeRepository.GetByIdAsync(muscleSizeId)
             .LogExceptionsAsync(_logger, FailedToActionForUserStr(muscleSizeEntityName, "get", userId));
     }
 
-    public async Task<MuscleSize?> GetMaxUserMuscleSizeAsync(string userId, long muscleId)
+    public async Task<MuscleSize?> GetMaxUserMuscleSizeAsync(string userId, long muscleId, CancellationToken cancellationToken)
     {
-        await muscleSizeServiceValidator.ValidateGetMaxAsync(userId, muscleId);
+        await muscleSizeServiceValidator.ValidateGetMaxAsync(userId, muscleId, cancellationToken);
 
-        var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId && ms.MuscleId == muscleId)
-            .LogExceptionsAsync(_logger, FailedToActionForUserStr(muscleSizeEntityName, "get", userId));
-
-        var userMaxMuscleSize = userMuscleSizes?.ToList().MaxBy(bw => bw.Size);
-        return userMaxMuscleSize;
+        return await muscleSizeRepository.GetMaxUserMuscleSizeAsync(userId, muscleId, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("max muscle size", "get", userId));
     }
 
-    public async Task<MuscleSize?> GetMinUserMuscleSizeAsync(string userId, long muscleId)
+    public async Task<MuscleSize?> GetMinUserMuscleSizeAsync(string userId, long muscleId, CancellationToken cancellationToken)
     {
-        await muscleSizeServiceValidator.ValidateGetMinAsync(userId, muscleId);
+        await muscleSizeServiceValidator.ValidateGetMinAsync(userId, muscleId, cancellationToken);
 
-        var userMuscleSizes = await baseRepository.FindAsync(ms => ms.UserId == userId && ms.MuscleId == muscleId)
-            .LogExceptionsAsync(_logger, FailedToActionForUserStr(muscleSizeEntityName, "get", userId));
-
-        var userMinMuscleSize = userMuscleSizes?.ToList().MinBy(bw => bw.Size);
-        return userMinMuscleSize;
+        return await muscleSizeRepository.GetMinUserMuscleSizeAsync(userId, muscleId, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("min muscle size", "get", userId));
     }
 }

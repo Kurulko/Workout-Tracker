@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using WorkoutTracker.Application.Interfaces.Repositories.Exercises;
 using WorkoutTracker.Application.Interfaces.Services.Exercises;
 using WorkoutTracker.Domain.Entities.Exercises;
@@ -25,57 +26,61 @@ internal class ExerciseAliasService : BaseWorkoutService<ExerciseAliasService, E
 
     const string exerciseAliasEntityName = "exercise alias";
 
-    public async Task<ExerciseAlias> AddExerciseAliasToExerciseAsync(long exerciseId, ExerciseAlias exerciseAlias)
+    public async Task<ExerciseAlias> AddExerciseAliasToExerciseAsync(long exerciseId, ExerciseAlias exerciseAlias, CancellationToken cancellationToken)
     {
-        await exerciseAliasServiceValidator.ValidateAddAsync(exerciseId, exerciseAlias);
+        await exerciseAliasServiceValidator.ValidateAddAsync(exerciseId, exerciseAlias, cancellationToken);
 
         exerciseAlias.ExerciseId = exerciseId;
-        return await exerciseAliasRepository.AddAsync(exerciseAlias)
+
+        return await exerciseAliasRepository.AddAsync(exerciseAlias, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr(exerciseAliasEntityName, "add"));
     }
 
-    public async Task DeleteExerciseAliasAsync(long id)
+    public async Task DeleteExerciseAliasAsync(long id, CancellationToken cancellationToken)
     {
-        await exerciseAliasServiceValidator.ValidateDeleteAsync(id);
+        await exerciseAliasServiceValidator.ValidateDeleteAsync(id, cancellationToken);
 
-        await exerciseAliasRepository.RemoveAsync(id)
+        await exerciseAliasRepository.RemoveAsync(id, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr(exerciseAliasEntityName, "delete"));
     }
 
-    public async Task<ExerciseAlias?> GetExerciseAliasByIdAsync(long id)
+    public async Task<ExerciseAlias?> GetExerciseAliasByIdAsync(long id, CancellationToken cancellationToken)
     {
-        await exerciseAliasServiceValidator.ValidateGetByIdAsync(id);
+        await exerciseAliasServiceValidator.ValidateGetByIdAsync(id, cancellationToken);
 
-        return await exerciseAliasRepository.GetByIdAsync(id)
+        return await exerciseAliasRepository.GetByIdAsync(id, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr(exerciseAliasEntityName, "get"));
     }
 
-    public async Task<ExerciseAlias?> GetExerciseAliasByNameAsync(string name)
+    public async Task<ExerciseAlias?> GetExerciseAliasByNameAsync(string name, CancellationToken cancellationToken)
     {
-        await exerciseAliasServiceValidator.ValidateGetByNameAsync(name);
+        await exerciseAliasServiceValidator.ValidateGetByNameAsync(name, cancellationToken);
 
-        return await exerciseAliasRepository.GetByNameAsync(name)
+        return await exerciseAliasRepository.GetByNameAsync(name, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr(exerciseAliasEntityName, "get"));
     }
 
-    public async Task<IQueryable<ExerciseAlias>> GetExerciseAliasesByExerciseIdAsync(long exerciseId)
+    public async Task<IEnumerable<ExerciseAlias>> GetExerciseAliasesByExerciseIdAsync(long exerciseId, CancellationToken cancellationToken)
     {
-        await exerciseAliasServiceValidator.ValidateGetAllAsync(exerciseId);
+        await exerciseAliasServiceValidator.ValidateGetAllAsync(exerciseId, cancellationToken);
 
-        return await exerciseAliasRepository.FindAsync(er => er.ExerciseId == exerciseId)
+        var exerciseAliases = exerciseAliasRepository.GetExerciseAliasesByExerciseId(exerciseId);
+
+        return await exerciseAliases.ToListAsync(cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr("exercise aliases", "get"));
     }
 
-    public async Task UpdateExerciseAliasAsync(ExerciseAlias exerciseAlias)
+    public async Task UpdateExerciseAliasAsync(ExerciseAlias exerciseAlias, CancellationToken cancellationToken)
     {
-        await exerciseAliasServiceValidator.ValidateUpdateAsync(exerciseAlias);
+        await exerciseAliasServiceValidator.ValidateUpdateAsync(exerciseAlias, cancellationToken);
 
-        var _exerciseAlias = (await exerciseAliasRepository.GetByIdAsync(exerciseAlias.Id))!;
+        var updateAction = new Action<ExerciseAlias>(e =>
+        {
+            e.Name = exerciseAlias.Name;
+            e.ExerciseId = exerciseAlias.ExerciseId;
+        });
 
-        _exerciseAlias.Name = exerciseAlias.Name;
-        _exerciseAlias.ExerciseId = exerciseAlias.ExerciseId;
-
-        await exerciseAliasRepository.UpdateAsync(exerciseAlias)
+        await exerciseAliasRepository.UpdatePartialAsync(exerciseAlias.Id, updateAction, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr(exerciseAliasEntityName, "update"));
     }
 }
