@@ -6,7 +6,7 @@ using WorkoutTracker.Infrastructure.Validators.Models.Base;
 
 namespace WorkoutTracker.Infrastructure.Validators.Models;
 
-public class RoleValidator : IModelValidator<IdentityRole, string>
+public class RoleValidator
 {
     readonly IRoleRepository roleRepository;
     public RoleValidator(IRoleRepository roleRepository)

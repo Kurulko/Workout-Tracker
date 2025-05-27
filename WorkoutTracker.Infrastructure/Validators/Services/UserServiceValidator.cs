@@ -97,20 +97,20 @@ public class UserServiceValidator
         await userValidator.EnsureExistsAsync(userId);
     }
 
-    public async Task ValidateAddUserDetails(string userId, UserDetails userDetails)
+    public async Task ValidateAddUserDetails(string userId, UserDetails userDetails, CancellationToken cancellationToken)
     {
         ArgumentValidator.ThrowIfIdNullOrEmpty(userId, nameof(User));
         await userValidator.EnsureExistsAsync(userId);
 
-        await userDetailsValidator.ValidateForAddAsync(userDetails);
+        await userDetailsValidator.ValidateForAddAsync(userDetails, cancellationToken);
     }
 
-    public async Task ValidateUpdateUserDetailsAsync(string userId, UserDetails userDetails)
+    public async Task ValidateUpdateUserDetailsAsync(string userId, UserDetails userDetails, CancellationToken cancellationToken)
     {
         ArgumentValidator.ThrowIfIdNullOrEmpty(userId, nameof(User));
         await userValidator.EnsureExistsAsync(userId);
 
-        await userDetailsValidator.ValidateForAddAsync(userDetails);
+        await userDetailsValidator.ValidateForAddAsync(userDetails, cancellationToken);
 
         var _userDetails = await userRepository.GetUserDetailsFromUserAsync(userId);
 

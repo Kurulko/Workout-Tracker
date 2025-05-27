@@ -30,68 +30,68 @@ public class MuscleSizeServiceValidator
         this.muscleSizeRepository = muscleSizeRepository;
     }
 
-    public async Task ValidateAddAsync(string userId, MuscleSize muscleSize)
+    public async Task ValidateAddAsync(string userId, MuscleSize muscleSize, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
 
-        await muscleSizeValidator.ValidateForAddAsync(muscleSize);
-        await muscleValidator.EnsureExistsAsync(muscleSize.MuscleId);
+        await muscleSizeValidator.ValidateForAddAsync(muscleSize, cancellationToken);
+        await muscleValidator.EnsureExistsAsync(muscleSize.MuscleId, cancellationToken);
     }
 
-    public async Task ValidateUpdateAsync(string userId, MuscleSize muscleSize)
+    public async Task ValidateUpdateAsync(string userId, MuscleSize muscleSize, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
-        var _muscleSize = await muscleSizeValidator.ValidateForEditAsync(muscleSize);
+        var _muscleSize = await muscleSizeValidator.ValidateForEditAsync(muscleSize, cancellationToken);
 
         if (_muscleSize.UserId != userId)
             throw UnauthorizedException.HaveNoPermissionToAction("update", "muscle size");
 
-        await muscleValidator.EnsureExistsAsync(muscleSize.MuscleId);
+        await muscleValidator.EnsureExistsAsync(muscleSize.MuscleId, cancellationToken);
 
     }
 
-    public async Task ValidateDeleteAsync(string userId, long muscleId)
+    public async Task ValidateDeleteAsync(string userId, long muscleId, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
 
-        var muscleSize = await muscleSizeValidator.EnsureExistsAsync(muscleId);
+        var muscleSize = await muscleSizeValidator.EnsureExistsAsync(muscleId, cancellationToken);
 
         if (muscleSize.UserId != userId)
             throw UnauthorizedException.HaveNoPermissionToAction("delete", "muscle size");
     }
 
-    public async Task ValidateGetByIdAsync(string userId, long muscleSizeId)
+    public async Task ValidateGetByIdAsync(string userId, long muscleSizeId, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
         ArgumentValidator.ThrowIfIdNonPositive(muscleSizeId, "Muscle Size");
 
-        var muscleSize = await muscleSizeRepository.GetByIdAsync(muscleSizeId);
+        var muscleSize = await muscleSizeRepository.GetByIdAsync(muscleSizeId, cancellationToken);
 
         if (muscleSize != null && muscleSize.UserId != userId)
             throw UnauthorizedException.HaveNoPermissionToAction("get", "muscle size");
 
     }
 
-    public async Task ValidateGetMinAsync(string userId, long muscleId)
+    public async Task ValidateGetMinAsync(string userId, long muscleId, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
 
         ArgumentValidator.ThrowIfIdNonPositive(muscleId, "Muscle");
     }
 
-    public async Task ValidateGetMaxAsync(string userId, long muscleId)
+    public async Task ValidateGetMaxAsync(string userId, long muscleId, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
 
         ArgumentValidator.ThrowIfIdNonPositive(muscleId, "Muscle");
     }
 
-    public async Task ValidateGetAllAsync(string userId, long? muscleId, DateTimeRange? range)
+    public async Task ValidateGetAllAsync(string userId, long? muscleId, DateTimeRange? range, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
 
         if (muscleId.HasValue)
-            await muscleValidator.EnsureExistsAsync(muscleId.Value);
+            await muscleValidator.EnsureExistsAsync(muscleId.Value, cancellationToken);
 
         if (range is not null)
             ArgumentValidator.ThrowIfRangeInFuture(range, nameof(range));

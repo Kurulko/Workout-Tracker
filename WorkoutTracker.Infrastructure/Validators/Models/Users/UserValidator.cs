@@ -6,7 +6,7 @@ using WorkoutTracker.Infrastructure.Validators.Models.Base;
 
 namespace WorkoutTracker.Infrastructure.Validators.Models.Users;
 
-public class UserValidator : IModelValidator<User, string>
+public class UserValidator
 {
     readonly IUserRepository userRepository;
     public UserValidator(IUserRepository userRepository)
