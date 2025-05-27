@@ -9,9 +9,13 @@ public interface IRoleRepository
 
     Task DeleteRoleAsync(string roleId);
 
-    Task<IQueryable<IdentityRole>> GetRolesAsync();
+    IQueryable<IdentityRole> GetRoles();
+
     Task<IdentityRole?> GetRoleByIdAsync(string roleId);
     Task<IdentityRole?> GetRoleByNameAsync(string name);
+
+    Task<string?> GetRoleIdByNameAsync(string name);
+    Task<string?> GetRoleNameByIdAsync(string roleId);
 
     Task<bool> AnyAsync();
     Task<bool> RoleExistsAsync(string roleId);

@@ -21,28 +21,28 @@ public interface IUserService : IBaseService
     Task<User?> GetUserByIdAsync(string userId);
     Task<User?> GetUserByUsernameAsync(string userName);
     Task<User?> GetUserByClaimsAsync(ClaimsPrincipal claims);
-    Task<IQueryable<User>> GetUsersAsync();
+    Task<IEnumerable<User>> GetUsersAsync();
 
     Task<string?> GetUserIdByUsernameAsync(string userName);
-    Task<string?> GetUserNameByIdAsync(string userID);
+    Task<string?> GetUserNameByIdAsync(string userId);
 
     #endregion
 
     #region User Details
 
     Task<UserDetails?> GetUserDetailsFromUserAsync(string userId);
-    Task AddUserDetailsToUserAsync(string userId, UserDetails userDetails);
-    Task UpdateUserDetailsFromUserAsync(string userId, UserDetails userDetails);
+    Task AddUserDetailsToUserAsync(string userId, UserDetails userDetails, CancellationToken cancellationToken = default);
+    Task UpdateUserDetailsFromUserAsync(string userId, UserDetails userDetails, CancellationToken cancellationToken = default);
 
     #endregion
 
     #region User Models
 
-    Task<IQueryable<MuscleSize>?> GetUserMuscleSizesAsync(string userId);
-    Task<IQueryable<BodyWeight>?> GetUserBodyWeightsAsync(string userId);
-    Task<IQueryable<Workout>?> GetUserWorkoutsAsync(string userId);
-    Task<IQueryable<Exercise>?> GetUserCreatedExercisesAsync(string userId);
-    Task<IQueryable<Equipment>?> GetUserEquipmentsAsync(string userId);
+    Task<IEnumerable<MuscleSize>?> GetUserMuscleSizesAsync(string userId);
+    Task<IEnumerable<BodyWeight>?> GetUserBodyWeightsAsync(string userId);
+    Task<IEnumerable<Workout>?> GetUserWorkoutsAsync(string userId);
+    Task<IEnumerable<Exercise>?> GetUserCreatedExercisesAsync(string userId);
+    Task<IEnumerable<Equipment>?> GetUserEquipmentsAsync(string userId);
 
     #endregion
 

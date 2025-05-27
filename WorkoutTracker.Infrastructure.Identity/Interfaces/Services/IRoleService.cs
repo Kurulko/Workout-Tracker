@@ -7,7 +7,7 @@ public interface IRoleService : IBaseService
 {
     Task<IdentityRole?> GetRoleByIdAsync(string key);
     Task<string?> GetRoleIdByNameAsync(string name);
-    Task<IQueryable<IdentityRole>> GetRolesAsync();
+    Task<IEnumerable<IdentityRole>> GetRolesAsync();
 
     Task<string?> GetRoleNameByIdAsync(string key);
     Task<IdentityRole?> GetRoleByNameAsync(string name);
