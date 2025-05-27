@@ -10,11 +10,11 @@ public static class FileServiceExtensions
     static long GetBytesInMegabytes(int bytes)
         => bytes * kilobytesInOneMegabyte * bytesInOneKilobyte;
 
-    public static async Task<string?> GetImage(this IFileService fileService, FileUploadModel? file, string directory, int maxFileSizeInMegabytes, bool isUniqueName = true)
+    public static async Task<string?> GetImageAsync(this IFileService fileService, FileUploadModel? file, string directory, int maxFileSizeInMegabytes, bool isUniqueName = true, CancellationToken cancellationToken = default)
     {
         if (file is null)
             return null;
 
-        return await fileService.UploadImageAsync(file, directory, GetBytesInMegabytes(maxFileSizeInMegabytes), isUniqueName);
+        return await fileService.UploadImageAsync(file, directory, GetBytesInMegabytes(maxFileSizeInMegabytes), isUniqueName, cancellationToken);
     }
 }
