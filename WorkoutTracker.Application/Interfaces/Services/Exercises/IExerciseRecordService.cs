@@ -6,11 +6,11 @@ namespace WorkoutTracker.Application.Interfaces.Services.Exercises;
 
 public interface IExerciseRecordService : IBaseService
 {
-    Task<ExerciseRecord?> GetUserExerciseRecordByIdAsync(string userId, long exerciseRecordId);
-    Task<IQueryable<ExerciseRecord>> GetUserExerciseRecordsAsync(string userId, long? exerciseId = null, ExerciseType? exerciseType = null, DateTimeRange? range = null);
+    Task<ExerciseRecord?> GetUserExerciseRecordByIdAsync(string userId, long exerciseRecordId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ExerciseRecord>> GetUserExerciseRecordsAsync(string userId, long? exerciseId = null, ExerciseType? exerciseType = null, DateTimeRange? range = null, CancellationToken cancellationToken = default);
 
-    Task<ExerciseRecord> AddExerciseRecordToExerciseRecordGroupAsync(long exerciseRecordGroupId, string userId, ExerciseRecord exerciseRecord);
-    Task UpdateUserExerciseRecordAsync(string userId, ExerciseRecord model);
+    Task<ExerciseRecord> AddExerciseRecordToExerciseRecordGroupAsync(long exerciseRecordGroupId, string userId, ExerciseRecord exerciseRecord, CancellationToken cancellationToken = default);
+    Task UpdateUserExerciseRecordAsync(string userId, ExerciseRecord model, CancellationToken cancellationToken = default);
 
-    Task DeleteExerciseRecordFromUserAsync(string userId, long exerciseRecordId);
+    Task DeleteExerciseRecordFromUserAsync(string userId, long exerciseRecordId, CancellationToken cancellationToken = default);
 }

@@ -7,15 +7,15 @@ namespace WorkoutTracker.Application.Interfaces.Services.Muscles;
 
 public interface IMuscleSizeService : IBaseService
 {
-    Task<MuscleSize?> GetUserMuscleSizeByIdAsync(string userId, long muscleSizeId);
-    Task<MuscleSize?> GetMinUserMuscleSizeAsync(string userId, long muscleId);
-    Task<MuscleSize?> GetMaxUserMuscleSizeAsync(string userId, long muscleId);
+    Task<MuscleSize?> GetUserMuscleSizeByIdAsync(string userId, long muscleSizeId, CancellationToken cancellationToken = default);
+    Task<MuscleSize?> GetMinUserMuscleSizeAsync(string userId, long muscleId, CancellationToken cancellationToken = default);
+    Task<MuscleSize?> GetMaxUserMuscleSizeAsync(string userId, long muscleId, CancellationToken cancellationToken = default);
 
-    Task<IQueryable<MuscleSize>> GetUserMuscleSizesInInchesAsync(string userId, long? muscleId =  null, DateTimeRange? range = null);
-    Task<IQueryable<MuscleSize>> GetUserMuscleSizesInCentimetersAsync(string userId, long? muscleId =  null, DateTimeRange? range = null);
+    Task<IEnumerable<MuscleSize>> GetUserMuscleSizesInInchesAsync(string userId, long? muscleId =  null, DateTimeRange? range = null, CancellationToken cancellationToken = default);
+    Task<IEnumerable<MuscleSize>> GetUserMuscleSizesInCentimetersAsync(string userId, long? muscleId =  null, DateTimeRange? range = null, CancellationToken cancellationToken = default);
 
-    Task<MuscleSize> AddMuscleSizeToUserAsync(string userId, MuscleSize muscleSize);
-    Task UpdateUserMuscleSizeAsync(string userId, MuscleSize muscleSize);
+    Task<MuscleSize> AddMuscleSizeToUserAsync(string userId, MuscleSize muscleSize, CancellationToken cancellationToken = default);
+    Task UpdateUserMuscleSizeAsync(string userId, MuscleSize muscleSize, CancellationToken cancellationToken = default);
 
-    Task DeleteMuscleSizeFromUserAsync(string userId, long muscleSizeId);
+    Task DeleteMuscleSizeFromUserAsync(string userId, long muscleSizeId, CancellationToken cancellationToken = default);
 }

@@ -5,19 +5,23 @@ namespace WorkoutTracker.Application.Interfaces.Services.Workouts;
 
 public interface IWorkoutService : IBaseService
 {
-    Task<Workout?> GetUserWorkoutByIdAsync(string userId, long workoutId, bool withDetails = false);
-    Task<Workout?> GetUserWorkoutByNameAsync(string userId, string name, bool withDetails = false);
-    Task<IQueryable<Workout>> GetUserWorkoutsAsync(string userId, long? exerciseId = null);
+    Task<Workout?> GetUserWorkoutByIdAsync(string userId, long workoutId, CancellationToken cancellationToken = default);
+    Task<Workout?> GetUserWorkoutByNameAsync(string userId, string name, CancellationToken cancellationToken = default);
+    
+    Task<Workout?> GetUserWorkoutByIdWithDetailsAsync(string userId, long workoutId, CancellationToken cancellationToken = default);
+    Task<Workout?> GetUserWorkoutByNameWithDetailsAsync(string userId, string name, CancellationToken cancellationToken = default);
+    
+    Task<IEnumerable<Workout>> GetUserWorkoutsAsync(string userId, long? exerciseId = null, CancellationToken cancellationToken = default);
 
-    Task<Workout> AddUserWorkoutAsync(string userId, Workout model);
-    Task UpdateUserWorkoutAsync(string userId, Workout model);
+    Task<Workout> AddUserWorkoutAsync(string userId, Workout model, CancellationToken cancellationToken = default);
+    Task UpdateUserWorkoutAsync(string userId, Workout model, CancellationToken cancellationToken = default);
 
-    Task AddExerciseSetGroupsToUserWorkoutAsync(string userId, long workoutId, IEnumerable<ExerciseSetGroup> exerciseSetGroups);
-    Task UpdateUserWorkoutExerciseSetGroupsAsync(string userId, long workoutId, IEnumerable<ExerciseSetGroup> exerciseSetGroups);
+    Task AddExerciseSetGroupsToUserWorkoutAsync(string userId, long workoutId, IEnumerable<ExerciseSetGroup> exerciseSetGroups, CancellationToken cancellationToken = default);
+    Task UpdateUserWorkoutExerciseSetGroupsAsync(string userId, long workoutId, IEnumerable<ExerciseSetGroup> exerciseSetGroups, CancellationToken cancellationToken = default);
 
-    Task PinUserWorkout(string userId, long workoutId);
-    Task UnpinUserWorkout(string userId, long workoutId);
-    Task CompleteUserWorkout(string userId, long workoutId, DateTime date, TimeSpan time);
+    Task PinUserWorkout(string userId, long workoutId, CancellationToken cancellationToken = default);
+    Task UnpinUserWorkout(string userId, long workoutId, CancellationToken cancellationToken = default);
+    Task CompleteUserWorkout(string userId, long workoutId, DateTime date, TimeSpan time, CancellationToken cancellationToken = default);
 
-    Task DeleteUserWorkoutAsync(string userId, long workoutId);
+    Task DeleteUserWorkoutAsync(string userId, long workoutId, CancellationToken cancellationToken = default);
 }
