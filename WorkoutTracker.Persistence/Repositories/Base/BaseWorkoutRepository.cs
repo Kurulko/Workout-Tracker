@@ -6,26 +6,24 @@ using WorkoutTracker.Persistence.Context;
 
 namespace WorkoutTracker.Persistence.Repositories.Base;
 
-internal class BaseWorkoutRepository<T> : DbModelRepository<T>, IBaseWorkoutRepository<T>
+internal abstract class BaseWorkoutRepository<T> : DbModelRepository<T>, IBaseWorkoutRepository<T>
     where T : BaseWorkoutModel
 {
     public BaseWorkoutRepository(WorkoutDbContext db) : base(db)
     {
     }
 
-    public virtual async Task<T?> GetByNameAsync(string name)
+    public virtual async Task<T?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
     {
         ArgumentValidator.ThrowIfArgumentNullOrEmpty(name, nameof(BaseWorkoutModel.Name));
 
-        var workoutModels = await GetAllAsync();
-        return await workoutModels.SingleOrDefaultAsync(m => m.Name == name);
+        return await GetAll().SingleOrDefaultAsync(m => m.Name == name, cancellationToken);
     }
 
-    public virtual async Task<bool> ExistsByNameAsync(string name)
+    public virtual async Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default)
     {
         ArgumentValidator.ThrowIfArgumentNullOrEmpty(name, nameof(BaseWorkoutModel.Name));
 
-        var workoutModels = await GetAllAsync();
-        return await workoutModels.AnyAsync(m => m.Name == name);
+        return await dbSet.AnyAsync(m => m.Name == name, cancellationToken);
     }
 }

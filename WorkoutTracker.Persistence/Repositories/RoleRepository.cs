@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using WorkoutTracker.Application.Common.Exceptions;
 using WorkoutTracker.Application.Common.Validators;
 using WorkoutTracker.Application.Interfaces.Repositories;
-using WorkoutTracker.Infrastructure.Identity.Extensions;
 
 namespace WorkoutTracker.Persistence.Repositories;
 
@@ -17,7 +15,7 @@ internal class RoleRepository : IRoleRepository
 
     readonly string roleEntityName = "Role";
 
-    public virtual async Task<IdentityRole> AddRoleAsync(IdentityRole role)
+    public async Task<IdentityRole> AddRoleAsync(IdentityRole role)
     {
         IdentityRole? existingRole = await GetByIdAsync(role.Id);
 
@@ -26,9 +24,7 @@ internal class RoleRepository : IRoleRepository
             await ArgumentValidator.EnsureNonExistsByNameAsync(GetByNameAsync, role.Name!);
             
             var result = await roleManager.CreateAsync(role);
-
-            if (!result.Succeeded)
-                throw new ValidationException($"Failed to add role: {result.IdentityErrorsToString()}");
+            ArgumentValidator.ThrowIfNotSucceeded("create", "role", result);
 
             return role;
         }
@@ -36,58 +32,67 @@ internal class RoleRepository : IRoleRepository
         return existingRole;
     }
 
-    public virtual async Task DeleteRoleAsync(string roleId)
+    public async Task DeleteRoleAsync(string roleId)
     {
         ArgumentValidator.ThrowIfIdNullOrEmpty(roleId, roleEntityName);
 
         var role = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, roleId, roleEntityName);
 
         var result = await roleManager.DeleteAsync(role);
-
-        if (!result.Succeeded)
-            throw new ValidationException($"Failed to delete role: {result.IdentityErrorsToString()}");
+        ArgumentValidator.ThrowIfNotSucceeded("delete", "role", result);
     }
 
-    public virtual async Task<IQueryable<IdentityRole>> GetRolesAsync()
-        => await Task.FromResult(Roles);
+    public IQueryable<IdentityRole> GetRoles()
+        => Roles;
 
-    public virtual async Task<IdentityRole?> GetRoleByIdAsync(string roleId)
+    public async Task<IdentityRole?> GetRoleByIdAsync(string roleId)
     {
         ArgumentValidator.ThrowIfIdNullOrEmpty(roleId, roleEntityName);
 
         return await GetByIdAsync(roleId);
     }
 
-    public virtual async Task<IdentityRole?> GetRoleByNameAsync(string name)
+    public async Task<IdentityRole?> GetRoleByNameAsync(string name)
     {
         ArgumentValidator.ThrowIfArgumentNullOrEmpty(name, nameof(IdentityRole.Name));
 
         return await GetByNameAsync(name);
     }
 
-    public virtual async Task UpdateRoleAsync(IdentityRole role)
+    public async Task<string?> GetRoleIdByNameAsync(string name)
+    {
+        var roleByName = await GetRoleByIdAsync(name);
+        return roleByName?.Id;
+    }
+
+    public async Task<string?> GetRoleNameByIdAsync(string roleId)
+    {
+        var roleById = await GetRoleByNameAsync(roleId);
+        return roleById?.Name;
+    }
+
+
+    public async Task UpdateRoleAsync(IdentityRole role)
     {
         var existingRole = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, role.Id, roleEntityName);
 
         existingRole.Name = role.Name;
 
         var result = await roleManager.UpdateAsync(existingRole);
-
-        if (!result.Succeeded)
-            throw new ValidationException($"Failed to update role: {result.IdentityErrorsToString()}");
+        ArgumentValidator.ThrowIfNotSucceeded("update", "role", result);
     }
 
-    public virtual async Task<bool> AnyAsync()
+    public async Task<bool> AnyAsync()
         => await Roles.AnyAsync();
 
-    public virtual async Task<bool> RoleExistsAsync(string roleId)
+    public async Task<bool> RoleExistsAsync(string roleId)
     {
         ArgumentValidator.ThrowIfIdNullOrEmpty(roleId, roleEntityName);
 
         return await Roles.AnyAsync(r => r.Id == roleId);
     }
 
-    public virtual async Task<bool> RoleExistsByNameAsync(string name)
+    public async Task<bool> RoleExistsByNameAsync(string name)
     {
         ArgumentValidator.ThrowIfArgumentNullOrEmpty(name, nameof(IdentityRole.Name));
 
@@ -95,9 +100,9 @@ internal class RoleRepository : IRoleRepository
     }
 
 
-    public async Task<IdentityRole?> GetByIdAsync(string roleId)
+    async Task<IdentityRole?> GetByIdAsync(string roleId)
         => await Roles.SingleOrDefaultAsync(u => u.Id == roleId);
 
-    public async Task<IdentityRole?> GetByNameAsync(string name)
+    async Task<IdentityRole?> GetByNameAsync(string name)
         => await Roles.SingleOrDefaultAsync(u => u.Name == name);
 }

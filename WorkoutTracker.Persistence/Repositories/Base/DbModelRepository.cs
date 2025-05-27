@@ -7,7 +7,7 @@ using WorkoutTracker.Persistence.Context;
 
 namespace WorkoutTracker.Persistence.Repositories.Base;
 
-internal class DbModelRepository<T> : IDisposable, IBaseRepository<T>
+internal abstract  class DbModelRepository<T> : IDisposable, IBaseRepository<T>
     where T : class, IDbModel
 {
     protected readonly WorkoutDbContext db;
@@ -20,83 +20,88 @@ internal class DbModelRepository<T> : IDisposable, IBaseRepository<T>
 
     protected readonly string entityName = typeof(T).Name;
 
-    public virtual async Task<T> AddAsync(T model)
+    public virtual async Task<T> AddAsync(T model, CancellationToken cancellationToken = default)
     {
         ArgumentValidator.ThrowIfIdNonZero(model.Id, entityName);
 
-        await dbSet.AddAsync(model);
-        await SaveChangesAsync();
+        await dbSet.AddAsync(model, cancellationToken);
+        await SaveChangesAsync(cancellationToken);
         return model;
     }
 
-    public virtual async Task AddRangeAsync(IEnumerable<T> entities)
+    public virtual async Task AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
     {
         foreach (var entity in entities)
             ArgumentValidator.ThrowIfIdNonZero(entity.Id, entityName);
 
-        await dbSet.AddRangeAsync(entities);
-        await SaveChangesAsync();
+        await dbSet.AddRangeAsync(entities, cancellationToken);
+        await SaveChangesAsync(cancellationToken);
     }
 
-    public virtual async Task RemoveAsync(long key)
+    public virtual async Task RemoveAsync(long key, CancellationToken cancellationToken = default)
     {
         ArgumentValidator.ThrowIfIdNonPositive(key, entityName);
 
-        var model = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, key, entityName);
+        var entity = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, key, entityName, cancellationToken);
 
-        dbSet.Remove(model);
-        await SaveChangesAsync();
+        dbSet.Remove(entity);
+        await SaveChangesAsync(cancellationToken);
     }
 
-    public virtual async Task RemoveRangeAsync(IEnumerable<T> entities)
+    public virtual async Task RemoveRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
     {
         foreach (var entity in entities)
             ArgumentValidator.ThrowIfIdNonPositive(entity.Id, entityName);
 
         dbSet.RemoveRange(entities);
-        await SaveChangesAsync();
+        await SaveChangesAsync(cancellationToken);
     }
 
-    public virtual async Task<IQueryable<T>> GetAllAsync()
-        => await Task.FromResult(dbSet);
+    public virtual IQueryable<T> GetAll()
+        => dbSet;
 
-    public virtual async Task<T?> GetByIdAsync(long key)
+    public virtual async Task<T?> GetByIdAsync(long key, CancellationToken cancellationToken = default)
     {
         ArgumentValidator.ThrowIfIdNonPositive(key, entityName);
 
-        var models = await GetAllAsync();
-        return await models.SingleOrDefaultAsync(m => m.Id == key);
+        return await GetAll().SingleOrDefaultAsync(m => m.Id == key);
     }
 
-    public virtual async Task<IQueryable<T>> FindAsync(Expression<Func<T, bool>> expression)
-    {
-        var models = await GetAllAsync();
-        return models.Where(expression);
-    }
+    public virtual IQueryable<T> Find(Expression<Func<T, bool>> expression)
+        => GetAll().Where(expression);
 
-    public virtual async Task<bool> ExistsAsync(long key)
+    public virtual async Task<bool> ExistsAsync(long key, CancellationToken cancellationToken = default)
     {
         ArgumentValidator.ThrowIfIdNonPositive(key, entityName);
 
-        return await dbSet.AnyAsync(m => m.Id == key);
+        return await dbSet.AnyAsync(m => m.Id == key, cancellationToken);
     }
 
-    public virtual async Task UpdateAsync(T model)
+    public virtual async Task UpdateAsync(T model, CancellationToken cancellationToken = default)
     {
         ArgumentValidator.ThrowIfIdNonPositive(model.Id, entityName);
 
         dbSet.Update(model);
-        await SaveChangesAsync();
+        await SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<bool> AnyAsync(Expression<Func<T, bool>> expression)
-       => await dbSet.AnyAsync(expression);
+    public virtual async Task UpdatePartialAsync(long id, Action<T> updateAction, CancellationToken cancellationToken = default)
+    {
+        var entity = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, id, entityName, cancellationToken);
 
-    public async Task<bool> AnyAsync()
-        => await dbSet.AnyAsync();
+        updateAction(entity);
+        dbSet.Update(entity);
+        await SaveChangesAsync(cancellationToken);
+    }
 
-    public virtual async Task SaveChangesAsync()
-        => await db.SaveChangesAsync();
+    public async Task<bool> AnyAsync(Expression<Func<T, bool>> expression, CancellationToken cancellationToken = default)
+       => await dbSet.AnyAsync(expression, cancellationToken);
+
+    public async Task<bool> AnyAsync(CancellationToken cancellationToken = default)
+        => await dbSet.AnyAsync(cancellationToken);
+
+    public virtual async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+        => await db.SaveChangesAsync(cancellationToken);
 
     bool disposed = false;
     protected virtual void Dispose(bool disposing)

@@ -18,30 +18,30 @@ internal class WorkoutRepository : BaseWorkoutRepository<Workout>, IWorkoutRepos
             .ThenInclude(erg => erg.ExerciseSets)
             .ThenInclude(er => er.Exercise);
 
-    public override Task<IQueryable<Workout>> GetAllAsync()
-        => Task.FromResult(GetWorkouts());
+    public override IQueryable<Workout> GetAll()
+        => GetWorkouts();
 
-    public override async Task<Workout?> GetByIdAsync(long key)
+    public override async Task<Workout?> GetByIdAsync(long key, CancellationToken cancellationToken)
     {
         return await dbSet
           .Where(w => w.Id == key)
           .Include(w => w.ExerciseSetGroups)!
             .ThenInclude(erg => erg.ExerciseSets)
             .ThenInclude(er => er.Exercise)
-          .FirstOrDefaultAsync();
+          .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public override async Task<Workout?> GetByNameAsync(string name)
+    public override async Task<Workout?> GetByNameAsync(string name, CancellationToken cancellationToken)
     {
         return await dbSet
           .Where(w => w.Name == name)
           .Include(w => w.ExerciseSetGroups)!
             .ThenInclude(erg => erg.ExerciseSets)
             .ThenInclude(er => er.Exercise)
-          .FirstOrDefaultAsync();
+          .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<Workout?> GetWorkoutByIdWithDetailsAsync(long key)
+    public async Task<Workout?> GetWorkoutByIdWithDetailsAsync(long key, CancellationToken cancellationToken)
     {
        return await dbSet
          .Where(w => w.Id == key)
@@ -60,10 +60,10 @@ internal class WorkoutRepository : BaseWorkoutRepository<Workout>, IWorkoutRepos
             .ThenInclude(er => er.Exercise)
             .ThenInclude(er => er!.WorkingMuscles)
 
-         .FirstOrDefaultAsync();
+         .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<Workout?> GetWorkoutByNameWithDetailsAsync(string name)
+    public async Task<Workout?> GetWorkoutByNameWithDetailsAsync(string name, CancellationToken cancellationToken)
     {
        return await dbSet
          .Where(w => w.Name == name)
@@ -82,6 +82,41 @@ internal class WorkoutRepository : BaseWorkoutRepository<Workout>, IWorkoutRepos
             .ThenInclude(er => er.Exercise)
             .ThenInclude(er => er!.WorkingMuscles)
 
-         .FirstOrDefaultAsync();
+         .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task IncreaseCountOfWorkoutsAsync(long workoutId, CancellationToken cancellationToken)
+    {
+        var increaseCountOfWorkoutsAction = new Action<Workout>(w =>
+        {
+            w.CountOfTrainings++;
+        });
+
+        await UpdatePartialAsync(workoutId, increaseCountOfWorkoutsAction, cancellationToken);
+    }
+
+    public async Task DecreaseCountOfWorkoutsAsync(long workoutId, CancellationToken cancellationToken)
+    {
+        var increaseCountOfWorkoutsAction = new Action<Workout>(w =>
+        {
+            w.CountOfTrainings--;
+        });
+
+        await UpdatePartialAsync(workoutId, increaseCountOfWorkoutsAction, cancellationToken);
+    }
+
+    public IQueryable<Workout> GetUserWorkouts(string userId, long? exerciseId)
+    {
+        var userWorkouts = Find(e => e.UserId == userId);
+
+        if (exerciseId.HasValue)
+        {
+            userWorkouts = userWorkouts
+                .Where(w => w.ExerciseSetGroups!.Any(s => s.ExerciseId == exerciseId))
+                .Include(w => w.ExerciseSetGroups!.Where(s => s.ExerciseId == exerciseId))
+                .ThenInclude(s => s.Exercise);
+        }
+
+        return userWorkouts;
     }
 }
