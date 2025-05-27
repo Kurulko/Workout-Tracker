@@ -66,7 +66,7 @@ internal class AccountService : IAccountService
         try
         {
             User user = register.ToUser();
-            user.Registered = DateTime.Now;
+            user.Registered = DateTime.UtcNow;
 
             await userRepository.CreateUserAsync(user, register.Password);
             await signInManager.SignInAsync(user, register.RememberMe);
