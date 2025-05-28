@@ -137,9 +137,8 @@ internal class WorkoutRecordService : DbModelService<WorkoutRecordService, Worko
     async Task UpdateUserFirstWorkoutDateAsync(string userId)
     {
         var user = (await userRepository.GetUserByIdAsync(userId))!;
-        var userWorkoutRecords = workoutRecordRepository.GetUserWorkoutRecords(userId, null, null);
 
-        var firstWorkoutDate = userWorkoutRecords?.MinBy(wr => wr.Date)?.Date;
+        var firstWorkoutDate = await workoutRecordRepository.GetFirstWorkoutDateAsync(userId);
         user.StartedWorkingOut = firstWorkoutDate;
 
         await userRepository.UpdateUserAsync(user)
