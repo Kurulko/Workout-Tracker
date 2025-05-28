@@ -1,6 +1,7 @@
 ﻿using WorkoutTracker.Application.Common.Exceptions;
 using WorkoutTracker.Application.Common.Extensions.Enums;
 using WorkoutTracker.Application.Common.Models;
+using WorkoutTracker.Application.Common.Validators;
 using WorkoutTracker.Application.Interfaces.Services;
 using WorkoutTracker.Application.Interfaces.Services.Progresses;
 using WorkoutTracker.Application.Interfaces.Services.Workouts;
@@ -47,8 +48,7 @@ internal class WorkoutProgressService : IWorkoutProgressService
 
     public async Task<CurrentUserProgress> CalculateCurrentUserProgressAsync(string userId, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(userId))
-            throw new ArgumentNullOrEmptyException("User ID");
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, nameof(userId));
 
         var workoutRecords = (await workoutRecordService.GetUserWorkoutRecordsAsync(userId, cancellationToken: cancellationToken))?.ToList();
 
@@ -85,8 +85,7 @@ internal class WorkoutProgressService : IWorkoutProgressService
 
     public async Task<WorkoutProgress> CalculateWorkoutProgressAsync(string userId, DateTimeRange? range, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(userId))
-            throw new ArgumentNullOrEmptyException("User ID");
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, nameof(userId));
 
         var workoutRecordsForMonth = (await workoutRecordService.GetUserWorkoutRecordsAsync(userId, range: range, cancellationToken: cancellationToken))!.ToList();
         var bodyWeightsForMonth = (await bodyWeightService.GetUserBodyWeightsInKilogramsAsync(userId, range: range, cancellationToken: cancellationToken))!.ToList();
