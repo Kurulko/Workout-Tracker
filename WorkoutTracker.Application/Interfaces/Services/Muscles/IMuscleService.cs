@@ -4,16 +4,19 @@ namespace WorkoutTracker.Application.Interfaces.Services.Muscles;
 
 public interface IMuscleService : IBaseService
 {
-    Task<Muscle?> GetMuscleByIdAsync(long muscleId, string userId, bool withDetails = false);
-    Task<Muscle?> GetMuscleByNameAsync(string name, string userId, bool withDetails = false);
+    Task<Muscle?> GetMuscleByIdAsync(long muscleId, string userId, CancellationToken cancellationToken = default);
+    Task<Muscle?> GetMuscleByNameAsync(string name, string userId, CancellationToken cancellationToken = default);
 
-    Task<IQueryable<Muscle>> GetMusclesAsync(long? parentMuscleId = null, bool? isMeasurable = null);
-    Task<IQueryable<Muscle>> GetParentMusclesAsync();
-    Task<IQueryable<Muscle>> GetChildMusclesAsync();
+    Task<Muscle?> GetMuscleByIdWithDetailsAsync(long muscleId, string userId, CancellationToken cancellationToken = default);
+    Task<Muscle?> GetMuscleByNameWithDetailsAsync(string name, string userId, CancellationToken cancellationToken = default);
 
-    Task<Muscle> AddMuscleAsync(Muscle muscle);
-    Task UpdateMuscleAsync(Muscle muscle);
-    Task UpdateMuscleChildrenAsync(long muscleId, IEnumerable<long>? muscleChildIDs);
+    Task<IEnumerable<Muscle>> GetMusclesAsync(long? parentMuscleId = null, bool? isMeasurable = null, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Muscle>> GetParentMusclesAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<Muscle>> GetChildMusclesAsync(CancellationToken cancellationToken = default);
 
-    Task DeleteMuscleAsync(long muscleId);
+    Task<Muscle> AddMuscleAsync(Muscle muscle, CancellationToken cancellationToken = default);
+    Task UpdateMuscleAsync(Muscle muscle, CancellationToken cancellationToken = default);
+    Task UpdateMuscleChildrenAsync(long muscleId, IEnumerable<long>? muscleChildIDs, CancellationToken cancellationToken = default);
+
+    Task DeleteMuscleAsync(long muscleId, CancellationToken cancellationToken = default);
 }

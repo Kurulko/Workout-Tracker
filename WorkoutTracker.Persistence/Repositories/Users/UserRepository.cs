@@ -6,7 +6,7 @@ using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Domain.Entities.Muscles;
 using WorkoutTracker.Domain.Entities.Workouts;
 using WorkoutTracker.Infrastructure.Identity.Entities;
-using WorkoutTracker.Infrastructure.Identity.Extensions;
+using WorkoutTracker.Application.Common.Extensions;
 using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
 using WorkoutTracker.Application.Common.Validators;
 
@@ -33,9 +33,7 @@ public class UserRepository : IUserRepository
             await ArgumentValidator.EnsureNonExistsByNameAsync(GetByUsernameAsync, user.UserName!);
 
             var result = await userManager.CreateAsync(user);
-
-            if (!result.Succeeded)
-                throw new ValidationException($"Failed to add user: {result.IdentityErrorsToString()}");
+            ArgumentValidator.ThrowIfNotSucceeded("add", "user", result);
 
             return user;
         }
@@ -52,9 +50,7 @@ public class UserRepository : IUserRepository
             ArgumentValidator.ThrowIfArgumentNullOrEmpty(password, nameof(password));
 
             var result = await userManager.CreateAsync(user, password);
-
-            if (!result.Succeeded)
-                throw new ValidationException($"Failed to create user: {result.IdentityErrorsToString()}");
+            ArgumentValidator.ThrowIfNotSucceeded("create", "user", result);
         }
     }
 
@@ -73,9 +69,7 @@ public class UserRepository : IUserRepository
         existingUser.StartedWorkingOut = user.StartedWorkingOut;
 
         var result = await userManager.UpdateAsync(existingUser);
-
-        if (!result.Succeeded)
-            throw new ValidationException($"Failed to update user: {result.IdentityErrorsToString()}");
+        ArgumentValidator.ThrowIfNotSucceeded("update", userEntityName, result);
     }
 
     public async Task DeleteUserAsync(string userId)
@@ -85,9 +79,7 @@ public class UserRepository : IUserRepository
         var user = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, userId, userEntityName);
 
         var result = await userManager.DeleteAsync(user);
-
-        if (!result.Succeeded)
-            throw new ValidationException($"Failed to delete user: {result.IdentityErrorsToString()}");
+        ArgumentValidator.ThrowIfNotSucceeded("delete", "user", result);
     }
 
     public async Task<User?> GetUserByIdAsync(string userId)
@@ -112,9 +104,8 @@ public class UserRepository : IUserRepository
 
     }
 
-    public virtual async Task<IQueryable<User>> GetUsersAsync()
-        => await Task.FromResult(Users);
-
+    public IQueryable<User> GetUsers()
+        => Users;
 
     public async Task<bool> AnyUsersAsync()
         => await Users.AnyAsync();
@@ -138,6 +129,18 @@ public class UserRepository : IUserRepository
         ArgumentValidator.ThrowIfArgumentNullOrEmpty(email, nameof(User.Email));
 
         return await GetByEmailAsync(email) != null;
+    }
+
+    public async Task<string?> GetUserIdByUsernameAsync(string userName)
+    {
+        var userByUsername = await GetUserByUsernameAsync(userName);
+        return userByUsername?.Id;
+    }
+
+    public async Task<string?> GetUserNameByIdAsync(string userId)
+    {
+        var userById = await GetUserByIdAsync(userId);
+        return userById?.UserName;
     }
 
     #endregion
@@ -220,10 +223,9 @@ public class UserRepository : IUserRepository
         ArgumentValidator.ThrowIfArgumentNullOrEmpty(newPassword, "New Password");
 
         var user = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, userId, userEntityName);
-        var result = await userManager.ChangePasswordAsync(user, oldPassword, newPassword);
 
-        if (!result.Succeeded)
-            throw new ValidationException($"Failed to change password: {result.IdentityErrorsToString()}");
+        var result = await userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+        ArgumentValidator.ThrowIfNotSucceeded("change", "password", result);
     }
 
     public async Task AddUserPasswordAsync(string userId, string newPassword)
@@ -232,10 +234,9 @@ public class UserRepository : IUserRepository
         ArgumentValidator.ThrowIfArgumentNullOrEmpty(newPassword, "New Password");
 
         var user = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, userId, userEntityName);
-        var result = await userManager.AddPasswordAsync(user, newPassword);
 
-        if (!result.Succeeded)
-            throw new ValidationException($"Failed to add password: {result.IdentityErrorsToString()}");
+        var result = await userManager.AddPasswordAsync(user, newPassword);
+        ArgumentValidator.ThrowIfNotSucceeded("add", "password", result);
     }
 
     public async Task<bool> HasUserPasswordAsync(string userId)
@@ -263,10 +264,26 @@ public class UserRepository : IUserRepository
         ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
 
         var user = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, userId, userEntityName);
-        var result = await userManager.AddToRolesAsync(user, roles);
 
-        if (!result.Succeeded)
-            throw new ValidationException($"Failed to add roles: {result.IdentityErrorsToString()}");
+        var result = await userManager.AddToRolesAsync(user, roles);
+        ArgumentValidator.ThrowIfNotSucceeded("add", "roles", result);
+    }
+
+
+    public async Task<IEnumerable<User>> GetUsersByRoleAsync(string roleName)
+    {
+        var users = GetUsers();
+        var usersByRole = new List<User>();
+
+        foreach (var user in users)
+        {
+            var userRoles = (await GetUserRolesAsync(user.Id))!;
+
+            if (userRoles.Contains(roleName))
+                usersByRole.Add(user);
+        }
+
+        return usersByRole;
     }
 
     public async Task DeleteRoleFromUserAsync(string userId, string roleName)
@@ -274,10 +291,9 @@ public class UserRepository : IUserRepository
         ArgumentValidator.ThrowIfIdNullOrEmpty(userId, userEntityName);
 
         var user = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, userId, userEntityName);
-        var result = await userManager.RemoveFromRoleAsync(user, roleName);
 
-        if (!result.Succeeded)
-            throw new ValidationException($"Failed to remove role: {result.IdentityErrorsToString()}");
+        var result = await userManager.RemoveFromRoleAsync(user, roleName);
+        ArgumentValidator.ThrowIfNotSucceeded("remove", "role", result);
     }
 
     #endregion

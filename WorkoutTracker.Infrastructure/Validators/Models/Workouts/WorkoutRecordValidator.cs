@@ -1,6 +1,5 @@
 ﻿using WorkoutTracker.Application.Common.Validators;
 using WorkoutTracker.Application.Interfaces.Repositories.Workouts;
-using WorkoutTracker.Domain.Entities.Muscles;
 using WorkoutTracker.Domain.Entities.Workouts;
 using WorkoutTracker.Infrastructure.Validators.Models.Base;
 

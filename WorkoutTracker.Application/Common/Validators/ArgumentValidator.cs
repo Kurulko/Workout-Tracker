@@ -1,10 +1,10 @@
-﻿using Microsoft.Win32;
-using System.Collections;
+﻿using Microsoft.AspNetCore.Identity;
 using System.Numerics;
 using WorkoutTracker.Application.Common.Exceptions;
 using WorkoutTracker.Application.Common.Models;
 using WorkoutTracker.Domain.Base;
 using WorkoutTracker.Domain.ValueObjects;
+using WorkoutTracker.Application.Common.Extensions;
 
 namespace WorkoutTracker.Application.Common.Validators;
 
@@ -48,6 +48,16 @@ public static class ArgumentValidator
     {
         if (entry is null)
             throw NotFoundException.NotFoundExceptionByName(paramName, name);
+    }
+
+    public static async Task<TOutput> EnsureExistsByIdAsync<TInput, TOutput>(Func<TInput, CancellationToken, Task<TOutput?>> fetchFunc, TInput id, string paramName, CancellationToken cancellationToken = default) 
+        where TOutput : class
+    {
+        var result = await fetchFunc(id, cancellationToken);
+
+        ThrowIfNotFoundById(result, paramName, id!);
+
+        return result!;
     }
 
     public static async Task<TOutput> EnsureExistsByIdAsync<TInput, TOutput>(Func<TInput, Task<TOutput?>> fetchFunc, TInput id, string paramName) 
@@ -138,6 +148,15 @@ public static class ArgumentValidator
             throw new ValidationException($"An entity with '{name}' name already exists.");
     }
 
+    public static async Task EnsureNonExistsByNameAsync<T>(Func<string, CancellationToken, Task<T?>> fetchFunc, string name, CancellationToken cancellationToken = default)
+         where T : class
+    {
+        var result = await fetchFunc(name, cancellationToken);
+
+        if (result is not null)
+            throw new ValidationException($"An entity with '{name}' name already exists.");
+    }
+
     public static async Task EnsureNonExistsByEmailAsync<T>(Func<string, Task<T?>> fetchFunc, string? email)
          where T : class
     {
@@ -159,11 +178,27 @@ public static class ArgumentValidator
             throw new ValidationException($"{propertyName} must be unique."); ;
     }
 
+    public static async Task EnsureNameUniqueAsync<T>(Func<string, CancellationToken, Task<T?>> fetchFunc, string name, long id, string propertyName, CancellationToken cancellationToken = default)
+         where T : class, IDbModel
+    {
+        var result = await fetchFunc(name, cancellationToken);
+
+        if (result != null && result.Id != id)
+            throw new ValidationException($"{propertyName} must be unique."); ;
+    }
+
     public static void ThrowIfCollectionNullOrEmpty<T>(IEnumerable<T> collection, string propertyName)
     {
         if (collection is null || collection.Count() == 0)
             throw new ValidationException($"{propertyName} collection cannot be null or empty.");
     }
+
+    public static void ThrowIfNotSucceeded(string action, string entity, IdentityResult result)
+    {
+        if (!result.Succeeded)
+            throw new ValidationException(FailedToAction(action, entity, result));
+    }
+
 
 
     #endregion
@@ -189,4 +224,7 @@ public static class ArgumentValidator
     }
 
     #endregion
+
+    static string FailedToAction(string action, string entity, IdentityResult result)
+        => $"Failed to {action} {entity}: {result.IdentityErrorsToString()}";
 }

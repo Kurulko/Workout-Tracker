@@ -1,137 +1,108 @@
-﻿using WorkoutTracker.Application.Common.Exceptions;
-using WorkoutTracker.Application.Common.Models;
-using WorkoutTracker.Application.Common.Results;
+﻿using WorkoutTracker.Application.Common.Models;
 using WorkoutTracker.Application.Interfaces.Repositories;
 using WorkoutTracker.Application.Interfaces.Services;
 using WorkoutTracker.Domain.Entities;
-using WorkoutTracker.Domain.ValueObjects;
-using WorkoutTracker.Infrastructure.Identity.Interfaces.Repositories;
 using WorkoutTracker.Infrastructure.Services.Base;
-using WorkoutTracker.Application.Common.Extensions;
 using Microsoft.Extensions.Logging;
 using WorkoutTracker.Infrastructure.Extensions;
 using WorkoutTracker.Infrastructure.Validators.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace WorkoutTracker.Infrastructure.Services;
 
 internal class BodyWeightService : DbModelService<BodyWeightService, BodyWeight>, IBodyWeightService
 {
     readonly BodyWeightServiceValidator bodyWeightServiceValidator;
-
+    readonly IBodyWeightRepository bodyWeightRepository;
     public BodyWeightService(
-        IBodyWeightRepository baseRepository,
+        IBodyWeightRepository bodyWeightRepository,
         BodyWeightServiceValidator bodyWeightServiceValidator,
         ILogger<BodyWeightService> logger
-    ) : base(baseRepository, logger)
+    ) : base(bodyWeightRepository, logger)
     {
+        this.bodyWeightRepository = bodyWeightRepository;
         this.bodyWeightServiceValidator = bodyWeightServiceValidator;
     }
 
-    public async Task<BodyWeight> AddBodyWeightToUserAsync(string userId, BodyWeight bodyWeight)
+    const string bodyWeightEntityName = "body weight";
+
+    public async Task<BodyWeight> AddBodyWeightToUserAsync(string userId, BodyWeight bodyWeight, CancellationToken cancellationToken)
     {
-        await bodyWeightServiceValidator.ValidateAddAsync(userId, bodyWeight);
+        await bodyWeightServiceValidator.ValidateAddAsync(userId, bodyWeight, cancellationToken);
 
         bodyWeight.UserId = userId;
 
-        return await baseRepository.AddAsync(bodyWeight)
-            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weight", "add", userId));
+        return await bodyWeightRepository.AddAsync(bodyWeight)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(bodyWeightEntityName, "add", userId));
     }
 
-    public async Task UpdateUserBodyWeightAsync(string userId, BodyWeight bodyWeight)
+    public async Task UpdateUserBodyWeightAsync(string userId, BodyWeight bodyWeight, CancellationToken cancellationToken)
     {
-        await bodyWeightServiceValidator.ValidateUpdateAsync(userId, bodyWeight);
+        await bodyWeightServiceValidator.ValidateUpdateAsync(userId, bodyWeight, cancellationToken);
 
-        var _bodyWeight = (await baseRepository.GetByIdAsync(bodyWeight.Id))!;
-
-        _bodyWeight.Weight = bodyWeight.Weight;
-        _bodyWeight.Date = bodyWeight.Date;
-
-        await baseRepository.UpdateAsync(_bodyWeight)
-            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weight", "update", userId));
-    }
-
-    public async Task DeleteBodyWeightFromUserAsync(string userId, long bodyWeightId)
-    {
-        await bodyWeightServiceValidator.ValidateDeleteAsync(userId, bodyWeightId);
-
-        await baseRepository.RemoveAsync(bodyWeightId)
-            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weight", "delete", userId));
-    }
-
-    async Task<IQueryable<BodyWeight>> GetUserBodyWeightsAsync(string userId, DateTimeRange? range = null)
-    {
-        await bodyWeightServiceValidator.ValidateGetAllAsync(userId, range);
-
-        IEnumerable<BodyWeight> userBodyWeights = (await baseRepository.FindAsync(wr => wr.UserId == userId)
-            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weights", "get", userId)))
-            .ToList();
-
-        if (range is not null)
-            userBodyWeights = userBodyWeights.Where(bw => range.IsDateInRange(bw.Date, true));
-
-        return userBodyWeights.AsQueryable();
-    }
-
-    public async Task<IQueryable<BodyWeight>> GetUserBodyWeightsInPoundsAsync(string userId, DateTimeRange? range = null)
-    {
-        var userBodyWeights = await GetUserBodyWeightsAsync(userId, range);
-
-        var userBodyWeightsInPounds = userBodyWeights.ToList().Select(m =>
+        var updateAction = new Action<BodyWeight>(bw =>
         {
-            m.Weight = ModelWeight.GetModelWeightInPounds(m.Weight);
-            return m;
-        }).AsQueryable();
+            bw.Weight = bodyWeight.Weight;
+            bw.Date = bodyWeight.Date;
+        });
 
-        return userBodyWeightsInPounds;
+        await bodyWeightRepository.UpdatePartialAsync(bodyWeight.Id, updateAction, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(bodyWeightEntityName, "update", userId));
     }
 
-    public async Task<IQueryable<BodyWeight>> GetUserBodyWeightsInKilogramsAsync(string userId, DateTimeRange? range = null)
+    public async Task DeleteBodyWeightFromUserAsync(string userId, long bodyWeightId, CancellationToken cancellationToken)
     {
-        var userBodyWeights = await GetUserBodyWeightsAsync(userId, range);
+        await bodyWeightServiceValidator.ValidateDeleteAsync(userId, bodyWeightId, cancellationToken);
 
-        var userBodyWeightsInKilograms = userBodyWeights.ToList().Select(m =>
-        {
-            m.Weight = ModelWeight.GetModelWeightInKilos(m.Weight);
-            return m;
-        }).AsQueryable();
-
-        return userBodyWeightsInKilograms;
+        await bodyWeightRepository.RemoveAsync(bodyWeightId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(bodyWeightEntityName, "delete", userId));
     }
 
-    public async Task<BodyWeight?> GetCurrentUserBodyWeightAsync(string userId)
+    public async Task<IEnumerable<BodyWeight>> GetUserBodyWeightsInPoundsAsync(string userId, DateTimeRange? range, CancellationToken cancellationToken)
     {
-        await bodyWeightServiceValidator.ValidateGetCurrentAsync(userId);
+        await bodyWeightServiceValidator.ValidateGetAllAsync(userId, range, cancellationToken);
 
-        var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId)
+        return await bodyWeightRepository.GetUserBodyWeightsInPoundsAsync(userId, range, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weights in pounds", "get", userId));
+    }
+
+    public async Task<IEnumerable<BodyWeight>> GetUserBodyWeightsInKilogramsAsync(string userId, DateTimeRange? range, CancellationToken cancellationToken)
+    {
+        await bodyWeightServiceValidator.ValidateGetAllAsync(userId, range, cancellationToken);
+
+        return await bodyWeightRepository.GetUserBodyWeightsInKilogramsAsync(userId, range, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weights in kilograms", "get", userId));
+    }
+
+    public async Task<BodyWeight?> GetCurrentUserBodyWeightAsync(string userId, CancellationToken cancellationToken)
+    {
+        await bodyWeightServiceValidator.ValidateGetCurrentAsync(userId, cancellationToken);
+
+        return await bodyWeightRepository.GetCurrentUserBodyWeightAsync(userId, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionForUserStr("current body weight", "get", userId));
-        return userBodyWeights?.ToList().MaxBy(bw => bw.Date);
     }
 
-    public async Task<BodyWeight?> GetMaxUserBodyWeightAsync(string userId)
+    public async Task<BodyWeight?> GetMaxUserBodyWeightAsync(string userId, CancellationToken cancellationToken)
     {
-        await bodyWeightServiceValidator.ValidateGetMaxAsync(userId);
+        await bodyWeightServiceValidator.ValidateGetMaxAsync(userId, cancellationToken);
 
-        var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId)
+        return await bodyWeightRepository.GetMaxUserBodyWeightAsync(userId, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionForUserStr("max body weight", "get", userId));
-
-        return userBodyWeights?.ToList().MaxBy(bw => bw.Weight);
     }
 
-    public async Task<BodyWeight?> GetMinUserBodyWeightAsync(string userId)
+    public async Task<BodyWeight?> GetMinUserBodyWeightAsync(string userId, CancellationToken cancellationToken)
     {
-        await bodyWeightServiceValidator.ValidateGetAllAsync(userId, null);
+        await bodyWeightServiceValidator.ValidateGetAllAsync(userId, null, cancellationToken);
 
-        var userBodyWeights = await baseRepository.FindAsync(bw => bw.UserId == userId)
+        return await bodyWeightRepository.GetMinUserBodyWeightAsync(userId, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionForUserStr("min body weight", "get", userId));
-
-        return userBodyWeights?.ToList().MinBy(bw => bw.Weight);
     }
 
-    public async Task<BodyWeight?> GetUserBodyWeightByIdAsync(string userId, long bodyWeightId)
+    public async Task<BodyWeight?> GetUserBodyWeightByIdAsync(string userId, long bodyWeightId, CancellationToken cancellationToken)
     {
-        await bodyWeightServiceValidator.ValidateGetByIdAsync(userId, bodyWeightId);
+        await bodyWeightServiceValidator.ValidateGetByIdAsync(userId, bodyWeightId, cancellationToken);
 
-        return await baseRepository.GetByIdAsync(bodyWeightId)
-            .LogExceptionsAsync(_logger, FailedToActionForUserStr("body weight", "get", userId));
+        return await bodyWeightRepository.GetByIdAsync(bodyWeightId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(bodyWeightEntityName, "get", userId));
     }
 }

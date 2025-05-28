@@ -54,7 +54,7 @@ public class UsersController : APIController
 
         var users = await userService.GetUsersAsync();
 
-        var userDTOs = users.ToList().Select(mapper.Map<UserDTO>);
+        var userDTOs = users.Select(mapper.Map<UserDTO>);
         return await ApiResult<UserDTO>.CreateAsync(
             userDTOs.AsQueryable(),
             pageIndex,
@@ -221,27 +221,27 @@ public class UsersController : APIController
     }
 
     [HttpPost("user-details")]
-    public async Task<IActionResult> AddUserDetailsToCurrentUserAsync([FromBody] UserDetailsDTO userDetailsDTO)
+    public async Task<IActionResult> AddUserDetailsToCurrentUserAsync([FromBody] UserDetailsDTO userDetailsDTO, CancellationToken cancellationToken)
     {
         if (userDetailsDTO is null)
             return UserDetailsIsNull();
 
         string userId = httpContextAccessor.GetUserId()!;
         var userDetails = mapper.Map<UserDetails>(userDetailsDTO);
-        await userService.AddUserDetailsToUserAsync(userId, userDetails);
+        await userService.AddUserDetailsToUserAsync(userId, userDetails, cancellationToken);
 
         return Ok();
     }
 
     [HttpPut("user-details")]
-    public async Task<IActionResult> UpdateCurrentUserUserDetailsAsync([FromBody] UserDetailsDTO userDetailsDTO)
+    public async Task<IActionResult> UpdateCurrentUserUserDetailsAsync([FromBody] UserDetailsDTO userDetailsDTO, CancellationToken cancellationToken)
     {
         if (userDetailsDTO is null)
             return UserDetailsIsNull();
 
         string userId = httpContextAccessor.GetUserId()!;
         var userDetails = mapper.Map<UserDetails>(userDetailsDTO);
-        await userService.UpdateUserDetailsFromUserAsync(userId, userDetails);
+        await userService.UpdateUserDetailsFromUserAsync(userId, userDetails, cancellationToken);
 
         return Ok();
     }
@@ -268,9 +268,9 @@ public class UsersController : APIController
         if (userMuscleSizes is null)
             return EntryNotFound("User muscle sizes");
 
-        var userMuscleSizeDTOs = userMuscleSizes.Select(m => mapper.Map<MuscleSizeDTO>(m));
+        var userMuscleSizeDTOs = userMuscleSizes.Select(mapper.Map<MuscleSizeDTO>);
         return await ApiResult<MuscleSizeDTO>.CreateAsync(
-            userMuscleSizeDTOs,
+            userMuscleSizeDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,
@@ -298,9 +298,9 @@ public class UsersController : APIController
         if (userBodyWeights is null)
             return EntryNotFound("User body weights");
 
-        var userBodyWeightDTOs = userBodyWeights.Select(m => mapper.Map<BodyWeightDTO>(m));
+        var userBodyWeightDTOs = userBodyWeights.Select(mapper.Map<BodyWeightDTO>);
         return await ApiResult<BodyWeightDTO>.CreateAsync(
-            userBodyWeightDTOs,
+            userBodyWeightDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,
@@ -328,9 +328,9 @@ public class UsersController : APIController
         if (userWorkouts is null)
             return EntryNotFound("User workouts");
 
-        var userWorkoutDTOs = userWorkouts.Select(m => mapper.Map<WorkoutDTO>(m));
+        var userWorkoutDTOs = userWorkouts.Select(mapper.Map<WorkoutDTO>);
         return await ApiResult<WorkoutDTO>.CreateAsync(
-            userWorkoutDTOs,
+            userWorkoutDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,
@@ -358,9 +358,9 @@ public class UsersController : APIController
         if (userCreatedExercises is null)
             return EntryNotFound("User created exercises");
 
-        var userCreatedExerciseDTOs = userCreatedExercises.Select(m => mapper.Map<ExerciseDTO>(m));
+        var userCreatedExerciseDTOs = userCreatedExercises.Select(mapper.Map<ExerciseDTO>);
         return await ApiResult<ExerciseDTO>.CreateAsync(
-            userCreatedExerciseDTOs,
+            userCreatedExerciseDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,
@@ -388,9 +388,9 @@ public class UsersController : APIController
         if (userEquipments is null)
             return EntryNotFound("User equipments");
 
-        var userEquipmentDTOs = userEquipments.Select(m => mapper.Map<EquipmentDTO>(m));
+        var userEquipmentDTOs = userEquipments.Select(mapper.Map<EquipmentDTO>);
         return await ApiResult<EquipmentDTO>.CreateAsync(
-            userEquipmentDTOs,
+            userEquipmentDTOs.AsQueryable(),
             pageIndex,
             pageSize,
             sortColumn,

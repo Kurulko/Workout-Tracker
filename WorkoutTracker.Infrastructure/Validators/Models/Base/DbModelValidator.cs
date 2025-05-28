@@ -16,15 +16,15 @@ public abstract class DbModelValidator<T> : IModelValidator<T, long>
         this.baseRepository = baseRepository;
     }
 
-    public virtual async Task ValidateForAddAsync(T model)
+    public virtual async Task ValidateForAddAsync(T model, CancellationToken cancellationToken)
     {
-        await EnsureNonExistsAsync(model.Id);
+        await EnsureNonExistsAsync(model.Id, cancellationToken);
         Validate(model);
     }
 
-    public virtual async Task<T> ValidateForEditAsync(T model)
+    public virtual async Task<T> ValidateForEditAsync(T model, CancellationToken cancellationToken)
     {
-        var entity = await EnsureExistsAsync(model.Id);
+        var entity = await EnsureExistsAsync(model.Id, cancellationToken);
         Validate(model);
 
         return entity;
@@ -32,14 +32,14 @@ public abstract class DbModelValidator<T> : IModelValidator<T, long>
 
     public abstract void Validate(T model);
 
-    public virtual async Task<T> EnsureExistsAsync(long id)
+    public virtual async Task<T> EnsureExistsAsync(long id, CancellationToken cancellationToken)
     {
         ArgumentValidator.ThrowIfIdNonPositive(id, modelEntryName);
 
-        return await ArgumentValidator.EnsureExistsByIdAsync(baseRepository.GetByIdAsync, id, modelEntryName);
+        return await ArgumentValidator.EnsureExistsByIdAsync(baseRepository.GetByIdAsync, id, modelEntryName, cancellationToken);
     }
 
-    public virtual Task EnsureNonExistsAsync(long id)
+    public virtual Task EnsureNonExistsAsync(long id, CancellationToken cancellationToken)
     {
         ArgumentValidator.ThrowIfIdNonZero(id, modelEntryName);
         return Task.CompletedTask;

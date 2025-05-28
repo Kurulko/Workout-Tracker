@@ -9,5 +9,6 @@ public class BodyWeightProfile : Profile
     public BodyWeightProfile()
     {
         CreateMap<BodyWeightDTO, BodyWeight>().ReverseMap();
+        CreateMap<BodyWeightCreationDTO, BodyWeight>().ReverseMap();
     }
 }

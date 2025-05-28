@@ -1,6 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using WorkoutTracker.Application.Common.Exceptions;
-using WorkoutTracker.Application.Common.Results;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using WorkoutTracker.Application.Interfaces.Repositories;
 using WorkoutTracker.Application.Interfaces.Repositories.Exercises;
 using WorkoutTracker.Application.Interfaces.Repositories.Exercises.ExerciseRecords;
@@ -46,108 +45,110 @@ internal class ExerciseService : BaseWorkoutService<ExerciseService, Exercise>, 
 
     const string internalExerciseEntityName = "internal exercise";
 
-    public async Task<Exercise> AddInternalExerciseAsync(Exercise exercise)
+    public async Task<Exercise> AddInternalExerciseAsync(Exercise exercise, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateAddInternalAsync(exercise);
+        await exerciseServiceValidator.ValidateAddInternalAsync(exercise, cancellationToken);
 
-        return await baseWorkoutRepository.AddAsync(exercise)
+        return await exerciseRepository.AddAsync(exercise, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr(internalExerciseEntityName, "add"));
     }
 
-    public async Task DeleteInternalExerciseAsync(long exerciseId)
+    public async Task DeleteInternalExerciseAsync(long exerciseId, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateDeleteInternalAsync(exerciseId);
+        await exerciseServiceValidator.ValidateDeleteInternalAsync(exerciseId, cancellationToken);
 
-        var exercise = (await baseWorkoutRepository.GetByIdAsync(exerciseId))!;
+        var exercise = (await exerciseRepository.GetByIdAsync(exerciseId, cancellationToken))!;
         string? exerciseImage = exercise.Image;
 
-        await baseWorkoutRepository.RemoveAsync(exerciseId)
+        await exerciseRepository.RemoveAsync(exerciseId, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr(internalExerciseEntityName, "delete"));
 
         if (!string.IsNullOrEmpty(exerciseImage))
-        {
             fileService.DeleteFile(exerciseImage);
-        }
     }
 
-    public async Task<Exercise?> GetInternalExerciseByIdAsync(string userId, long exerciseId, bool withDetails = false)
+    public async Task<Exercise?> GetInternalExerciseByIdAsync(string userId, long exerciseId, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateGetInternalByIdAsync(userId, exerciseId, withDetails);
+        await exerciseServiceValidator.ValidateGetInternalByIdAsync(exerciseId, cancellationToken);
 
-        var exercise = await (withDetails ?
-            exerciseRepository.GetExerciseByIdWithDetailsAsync(exerciseId, userId) :
-            baseWorkoutRepository.GetByIdAsync(exerciseId)
-        )
-        .LogExceptionsAsync(_logger, FailedToActionStr(internalExerciseEntityName, "get"));
+        var exercise = await exerciseRepository.GetByIdAsync(exerciseId, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr(internalExerciseEntityName, "get"));
 
         return exercise;
     }
 
-    public async Task<Exercise?> GetInternalExerciseByNameAsync(string userId, string name, bool withDetails = false)
+    public async Task<Exercise?> GetInternalExerciseByNameAsync(string userId, string name, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateGetInternalByNameAsync(userId, name, withDetails);
+        await exerciseServiceValidator.ValidateGetInternalByNameAsync(name, cancellationToken);
 
-        var exercise = await (withDetails ?
-            exerciseRepository.GetExerciseByNameWithDetailsAsync(name, userId) :
-            baseWorkoutRepository.GetByNameAsync(name)
-        )
-        .LogExceptionsAsync(_logger, FailedToActionStr(internalExerciseEntityName, "get"));
+        var exercise = await exerciseRepository.GetByNameAsync(name, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr(internalExerciseEntityName, "get"));
 
         return exercise;
     }
 
-    public async Task<IQueryable<Exercise>> GetInternalExercisesAsync(ExerciseType? exerciseType = null)
+    public async Task<Exercise?> GetInternalExerciseByIdWithDetailsAsync(string userId, long exerciseId, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateGetAllInternalAsync(exerciseType);
+        await exerciseServiceValidator.ValidateGetInternalByIdWithDetailsAsync(userId, exerciseId, cancellationToken);
 
-        var exercises = await baseWorkoutRepository.FindAsync(e => e.CreatedByUserId == null)
+        var exercise = await exerciseRepository.GetExerciseByIdWithDetailsAsync(exerciseId, userId, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr(internalExerciseEntityName, "get"));
+
+        return exercise;
+    }
+
+    public async Task<Exercise?> GetInternalExerciseByNameWithDetailsAsync(string userId, string name, CancellationToken cancellationToken)
+    {
+        await exerciseServiceValidator.ValidateGetInternalByNameWithDetailsAsync(userId, name, cancellationToken);
+
+        var exercise = await exerciseRepository.GetExerciseByNameWithDetailsAsync(name, userId, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr(internalExerciseEntityName, "get"));
+
+        return exercise;
+    }
+
+    public async Task<IEnumerable<Exercise>> GetInternalExercisesAsync(ExerciseType? exerciseType, CancellationToken cancellationToken)
+    {
+        await exerciseServiceValidator.ValidateGetAllInternalAsync(exerciseType, cancellationToken);
+
+        var exercises = exerciseRepository.GetInternalExercises(exerciseType);
+
+        return await exercises.ToListAsync(cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr("internal exercises", "get"));
-
-        if (exerciseType is ExerciseType _exerciseType)
-            exercises = exercises.Where(e => e.Type == exerciseType);
-
-        return exercises;
     }
 
-    public async Task UpdateInternalExerciseAsync(Exercise exercise)
+    public async Task UpdateInternalExerciseAsync(Exercise exercise, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateUpdateInternalAsync(exercise);
+        await exerciseServiceValidator.ValidateUpdateInternalAsync(exercise, cancellationToken);
 
-        var _exercise = (await baseWorkoutRepository.GetByIdAsync(exercise.Id))!;
-
-        _exercise.Name = exercise.Name;
-        _exercise.Image = exercise.Image;
-        _exercise.Description = exercise.Description;
-        _exercise.Type = exercise.Type;
-
-        await baseWorkoutRepository.UpdateAsync(_exercise)
+        await exerciseRepository.UpdatePartialAsync(exercise.Id, ExerciseUpdateAction(exercise), cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr(internalExerciseEntityName, "update"));
     }
 
 
-    public async Task UpdateInternalExerciseMusclesAsync(long exerciseId, IEnumerable<long> muscleIds)
+    public async Task UpdateInternalExerciseMusclesAsync(long exerciseId, IEnumerable<long> muscleIds, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateUpdateInternalMusclesAsync(exerciseId, muscleIds);
+        await exerciseServiceValidator.ValidateUpdateInternalMusclesAsync(exerciseId, muscleIds, cancellationToken);
 
-        var exercise = (await baseWorkoutRepository.GetByIdAsync(exerciseId))!;
+        var updateWorkingMusclesAction = new Action<Exercise>(e =>
+        {
+            e.WorkingMuscles = [..muscleRepository.FindByIds(muscleIds)];
+        });
 
-        exercise.WorkingMuscles = (await muscleRepository.FindAsync(m => muscleIds.Contains(m.Id))).ToList();
-
-        await baseWorkoutRepository.UpdateAsync(exercise)
+        await exerciseRepository.UpdatePartialAsync(exerciseId, updateWorkingMusclesAction, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr($"{internalExerciseEntityName}'s muscles", "update"));
     }
 
-    public async Task UpdateInternalExerciseEquipmentsAsync(long exerciseId, IEnumerable<long> equipmentIds)
+    public async Task UpdateInternalExerciseEquipmentsAsync(long exerciseId, IEnumerable<long> equipmentIds, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateUpdateInternalEquipmentsAsync(exerciseId, equipmentIds);
+        await exerciseServiceValidator.ValidateUpdateInternalEquipmentsAsync(exerciseId, equipmentIds, cancellationToken);
 
-        var exercise = (await baseWorkoutRepository.GetByIdAsync(exerciseId))!;
+        var updateEquipmentsAction = new Action<Exercise>(e =>
+        {
+            e.Equipments = [..equipmentRepository.FindInternalByIds(equipmentIds)];
+        });
 
-        exercise.Equipments = (await equipmentRepository.FindAsync(m => equipmentIds.Contains(m.Id)))
-            .Where(e => e.OwnedByUserId == null) //only internal equipments for internal exercise
-            .ToList();
-
-        await baseWorkoutRepository.UpdateAsync(exercise)
+        await exerciseRepository.UpdatePartialAsync(exerciseId, updateEquipmentsAction, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr($"{internalExerciseEntityName}'s equipments", "update"));
     }
 
@@ -157,107 +158,111 @@ internal class ExerciseService : BaseWorkoutService<ExerciseService, Exercise>, 
 
     const string userExerciseEntityName = "user exercise";
 
-    public async Task<Exercise> AddUserExerciseAsync(string userId, Exercise exercise)
+    public async Task<Exercise> AddUserExerciseAsync(string userId, Exercise exercise, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateAddOwnedAsync(userId, exercise);
+        await exerciseServiceValidator.ValidateAddOwnedAsync(userId, exercise, cancellationToken);
 
         exercise.CreatedByUserId = userId;
 
-        return await baseWorkoutRepository.AddAsync(exercise)
+        return await exerciseRepository.AddAsync(exercise, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr(userExerciseEntityName, "add"));
     }
 
-    public async Task DeleteExerciseFromUserAsync(string userId, long exerciseId)
+    public async Task DeleteExerciseFromUserAsync(string userId, long exerciseId, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateDeleteOwnedAsync(userId, exerciseId);
+        await exerciseServiceValidator.ValidateDeleteOwnedAsync(userId, exerciseId, cancellationToken);
 
-        var exercise = (await baseWorkoutRepository.GetByIdAsync(exerciseId))!;
+        var exercise = (await exerciseRepository.GetByIdAsync(exerciseId, cancellationToken))!;
         string? exerciseImage = exercise.Image;
 
-        await baseWorkoutRepository.RemoveAsync(exerciseId)
+        await exerciseRepository.RemoveAsync(exerciseId, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr(userExerciseEntityName, "delete"));
 
         if (!string.IsNullOrEmpty(exerciseImage))
-        {
             fileService.DeleteFile(exerciseImage);
-        }
     }
 
-    public async Task<Exercise?> GetUserExerciseByIdAsync(string userId, long exerciseId, bool withDetails = false)
+    public async Task<Exercise?> GetUserExerciseByIdAsync(string userId, long exerciseId, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateGetOwnedByIdAsync(userId, exerciseId);
+        await exerciseServiceValidator.ValidateGetOwnedByIdAsync(userId, exerciseId, cancellationToken);
 
-        var exercise = await (withDetails ?
-            exerciseRepository.GetExerciseByIdWithDetailsAsync(exerciseId, userId) :
-            baseWorkoutRepository.GetByIdAsync(exerciseId)
-        )
-        .LogExceptionsAsync(_logger, FailedToActionStr(userExerciseEntityName, "get"));
+        var exercise = await exerciseRepository.GetByIdAsync(exerciseId, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr(userExerciseEntityName, "get"));
 
         return exercise;
     }
 
-    public async Task<Exercise?> GetUserExerciseByNameAsync(string userId, string name, bool withDetails = false)
+    public async Task<Exercise?> GetUserExerciseByNameAsync(string userId, string name, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateGetOwnedByNameAsync(userId, name);
+        await exerciseServiceValidator.ValidateGetOwnedByNameAsync(userId, name, cancellationToken);
 
-        var exercise = await (withDetails ?
-            exerciseRepository.GetExerciseByNameWithDetailsAsync(name, userId) :
-            baseWorkoutRepository.GetByNameAsync(name)
-        )
-        .LogExceptionsAsync(_logger, FailedToActionStr(userExerciseEntityName, "get"));
+        var exercise = await exerciseRepository.GetByNameAsync(name, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr(userExerciseEntityName, "get"));
 
         return exercise;
     }
 
-    public async Task<IQueryable<Exercise>> GetUserExercisesAsync(string userId, ExerciseType? exerciseType = null)
+    public async Task<Exercise?> GetUserExerciseByIdWithDetailsAsync(string userId, long exerciseId, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateGetAllOwnedAsync(userId, exerciseType);
+        await exerciseServiceValidator.ValidateGetOwnedByIdAsync(userId, exerciseId, cancellationToken);
 
-        var exercises = await baseWorkoutRepository.FindAsync(e => e.CreatedByUserId == null)
+        var exercise = await exerciseRepository.GetExerciseByIdWithDetailsAsync(exerciseId, userId, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr(userExerciseEntityName, "get"));
+
+        return exercise;
+    }
+
+    public async Task<Exercise?> GetUserExerciseByNameWithDetailsAsync(string userId, string name, CancellationToken cancellationToken)
+    {
+        await exerciseServiceValidator.ValidateGetOwnedByNameAsync(userId, name, cancellationToken);
+
+        var exercise = await exerciseRepository.GetExerciseByNameWithDetailsAsync(name, userId, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr(userExerciseEntityName, "get"));
+
+        return exercise;
+    }
+
+    public async Task<IEnumerable<Exercise>> GetUserExercisesAsync(string userId, ExerciseType? exerciseType, CancellationToken cancellationToken)
+    {
+        await exerciseServiceValidator.ValidateGetAllOwnedAsync(userId, exerciseType, cancellationToken);
+
+        var exercises = exerciseRepository.GetUserExercises(userId, exerciseType);
+
+        return await exercises.ToListAsync(cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr("user exercises", "get"));
-
-        if (exerciseType is ExerciseType _exerciseType)
-            exercises = exercises.Where(e => e.Type == exerciseType);
-
-        return exercises;
     }
 
-    public async Task UpdateUserExerciseAsync(string userId, Exercise exercise)
+    public async Task UpdateUserExerciseAsync(string userId, Exercise exercise, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateUpdateOwnedAsync(userId, exercise);
+        await exerciseServiceValidator.ValidateUpdateOwnedAsync(userId, exercise, cancellationToken);
 
-        var _exercise = (await baseWorkoutRepository.GetByIdAsync(exercise.Id))!;
-
-        _exercise.Name = exercise.Name;
-        _exercise.Image = exercise.Image;
-        _exercise.Description = exercise.Description;
-        _exercise.Type = exercise.Type;
-
-        await baseWorkoutRepository.UpdateAsync(_exercise)
+        await exerciseRepository.UpdatePartialAsync(exercise.Id, ExerciseUpdateAction(exercise), cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr(userExerciseEntityName, "update"));
     }
 
-    public async Task UpdateUserExerciseMusclesAsync(string userId, long exerciseId, IEnumerable<long> muscleIds)
+    public async Task UpdateUserExerciseMusclesAsync(string userId, long exerciseId, IEnumerable<long> muscleIds, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateUpdateOwnedMusclesAsync(userId, exerciseId, muscleIds);
+        await exerciseServiceValidator.ValidateUpdateOwnedMusclesAsync(userId, exerciseId, muscleIds, cancellationToken);
 
-        var exercise = (await baseWorkoutRepository.GetByIdAsync(exerciseId))!;
+        var updateWorkingMusclesAction = new Action<Exercise>(e =>
+        {
+            e.WorkingMuscles = [..muscleRepository.FindByIds(muscleIds)];
+        });
 
-        exercise.WorkingMuscles = (await muscleRepository.FindAsync(m => muscleIds.Contains(m.Id))).ToList();
-
-        await baseWorkoutRepository.UpdateAsync(exercise)
+        await exerciseRepository.UpdatePartialAsync(exerciseId, updateWorkingMusclesAction, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr($"{userExerciseEntityName}'s muscles", "update"));
     }
 
-    public async Task UpdateUserExerciseEquipmentsAsync(string userId, long exerciseId, IEnumerable<long> equipmentIds)
+    public async Task UpdateUserExerciseEquipmentsAsync(string userId, long exerciseId, IEnumerable<long> equipmentIds, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateUpdateOwnedEquipmentsAsync(userId, exerciseId, equipmentIds);
+        await exerciseServiceValidator.ValidateUpdateOwnedEquipmentsAsync(userId, exerciseId, equipmentIds, cancellationToken);
 
-        var exercise = (await baseWorkoutRepository.GetByIdAsync(exerciseId))!;
+        var updateEquipmentsAction = new Action<Exercise>(e =>
+        {
+            e.Equipments = [..equipmentRepository.FindByIds(equipmentIds)];
+        });
 
-        exercise.Equipments = (await equipmentRepository.FindAsync(m => equipmentIds.Contains(m.Id))).ToList();
-
-        await baseWorkoutRepository.UpdateAsync(exercise)
+        await exerciseRepository.UpdatePartialAsync(exerciseId, updateEquipmentsAction, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr($"{userExerciseEntityName}'s equipments", "update"));
     }
 
@@ -267,52 +272,62 @@ internal class ExerciseService : BaseWorkoutService<ExerciseService, Exercise>, 
 
     const string exerciseEntityName = "exercise";
 
-    public async Task<Exercise?> GetExerciseByIdAsync(string userId, long exerciseId, bool withDetails = false)
+    public async Task<Exercise?> GetExerciseByIdAsync(string userId, long exerciseId, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateGetByIdAsync(userId, exerciseId);
+        await exerciseServiceValidator.ValidateGetByIdAsync(userId, exerciseId, cancellationToken);
 
-        var exercise = await (withDetails ?
-            exerciseRepository.GetExerciseByIdWithDetailsAsync(exerciseId, userId) :
-            baseWorkoutRepository.GetByIdAsync(exerciseId)
-        )
-        .LogExceptionsAsync(_logger, FailedToActionStr(exerciseEntityName, "get"));
+        var exercise = await exerciseRepository.GetByIdAsync(exerciseId, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr(exerciseEntityName, "get"));
 
         return exercise;
     }
 
-    public async Task<Exercise?> GetExerciseByNameAsync(string userId, string name, bool withDetails = false)
+    public async Task<Exercise?> GetExerciseByNameAsync(string userId, string name, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateGetByNameAsync(userId, name);
+        await exerciseServiceValidator.ValidateGetByNameAsync(userId, name, cancellationToken);
 
-        var exercise = await (withDetails ?
-            exerciseRepository.GetExerciseByNameWithDetailsAsync(name, userId) :
-            baseWorkoutRepository.GetByNameAsync(name)
-        )
-        .LogExceptionsAsync(_logger, FailedToActionStr(exerciseEntityName, "get"));
+        var exercise = await exerciseRepository.GetByNameAsync(name, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr(exerciseEntityName, "get"));
 
         return exercise;
     }
 
-    public async Task<IQueryable<Exercise>> GetAllExercisesAsync(string userId, ExerciseType? exerciseType = null)
+    public async Task<Exercise?> GetExerciseByIdWithDetailsAsync(string userId, long exerciseId, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateGetAllAsync(userId, exerciseType);
+        await exerciseServiceValidator.ValidateGetByIdAsync(userId, exerciseId, cancellationToken);
 
-        var exercises = await baseWorkoutRepository.FindAsync(e => e.CreatedByUserId == userId || e.CreatedByUserId == null)
+        var exercise = await exerciseRepository.GetExerciseByIdWithDetailsAsync(exerciseId, userId, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr(exerciseEntityName, "get"));
+
+        return exercise;
+    }
+
+    public async Task<Exercise?> GetExerciseByNameWithDetailsAsync(string userId, string name, CancellationToken cancellationToken)
+    {
+        await exerciseServiceValidator.ValidateGetByNameAsync(userId, name, cancellationToken);
+
+        var exercise = await exerciseRepository.GetExerciseByNameWithDetailsAsync(name, userId, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr(exerciseEntityName, "get"));
+
+        return exercise;
+    }
+
+    public async Task<IEnumerable<Exercise>> GetAllExercisesAsync(string userId, ExerciseType? exerciseType, CancellationToken cancellationToken)
+    {
+        await exerciseServiceValidator.ValidateGetAllAsync(userId, exerciseType, cancellationToken);
+
+        var exercises = exerciseRepository.GetAllExercises(userId, exerciseType);
+
+        return await exercises.ToListAsync(cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr("exercises", "get"));
-
-        if (exerciseType is ExerciseType _exerciseType)
-            exercises = exercises.Where(e => e.Type == exerciseType);
-
-        return exercises;
     }
 
-    public async Task<IQueryable<Exercise>> GetUsedExercisesAsync(string userId, ExerciseType? exerciseType = null)
+    public async Task<IEnumerable<Exercise>> GetUsedExercisesAsync(string userId, ExerciseType? exerciseType, CancellationToken cancellationToken)
     {
-        await exerciseServiceValidator.ValidateGetUsedAsync(userId, exerciseType);
+        await exerciseServiceValidator.ValidateGetUsedAsync(userId, exerciseType, cancellationToken);
 
-        var exerciseRecords = await exerciseRecordRepository.GetExerciseRecordsByUserIdAsync(userId)
-            .LogExceptionsAsync(_logger, FailedToActionStr("used exercises", "get"));
-
+        var exerciseRecords = exerciseRecordRepository.GetUserExerciseRecords(userId);
+            
         var exercises = exerciseRecords
             .Select(er => er.Exercise!)
             .Distinct();
@@ -320,8 +335,22 @@ internal class ExerciseService : BaseWorkoutService<ExerciseService, Exercise>, 
         if (exerciseType is ExerciseType _exerciseType)
             exercises = exercises.Where(e => e.Type == exerciseType);
 
-        return exercises;
+        return await exercises.ToListAsync()
+            .LogExceptionsAsync(_logger, FailedToActionStr("used exercises", "get"));
     }
 
     #endregion
+
+    public Action<Exercise> ExerciseUpdateAction(Exercise exercise)
+    {
+        var updateAction = new Action<Exercise>(e =>
+        {
+            e.Name = exercise.Name;
+            e.Image = exercise.Image;
+            e.Description = exercise.Description;
+            e.Type = exercise.Type;
+        });
+
+        return updateAction;
+    }
 }

@@ -24,37 +24,37 @@ public class WorkoutProgressController : APIController
     }
 
     [HttpGet("current")]
-    public async Task<ActionResult<CurrentUserProgressDTO>> CalculateCurrentUserProgressAsync()
+    public async Task<ActionResult<CurrentUserProgressDTO>> CalculateCurrentUserProgressAsync(CancellationToken cancellationToken)
     {
         string userId = httpContextAccessor.GetUserId()!;
-        var currentUserProgress = await workoutProgressService.CalculateCurrentUserProgressAsync(userId);
+        var currentUserProgress = await workoutProgressService.CalculateCurrentUserProgressAsync(userId, cancellationToken);
         var currentUserProgressDTO = mapper.Map<CurrentUserProgressDTO>(currentUserProgress);
         return currentUserProgressDTO;
     }
 
     [HttpGet("total")]
-    public async Task<ActionResult<WorkoutProgressDTO>> CalculateWorkoutProgressByRangeAsync([FromQuery] DateTimeRange? range)
+    public async Task<ActionResult<WorkoutProgressDTO>> CalculateWorkoutProgressByRangeAsync([FromQuery] DateTimeRange? range, CancellationToken cancellationToken)
     {
         string userId = httpContextAccessor.GetUserId()!;
-        var workoutProgress = await workoutProgressService.CalculateWorkoutProgressAsync(userId, range);
+        var workoutProgress = await workoutProgressService.CalculateWorkoutProgressAsync(userId, range, cancellationToken);
         var workoutProgressDTO = mapper.Map<WorkoutProgressDTO>(workoutProgress);
         return workoutProgressDTO;
     }
 
     [HttpGet("total/by-month")]
-    public async Task<ActionResult<WorkoutProgressDTO>> CalculateCurrentWorkoutProgressForMonthAsync([FromQuery] int year, [FromQuery] int month)
+    public async Task<ActionResult<WorkoutProgressDTO>> CalculateCurrentWorkoutProgressForMonthAsync([FromQuery] int year, [FromQuery] int month, CancellationToken cancellationToken)
     {
         string userId = httpContextAccessor.GetUserId()!;
-        var workoutProgress = await workoutProgressService.CalculateWorkoutProgressForMonthAsync(userId, new YearMonth(year, month));
+        var workoutProgress = await workoutProgressService.CalculateWorkoutProgressForMonthAsync(userId, new YearMonth(year, month), cancellationToken);
         var workoutProgressDTO = mapper.Map<WorkoutProgressDTO>(workoutProgress);
         return workoutProgressDTO;
     }
 
     [HttpGet("total/by-year")]
-    public async Task<ActionResult<WorkoutProgressDTO>> CalculateCurrentWorkoutProgressForYearAsync([FromQuery] int year)
+    public async Task<ActionResult<WorkoutProgressDTO>> CalculateCurrentWorkoutProgressForYearAsync([FromQuery] int year, CancellationToken cancellationToken)
     {
         string userId = httpContextAccessor.GetUserId()!;
-        var workoutProgress = await workoutProgressService.CalculateWorkoutProgressForYearAsync(userId, year);
+        var workoutProgress = await workoutProgressService.CalculateWorkoutProgressForYearAsync(userId, year, cancellationToken);
         var workoutProgressDTO = mapper.Map<WorkoutProgressDTO>(workoutProgress);
         return workoutProgressDTO;
     }

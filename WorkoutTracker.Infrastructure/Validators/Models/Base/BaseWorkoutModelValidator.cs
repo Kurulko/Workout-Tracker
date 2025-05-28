@@ -14,28 +14,28 @@ public abstract class BaseWorkoutModelValidator<T> : DbModelValidator<T>
         this.baseWorkoutRepository = baseWorkoutRepository;
     }
 
-    public override async Task ValidateForAddAsync(T model)
+    public override async Task ValidateForAddAsync(T model, CancellationToken cancellationToken)
     {
-        await EnsureNonExistsAsync(model.Id);
-        await ArgumentValidator.EnsureNonExistsByNameAsync(baseWorkoutRepository.GetByNameAsync, model.Name);
+        await EnsureNonExistsAsync(model.Id, cancellationToken);
+        await ArgumentValidator.EnsureNonExistsByNameAsync(baseWorkoutRepository.GetByNameAsync, model.Name, cancellationToken);
 
         Validate(model);
     }
 
-    public override async Task<T> ValidateForEditAsync(T model)
+    public override async Task<T> ValidateForEditAsync(T model, CancellationToken cancellationToken)
     {
-        var entity = await EnsureExistsAsync(model.Id);
-        await EnsureNameUniqueAsync(model.Name, model.Id);
+        var entity = await EnsureExistsAsync(model.Id, cancellationToken);
+        await EnsureNameUniqueAsync(model.Name, model.Id, cancellationToken);
 
         Validate(model);
 
         return entity;
     }
 
-    public virtual async Task EnsureNameUniqueAsync(string name, long id)
+    public virtual async Task EnsureNameUniqueAsync(string name, long id, CancellationToken cancellationToken)
     {
         ArgumentValidator.ThrowIfArgumentNullOrEmpty(name, nameof(BaseWorkoutModel.Name));
 
-        await ArgumentValidator.EnsureNameUniqueAsync(baseWorkoutRepository.GetByNameAsync, name, id, nameof(BaseWorkoutModel.Name));
+        await ArgumentValidator.EnsureNameUniqueAsync(baseWorkoutRepository.GetByNameAsync, name, id, nameof(BaseWorkoutModel.Name), cancellationToken);
     }
 }

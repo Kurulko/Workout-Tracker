@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using WorkoutTracker.Persistence.Repositories.Base;
+﻿using WorkoutTracker.Persistence.Repositories.Base;
 using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Application.Interfaces.Repositories.Exercises;
 using WorkoutTracker.Persistence.Context;
@@ -12,4 +11,7 @@ internal class ExerciseAliasRepository : BaseWorkoutRepository<ExerciseAlias>, I
     {
 
     }
+
+    public IQueryable<ExerciseAlias> GetExerciseAliasesByExerciseId(long exerciseId)
+         => Find(er => er.ExerciseId == exerciseId);
 }

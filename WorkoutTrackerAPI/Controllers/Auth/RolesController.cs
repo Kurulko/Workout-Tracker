@@ -37,7 +37,7 @@ public class RolesController : APIController
 
         var roles = await roleService.GetRolesAsync();
 
-        var roleDTOs = roles.ToList().Select(mapper.Map<RoleDTO>);
+        var roleDTOs = roles.Select(mapper.Map<RoleDTO>);
         return await ApiResult<RoleDTO>.CreateAsync(
             roleDTOs.AsQueryable(),
             pageIndex,

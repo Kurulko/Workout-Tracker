@@ -18,8 +18,11 @@ public interface IUserRepository
 
     Task<User?> GetUserByUsernameAsync(string userName);
     Task<User?> GetUserByEmailAsync(string email);
-    Task<IQueryable<User>> GetUsersAsync();
+    IQueryable<User> GetUsers();
     Task<User?> GetUserByIdAsync(string userId);
+
+    Task<string?> GetUserIdByUsernameAsync(string userName);
+    Task<string?> GetUserNameByIdAsync(string userId);
 
     Task<bool> AnyUsersAsync();
     Task<bool> UserExistsAsync(string userId);
@@ -52,6 +55,7 @@ public interface IUserRepository
 
     Task<IEnumerable<string>> GetUserRolesAsync(string userId);
     Task AddRolesToUserAsync(string userId, string[] roles);
+    Task<IEnumerable<User>> GetUsersByRoleAsync(string roleName);
     Task DeleteRoleFromUserAsync(string userId, string roleName);
 
     #endregion

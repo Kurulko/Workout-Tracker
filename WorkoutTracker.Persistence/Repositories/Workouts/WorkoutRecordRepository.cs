@@ -3,6 +3,8 @@ using WorkoutTracker.Application.Interfaces.Repositories.Workouts;
 using WorkoutTracker.Domain.Entities.Workouts;
 using WorkoutTracker.Persistence.Repositories.Base;
 using WorkoutTracker.Persistence.Context;
+using WorkoutTracker.Application.Common.Models;
+using System.Linq.Expressions;
 
 namespace WorkoutTracker.Persistence.Repositories.Workouts;
 
@@ -13,13 +15,49 @@ internal class WorkoutRecordRepository : DbModelRepository<WorkoutRecord>, IWork
 
     }
 
-    IQueryable<WorkoutRecord> GetWorkoutRecords()
-        => dbSet.Include(m => m.Workout)
-        .Include(m => m.ExerciseRecordGroups)
-        .ThenInclude(erg => erg.ExerciseRecords)
-        .ThenInclude(er => er.Exercise);
+    public override IQueryable<WorkoutRecord> GetAll()
+        => IncludeWorkoutRecord(dbSet);
 
-    public override Task<IQueryable<WorkoutRecord>> GetAllAsync()
-        => Task.FromResult(GetWorkoutRecords());
+    public override async Task<WorkoutRecord?> GetByIdAsync(long key, CancellationToken cancellationToken)
+    {
+        return await IncludeWorkoutRecord(dbSet.Where(w => w.Id == key))
+            .SingleOrDefaultAsync(cancellationToken);
+    }
 
+    public override IQueryable<WorkoutRecord> Find(Expression<Func<WorkoutRecord, bool>> expression)
+    {
+        return IncludeWorkoutRecord(dbSet.Where(expression));
+    }
+
+
+    public IQueryable<WorkoutRecord> GetUserWorkoutRecords(string userId, long? workoutId, DateTimeRange? range)
+    {
+        var userWorkoutRecords = Find(wr => wr.UserId == userId);
+
+        if (range is not null)
+            userWorkoutRecords = userWorkoutRecords.Where(wr => wr.Date >= range.FirstDate && wr.Date <= range.LastDate);
+
+        if (workoutId.HasValue)
+            userWorkoutRecords = userWorkoutRecords.Where(wr => wr.WorkoutId == workoutId);
+
+        return userWorkoutRecords;
+    }
+
+    public async Task<DateTime?> GetFirstWorkoutDateAsync(string userId, CancellationToken cancellationToken)
+    {
+        return await GetUserWorkoutRecords(userId, null, null)
+            .OrderBy(wr => wr.Date)
+            .Select(wr => wr.Date)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    static IQueryable<WorkoutRecord> IncludeWorkoutRecord(IQueryable<WorkoutRecord> query)
+    {
+        return query
+            .Include(m => m.Workout)
+            .Include(m => m.ExerciseRecordGroups)
+                .ThenInclude(erg => erg.ExerciseRecords)
+                .ThenInclude(er => er.Exercise)
+            .AsSplitQuery();
+    }
 }

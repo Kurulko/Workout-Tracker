@@ -6,6 +6,7 @@ using WorkoutTracker.Application.Interfaces.Repositories.Exercises.ExerciseRecor
 using Microsoft.Extensions.Logging;
 using WorkoutTracker.Infrastructure.Validators.Services;
 using WorkoutTracker.Infrastructure.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace WorkoutTracker.Infrastructure.Services;
 
@@ -34,66 +35,75 @@ internal class EquipmentService : BaseWorkoutService<EquipmentService, Equipment
 
     const string internalEquipmentEntityName = "internal equipment";
 
-    public async Task<Equipment> AddInternalEquipmentAsync(Equipment equipment)
+    public async Task<Equipment> AddInternalEquipmentAsync(Equipment equipment, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateAddInternalAsync(equipment);
+        await equipmentServiceValidator.ValidateAddInternalAsync(equipment, cancellationToken);
 
-        return await baseWorkoutRepository.AddAsync(equipment)
+        return await equipmentRepository.AddAsync(equipment)
             .LogExceptionsAsync(_logger, FailedToActionStr(internalEquipmentEntityName, "add"));
     }
 
-    public async Task UpdateInternalEquipmentAsync(Equipment equipment)
+    public async Task UpdateInternalEquipmentAsync(Equipment equipment, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateUpdateInternalAsync(equipment);
+        await equipmentServiceValidator.ValidateUpdateInternalAsync(equipment, cancellationToken);
 
-        var _equipment = (await baseWorkoutRepository.GetByIdAsync(equipment.Id))!;
-
-        _equipment.Name = equipment.Name;
-        _equipment.Image = equipment.Image;
-
-        await baseWorkoutRepository.UpdateAsync(_equipment)
+        await equipmentRepository.UpdatePartialAsync(equipment.Id, EquipmentUpdateAction(equipment), cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr(internalEquipmentEntityName, "update"));
     }
 
-    public async Task DeleteInternalEquipmentAsync(long equipmentId)
+    public async Task DeleteInternalEquipmentAsync(long equipmentId, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateDeleteInternalAsync(equipmentId);
+        await equipmentServiceValidator.ValidateDeleteInternalAsync(equipmentId, cancellationToken);
 
-        var equipment = (await baseWorkoutRepository.GetByIdAsync(equipmentId))!;
+        var equipment = (await equipmentRepository.GetByIdAsync(equipmentId))!;
         string? equipmentImage = equipment.Image;
 
-        await baseWorkoutRepository.RemoveAsync(equipmentId)
+        await equipmentRepository.RemoveAsync(equipmentId)
             .LogExceptionsAsync(_logger, FailedToActionStr(internalEquipmentEntityName, "delete"));
 
         if (!string.IsNullOrEmpty(equipmentImage))
             fileService.DeleteFile(equipmentImage);
     }
 
-    public async Task<Equipment?> GetInternalEquipmentByIdAsync(long equipmentId, bool withDetails = false)
+    public async Task<Equipment?> GetInternalEquipmentByIdAsync(long equipmentId, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateGetInternalByIdAsync(equipmentId);
+        await equipmentServiceValidator.ValidateGetInternalByIdAsync(equipmentId, cancellationToken);
 
-        return await (withDetails
-            ? equipmentRepository.GetEquipmentByIdWithDetailsAsync(equipmentId)
-            : baseWorkoutRepository.GetByIdAsync(equipmentId)
-        ).LogExceptionsAsync(_logger, FailedToActionStr(internalEquipmentEntityName, "get"));
+        return await equipmentRepository.GetByIdAsync(equipmentId)
+            .LogExceptionsAsync(_logger, FailedToActionStr(internalEquipmentEntityName, "get"));
     }
 
-    public async Task<Equipment?> GetInternalEquipmentByNameAsync(string name, bool withDetails = false)
+    public async Task<Equipment?> GetInternalEquipmentByNameAsync(string name, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateGetInternalByNameAsync(name);
+        await equipmentServiceValidator.ValidateGetInternalByNameAsync(name, cancellationToken);
 
-        return await (withDetails
-            ? equipmentRepository.GetEquipmentByNameWithDetailsAsync(name)
-            : baseWorkoutRepository.GetByNameAsync(name)
-        ).LogExceptionsAsync(_logger, FailedToActionStr(internalEquipmentEntityName, "get"));
+        return await equipmentRepository.GetByNameAsync(name)
+            .LogExceptionsAsync(_logger, FailedToActionStr(internalEquipmentEntityName, "get"));
     }
 
-    public async Task<IQueryable<Equipment>> GetInternalEquipmentsAsync()
+    public async Task<Equipment?> GetInternalEquipmentByIdWithDetailsAsync(long equipmentId, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateGetAllInternalAsync();
+        await equipmentServiceValidator.ValidateGetInternalByIdAsync(equipmentId, cancellationToken);
 
-        return await baseWorkoutRepository.FindAsync(e => e.OwnedByUserId == null)
+        return await equipmentRepository.GetEquipmentByIdWithDetailsAsync(equipmentId)
+            .LogExceptionsAsync(_logger, FailedToActionStr(internalEquipmentEntityName, "get"));
+    }
+
+    public async Task<Equipment?> GetInternalEquipmentByNameWithDetailsAsync(string name, CancellationToken cancellationToken)
+    {
+        await equipmentServiceValidator.ValidateGetInternalByNameAsync(name, cancellationToken);
+
+        return await equipmentRepository.GetEquipmentByNameWithDetailsAsync(name)
+            .LogExceptionsAsync(_logger, FailedToActionStr(internalEquipmentEntityName, "get"));
+    }
+
+    public async Task<IEnumerable<Equipment>> GetInternalEquipmentsAsync(CancellationToken cancellationToken)
+    {
+        await equipmentServiceValidator.ValidateGetAllInternalAsync(cancellationToken);
+
+        var equipments = equipmentRepository.GetInternalEquipments();
+
+        return await equipments.ToListAsync(cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr("internal equipments", "get"));
     }
 
@@ -103,68 +113,77 @@ internal class EquipmentService : BaseWorkoutService<EquipmentService, Equipment
 
     const string userEquipmentEntityName = "user equipment";
 
-    public async Task<Equipment> AddUserEquipmentAsync(string userId, Equipment equipment)
+    public async Task<Equipment> AddUserEquipmentAsync(string userId, Equipment equipment, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateAddOwnedAsync(userId, equipment);
+        await equipmentServiceValidator.ValidateAddOwnedAsync(userId, equipment, cancellationToken);
 
         equipment.OwnedByUserId = userId;
 
-        return await baseWorkoutRepository.AddAsync(equipment)
+        return await equipmentRepository.AddAsync(equipment)
             .LogExceptionsAsync(_logger, FailedToActionForUserStr(userEquipmentEntityName, "add", userId));
     }
 
-    public async Task UpdateUserEquipmentAsync(string userId, Equipment equipment)
+    public async Task UpdateUserEquipmentAsync(string userId, Equipment equipment, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateUpdateOwnedAsync(userId, equipment);
+        await equipmentServiceValidator.ValidateUpdateOwnedAsync(userId, equipment, cancellationToken);
 
-        var _equipment = (await baseWorkoutRepository.GetByIdAsync(equipment.Id))!;
-
-        _equipment.Name = equipment.Name;
-        _equipment.Image = equipment.Image;
-
-        await baseWorkoutRepository.UpdateAsync(_equipment)
+        await equipmentRepository.UpdatePartialAsync(equipment.Id, EquipmentUpdateAction(equipment), cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionForUserStr(userEquipmentEntityName, "update", userId));
     }
 
-    public async Task DeleteEquipmentFromUserAsync(string userId, long equipmentId)
+    public async Task DeleteEquipmentFromUserAsync(string userId, long equipmentId, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateDeleteOwnedAsync(userId, equipmentId);
+        await equipmentServiceValidator.ValidateDeleteOwnedAsync(userId, equipmentId, cancellationToken);
 
-        var equipment = (await baseWorkoutRepository.GetByIdAsync(equipmentId))!;
+        var equipment = (await equipmentRepository.GetByIdAsync(equipmentId))!;
         string? equipmentImage = equipment.Image;
 
-        await baseWorkoutRepository.RemoveAsync(equipmentId)
+        await equipmentRepository.RemoveAsync(equipmentId)
             .LogExceptionsAsync(_logger, FailedToActionForUserStr(userEquipmentEntityName, "delete", userId));
 
         if (!string.IsNullOrEmpty(equipmentImage))
             fileService.DeleteFile(equipmentImage);
     }
 
-    public async Task<Equipment?> GetUserEquipmentByIdAsync(string userId, long equipmentId, bool withDetails = false)
+    public async Task<Equipment?> GetUserEquipmentByIdAsync(string userId, long equipmentId, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateGetOwnedByIdAsync(userId, equipmentId);
+        await equipmentServiceValidator.ValidateGetOwnedByIdAsync(userId, equipmentId, cancellationToken);
 
-        return await (withDetails
-            ? equipmentRepository.GetEquipmentByIdWithDetailsAsync(equipmentId)
-            : baseWorkoutRepository.GetByIdAsync(equipmentId)
-        ).LogExceptionsAsync(_logger, FailedToActionForUserStr(userEquipmentEntityName, "get", userId));
+        return await equipmentRepository.GetByIdAsync(equipmentId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(userEquipmentEntityName, "get", userId));
     }
 
-    public async Task<Equipment?> GetUserEquipmentByNameAsync(string userId, string name, bool withDetails = false)
+    public async Task<Equipment?> GetUserEquipmentByNameAsync(string userId, string name, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateGetOwnedByNameAsync(userId, name);
+        await equipmentServiceValidator.ValidateGetOwnedByNameAsync(userId, name, cancellationToken);
 
-        return await (withDetails
-            ? equipmentRepository.GetEquipmentByNameWithDetailsAsync(name)
-            : baseWorkoutRepository.GetByNameAsync(name)
-        ).LogExceptionsAsync(_logger, FailedToActionForUserStr(userEquipmentEntityName, "get", userId));
+        return await equipmentRepository.GetByNameAsync(name)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(userEquipmentEntityName, "get", userId));
     }
 
-    public async Task<IQueryable<Equipment>> GetUserEquipmentsAsync(string userId)
+    public async Task<Equipment?> GetUserEquipmentByIdWithDetailsAsync(string userId, long equipmentId, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateGetAllOwnedAsync(userId);
+        await equipmentServiceValidator.ValidateGetOwnedByIdAsync(userId, equipmentId, cancellationToken);
 
-        return await baseWorkoutRepository.FindAsync(e => e.OwnedByUserId == userId)
+        return await equipmentRepository.GetEquipmentByIdWithDetailsAsync(equipmentId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(userEquipmentEntityName, "get", userId));
+    }
+
+    public async Task<Equipment?> GetUserEquipmentByNameWithDetailsAsync(string userId, string name, CancellationToken cancellationToken)
+    {
+        await equipmentServiceValidator.ValidateGetOwnedByNameAsync(userId, name, cancellationToken);
+
+        return await equipmentRepository.GetEquipmentByNameWithDetailsAsync(name)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(userEquipmentEntityName, "get", userId));
+    }
+
+    public async Task<IEnumerable<Equipment>> GetUserEquipmentsAsync(string userId, CancellationToken cancellationToken)
+    {
+        await equipmentServiceValidator.ValidateGetAllOwnedAsync(userId, cancellationToken);
+
+        var equipments = equipmentRepository.GetUserEquipments(userId);
+
+        return await equipments.ToListAsync(cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionForUserStr("user equipments", "get", userId));
     }
 
@@ -174,45 +193,71 @@ internal class EquipmentService : BaseWorkoutService<EquipmentService, Equipment
 
     const string equipmentEntityName = "equipment";
 
-    public async Task<Equipment?> GetEquipmentByIdAsync(string userId, long equipmentId, bool withDetails = false)
+    public async Task<Equipment?> GetEquipmentByIdAsync(string userId, long equipmentId, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateGetByIdAsync(userId, equipmentId);
+        await equipmentServiceValidator.ValidateGetByIdAsync(userId, equipmentId, cancellationToken);
 
-        return await (withDetails
-            ? equipmentRepository.GetEquipmentByIdWithDetailsAsync(equipmentId)
-            : baseWorkoutRepository.GetByIdAsync(equipmentId)
-        ).LogExceptionsAsync(_logger, FailedToActionForUserStr(equipmentEntityName, "get", userId));
+        return await equipmentRepository.GetByIdAsync(equipmentId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(equipmentEntityName, "get", userId));
     }
 
-    public async Task<Equipment?> GetEquipmentByNameAsync(string userId, string name, bool withDetails = false)
+    public async Task<Equipment?> GetEquipmentByNameAsync(string userId, string name, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateGetByNameAsync(userId, name);
+        await equipmentServiceValidator.ValidateGetByNameAsync(userId, name, cancellationToken);
 
-        return await (withDetails
-            ? equipmentRepository.GetEquipmentByNameWithDetailsAsync(name)
-            : baseWorkoutRepository.GetByNameAsync(name)
-        ).LogExceptionsAsync(_logger, FailedToActionForUserStr(equipmentEntityName, "get", userId));
+        return await equipmentRepository.GetByNameAsync(name)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(equipmentEntityName, "get", userId));
     }
 
-    public async Task<IQueryable<Equipment>> GetAllEquipmentsAsync(string userId)
+    public async Task<Equipment?> GetEquipmentByIdWithDetailsAsync(string userId, long equipmentId, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateGetAllAsync(userId);
+        await equipmentServiceValidator.ValidateGetByIdAsync(userId, equipmentId, cancellationToken);
 
-        return await baseWorkoutRepository.FindAsync(e => e.OwnedByUserId == userId || e.OwnedByUserId == null)
+        return await equipmentRepository.GetEquipmentByIdWithDetailsAsync(equipmentId)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(equipmentEntityName, "get", userId));
+    }
+
+    public async Task<Equipment?> GetEquipmentByNameWithDetailsAsync(string userId, string name, CancellationToken cancellationToken)
+    {
+        await equipmentServiceValidator.ValidateGetByNameAsync(userId, name, cancellationToken);
+
+        return await equipmentRepository.GetEquipmentByNameWithDetailsAsync(name)
+            .LogExceptionsAsync(_logger, FailedToActionForUserStr(equipmentEntityName, "get", userId));
+    }
+
+    public async Task<IEnumerable<Equipment>> GetAllEquipmentsAsync(string userId, CancellationToken cancellationToken)
+    {
+        await equipmentServiceValidator.ValidateGetAllAsync(userId, cancellationToken);
+
+        var equipments = equipmentRepository.GetAllEquipments(userId);
+
+        return await equipments.ToListAsync(cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr("equipments", "get"));
     }
 
-    public async Task<IQueryable<Equipment>> GetUsedEquipmentsAsync(string userId)
+    public async Task<IEnumerable<Equipment>> GetUsedEquipmentsAsync(string userId, CancellationToken cancellationToken)
     {
-        await equipmentServiceValidator.ValidateGetUsedAsync(userId);
+        await equipmentServiceValidator.ValidateGetUsedAsync(userId, cancellationToken);
 
-        var usedEquipments = (await exerciseRecordRepository.GetExerciseRecordsByUserIdAsync(userId)
-            .LogExceptionsAsync(_logger, FailedToActionStr("used equipments", "get")))
+        var usedEquipments = exerciseRecordRepository.GetUserExerciseRecords(userId)
             .SelectMany(er => er.Exercise!.Equipments)
             .Distinct();
 
-        return usedEquipments.AsQueryable();
+        return await usedEquipments.ToListAsync(cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr("used equipments", "get"));
     }
 
     #endregion
+
+
+    public Action<Equipment> EquipmentUpdateAction(Equipment equipment)
+    {
+        var updateAction = new Action<Equipment>(e =>
+        {
+            e.Name = equipment.Name;
+            e.Image = equipment.Image;
+        });
+
+        return updateAction;
+    }
 }

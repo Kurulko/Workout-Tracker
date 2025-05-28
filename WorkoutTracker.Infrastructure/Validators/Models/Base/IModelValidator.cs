@@ -3,9 +3,9 @@
 public interface IModelValidator<T, T_ID>
     where T : class
 {
-    Task ValidateForAddAsync(T model);
-    Task<T> ValidateForEditAsync(T model);
+    Task ValidateForAddAsync(T model, CancellationToken cancellationToken);
+    Task<T> ValidateForEditAsync(T model, CancellationToken cancellationToken);
 
-    Task<T> EnsureExistsAsync(T_ID id);
-    Task EnsureNonExistsAsync(T_ID id);
+    Task<T> EnsureExistsAsync(T_ID id, CancellationToken cancellationToken);
+    Task EnsureNonExistsAsync(T_ID id, CancellationToken cancellationToken);
 }

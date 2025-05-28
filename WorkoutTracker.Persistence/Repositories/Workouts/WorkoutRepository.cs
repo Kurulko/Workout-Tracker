@@ -3,6 +3,7 @@ using WorkoutTracker.Persistence.Repositories.Base;
 using WorkoutTracker.Domain.Entities.Workouts;
 using WorkoutTracker.Application.Interfaces.Repositories.Workouts;
 using WorkoutTracker.Persistence.Context;
+using System.Linq.Expressions;
 
 namespace WorkoutTracker.Persistence.Repositories.Workouts;
 
@@ -13,75 +14,99 @@ internal class WorkoutRepository : BaseWorkoutRepository<Workout>, IWorkoutRepos
 
     }
 
-    IQueryable<Workout> GetWorkouts()
-        => dbSet.Include(w => w.ExerciseSetGroups)!
-            .ThenInclude(erg => erg.ExerciseSets)
-            .ThenInclude(er => er.Exercise);
+    public override IQueryable<Workout> GetAll()
+        => IncludeWorkout(dbSet);
 
-    public override Task<IQueryable<Workout>> GetAllAsync()
-        => Task.FromResult(GetWorkouts());
-
-    public override async Task<Workout?> GetByIdAsync(long key)
+    public override async Task<Workout?> GetByIdAsync(long key, CancellationToken cancellationToken)
     {
-        return await dbSet
-          .Where(w => w.Id == key)
-          .Include(w => w.ExerciseSetGroups)!
-            .ThenInclude(erg => erg.ExerciseSets)
-            .ThenInclude(er => er.Exercise)
-          .FirstOrDefaultAsync();
+        return await IncludeWorkout(dbSet.Where(w => w.Id == key))
+            .SingleOrDefaultAsync(cancellationToken);
     }
 
-    public override async Task<Workout?> GetByNameAsync(string name)
+    public override async Task<Workout?> GetByNameAsync(string name, CancellationToken cancellationToken)
     {
-        return await dbSet
-          .Where(w => w.Name == name)
-          .Include(w => w.ExerciseSetGroups)!
-            .ThenInclude(erg => erg.ExerciseSets)
-            .ThenInclude(er => er.Exercise)
-          .FirstOrDefaultAsync();
+        return await IncludeWorkout(dbSet.Where(w => w.Name == name))
+            .SingleOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<Workout?> GetWorkoutByIdWithDetailsAsync(long key)
+    public async Task<Workout?> GetWorkoutByIdWithDetailsAsync(long key, CancellationToken cancellationToken)
     {
-       return await dbSet
-         .Where(w => w.Id == key)
-         .Include(m => m.WorkoutRecords)!
-            .ThenInclude(wr => wr.ExerciseRecordGroups)
-            .ThenInclude(erg => erg.ExerciseRecords)
-            .ThenInclude(er => er.Exercise)
-
-          .Include(w => w.ExerciseSetGroups)!
-            .ThenInclude(erg => erg.ExerciseSets)
-            .ThenInclude(er => er.Exercise)
-            .ThenInclude(er => er!.Equipments)
-
-          .Include(w => w.ExerciseSetGroups)!
-            .ThenInclude(erg => erg.ExerciseSets)
-            .ThenInclude(er => er.Exercise)
-            .ThenInclude(er => er!.WorkingMuscles)
-
-         .FirstOrDefaultAsync();
+        return await IncludeWorkoutDetails(dbSet.Where(w => w.Id == key))
+            .SingleOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<Workout?> GetWorkoutByNameWithDetailsAsync(string name)
+    public async Task<Workout?> GetWorkoutByNameWithDetailsAsync(string name, CancellationToken cancellationToken)
     {
-       return await dbSet
-         .Where(w => w.Name == name)
-         .Include(m => m.WorkoutRecords)!
-            .ThenInclude(wr => wr.ExerciseRecordGroups)
-            .ThenInclude(erg => erg.ExerciseRecords)
-            .ThenInclude(er => er.Exercise)
+        return await IncludeWorkoutDetails(dbSet.Where(w => w.Name == name))
+            .SingleOrDefaultAsync(cancellationToken);
+    }
 
-          .Include(w => w.ExerciseSetGroups)!
-            .ThenInclude(erg => erg.ExerciseSets)
-            .ThenInclude(er => er.Exercise)
-            .ThenInclude(er => er!.Equipments)
+    public override IQueryable<Workout> Find(Expression<Func<Workout, bool>> expression)
+    {
+        return IncludeWorkout(dbSet.Where(expression));
+    }
 
-          .Include(w => w.ExerciseSetGroups)!
-            .ThenInclude(erg => erg.ExerciseSets)
-            .ThenInclude(er => er.Exercise)
-            .ThenInclude(er => er!.WorkingMuscles)
+    public IQueryable<Workout> GetUserWorkouts(string userId, long? exerciseId)
+    {
+        var userWorkouts = Find(e => e.UserId == userId);
 
-         .FirstOrDefaultAsync();
+        if (exerciseId.HasValue)
+        {
+            userWorkouts = userWorkouts
+                .Where(w => w.ExerciseSetGroups!.Any(s => s.ExerciseId == exerciseId));
+        }
+
+        return IncludeWorkout(userWorkouts);
+    }
+
+    public async Task IncreaseCountOfWorkoutsAsync(long workoutId, CancellationToken cancellationToken)
+    {
+        var increaseCountOfWorkoutsAction = new Action<Workout>(w =>
+        {
+            w.CountOfTrainings++;
+        });
+
+        await UpdatePartialAsync(workoutId, increaseCountOfWorkoutsAction, cancellationToken);
+    }
+
+    public async Task DecreaseCountOfWorkoutsAsync(long workoutId, CancellationToken cancellationToken)
+    {
+        var increaseCountOfWorkoutsAction = new Action<Workout>(w =>
+        {
+            w.CountOfTrainings--;
+        });
+
+        await UpdatePartialAsync(workoutId, increaseCountOfWorkoutsAction, cancellationToken);
+    }
+
+
+    static IQueryable<Workout> IncludeWorkout(IQueryable<Workout> query)
+    {
+        return query
+            .Include(w => w.ExerciseSetGroups)!
+                .ThenInclude(erg => erg.ExerciseSets)
+                .ThenInclude(er => er.Exercise)
+            .AsSplitQuery();
+    }
+
+    static IQueryable<Workout> IncludeWorkoutDetails(IQueryable<Workout> query)
+    {
+        return query
+            .Include(m => m.WorkoutRecords)!
+                .ThenInclude(wr => wr.ExerciseRecordGroups)
+                .ThenInclude(erg => erg.ExerciseRecords)
+                .ThenInclude(er => er.Exercise)
+
+            .Include(w => w.ExerciseSetGroups)!
+                .ThenInclude(erg => erg.ExerciseSets)
+                .ThenInclude(er => er.Exercise)
+                    .ThenInclude(e => e!.Equipments)
+
+            .Include(w => w.ExerciseSetGroups)!
+                .ThenInclude(erg => erg.ExerciseSets)
+                .ThenInclude(er => er.Exercise)
+                    .ThenInclude(e => e!.WorkingMuscles)
+
+            .AsSplitQuery();
     }
 }

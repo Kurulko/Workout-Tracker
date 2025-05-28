@@ -13,21 +13,37 @@ internal class EquipmentRepository : BaseWorkoutRepository<Equipment>, IEquipmen
 
     }
 
-    public async Task<Equipment?> GetEquipmentByIdWithDetailsAsync(long key)
+    public async Task<Equipment?> GetEquipmentByIdWithDetailsAsync(long key, CancellationToken cancellationToken)
     {
-        return await dbSet
-          .Where(w => w.Id == key)
-           .Include(m => m.Exercises)!.
-            ThenInclude(e => e.WorkingMuscles)
-          .FirstOrDefaultAsync();
+        return await IncludeEquipmentDetails(dbSet.Where(w => w.Id == key))
+            .SingleOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<Equipment?> GetEquipmentByNameWithDetailsAsync(string name)
+    public async Task<Equipment?> GetEquipmentByNameWithDetailsAsync(string name, CancellationToken cancellationToken)
     {
-        return await dbSet
-          .Where(w => w.Name == name)
-          .Include(m => m.Exercises)!.
-            ThenInclude(e => e.WorkingMuscles)
-          .FirstOrDefaultAsync();
+        return await IncludeEquipmentDetails(dbSet.Where(w => w.Name == name))
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    public IQueryable<Equipment> FindByIds(IEnumerable<long> equipmentIds)
+        => Find(m => equipmentIds.Contains(m.Id));
+
+    public IQueryable<Equipment> FindInternalByIds(IEnumerable<long> equipmentIds)
+        => FindByIds(equipmentIds).Where(e => e.OwnedByUserId == null);
+
+    public IQueryable<Equipment> GetInternalEquipments()
+        => Find(e => e.OwnedByUserId == null);
+    public IQueryable<Equipment> GetUserEquipments(string userId)
+        => Find(e => e.OwnedByUserId == userId);
+    public IQueryable<Equipment> GetAllEquipments(string userId)
+        => Find(e => e.OwnedByUserId == userId || e.OwnedByUserId == null);
+
+
+    static IQueryable<Equipment> IncludeEquipmentDetails(IQueryable<Equipment> query)
+    {
+        return query
+           .Include(m => m.Exercises)!
+                .ThenInclude(e => e.WorkingMuscles)
+            .AsSplitQuery();
     }
 }

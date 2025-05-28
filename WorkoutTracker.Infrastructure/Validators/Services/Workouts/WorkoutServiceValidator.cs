@@ -42,106 +42,106 @@ public class WorkoutServiceValidator
         this.workoutRepository = workoutRepository;
     }
 
-    public async Task ValidateAddAsync(string userId, Workout workout)
+    public async Task ValidateAddAsync(string userId, Workout workout, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
-        await workoutValidator.ValidateForAddAsync(workout);
+        await workoutValidator.ValidateForAddAsync(workout, cancellationToken);
     }
 
-    public async Task ValidateUpdateAsync(string userId, Workout workout)
+    public async Task ValidateUpdateAsync(string userId, Workout workout, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
-        var _workout = await workoutValidator.ValidateForEditAsync(workout);
+        var _workout = await workoutValidator.ValidateForEditAsync(workout, cancellationToken);
 
         if (_workout.UserId != userId)
             throw UnauthorizedException.HaveNoPermissionToAction("update", "workout");
     }
 
-    public async Task ValidateDeleteAsync(string userId, long workoutId)
+    public async Task ValidateDeleteAsync(string userId, long workoutId, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
-        var workout = await workoutValidator.EnsureExistsAsync(workoutId);
+        var workout = await workoutValidator.EnsureExistsAsync(workoutId, cancellationToken);
 
         if (workout.UserId != userId)
             throw UnauthorizedException.HaveNoPermissionToAction("delete", "workout");
     }
 
-    public async Task ValidateGetByIdAsync(string userId, long workoutId)
+    public async Task ValidateGetByIdAsync(string userId, long workoutId, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
         ArgumentValidator.ThrowIfIdNonPositive(workoutId, "Workout");
 
-        var workout = await workoutRepository.GetByIdAsync(workoutId);
+        var workout = await workoutRepository.GetByIdAsync(workoutId, cancellationToken);
 
         if (workout != null && workout.UserId != userId)
             throw UnauthorizedException.HaveNoPermissionToAction("get", "workout");
     }
 
-    public async Task ValidateGetByNameAsync(string userId, string name)
+    public async Task ValidateGetByNameAsync(string userId, string name, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
         ArgumentValidator.ThrowIfIdNullOrEmpty(name, "Exercise");
 
-        var workout = await workoutRepository.GetByNameAsync(name);
+        var workout = await workoutRepository.GetByNameAsync(name, cancellationToken);
 
         if (workout != null && workout.UserId != userId)
             throw UnauthorizedException.HaveNoPermissionToAction("get", "workout");
     }
 
-    public async Task ValidateGetAllAsync(string userId, long? exerciseId)
+    public async Task ValidateGetAllAsync(string userId, long? exerciseId, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
 
         if (exerciseId.HasValue)
         {
-            var exercise = await exerciseValidator.EnsureExistsAsync(exerciseId.Value);
+            var exercise = await exerciseValidator.EnsureExistsAsync(exerciseId.Value, cancellationToken);
 
             if (exercise.CreatedByUserId != null && exercise.CreatedByUserId != userId)
                 throw UnauthorizedException.HaveNoPermissionToAction("get", "workouts");
         }
     }
 
-    public async Task ValidateAddExerciseSetGroupsAsync(string userId, long workoutId, IEnumerable<ExerciseSetGroup> exerciseSetGroups)
+    public async Task ValidateAddExerciseSetGroupsAsync(string userId, long workoutId, IEnumerable<ExerciseSetGroup> exerciseSetGroups, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
 
-        var workout = await workoutValidator.EnsureExistsAsync(workoutId);
+        var workout = await workoutValidator.EnsureExistsAsync(workoutId, cancellationToken);
 
         if (workout.UserId != userId)
             throw UnauthorizedException.HaveNoPermissionToAction("add", "workout exercise set groups");
 
         foreach (var exerciseSetGroup in exerciseSetGroups)
         {
-            await exerciseSetGroupValidator.ValidateForAddAsync(exerciseSetGroup);
+            await exerciseSetGroupValidator.ValidateForAddAsync(exerciseSetGroup, cancellationToken);
 
             foreach (var exerciseSet in exerciseSetGroup.ExerciseSets)
-                await exerciseSetValidator.ValidateForAddAsync(exerciseSet);
+                await exerciseSetValidator.ValidateForAddAsync(exerciseSet, cancellationToken);
         }
     }
 
-    public async Task ValidateUpdateExerciseSetGroupsAsync(string userId, long workoutId, IEnumerable<ExerciseSetGroup> exerciseSetGroups)
+    public async Task ValidateUpdateExerciseSetGroupsAsync(string userId, long workoutId, IEnumerable<ExerciseSetGroup> exerciseSetGroups, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
 
-        var workout = await workoutValidator.EnsureExistsAsync(workoutId);
+        var workout = await workoutValidator.EnsureExistsAsync(workoutId, cancellationToken);
 
         if (workout.UserId != userId)
             throw UnauthorizedException.HaveNoPermissionToAction("update", "workout exercise set groups");
 
         foreach (var exerciseSetGroup in exerciseSetGroups)
         {
-            await exerciseSetGroupValidator.ValidateForAddAsync(exerciseSetGroup);
+            await exerciseSetGroupValidator.ValidateForAddAsync(exerciseSetGroup, cancellationToken);
 
             foreach (var exerciseSet in exerciseSetGroup.ExerciseSets)
-                await exerciseSetValidator.ValidateForAddAsync(exerciseSet);
+                await exerciseSetValidator.ValidateForAddAsync(exerciseSet, cancellationToken);
         }
     }
     
-    public async Task ValidateCompleteAsync(string userId, long workoutId, DateTime date, TimeSpan time)
+    public async Task ValidateCompleteAsync(string userId, long workoutId, DateTime date, TimeSpan time, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
 
-        var workout = await workoutValidator.EnsureExistsAsync(workoutId);
+        var workout = await workoutValidator.EnsureExistsAsync(workoutId, cancellationToken);
 
         if (workout.UserId != userId)
             throw UnauthorizedException.HaveNoPermissionToAction("complete", "workout");
@@ -149,11 +149,11 @@ public class WorkoutServiceValidator
         ArgumentValidator.ThrowIfDateInFuture(date, nameof(date));
     } 
     
-    public async Task ValidateUpdatePinnedAsync(string userId, long workoutId)
+    public async Task ValidateUpdatePinnedAsync(string userId, long workoutId, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
 
-        var workout = await workoutValidator.EnsureExistsAsync(workoutId);
+        var workout = await workoutValidator.EnsureExistsAsync(workoutId, cancellationToken);
 
         if (workout.UserId != userId)
             throw UnauthorizedException.HaveNoPermissionToAction("complete", "workout");

@@ -30,16 +30,16 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
 
 
     [HttpGet]
-    public async Task<ActionResult<ApiResult<ExerciseRecordDTO>>> GetCurrentUserExerciseRecordsAsync(
-        long? exerciseId = null,
-        ExerciseType? exerciseType = null,
-        DateTimeRange? range = null,
-        int pageIndex = 0,
-        int pageSize = 10,
-        string? sortColumn = null,
-        string? sortOrder = null,
-        string? filterColumn = null,
-        string? filterQuery = null)
+    public async Task<ActionResult<ApiResult<ExerciseRecordDTO>>> GetCurrentUserExerciseRecordsAsync(CancellationToken cancellationToken,
+        [FromQuery] long? exerciseId = null,
+        [FromQuery] ExerciseType? exerciseType = null,
+        [FromQuery] DateTimeRange? range = null,
+        [FromQuery] int pageIndex = 0,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? sortColumn = null,
+        [FromQuery] string? sortOrder = null,
+        [FromQuery] string? filterColumn = null,
+        [FromQuery] string? filterQuery = null)
     {
         if (range is DateTimeRange _range && IsDateInFuture(_range))
             return DateInFuture();
@@ -51,9 +51,9 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var exerciseRecords = await exerciseRecordService.GetUserExerciseRecordsAsync(userId, exerciseId, exerciseType, range);
+        var exerciseRecords = await exerciseRecordService.GetUserExerciseRecordsAsync(userId, exerciseId, exerciseType, range, cancellationToken);
 
-        var exerciseRecordDTOs = exerciseRecords.ToList().Select(mapper.Map<ExerciseRecordDTO>);
+        var exerciseRecordDTOs = exerciseRecords.Select(mapper.Map<ExerciseRecordDTO>);
         return await ApiResult<ExerciseRecordDTO>.CreateAsync(
             exerciseRecordDTOs.AsQueryable(),
             pageIndex,
@@ -67,18 +67,18 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
 
     [HttpGet("{exerciseRecordId}")]
     [ActionName(nameof(GetCurrentUserExerciseRecordByIdAsync))]
-    public async Task<ActionResult<ExerciseRecordDTO>> GetCurrentUserExerciseRecordByIdAsync(long exerciseRecordId)
+    public async Task<ActionResult<ExerciseRecordDTO>> GetCurrentUserExerciseRecordByIdAsync(long exerciseRecordId, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseRecordId))
             return InvalidExerciseRecordID();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var exerciseRecord = await exerciseRecordService.GetUserExerciseRecordByIdAsync(userId, exerciseRecordId);
+        var exerciseRecord = await exerciseRecordService.GetUserExerciseRecordByIdAsync(userId, exerciseRecordId, cancellationToken);
         return ToExerciseRecordDTO(exerciseRecord);
     }
 
     [HttpPost("{exerciseRecordGroupId}")]
-    public async Task<IActionResult> AddExerciseRecordToExerciseRecordGroupAsync(long exerciseRecordGroupId, ExerciseRecordCreationDTO exerciseRecordCreationDTO)
+    public async Task<IActionResult> AddExerciseRecordToExerciseRecordGroupAsync(long exerciseRecordGroupId, ExerciseRecordCreationDTO exerciseRecordCreationDTO, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseRecordGroupId))
             return InvalidEntryID(nameof(ExerciseRecordGroup));
@@ -88,14 +88,15 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
 
         string userId = httpContextAccessor.GetUserId()!;
         var exerciseRecord = mapper.Map<ExerciseRecord>(exerciseRecordCreationDTO);
-        exerciseRecord = await exerciseRecordService.AddExerciseRecordToExerciseRecordGroupAsync(exerciseRecordGroupId, userId, exerciseRecord);
+
+        exerciseRecord = await exerciseRecordService.AddExerciseRecordToExerciseRecordGroupAsync(exerciseRecordGroupId, userId, exerciseRecord, cancellationToken);
 
         var exerciseRecordDTO = mapper.Map<ExerciseRecordDTO>(exerciseRecord);
         return CreatedAtAction(nameof(GetCurrentUserExerciseRecordByIdAsync), new { exerciseRecordId = exerciseRecord.Id }, exerciseRecordDTO);
     }
 
     [HttpPut("{exerciseRecordId}")]
-    public async Task<IActionResult> UpdateCurrentUserExerciseRecordAsync(long exerciseRecordId, ExerciseRecordUpdateDTO exerciseRecordDTO)
+    public async Task<IActionResult> UpdateCurrentUserExerciseRecordAsync(long exerciseRecordId, ExerciseRecordUpdateDTO exerciseRecordDTO, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseRecordId))
             return InvalidExerciseRecordID();
@@ -108,19 +109,19 @@ public class ExerciseRecordsController : DbModelController<ExerciseRecordDTO, Ex
 
         string userId = httpContextAccessor.GetUserId()!;
         var exerciseRecord = mapper.Map<ExerciseRecord>(exerciseRecordDTO);
-        await exerciseRecordService.UpdateUserExerciseRecordAsync(userId, exerciseRecord);
+        await exerciseRecordService.UpdateUserExerciseRecordAsync(userId, exerciseRecord, cancellationToken);
 
         return Ok();
     }
 
     [HttpDelete("{exerciseRecordId}")]
-    public async Task<IActionResult> DeleteExerciseRecordFromCurrentUserAsync(long exerciseRecordId)
+    public async Task<IActionResult> DeleteExerciseRecordFromCurrentUserAsync(long exerciseRecordId, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseRecordId))
             return InvalidExerciseRecordID();
 
         string userId = httpContextAccessor.GetUserId()!;
-        await exerciseRecordService.DeleteExerciseRecordFromUserAsync(userId, exerciseRecordId);
+        await exerciseRecordService.DeleteExerciseRecordFromUserAsync(userId, exerciseRecordId, cancellationToken);
         return Ok();
     }
 

@@ -1,5 +1,4 @@
-﻿using WorkoutTracker.Application.Common.Models;
-using WorkoutTracker.Domain.ValueObjects;
+﻿using WorkoutTracker.Domain.ValueObjects;
 
 namespace WorkoutTracker.Application.Common.Extensions;
 
@@ -22,5 +21,4 @@ public static class MathExtensions
         var count = modelWeights.Count();
         return sum / count;
     }
-
 }

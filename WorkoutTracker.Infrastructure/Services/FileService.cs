@@ -20,7 +20,7 @@ internal class FileService : IFileService
 
     readonly string sourcePath = Path.Combine("Data", "Source");
 
-    public async Task<string> UploadFileAsync(FileUploadModel file, string directory, string[] allowedExtensions, long maxFileSize, bool isUniqueName = true)
+    public async Task<string> UploadFileAsync(FileUploadModel file, string directory, string[] allowedExtensions, long maxFileSize, bool isUniqueName, CancellationToken cancellationToken)
     {
         fileServiceValidator.ValidateUpload(file, allowedExtensions, maxFileSize);
 
@@ -36,14 +36,14 @@ internal class FileService : IFileService
             Directory.CreateDirectory(fileDirectory);
 
         using var fileStream = new FileStream(fullFilePath, FileMode.Create);
-        await file.Content.CopyToAsync(fileStream);
+        await file.Content.CopyToAsync(fileStream, cancellationToken);
 
         return filePath;
     }
 
     readonly string[] imageExtensions = [".jpg", ".jpeg", ".png"];
-    public async Task<string> UploadImageAsync(FileUploadModel file, string directory, long maxFileSize, bool isUniqueName = true)
-        => await UploadFileAsync(file, directory, imageExtensions, maxFileSize, isUniqueName);
+    public async Task<string> UploadImageAsync(FileUploadModel file, string directory, long maxFileSize, bool isUniqueName, CancellationToken cancellationToken)
+        => await UploadFileAsync(file, directory, imageExtensions, maxFileSize, isUniqueName, cancellationToken);
 
     public string DownloadFile(string filePath)
     {
