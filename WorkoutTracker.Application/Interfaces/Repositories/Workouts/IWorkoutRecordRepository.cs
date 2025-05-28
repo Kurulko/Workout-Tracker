@@ -7,4 +7,6 @@ namespace WorkoutTracker.Application.Interfaces.Repositories.Workouts;
 public interface IWorkoutRecordRepository : IBaseRepository<WorkoutRecord>
 {
     IQueryable<WorkoutRecord> GetUserWorkoutRecords(string userId, long? workoutId = null, DateTimeRange? range = null);
+
+    Task<DateTime?> GetFirstWorkoutDateAsync(string userId, CancellationToken cancellationToken = default);
 }
