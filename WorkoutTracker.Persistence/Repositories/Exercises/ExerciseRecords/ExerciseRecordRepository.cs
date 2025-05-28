@@ -7,6 +7,8 @@ using WorkoutTracker.Application.Common.Extensions.Exercises;
 using WorkoutTracker.Domain.Enums;
 using WorkoutTracker.Application.Common.Models;
 using WorkoutTracker.Application.Common.Extensions;
+using WorkoutTracker.Domain.Entities.Workouts;
+using System.Linq.Expressions;
 
 namespace WorkoutTracker.Persistence.Repositories.Exercises.ExerciseRecords;
 
@@ -17,12 +19,19 @@ internal class ExerciseRecordRepository : DbModelRepository<ExerciseRecord>, IEx
 
     }
 
-    IQueryable<ExerciseRecord> GetExerciseRecords()
-       => dbSet.Include(m => m.Exercise);
-
     public override IQueryable<ExerciseRecord> GetAll()
-        => GetExerciseRecords();
+        => IncludeExerciseRecord(dbSet);
 
+    public override async Task<ExerciseRecord?> GetByIdAsync(long key, CancellationToken cancellationToken)
+    {
+        return await IncludeExerciseRecord(dbSet.Where(w => w.Id == key))
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    public override IQueryable<ExerciseRecord> Find(Expression<Func<ExerciseRecord, bool>> expression)
+    {
+        return IncludeExerciseRecord(dbSet.Where(expression));
+    }
 
     public IQueryable<ExerciseRecord> GetUserExerciseRecords(string userId, long? exerciseId, ExerciseType? exerciseType, DateTimeRange? range)
     {
@@ -52,5 +61,10 @@ internal class ExerciseRecordRepository : DbModelRepository<ExerciseRecord>, IEx
         db.Entry(exerciseRecord.ExerciseRecordGroup!).Reference(w => w.WorkoutRecord).Load();
 
         return exerciseRecord.GetUserId();
+    }
+
+    static IQueryable<ExerciseRecord> IncludeExerciseRecord(IQueryable<ExerciseRecord> query)
+    {
+        return query.Include(m => m.Exercise);
     }
 }

@@ -5,6 +5,9 @@ using WorkoutTracker.Persistence.Repositories.Base;
 using WorkoutTracker.Persistence.Context;
 using WorkoutTracker.Application.Common.Models;
 using WorkoutTracker.Domain.ValueObjects;
+using WorkoutTracker.Domain.Entities.Workouts;
+using System.Linq.Expressions;
+using WorkoutTracker.Domain.Entities.Exercises.ExerciseGroups;
 
 namespace WorkoutTracker.Persistence.Repositories.Muscles;
 
@@ -15,11 +18,19 @@ internal class MuscleSizeRepository : DbModelRepository<MuscleSize>, IMuscleSize
 
     }
 
-    IQueryable<MuscleSize> GetMuscleSizes()
-        => dbSet.Include(m => m.Muscle);
-
     public override IQueryable<MuscleSize> GetAll()
-        => GetMuscleSizes();
+        => IncludeMuscleSize(dbSet);
+
+    public override async Task<MuscleSize?> GetByIdAsync(long key, CancellationToken cancellationToken)
+    {
+        return await IncludeMuscleSize(dbSet.Where(w => w.Id == key))
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    public override IQueryable<MuscleSize> Find(Expression<Func<MuscleSize, bool>> expression)
+    {
+        return IncludeMuscleSize(dbSet.Where(expression));
+    }
 
     public IQueryable<MuscleSize> GetUserMuscleSizes(string userId, long? muscleId, DateTimeRange? range)
     {
@@ -68,5 +79,10 @@ internal class MuscleSizeRepository : DbModelRepository<MuscleSize>, IMuscleSize
 
         var userMinMuscleSize = userMuscleSizes.MinBy(bw => bw.Size);
         return userMinMuscleSize;
+    }
+
+    static IQueryable<MuscleSize> IncludeMuscleSize(IQueryable<MuscleSize> query)
+    {
+        return query.Include(m => m.Muscle);
     }
 }

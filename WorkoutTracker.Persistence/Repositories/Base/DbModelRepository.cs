@@ -64,11 +64,11 @@ internal abstract  class DbModelRepository<T> : IDisposable, IBaseRepository<T>
     {
         ArgumentValidator.ThrowIfIdNonPositive(key, entityName);
 
-        return await GetAll().SingleOrDefaultAsync(m => m.Id == key);
+        return await dbSet.SingleOrDefaultAsync(m => m.Id == key);
     }
 
     public virtual IQueryable<T> Find(Expression<Func<T, bool>> expression)
-        => GetAll().Where(expression);
+        => dbSet.Where(expression);
 
     public virtual async Task<bool> ExistsAsync(long key, CancellationToken cancellationToken = default)
     {
@@ -102,6 +102,7 @@ internal abstract  class DbModelRepository<T> : IDisposable, IBaseRepository<T>
 
     public virtual async Task SaveChangesAsync(CancellationToken cancellationToken = default)
         => await db.SaveChangesAsync(cancellationToken);
+
 
     bool disposed = false;
     protected virtual void Dispose(bool disposing)

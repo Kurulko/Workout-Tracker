@@ -11,13 +11,14 @@ internal abstract class BaseWorkoutRepository<T> : DbModelRepository<T>, IBaseWo
 {
     public BaseWorkoutRepository(WorkoutDbContext db) : base(db)
     {
+
     }
 
     public virtual async Task<T?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
     {
         ArgumentValidator.ThrowIfArgumentNullOrEmpty(name, nameof(BaseWorkoutModel.Name));
 
-        return await GetAll().SingleOrDefaultAsync(m => m.Name == name, cancellationToken);
+        return await dbSet.SingleOrDefaultAsync(m => m.Name == name, cancellationToken);
     }
 
     public virtual async Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default)
