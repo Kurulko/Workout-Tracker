@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { EditModelComponent } from 'src/app/shared/components/base/edit-model.component';
+import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
+import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
+import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
+import { ExerciseRecord } from '../../models/exercise-record';
+import { ExerciseType } from '../../models/exercise-type';
+import { ExerciseRecordService } from '../../services/exercise-record.service';
+import { ExerciseService } from '../../services/exercise.service';
 
-import { EditModelComponent } from '../shared/components/base/edit-model.component';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
-import { ExerciseRecord } from './exercise-record';
-import { ExerciseRecordService } from './exercise-record.service';
-import { ExerciseType } from '../exercises/models/exercise-type';
-import { ExerciseService } from '../exercises/services/exercise.service';
 
 @Component({
   selector: 'app-edit-exercise-record',

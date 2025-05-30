@@ -2,16 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { MatSnackBar  } from '@angular/material/snack-bar';
 import { Observable } from 'rxjs';
 
-import { ApiResult } from '../shared/models/api-result';
-import { ModelsTableComponent } from '../shared/components/base/models-table.component';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
-import { ExerciseRecord } from './exercise-record';
-import { ExerciseRecordService } from './exercise-record.service';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
-import { ExerciseType } from '../exercises/models/exercise-type';
-import { ExerciseService } from '../exercises/services/exercise.service';
-import { DateTimeRange } from '../shared/models/date-time-range';
+import { ModelsTableComponent } from 'src/app/shared/components/base/models-table.component';
+import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
+import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
+import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
+import { ApiResult } from 'src/app/shared/models/api-result';
+import { DateTimeRange } from 'src/app/shared/models/date-time-range';
+import { ExerciseRecord } from '../../models/exercise-record';
+import { ExerciseType } from '../../models/exercise-type';
+import { ExerciseRecordService } from '../../services/exercise-record.service';
+import { ExerciseService } from '../../services/exercise.service';
 
 @Component({
   selector: 'app-exercise-records',

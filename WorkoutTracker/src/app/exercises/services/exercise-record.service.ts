@@ -1,11 +1,11 @@
-import { ModelsService } from "../shared/services/models.service";
+import { ModelsService } from "../../shared/services/models.service";
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { ApiResult } from "../shared/models/api-result";
-import { ExerciseRecord } from "./exercise-record";
-import { ExerciseType } from "../exercises/models/exercise-type";
-import { DateTimeRange } from "../shared/models/date-time-range";
+import { ApiResult } from "../../shared/models/api-result";
+import { ExerciseType } from "../models/exercise-type";
+import { DateTimeRange } from "../../shared/models/date-time-range";
+import { ExerciseRecord } from "../models/exercise-record";
 
 @Injectable({
     providedIn: 'root'

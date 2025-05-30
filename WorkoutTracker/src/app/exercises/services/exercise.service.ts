@@ -6,8 +6,8 @@ import { ApiResult } from "../../shared/models/api-result";
 import { ExerciseType } from "../models/exercise-type";
 import { Exercise } from "../models/exercise";
 import { ExerciseDetails } from "../models/exercise-details";
-import { Workout } from "src/app/workouts/workout";
 import { UploadWithPhoto } from "src/app/shared/models/upload-with-photo";
+import { Workout } from "src/app/workouts/models/workout";
 
 @Injectable({
     providedIn: 'root'

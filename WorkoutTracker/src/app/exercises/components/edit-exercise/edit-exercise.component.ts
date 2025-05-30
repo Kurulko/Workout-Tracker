@@ -8,10 +8,10 @@ import { ImpersonationManager } from '../../../shared/helpers/managers/impersona
 import { TokenManager } from '../../../shared/helpers/managers/token-manager';
 import { Exercise } from '../../models/exercise';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
-import { Equipment } from 'src/app/equipments/equipment';
 import { environment } from 'src/environments/environment.prod';
-import { ChildMuscle } from 'src/app/muscles/child-muscle';
 import { UploadWithPhoto } from 'src/app/shared/models/upload-with-photo';
+import { ChildMuscle } from 'src/app/muscles/models/child-muscle';
+import { Equipment } from 'src/app/equipments/models/equipment';
 
 @Component({
   selector: 'app-exercise-edit',
