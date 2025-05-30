@@ -1,5 +1,5 @@
-import { DbModel } from "../shared/models/db-model";
-import { ModelSize } from "../shared/models/model-size";
+import { DbModel } from "src/app/shared/models/base/db-model";
+import { ModelSize } from "src/app/shared/models/model-size";
 
 export interface MuscleSize extends DbModel {
     date: Date;

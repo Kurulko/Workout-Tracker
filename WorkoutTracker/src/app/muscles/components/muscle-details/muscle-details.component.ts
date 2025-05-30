@@ -1,24 +1,24 @@
 import { Component, signal, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MuscleDetails } from './muscle-details';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
+import { MuscleDetails } from '../../models/muscle-details';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MuscleService } from './muscle.service';
+import { MuscleService } from '../../services/muscle.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
 import { StatusCodes } from 'http-status-codes';
-import { showExerciseType } from '../shared/helpers/functions/showFunctions/showExerciseType';
-import { MainComponent } from '../shared/components/base/main.component';
-import { showValuesStr } from '../shared/helpers/functions/showFunctions/showValuesStr';
-import { ApiResult } from '../shared/models/api-result';
-import { MuscleSize } from '../muscle-sizes/muscle-size';
-import { MuscleSizeService } from '../muscle-sizes/muscle-size.service';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
-import { SizeType } from '../shared/models/size-type';
-import { Exercise } from '../exercises/models/exercise';
-import { ExerciseService } from '../exercises/services/exercise.service';
+import { showExerciseType } from '../../../shared/helpers/functions/showFunctions/showExerciseType';
+import { MainComponent } from '../../../shared/components/base/main.component';
+import { showValuesStr } from '../../../shared/helpers/functions/showFunctions/showValuesStr';
+import { ApiResult } from '../../../shared/models/api-result';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
+import { SizeType } from '../../../shared/models/enums/size-type';
+import { Exercise } from '../../../exercises/models/exercise';
+import { ExerciseService } from '../../../exercises/services/exercise.service';
 import { environment } from 'src/environments/environment.prod';
+import { MuscleSizeService } from '../../services/muscle-size.service';
+import { MuscleSize } from '../../models/muscle-size';
 
 @Component({
   selector: 'app-muscle-details',

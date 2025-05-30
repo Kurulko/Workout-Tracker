@@ -1,15 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-
-import { MuscleSize } from './muscle-size';
-import { EditModelComponent } from '../shared/components/base/edit-model.component';
-import { MuscleSizeService } from './muscle-size.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
-import { ModelSize } from '../shared/models/model-size';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
+import { ModelSize } from '../../../shared/models/model-size';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
+import { EditModelComponent } from 'src/app/shared/components/base/edit-model.component';
+import { MuscleSize } from '../../models/muscle-size';
+import { MuscleSizeService } from '../../services/muscle-size.service';
 
 @Component({
   selector: 'app-muscle-size-edit',

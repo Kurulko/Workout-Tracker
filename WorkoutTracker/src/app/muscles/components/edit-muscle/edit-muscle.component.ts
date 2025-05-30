@@ -2,15 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { Muscle } from './muscle';
-import { EditModelComponent } from '../shared/components/base/edit-model.component';
-import { MuscleService } from './muscle.service';
-import { ChildMuscle } from './child-muscle';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { EditModelComponent } from '../../../shared/components/base/edit-model.component';
+import { MuscleService } from '../../services/muscle.service';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
-import { UploadWithPhoto } from '../shared/models/upload-with-photo';
+import { UploadWithPhoto } from '../../../shared/models/upload-with-photo';
+import { ChildMuscle } from '../../models/child-muscle';
+import { Muscle } from '../../models/muscle';
 
 @Component({
   selector: 'app-muscle-edit',

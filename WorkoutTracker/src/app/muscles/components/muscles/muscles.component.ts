@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { MatSnackBar  } from '@angular/material/snack-bar';
 import { Observable } from 'rxjs';
 
-import { Muscle } from './muscle';
-import { MuscleService } from './muscle.service';
-import { ApiResult } from '../shared/models/api-result';
-import { ModelsTableComponent } from '../shared/components/base/models-table.component';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { MuscleService } from '../../services/muscle.service';
+import { ApiResult } from '../../../shared/models/api-result';
+import { ModelsTableComponent } from '../../../shared/components/base/models-table.component';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
+import { Muscle } from '../../models/muscle';
 
 @Component({
   selector: 'app-muscles',

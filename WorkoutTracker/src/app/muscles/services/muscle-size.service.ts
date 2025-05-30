@@ -1,10 +1,10 @@
-import { ModelsService } from "../shared/services/models.service";
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { MuscleSize } from "./muscle-size";
-import { ApiResult } from "../shared/models/api-result";
-import { DateTimeRange } from "../shared/models/date-time-range";
+import { ApiResult } from 'src/app/shared/models/api-result';
+import { DateTimeRange } from 'src/app/shared/models/date-time-range';
+import { ModelsService } from 'src/app/shared/services/models.service';
+import { MuscleSize } from '../models/muscle-size';
 
 @Injectable({
     providedIn: 'root'

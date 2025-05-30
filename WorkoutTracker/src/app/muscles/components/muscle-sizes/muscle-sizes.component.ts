@@ -2,19 +2,19 @@ import { Component, OnInit } from '@angular/core';
 import { MatSnackBar  } from '@angular/material/snack-bar';
 import { Observable } from 'rxjs';
 
-import { MuscleSize } from './muscle-size';
-import { MuscleSizeService } from './muscle-size.service';
-import { ApiResult } from '../shared/models/api-result';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
-import { SizeType } from '../shared/models/size-type';
-import { roundNumber } from '../shared/helpers/functions/roundNumber';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
-import { ModelsTableComponent } from '../shared/components/base/models-table.component';
-import { MuscleService } from '../muscles/muscle.service';
-import { Muscle } from '../muscles/muscle';
+import { ApiResult } from '../../../shared/models/api-result';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
+import { SizeType } from '../../../shared/models/enums/size-type';
+import { roundNumber } from '../../../shared/helpers/functions/roundNumber';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
+import { ModelsTableComponent } from '../../../shared/components/base/models-table.component';
+import { MuscleService } from '../../services/muscle.service';
 import { environment } from 'src/environments/environment.prod';
-import { DateTimeRange } from '../shared/models/date-time-range';
+import { DateTimeRange } from '../../../shared/models/date-time-range';
+import { Muscle } from '../../models/muscle';
+import { MuscleSize } from '../../models/muscle-size';
+import { MuscleSizeService } from '../../services/muscle-size.service';
 
 @Component({
   selector: 'app-muscle-sizes',
