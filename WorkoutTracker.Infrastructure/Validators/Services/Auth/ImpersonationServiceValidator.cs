@@ -11,17 +11,17 @@ public class ImpersonationServiceValidator
 {
     readonly UserValidator userValidator;
     readonly IHttpContextAccessor httpContextAccessor;
-    readonly SessionKeys sessionKeys;
+    readonly SessionKeysOptions sessionKeysOptions;
 
     public ImpersonationServiceValidator (
         IHttpContextAccessor httpContextAccessor,
         UserValidator userValidator,
-        SessionKeys sessionKeys
+        SessionKeysOptions sessionKeysOptions
     )
     {
         this.httpContextAccessor = httpContextAccessor;
         this.userValidator = userValidator;
-        this.sessionKeys = sessionKeys;
+        this.sessionKeysOptions = sessionKeysOptions;
     }
 
     HttpContext? HttpContext => httpContextAccessor.HttpContext;
@@ -38,7 +38,7 @@ public class ImpersonationServiceValidator
     {
         ThrowIfNotAuthenticated();
 
-        var originalUserId = HttpContext!.Session.GetString(sessionKeys.OriginalUserId);
+        var originalUserId = HttpContext!.Session.GetString(sessionKeysOptions.OriginalUserId);
         ArgumentValidator.ThrowIfIdNullOrEmpty(originalUserId, "Original User ID");
 
         await userValidator.EnsureExistsAsync(originalUserId!);

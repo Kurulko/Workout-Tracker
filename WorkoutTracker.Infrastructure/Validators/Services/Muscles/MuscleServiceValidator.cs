@@ -1,5 +1,8 @@
-﻿using WorkoutTracker.Application.Common.Validators;
+﻿using WorkoutTracker.Application.Common.Models;
+using WorkoutTracker.Application.Common.Validators;
 using WorkoutTracker.Domain.Entities.Muscles;
+using WorkoutTracker.Infrastructure.Identity.Entities;
+using WorkoutTracker.Infrastructure.Validators.Models;
 using WorkoutTracker.Infrastructure.Validators.Models.Muscles;
 using WorkoutTracker.Infrastructure.Validators.Models.Users;
 
@@ -9,12 +12,15 @@ public class MuscleServiceValidator
 {
     readonly MuscleValidator muscleValidator;
     readonly UserValidator userValidator;
+    readonly FileUploadModelValidator fileUploadModelValidator;
     public MuscleServiceValidator(
         MuscleValidator muscleValidator,
+        FileUploadModelValidator fileUploadModelValidator,
         UserValidator userValidator
     )
     {
         this.userValidator = userValidator;
+        this.fileUploadModelValidator = fileUploadModelValidator;
         this.muscleValidator = muscleValidator;
     }
 
@@ -72,7 +78,19 @@ public class MuscleServiceValidator
     {
         if (parentMuscleId.HasValue)
             await muscleValidator.EnsureExistsAsync(parentMuscleId.Value, cancellationToken);
+    }
 
+    public async Task ValidateUpdatePhotoAsync(long muscleId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    {
+        await muscleValidator.EnsureExistsAsync(muscleId, cancellationToken);
+
+        if(fileUpload != null)
+            fileUploadModelValidator.Validate(fileUpload);
+    }
+
+    public async Task ValidateDeletePhotoAsync(long muscleId, CancellationToken cancellationToken)
+    {
+        await muscleValidator.EnsureExistsAsync(muscleId, cancellationToken);
     }
 }
 
