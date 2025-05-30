@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { Role } from 'src/app/roles/role';
-import { RoleService } from 'src/app/roles/role.service';
+import { Role } from 'src/app/roles/models/role';
 import { ModelsSelectorComponent } from '../models-selector.component';
+import { RoleService } from 'src/app/roles/services/role.service';
 
 @Component({
   template: ''

@@ -5,11 +5,11 @@ import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonat
 import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
 import { BaseChartComponent } from '../base-chart.component';
-import { BodyWeight } from 'src/app/body-weights/body-weight';
 import { CartesianScaleOptions, ChartData, ChartOptions } from 'chart.js';
 import { roundNumber } from 'src/app/shared/helpers/functions/roundNumber';
 import { showWeightTypeShort } from 'src/app/shared/helpers/functions/showFunctions/showWeightTypeShort';
-import { WeightType } from 'src/app/shared/models/weight-type';
+import { WeightType } from 'src/app/shared/models/enums/weight-type';
+import { BodyWeight } from 'src/app/body-weights/models/body-weight';
 
 @Component({
   selector: 'app-body-weight-chart',

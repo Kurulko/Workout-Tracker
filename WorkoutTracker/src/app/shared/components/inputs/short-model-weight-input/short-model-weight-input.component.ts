@@ -2,7 +2,7 @@ import { Component, Input, OnInit, forwardRef } from '@angular/core';
 import { BaseEditorComponent } from '../../base-editor.component';
 import { FormBuilder, FormGroup, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { ModelWeight } from 'src/app/shared/models/model-weight';
-import { WeightType } from 'src/app/shared/models/weight-type';
+import { WeightType } from 'src/app/shared/models/enums/weight-type';
 
 @Component({
   selector: 'app-short-model-weight-input',

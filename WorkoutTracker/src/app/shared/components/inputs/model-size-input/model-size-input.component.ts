@@ -2,7 +2,7 @@ import { Component, Input, forwardRef } from '@angular/core';
 import { BaseEditorComponent } from '../../base-editor.component';
 import { FormBuilder, FormGroup, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { ModelSize } from 'src/app/shared/models/model-size';
-import { SizeType } from 'src/app/shared/models/size-type';
+import { SizeType } from 'src/app/shared/models/enums/size-type';
 
 @Component({
   selector: 'app-model-size-input',

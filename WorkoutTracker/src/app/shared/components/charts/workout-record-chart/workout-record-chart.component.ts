@@ -8,8 +8,8 @@ import { BaseChartComponent } from '../base-chart.component';
 import { CartesianScaleOptions, ChartData, ChartOptions } from 'chart.js';
 import { roundNumber } from 'src/app/shared/helpers/functions/roundNumber';
 import { showWeightTypeShort } from 'src/app/shared/helpers/functions/showFunctions/showWeightTypeShort';
-import { WeightType } from 'src/app/shared/models/weight-type';
-import { WorkoutRecord } from 'src/app/workout-records/workout-record';
+import { WeightType } from 'src/app/shared/models/enums/weight-type';
+import { WorkoutRecord } from 'src/app/workouts/models/workout-record';
 
 @Component({
   selector: 'app-workout-record-chart',

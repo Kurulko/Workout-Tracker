@@ -4,7 +4,7 @@
     <mat-select [(ngModel)]="selectedExerciseId" (selectionChange)="onExerciseIdSelected()" [required]="required" #exercise="ngModel">
         <mat-option *ngIf="!required" class="none-option">--None--</mat-option>
         <mat-option *ngFor="let exercise of result" [value]="exercise.id">
-            <img src="{{ envProduction.baseUrl + 'resources/' + exercise.image }}" aria-label="Photo"
+            <img src="{{ envProduction.baseUrl + exercise.image }}" aria-label="Photo"
                 width="10%" height="10%" *ngIf="exercise.image" />
             {{ exercise.name }}
         </mat-option>

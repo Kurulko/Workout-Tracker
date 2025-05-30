@@ -1,6 +1,6 @@
-import { ExerciseRecordGroup } from "../../models/exercise-record-group";
-import { ExerciseSet } from "../../models/exercise-set";
-import { ExerciseSetGroup } from "../../models/exercise-set-group";
+import { ExerciseRecordGroup } from "../../models/exercises/exercise-record-group";
+import { ExerciseSet } from "../../models/exercises/exercise-set";
+import { ExerciseSetGroup } from "../../models/exercises/exercise-set-group";
 
 export function toExerciseSetGroups(exerciseRecordGroups: ExerciseRecordGroup[]): ExerciseSetGroup[] {
     return exerciseRecordGroups.map(esg => <ExerciseSetGroup>{

@@ -2,8 +2,8 @@ import { Component, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { ImpersonationManager } from './shared/helpers/managers/impersonation-manager';
 import { TokenManager } from './shared/helpers/managers/token-manager';
-import { WeightType } from './shared/models/weight-type';
-import { SizeType } from './shared/models/size-type';
+import { WeightType } from './shared/models/enums/weight-type';
+import { SizeType } from './shared/models/enums/size-type';
 import { PreferencesManager } from './shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
 

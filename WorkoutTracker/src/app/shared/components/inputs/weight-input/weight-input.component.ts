@@ -2,7 +2,7 @@ import { Component, Input, forwardRef } from '@angular/core';
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { showWeightType } from 'src/app/shared/helpers/functions/showFunctions/showWeightType';
 import { showWeightTypeShort } from 'src/app/shared/helpers/functions/showFunctions/showWeightTypeShort';
-import { WeightType } from 'src/app/shared/models/weight-type';
+import { WeightType } from 'src/app/shared/models/enums/weight-type';
 import { BaseInputComponent } from '../base-input.component';
 
 @Component({

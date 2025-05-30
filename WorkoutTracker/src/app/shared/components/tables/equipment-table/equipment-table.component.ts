@@ -3,9 +3,9 @@ import { MatSnackBar  } from '@angular/material/snack-bar';
 import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
 import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
 import { BaseTableComponent } from '../base-table.component';
-import { Equipment } from 'src/app/equipments/equipment';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
+import { Equipment } from 'src/app/equipments/models/equipment';
 
 @Component({
   selector: 'app-equipment-table',

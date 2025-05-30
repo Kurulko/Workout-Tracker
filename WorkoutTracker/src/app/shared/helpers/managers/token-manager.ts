@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Observable } from "rxjs";
-import { TokenModel } from '../../models/token.model';
+import { TokenModel } from '../../models/tokens/token.model';
 import { BaseManager } from './base-manager';
 
 @Injectable({

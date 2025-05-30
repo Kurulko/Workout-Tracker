@@ -1,4 +1,4 @@
-import { WeightType } from "../../../models/weight-type";
+import { WeightType } from "../../../models/enums/weight-type";
 
 export function showWeightTypeShort(type: WeightType): string {
     switch (type) {

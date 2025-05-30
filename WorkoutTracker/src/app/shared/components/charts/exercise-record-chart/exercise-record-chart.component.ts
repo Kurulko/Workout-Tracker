@@ -7,8 +7,8 @@ import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-
 import { BaseChartComponent } from '../base-chart.component';
 import { ChartData, ChartOptions } from 'chart.js';
 import { roundNumber } from 'src/app/shared/helpers/functions/roundNumber';
-import { ExerciseRecord } from 'src/app/exercise-records/exercise-record';
 import { ExerciseType } from 'src/app/exercises/models/exercise-type';
+import { ExerciseRecord } from 'src/app/exercises/models/exercise-record';
 
 @Component({
   selector: 'app-exercise-record-chart',

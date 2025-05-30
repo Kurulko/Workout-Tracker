@@ -6,8 +6,8 @@ import { RegisterModel } from "../models/register.model";
 import { LoginModel } from "../models/login.model";
 import { AuthModel } from '../models/auth.model';
 import { AuthResult } from '../models/auth-result.model';
-import { TokenModel } from "../../shared/models/token.model";
-import { TokenViewModel } from "../../shared/models/token.view-model";
+import { TokenModel } from "../../shared/models/tokens/token.model";
+import { TokenViewModel } from "../../shared/models/tokens/token.view-model";
 import { toTokenModel } from "../../shared/helpers/functions/toTokenModel";
 import { map } from 'rxjs/operators';
 

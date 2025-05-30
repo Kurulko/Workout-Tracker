@@ -1,7 +1,7 @@
 import { Component, Input, EventEmitter, Output, OnInit, forwardRef } from '@angular/core';
 import { BaseSelectorComponent } from '../base-selector.component';
 import { getEnumElements } from 'src/app/shared/helpers/functions/getFunctions/getEnumElements';
-import { WeightType } from 'src/app/shared/models/weight-type';
+import { WeightType } from 'src/app/shared/models/enums/weight-type';
 import { showWeightType } from 'src/app/shared/helpers/functions/showFunctions/showWeightType';
 import { showWeightTypeShort } from 'src/app/shared/helpers/functions/showFunctions/showWeightTypeShort';
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';

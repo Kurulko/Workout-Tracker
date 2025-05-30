@@ -1,4 +1,4 @@
-import { TokenModel } from "../../shared/models/token.model";
+import { TokenModel } from "../../shared/models/tokens/token.model";
 
 export interface AuthResult {
   success: boolean;

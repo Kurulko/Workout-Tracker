@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { Equipment } from 'src/app/equipments/equipment';
-import { EquipmentService } from 'src/app/equipments/equipment.service';
+import { EquipmentService } from 'src/app/equipments/services/equipment.service';
 import { ModelsSelectorComponent } from '../models-selector.component';
 import { environment } from 'src/environments/environment.prod';
+import { Equipment } from 'src/app/equipments/models/equipment';
 
 @Component({
   template: ''

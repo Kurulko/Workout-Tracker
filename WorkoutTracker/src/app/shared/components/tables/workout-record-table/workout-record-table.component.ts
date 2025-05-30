@@ -4,11 +4,11 @@ import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonat
 import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
 import { showValuesStr } from 'src/app/shared/helpers/functions/showFunctions/showValuesStr';
 import { BaseTableComponent } from '../base-table.component';
-import { WorkoutRecord } from 'src/app/workout-records/workout-record';
 import { roundNumber } from 'src/app/shared/helpers/functions/roundNumber';
 import { showTime } from 'src/app/shared/helpers/functions/showFunctions/showTime';
 import { showWeightType } from 'src/app/shared/helpers/functions/showFunctions/showWeightType';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
+import { WorkoutRecord } from 'src/app/workouts/models/workout-record';
 
 @Component({
   selector: 'app-workout-record-table',

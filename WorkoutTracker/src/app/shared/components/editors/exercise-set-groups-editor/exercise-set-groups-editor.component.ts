@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Input, Output, ViewChild, forwardRef } from '@angular/core';
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { ExerciseSetGroup } from '../../../models/exercise-set-group';
+import { ExerciseSetGroup } from '../../../models/exercises/exercise-set-group';
 import { ModelWeight } from '../../../models/model-weight';
 import { ExerciseService } from 'src/app/exercises/services/exercise.service';
 import { BaseEditorComponent } from '../../base-editor.component';
-import { WeightType } from 'src/app/shared/models/weight-type';
+import { WeightType } from 'src/app/shared/models/enums/weight-type';
 import { MatAccordion } from '@angular/material/expansion';
 import { showCountOfSomethingStr } from 'src/app/shared/helpers/functions/showFunctions/showCountOfSomethingStr';
 import { Exercise } from 'src/app/exercises/models/exercise';

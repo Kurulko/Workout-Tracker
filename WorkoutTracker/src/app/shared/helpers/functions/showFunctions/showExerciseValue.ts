@@ -1,12 +1,12 @@
 import { ExerciseType } from "src/app/exercises/models/exercise-type";
-import { ExerciseSet } from "../../../models/exercise-set";
+import { ExerciseSet } from "../../../models/exercises/exercise-set";
 import { showWeightTypeShort } from "./showWeightTypeShort";
 import { TimeSpan } from "src/app/shared/models/time-span";
 import { ModelWeight } from "src/app/shared/models/model-weight";
 import { showCountOfSomethingStr } from "./showCountOfSomethingStr";
 import { roundNumber } from "../roundNumber";
-import { ExerciseRecord } from "src/app/exercise-records/exercise-record";
 import { showBigNumberStr } from "./showBigNumberStr";
+import { ExerciseRecord } from "src/app/exercises/models/exercise-record";
 
 export function showExerciseValue(exercise: ExerciseSet|ExerciseRecord): string {
   switch (exercise.exerciseType) {

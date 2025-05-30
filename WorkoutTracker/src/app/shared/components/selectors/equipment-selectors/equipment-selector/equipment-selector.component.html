@@ -4,7 +4,7 @@
     <mat-select [(ngModel)]="selectedEquipmentId" (selectionChange)="onEquipmentIdSelected()" [required]="required" #equipment="ngModel">
       <mat-option *ngIf="!required" class="none-option">--None--</mat-option>
         <mat-option *ngFor="let equipment of result" [value]="equipment.id">
-            <img src="{{ envProduction.baseUrl + 'resources/' + equipment.image }}" aria-label="Photo"
+            <img src="{{ envProduction.baseUrl + equipment.image }}" aria-label="Photo"
                 width="10%" height="10%" *ngIf="equipment.image" />
             {{ equipment.name }}
         </mat-option>

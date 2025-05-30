@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Output, Input, OnInit, forwardRef } from '@angular/core';
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { map, Observable } from 'rxjs';
-import { Workout } from 'src/app/workouts/workout';
-import { WorkoutService } from 'src/app/workouts/workout.service';
 import { ModelsSelectorComponent } from '../models-selector.component';
+import { Workout } from 'src/app/workouts/models/workout';
+import { WorkoutService } from 'src/app/workouts/services/workout.service';
 
 @Component({
   selector: 'app-workout-selector',

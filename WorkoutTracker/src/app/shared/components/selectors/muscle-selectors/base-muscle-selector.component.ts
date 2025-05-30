@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { Muscle } from 'src/app/muscles/muscle';
-import { MuscleService } from 'src/app/muscles/muscle.service';
+import { MuscleService } from 'src/app/muscles/services/muscle.service';
 import { ModelsSelectorComponent } from '../models-selector.component';
 import { environment } from 'src/environments/environment.prod';
+import { Muscle } from 'src/app/muscles/models/muscle';
 
 @Component({
   template: ''

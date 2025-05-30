@@ -4,10 +4,10 @@ import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { ExerciseType } from '../../../../exercises/models/exercise-type';
 import { TimeSpan } from '../../../models/time-span';
 import { ModelWeight } from '../../../models/model-weight';
-import { ExerciseSetGroup } from '../../../models/exercise-set-group';
-import { ExerciseSet } from '../../../models/exercise-set';
+import { ExerciseSetGroup } from '../../../models/exercises/exercise-set-group';
+import { ExerciseSet } from '../../../models/exercises/exercise-set';
 import { BaseEditorComponent } from '../../base-editor.component';
-import { WeightType } from 'src/app/shared/models/weight-type';
+import { WeightType } from 'src/app/shared/models/enums/weight-type';
 
 @Component({
     selector: 'app-exercise-sets-edit',

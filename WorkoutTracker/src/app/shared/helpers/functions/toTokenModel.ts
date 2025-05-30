@@ -1,5 +1,5 @@
-import { TokenModel } from "../../models/token.model";
-import { TokenViewModel } from "../../models/token.view-model";
+import { TokenModel } from "../../models/tokens/token.model";
+import { TokenViewModel } from "../../models/tokens/token.view-model";
 
 export function toTokenModel(tokenViewModel: TokenViewModel|null) : TokenModel|null {
     if(tokenViewModel == null)

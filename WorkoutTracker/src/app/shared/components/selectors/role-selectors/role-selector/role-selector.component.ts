@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Output, Input, OnInit, forwardRef } from '@angular/core';
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Role } from 'src/app/roles/role';
-import { RoleService } from 'src/app/roles/role.service';
 import { BaseRoleSelectorComponent } from '../base-role-selector.component';
+import { RoleService } from 'src/app/roles/services/role.service';
 
 @Component({
   selector: 'app-role-selector',

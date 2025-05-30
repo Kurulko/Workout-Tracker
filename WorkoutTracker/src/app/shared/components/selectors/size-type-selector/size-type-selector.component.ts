@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output, Input, OnInit, forwardRef } from '@ang
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { BaseSelectorComponent } from '../base-selector.component';
 import { getEnumElements } from 'src/app/shared/helpers/functions/getFunctions/getEnumElements';
-import { SizeType } from 'src/app/shared/models/size-type';
+import { SizeType } from 'src/app/shared/models/enums/size-type';
 import { showSizeType } from 'src/app/shared/helpers/functions/showFunctions/showSizeType';
 import { showSizeTypeShort } from 'src/app/shared/helpers/functions/showFunctions/showSizeTypeShort';
 import { convertSizeValue } from 'src/app/shared/helpers/functions/convertos/convertSizeValue';
