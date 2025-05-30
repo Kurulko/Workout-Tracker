@@ -33,11 +33,7 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "Data/Source")),
-    RequestPath = "/Resources"
-});
+app.UseStaticFiles();
 
 await app.InitializeDataAsync(config);
 
