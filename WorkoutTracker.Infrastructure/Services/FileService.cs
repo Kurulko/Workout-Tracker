@@ -18,8 +18,6 @@ internal class FileService : IFileService
         this.fileServiceValidator = fileServiceValidator;
     }
 
-    readonly string sourcePath = Path.Combine("Data", "Source");
-
     public async Task<string> UploadFileAsync(FileUploadModel file, string directory, string[] allowedExtensions, long maxFileSize, bool isUniqueName, CancellationToken cancellationToken)
     {
         fileServiceValidator.ValidateUpload(file, allowedExtensions, maxFileSize);
@@ -27,9 +25,9 @@ internal class FileService : IFileService
         var extension = Path.GetExtension(file.FileName).ToLower();
         string fileName = isUniqueName ? $"{Guid.NewGuid()}{extension}" : file.FileName;
 
-        string contentPath = environment.ContentRootPath;
+        string contentPath = environment.WebRootPath;
         string filePath = Path.Combine(directory, fileName);
-        string fullFilePath = Path.Combine(contentPath, sourcePath, filePath);
+        string fullFilePath = Path.Combine(contentPath, filePath);
 
         string fileDirectory = Path.GetDirectoryName(fullFilePath)!;
         if (!Directory.Exists(fileDirectory))
@@ -72,8 +70,8 @@ internal class FileService : IFileService
     {
         fileServiceValidator.ValidateFilePath(filePath);
 
-        string contentPath = environment.ContentRootPath;
-        fullFilePath = Path.Combine(contentPath, sourcePath, filePath);
+        string contentPath = environment.WebRootPath;
+        fullFilePath = Path.Combine(contentPath, filePath);
 
         return File.Exists(fullFilePath);
     }
