@@ -1,4 +1,4 @@
-import { ModelWeight } from "../shared/models/model-weight";
+import { ModelWeight } from "../../shared/models/model-weight";
 import { WorkoutStatus } from "./workout-status";
 
 export interface CurrentUserProgress {

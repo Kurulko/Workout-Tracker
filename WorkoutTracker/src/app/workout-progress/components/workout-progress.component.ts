@@ -1,22 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { WorkoutProgress } from './workout-progress';
-import { MainComponent } from '../shared/components/base/main.component';
-import { WorkoutProgressService } from './workout-progress.service';
-import { showWeightTypeShort } from '../shared/helpers/functions/showFunctions/showWeightTypeShort';
-import { roundNumber } from '../shared/helpers/functions/roundNumber';
-import { showTime } from '../shared/helpers/functions/showFunctions/showTime';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
-import { showCountOfSomethingStr } from '../shared/helpers/functions/showFunctions/showCountOfSomethingStr';
-import { TimeSpan } from '../shared/models/time-span';
-import { YearMonth } from '../shared/models/year-month';
-import { WorkoutStatus } from './workout-status';
-import { DateTimeRange } from '../shared/models/date-time-range';
-import { CurrentUserProgress } from './current-user-progress';
 import { differenceInDays } from 'date-fns';
-import { showLastDateStr } from '../shared/helpers/functions/showFunctions/showLastDateStr';
+
+import { MainComponent } from 'src/app/shared/components/base/main.component';
+import { roundNumber } from 'src/app/shared/helpers/functions/roundNumber';
+import { showCountOfSomethingStr } from 'src/app/shared/helpers/functions/showFunctions/showCountOfSomethingStr';
+import { showTime } from 'src/app/shared/helpers/functions/showFunctions/showExerciseValue';
+import { showLastDateStr } from 'src/app/shared/helpers/functions/showFunctions/showLastDateStr';
+import { showWeightTypeShort } from 'src/app/shared/helpers/functions/showFunctions/showWeightTypeShort';
+import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
+import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
+import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
+import { DateTimeRange } from 'src/app/shared/models/date-time-range';
+import { TimeSpan } from 'src/app/shared/models/time-span';
+import { YearMonth } from 'src/app/shared/models/year-month';
+import { CurrentUserProgress } from '../models/current-user-progress';
+import { WorkoutProgress } from '../models/workout-progress';
+import { WorkoutStatus } from '../models/workout-status';
+import { WorkoutProgressService } from '../services/workout-progress.service';
+
 
 @Component({
   selector: 'app-workout-progress',

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { BaseService } from '../shared/services/base.service';
-import { WorkoutProgress } from './workout-progress';
-import { ModelsService } from '../shared/services/models.service';
-import { DateTimeRange } from '../shared/models/date-time-range';
-import { CurrentUserProgress } from './current-user-progress';
+
+import { DateTimeRange } from 'src/app/shared/models/date-time-range';
+import { ModelsService } from 'src/app/shared/services/models.service';
+import { CurrentUserProgress } from '../models/current-user-progress';
+import { WorkoutProgress } from '../models/workout-progress';
 
 @Injectable({
     providedIn: 'root'

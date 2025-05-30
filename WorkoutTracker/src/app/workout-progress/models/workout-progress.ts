@@ -1,5 +1,5 @@
-import { ModelWeight } from "../shared/models/model-weight";
-import { TimeSpan } from "../shared/models/time-span";
+import { ModelWeight } from "../../shared/models/model-weight";
+import { TimeSpan } from "../../shared/models/time-span";
 
 export interface WorkoutProgress {
     baseInfoProgress: BaseInfoProgress;
