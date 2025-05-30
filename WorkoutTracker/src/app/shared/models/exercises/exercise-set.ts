@@ -1,6 +1,6 @@
 import { ExerciseType } from "src/app/exercises/models/exercise-type";
-import { DbModel } from "./db-model";
-import { TimeSpan } from "./time-span";
+import { DbModel } from "../base/db-model";
+import { TimeSpan } from "../time-span";
 import { ModelWeight } from "src/app/shared/models/model-weight";
 
 export interface ExerciseSet extends DbModel {

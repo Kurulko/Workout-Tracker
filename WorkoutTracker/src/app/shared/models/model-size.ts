@@ -1,4 +1,4 @@
-import { SizeType } from "./size-type";
+import { SizeType } from "./enums/size-type";
 
 export interface ModelSize {
     size: number;

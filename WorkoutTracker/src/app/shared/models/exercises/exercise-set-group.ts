@@ -1,7 +1,7 @@
-import { DbModel } from "src/app/shared/models/db-model";
+import { DbModel } from "src/app/shared/models/base/db-model";
 import { ExerciseType } from "src/app/exercises/models/exercise-type";
 import { ExerciseSet } from "./exercise-set";
-import { ModelWeight } from "./model-weight";
+import { ModelWeight } from "../model-weight";
 
 export interface ExerciseSetGroup extends DbModel {
     sets: number;
