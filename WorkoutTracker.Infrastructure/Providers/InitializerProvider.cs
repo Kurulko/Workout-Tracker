@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
+using WorkoutTracker.Application.Common.Settings;
 using WorkoutTracker.Application.Interfaces.Repositories;
 using WorkoutTracker.Application.Interfaces.Repositories.Exercises;
 using WorkoutTracker.Application.Interfaces.Repositories.Exercises.ExerciseRecords;
@@ -19,15 +20,14 @@ namespace WorkoutTracker.Infrastructure.Providers;
 
 public static class InitializerProvider
 {
-    const string sourceFolderPath = "Data/Source";
-
-    public static async Task InitializeDataAsync(this WebApplication app, ConfigurationManager config)
+    public static async Task InitializeDataAsync(this WebApplication app, IConfiguration config)
     {
         using IServiceScope serviceScope = app.Services.CreateScope();
 
         IServiceProvider serviceProvider = serviceScope.ServiceProvider;
 
         var fileService = serviceProvider.GetRequiredService<IFileService>();
+        var seedDataOptions = serviceProvider.GetRequiredService<SeedDataOptions>();
 
         var roleRepository = serviceProvider.GetRequiredService<IRoleRepository>();
         if (!await roleRepository.AnyAsync())
@@ -35,11 +35,11 @@ public static class InitializerProvider
 
         var muscleRepository = serviceProvider.GetRequiredService<IMuscleRepository>();
         if (!await muscleRepository.AnyAsync())
-            await InitializeMusclesAsync(muscleRepository);
+            await InitializeMusclesAsync(muscleRepository, seedDataOptions);
 
         var equipmentRepository = serviceProvider.GetRequiredService<IEquipmentRepository>();
         if (!await equipmentRepository.AnyAsync())
-            await InitializeEquipmentsAsync(equipmentRepository);
+            await InitializeEquipmentsAsync(equipmentRepository, seedDataOptions);
 
         var exerciseRepository = serviceProvider.GetRequiredService<IExerciseRepository>();
         if (!await exerciseRepository.AnyAsync())
@@ -72,7 +72,7 @@ public static class InitializerProvider
         IExerciseSetGroupRepository exerciseSetGroupRepository, 
         IExerciseSetRepository exerciseSetRepository,
         IExerciseRepository exerciseRepository, 
-        ConfigurationManager config)
+        IConfiguration config)
     {
         string adminName = config.GetValue<string>("Admin:Name")!;
         string adminPassword = config.GetValue<string>("Admin:Password")!;
@@ -81,9 +81,9 @@ public static class InitializerProvider
         var user = await UsersInitializer.InitializeAsync(userRepository, adminName, adminEmail, adminPassword, [ Roles.AdminRole, Roles.UserRole ]);
     }
 
-    static async Task InitializeMusclesAsync(IMuscleRepository muscleRepository)
+    static async Task InitializeMusclesAsync(IMuscleRepository muscleRepository, SeedDataOptions seedDataOptions)
     {
-        string muscleNamesFilePath = Path.Combine(sourceFolderPath, "muscle-names.json");
+        string muscleNamesFilePath = Path.Combine(seedDataOptions.FolderPath, "muscle-names.json");
         string json = await File.ReadAllTextAsync(muscleNamesFilePath);
 
         var jsonObject = JObject.Parse(json);
@@ -94,9 +94,9 @@ public static class InitializerProvider
             await MusclesInitializer.InitializeAsync(muscleRepository, muscle, null);
     }
 
-    static async Task InitializeEquipmentsAsync(IEquipmentRepository equipmentRepository)
+    static async Task InitializeEquipmentsAsync(IEquipmentRepository equipmentRepository, SeedDataOptions seedDataOptions)
     {
-        string equipmentNamesFilePath = Path.Combine(sourceFolderPath, "equipment-names.json");
+        string equipmentNamesFilePath = Path.Combine(seedDataOptions.FolderPath, "equipment-names.json");
         string json = await File.ReadAllTextAsync(equipmentNamesFilePath);
 
         var jsonObject = JObject.Parse(json);
