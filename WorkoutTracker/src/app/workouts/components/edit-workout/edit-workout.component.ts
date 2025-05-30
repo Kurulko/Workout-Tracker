@@ -3,17 +3,17 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar  } from '@angular/material/snack-bar';
 
 import { EditModelComponent } from 'src/app/shared/components/base/edit-model.component';
-import { Workout } from './workout';
-import { WorkoutService } from './workout.service';
-import { ExerciseSetGroup } from '../shared/models/exercise-set-group';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
-import { TimeSpan } from '../shared/models/time-span';
+import { ExerciseSetGroup } from '../../../shared/models/exercises/exercise-set-group';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
+import { TimeSpan } from '../../../shared/models/time-span';
 import { MatDialog } from '@angular/material/dialog';
-import { WorkoutRecordService } from '../workout-records/workout-record.service';
-import { WorkoutRecord } from '../workout-records/workout-record';
-import { toExerciseRecordGroups } from '../shared/helpers/functions/toExerciseRecordGroups';
+import { WorkoutRecordService } from '../../services/workout-record.service';
+import { toExerciseRecordGroups } from '../../../shared/helpers/functions/toExerciseRecordGroups';
+import { Workout } from '../../models/workout';
+import { WorkoutRecord } from '../../models/workout-record';
+import { WorkoutService } from '../../services/workout.service';
 
 @Component({
   selector: 'app-workout-edit',

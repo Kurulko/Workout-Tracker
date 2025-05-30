@@ -5,17 +5,17 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { ModelsTableComponent } from 'src/app/shared/components/base/models-table.component';
 import { ApiResult } from 'src/app/shared/models/api-result';
-import { Workout } from './workout';
-import { WorkoutService } from './workout.service';
-import { TimeSpan } from '../shared/models/time-span';
-import { getSomeExercises } from '../shared/helpers/functions/getFunctions/getSomeExercises';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
-import { showCountOfSomethingStr } from '../shared/helpers/functions/showFunctions/showCountOfSomethingStr';
-import { showCountOfSomethingLeftStr } from '../shared/helpers/functions/showFunctions/showCountOfSomethingLeftStr';
+import { TimeSpan } from '../../../shared/models/time-span';
+import { getSomeExercises } from '../../../shared/helpers/functions/getFunctions/getSomeExercises';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
+import { showCountOfSomethingStr } from '../../../shared/helpers/functions/showFunctions/showCountOfSomethingStr';
+import { showCountOfSomethingLeftStr } from '../../../shared/helpers/functions/showFunctions/showCountOfSomethingLeftStr';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
+import { Workout } from '../../models/workout';
+import { WorkoutService } from '../../services/workout.service';
 
 @Component({
   selector: 'app-workouts',

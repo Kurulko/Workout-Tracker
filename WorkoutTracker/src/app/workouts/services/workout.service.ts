@@ -3,10 +3,10 @@ import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { ModelsService } from 'src/app/shared/services/models.service';
 import { ApiResult } from 'src/app/shared/models/api-result';
-import { Workout } from './workout';
-import { ExerciseSetGroup } from '../shared/models/exercise-set-group';
-import { TimeSpan } from '../shared/models/time-span';
-import { WorkoutDetails } from './workout-details';
+import { ExerciseSetGroup } from 'src/app/shared/models/exercises/exercise-set-group';
+import { TimeSpan } from 'src/app/shared/models/time-span';
+import { Workout } from '../models/workout';
+import { WorkoutDetails } from '../models/workout-details';
 
 @Injectable({
     providedIn: 'root'

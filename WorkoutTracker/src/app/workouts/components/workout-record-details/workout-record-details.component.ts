@@ -6,18 +6,18 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { StatusCodes } from 'http-status-codes';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { WorkoutRecord } from './workout-record';
-import { WorkoutRecordService } from './workout-record.service';
-import { MainComponent } from '../shared/components/base/main.component';
-import { showWeightTypeShort } from '../shared/helpers/functions/showFunctions/showWeightTypeShort';
-import { showExerciseValue } from '../shared/helpers/functions/showFunctions/showExerciseValue';
-import { roundNumber } from '../shared/helpers/functions/roundNumber';
-import { showTime } from '../shared/helpers/functions/showFunctions/showTime';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
-import { showCountOfSomethingStr } from '../shared/helpers/functions/showFunctions/showCountOfSomethingStr';
-import { ExerciseRecordService } from '../exercise-records/exercise-record.service';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { WorkoutRecordService } from '../../services/workout-record.service';
+import { MainComponent } from '../../../shared/components/base/main.component';
+import { showWeightTypeShort } from '../../../shared/helpers/functions/showFunctions/showWeightTypeShort';
+import { showExerciseValue } from '../../../shared/helpers/functions/showFunctions/showExerciseValue';
+import { roundNumber } from '../../../shared/helpers/functions/roundNumber';
+import { showTime } from '../../../shared/helpers/functions/showFunctions/showTime';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
+import { showCountOfSomethingStr } from '../../../shared/helpers/functions/showFunctions/showCountOfSomethingStr';
+import { ExerciseRecordService } from '../../../exercises/services/exercise-record.service';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
+import { WorkoutRecord } from '../../models/workout-record';
 
 @Component({
   selector: 'app-workout-record-details',

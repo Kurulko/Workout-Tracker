@@ -6,25 +6,25 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { StatusCodes } from 'http-status-codes';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { MainComponent } from '../shared/components/base/main.component';
-import { WorkoutService } from './workout.service';
-import { showWeightTypeShort } from '../shared/helpers/functions/showFunctions/showWeightTypeShort';
-import { showExerciseValue } from '../shared/helpers/functions/showFunctions/showExerciseValue';
-import { roundNumber } from '../shared/helpers/functions/roundNumber';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
-import { showCountOfSomethingStr } from '../shared/helpers/functions/showFunctions/showCountOfSomethingStr';
-import { showValuesStr } from '../shared/helpers/functions/showFunctions/showValuesStr';
-import { WorkoutDetails } from './workout-details';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
-import { showTime } from '../shared/helpers/functions/showFunctions/showTime';
+import { MainComponent } from '../../../shared/components/base/main.component';
+import { showWeightTypeShort } from '../../../shared/helpers/functions/showFunctions/showWeightTypeShort';
+import { showExerciseValue } from '../../../shared/helpers/functions/showFunctions/showExerciseValue';
+import { roundNumber } from '../../../shared/helpers/functions/roundNumber';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
+import { showCountOfSomethingStr } from '../../../shared/helpers/functions/showFunctions/showCountOfSomethingStr';
+import { showValuesStr } from '../../../shared/helpers/functions/showFunctions/showValuesStr';
+import { WorkoutDetails } from '../../models/workout-details';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
+import { showTime } from '../../../shared/helpers/functions/showFunctions/showTime';
+import { WorkoutService } from '../../services/workout.service';
 
 @Component({
   selector: 'app-workout-details',
   templateUrl: './workout-details.component.html',
   styleUrls: ['./workout-details.component.css']
 })
-export class WorkoutDetailsComponent  extends MainComponent implements OnInit {
+export class WorkoutDetailsComponent extends MainComponent implements OnInit {
   workoutDetails!: WorkoutDetails;
 
   dates: Date[]|null = null;

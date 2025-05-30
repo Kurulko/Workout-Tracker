@@ -3,8 +3,8 @@ import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { ModelsService } from 'src/app/shared/services/models.service';
 import { ApiResult } from 'src/app/shared/models/api-result';
-import { WorkoutRecord } from './workout-record';
-import { DateTimeRange } from '../shared/models/date-time-range';
+import { DateTimeRange } from '../../shared/models/date-time-range';
+import { WorkoutRecord } from '../models/workout-record';
 
 @Injectable({
     providedIn: 'root'

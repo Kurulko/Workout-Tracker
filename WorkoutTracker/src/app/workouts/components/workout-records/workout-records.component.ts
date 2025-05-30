@@ -5,22 +5,22 @@ import { ActivatedRoute } from '@angular/router';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
-import { WorkoutRecord } from './workout-record';
-import { WorkoutRecordService } from './workout-record.service';
-import { ApiResult } from '../shared/models/api-result';
-import { ModelsTableComponent } from '../shared/components/base/models-table.component';
-import { showWeightTypeShort } from '../shared/helpers/functions/showFunctions/showWeightTypeShort';
-import { showTime } from '../shared/helpers/functions/showFunctions/showTime';
-import { getSomeExercises } from '../shared/helpers/functions/getFunctions/getSomeExercises';
-import { roundNumber } from '../shared/helpers/functions/roundNumber';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
-import { showCountOfSomethingLeftStr } from '../shared/helpers/functions/showFunctions/showCountOfSomethingLeftStr';
-import { showCountOfSomethingStr } from '../shared/helpers/functions/showFunctions/showCountOfSomethingStr';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
-import { ExerciseRecordGroup } from '../shared/models/exercise-record-group';
-import { ExerciseRecord } from '../exercise-records/exercise-record';
-import { DateTimeRange } from '../shared/models/date-time-range';
+import { WorkoutRecordService } from '../../services/workout-record.service';
+import { ApiResult } from '../../../shared/models/api-result';
+import { ModelsTableComponent } from '../../../shared/components/base/models-table.component';
+import { showWeightTypeShort } from '../../../shared/helpers/functions/showFunctions/showWeightTypeShort';
+import { showTime } from '../../../shared/helpers/functions/showFunctions/showTime';
+import { getSomeExercises } from '../../../shared/helpers/functions/getFunctions/getSomeExercises';
+import { roundNumber } from '../../../shared/helpers/functions/roundNumber';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
+import { showCountOfSomethingLeftStr } from '../../../shared/helpers/functions/showFunctions/showCountOfSomethingLeftStr';
+import { showCountOfSomethingStr } from '../../../shared/helpers/functions/showFunctions/showCountOfSomethingStr';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
+import { ExerciseRecordGroup } from '../../../shared/models/exercises/exercise-record-group';
+import { DateTimeRange } from '../../../shared/models/date-time-range';
+import { ExerciseRecord } from 'src/app/exercises/models/exercise-record';
+import { WorkoutRecord } from '../../models/workout-record';
 
 @Component({
   selector: 'app-workout-records',

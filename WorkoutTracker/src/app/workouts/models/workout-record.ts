@@ -1,8 +1,8 @@
-import { DbModel } from "src/app/shared/models/db-model";
+import { Exercise } from "src/app/exercises/models/exercise";
+import { DbModel } from "src/app/shared/models/base/db-model";
+import { ExerciseRecordGroup } from "src/app/shared/models/exercises/exercise-record-group";
+import { ModelWeight } from "src/app/shared/models/model-weight";
 import { TimeSpan } from "src/app/shared/models/time-span";
-import { ModelWeight } from "../shared/models/model-weight";
-import { ExerciseRecordGroup } from "../shared/models/exercise-record-group";
-import { Exercise } from "../exercises/models/exercise";
 
 export interface WorkoutRecord extends DbModel {
     time: TimeSpan;

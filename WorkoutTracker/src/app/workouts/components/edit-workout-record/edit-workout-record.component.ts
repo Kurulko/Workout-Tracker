@@ -3,18 +3,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar  } from '@angular/material/snack-bar';
 
 import { EditModelComponent } from 'src/app/shared/components/base/edit-model.component';
-import { WorkoutRecord } from './workout-record';
-import { WorkoutRecordService } from './workout-record.service';
-import { ExerciseSetGroup } from '../shared/models/exercise-set-group';
-import { ExerciseRecordGroup } from '../shared/models/exercise-record-group';
-import { ExerciseSet } from '../shared/models/exercise-set';
-import { TimeSpan } from '../shared/models/time-span';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
-import { ExerciseRecord } from '../exercise-records/exercise-record';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
-import { toExerciseRecordGroups } from '../shared/helpers/functions/toExerciseRecordGroups';
-import { toExerciseSetGroups } from '../shared/helpers/functions/toExerciseSetGroups';
+import { WorkoutRecordService } from '../../services/workout-record.service';
+import { ExerciseSetGroup } from '../../../shared/models/exercises/exercise-set-group';
+import { TimeSpan } from '../../../shared/models/time-span';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
+import { toExerciseRecordGroups } from '../../../shared/helpers/functions/toExerciseRecordGroups';
+import { toExerciseSetGroups } from '../../../shared/helpers/functions/toExerciseSetGroups';
+import { WorkoutRecord } from '../../models/workout-record';
 
 @Component({
   selector: 'app-edit-workout-record',
