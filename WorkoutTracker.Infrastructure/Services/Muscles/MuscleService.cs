@@ -1,8 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using WorkoutTracker.Application.Common.Extensions;
+using WorkoutTracker.Application.Common.Models;
+using WorkoutTracker.Application.Interfaces.Repositories.Exercises;
 using WorkoutTracker.Application.Interfaces.Repositories.Muscles;
 using WorkoutTracker.Application.Interfaces.Services;
 using WorkoutTracker.Application.Interfaces.Services.Muscles;
+using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Domain.Entities.Muscles;
 using WorkoutTracker.Infrastructure.Extensions;
 using WorkoutTracker.Infrastructure.Services.Base;
@@ -29,6 +33,9 @@ internal class MuscleService : BaseWorkoutService<MuscleService, Muscle>, IMuscl
     }
 
     const string muscleEntityName = "muscle";
+
+    readonly string musclePhotosDirectory = Path.Combine("images", "muscles");
+    const int maxMuscleImageSizeInMB = 3;
 
     public async Task<Muscle> AddMuscleAsync(Muscle muscle, CancellationToken cancellationToken)
     {
@@ -125,7 +132,7 @@ internal class MuscleService : BaseWorkoutService<MuscleService, Muscle>, IMuscl
         var updateAction = new Action<Muscle>(m =>
         {
             m.Name = muscle.Name;
-            m.Image = muscle.Image;
+            //m.Image = muscle.Image;
             m.ParentMuscleId = muscle.ParentMuscleId;
             m.IsMeasurable = muscle.IsMeasurable;
         });
@@ -134,13 +141,44 @@ internal class MuscleService : BaseWorkoutService<MuscleService, Muscle>, IMuscl
             .LogExceptionsAsync(_logger, FailedToActionStr(muscleEntityName, "update"));
     }
 
+    public async Task UpdateMusclePhotoAsync(long muscleId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    {
+        await muscleServiceValidator.ValidateUpdatePhotoAsync(muscleId, fileUpload, cancellationToken);
+
+        string? image = await fileService.GetImageAsync(fileUpload, musclePhotosDirectory, maxMuscleImageSizeInMB, false);
+        var oldImage = await muscleRepository.GetMusclePhotoAsync(muscleId, cancellationToken);
+
+        await (string.IsNullOrEmpty(image) ?
+            muscleRepository.UpdateMusclePhotoAsync(muscleId, image!, cancellationToken) :
+            muscleRepository.DeleteMusclePhotoAsync(muscleId, cancellationToken)
+        ).LogExceptionsAsync(_logger, FailedToActionStr("muscle photo", "update"));
+
+        if (!string.IsNullOrEmpty(oldImage))
+            fileService.DeleteFile(oldImage);
+    }
+
+    public async Task DeleteMusclePhotoAsync(long muscleId, CancellationToken cancellationToken)
+    {
+        await muscleServiceValidator.ValidateDeletePhotoAsync(muscleId, cancellationToken);
+
+        var oldImage = await muscleRepository.GetMusclePhotoAsync(muscleId, cancellationToken);
+
+        if (!string.IsNullOrEmpty(oldImage))
+        {
+            await muscleRepository.DeleteMusclePhotoAsync(muscleId, cancellationToken)
+                .LogExceptionsAsync(_logger, FailedToActionStr("muscle photo", "delete"));
+            
+            fileService.DeleteFile(oldImage);
+        }
+    }
+
     public async Task UpdateMuscleChildrenAsync(long muscleId, IEnumerable<long>? muscleChildIDs, CancellationToken cancellationToken)
     {
         await muscleServiceValidator.ValidateUpdateChildrenAsync(muscleId, muscleChildIDs, cancellationToken);
 
         var updateChildMusclesAction = new Action<Muscle>(m =>
         {
-            m.ChildMuscles = muscleChildIDs is null ? null : [..muscleRepository.FindByIds(muscleChildIDs)];
+            m.ChildMuscles = muscleChildIDs is null ? null : [.. muscleRepository.FindByIds(muscleChildIDs)];
         });
 
         await muscleRepository.UpdatePartialAsync(muscleId, updateChildMusclesAction, cancellationToken)
