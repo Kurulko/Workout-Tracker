@@ -12,7 +12,7 @@
                 <mat-card-title-group>
                     <mat-card-title>{{ exerciseDetails.exercise.name }}</mat-card-title>
                     <mat-card-subtitle>{{ showExerciseDescription() }}</mat-card-subtitle>
-                    <img mat-card-image src="{{ envProduction.baseUrl + 'resources/' + exerciseDetails.exercise.image }}" 
+                    <img mat-card-image src="{{ envProduction.baseUrl + exerciseDetails.exercise.image }}" 
                         title="Exercise" class="image" *ngIf="exerciseDetails.exercise.image"/>
                 </mat-card-title-group>
             </mat-card-header>

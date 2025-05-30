@@ -64,7 +64,7 @@ export class ExerciseEditComponent extends EditModelComponent<Exercise> implemen
         this.equipments = result.equipments;
 
         if(this.exercise.image)
-          this.previewUrl = this.envProduction.baseUrl + 'resources/' + this.exercise.image;
+          this.previewUrl = this.envProduction.baseUrl + this.exercise.image;
 
         this.title = `Edit Exercise '${this.exercise.name}'`;
       });

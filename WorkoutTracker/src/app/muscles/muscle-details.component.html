@@ -11,7 +11,7 @@
       <mat-card-header>
         <mat-card-title-group>
           <mat-card-title>{{ muscleDetails.muscle.name }}</mat-card-title>
-          <img mat-card-image src="{{ envProduction.baseUrl + 'resources/' + muscleDetails.muscle.image }}" 
+          <img mat-card-image src="{{ envProduction.baseUrl + muscleDetails.muscle.image }}" 
             title="Muscle" class="image" *ngIf="muscleDetails.muscle.image"/>
         </mat-card-title-group>
       </mat-card-header>

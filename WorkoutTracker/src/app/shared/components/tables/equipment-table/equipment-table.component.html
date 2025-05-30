@@ -20,7 +20,7 @@
   <ng-container matColumnDef="photo">
     <th mat-header-cell *matHeaderCellDef>Photo</th>
     <td mat-cell *matCellDef="let equipment">
-      <img src="{{ envProduction.baseUrl + 'resources/' + equipment.image }}" aria-label="Photo" 
+      <img src="{{ envProduction.baseUrl + equipment.image }}" aria-label="Photo" 
         height="50%" width="50%" class="table-photo" *ngIf="equipment.image" />
     </td>
   </ng-container>

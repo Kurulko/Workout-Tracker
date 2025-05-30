@@ -56,7 +56,7 @@ export class MuscleEditComponent extends EditModelComponent<Muscle> implements O
         this.childMuscles = result.childMuscles;
 
         if(this.muscle.image)
-          this.previewUrl = this.envProduction.baseUrl + 'resources/' + this.muscle.image;
+          this.previewUrl = this.envProduction.baseUrl + this.muscle.image;
 
         this.title = `Edit Muscle '${this.muscle.name}'`;
         this.loadAllMuscles();
