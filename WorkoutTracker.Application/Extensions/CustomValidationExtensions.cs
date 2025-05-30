@@ -218,8 +218,10 @@ internal static class CustomValidationExtensions
     }
 
 
-    public static IRuleBuilder<T, string?> NotEmptyOrNull<T>(this IRuleBuilder<T, string?> ruleBuilder, string message)
+    public static IRuleBuilder<T, string?> NotEmptyOrNull<T>(this IRuleBuilder<T, string?> ruleBuilder, string? message = null)
     {
+        message ??= defaultRequiredMessage;
+
         return ruleBuilder
             .NotEmpty().WithMessage(message)
             .NotNull().WithMessage(message); ;
