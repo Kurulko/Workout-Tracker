@@ -2,15 +2,15 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable } from 'rxjs';
 
-import { ModelsTableComponent } from '../shared/components/base/models-table.component';
-import { Role } from './role';
-import { RoleService } from './role.service';
-import { ApiResult } from '../shared/models/api-result';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
+import { ModelsTableComponent } from '../../../shared/components/base/models-table.component';
+import { Role } from '../../models/role';
+import { ApiResult } from '../../../shared/models/api-result';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
+import { RoleService } from '../../services/role.service';
 
 @Component({
   selector: 'app-roles',

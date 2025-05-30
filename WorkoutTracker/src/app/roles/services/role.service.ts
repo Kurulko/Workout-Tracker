@@ -1,9 +1,9 @@
-import { ModelsService } from "../shared/services/models.service";
 import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { Role } from "./role";
-import { ApiResult } from "../shared/models/api-result";
+import { ApiResult } from 'src/app/shared/models/api-result';
+import { ModelsService } from 'src/app/shared/services/models.service';
+import { Role } from '../models/role';
 
 @Injectable({
     providedIn: 'root'

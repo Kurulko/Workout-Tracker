@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
 import { StatusCodes } from 'http-status-codes';
-import { MainComponent } from '../shared/components/base/main.component';
-import { ApiResult } from '../shared/models/api-result';
-import { Role } from './role';
-import { RoleService } from './role.service';
-import { UserService } from '../users/user.service';
-import { User } from '../users/user';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { MainComponent } from '../../../shared/components/base/main.component';
+import { ApiResult } from '../../../shared/models/api-result';
+import { Role } from '../../models/role';
+import { UserService } from '../../../users/services/user.service';
+import { User } from '../../../users/models/user';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
+import { RoleService } from '../../services/role.service';
 
 @Component({
   selector: 'app-role-details',
