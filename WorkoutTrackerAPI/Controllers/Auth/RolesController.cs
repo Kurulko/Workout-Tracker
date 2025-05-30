@@ -141,9 +141,9 @@ public class RolesController : APIController
     }
 
 
-    bool IsValidID(string id) => !string.IsNullOrEmpty(id);
-    bool IsNameValid(string name) => !string.IsNullOrEmpty(name);
-    bool AreIdsEqual(string id1, string id2) => id1 == id2;
+    static bool IsValidID(string id) => !string.IsNullOrEmpty(id);
+    static bool IsNameValid(string name) => !string.IsNullOrEmpty(name);
+    static bool AreIdsEqual(string id1, string id2) => id1 == id2;
 
     ActionResult RoleIDIsNullOrEmpty()
         => BadRequest("Role ID is null or empty.");
