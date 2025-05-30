@@ -1,21 +1,21 @@
 import { Component, AfterViewInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EquipmentDetails } from './equipment-details';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
+import { EquipmentDetails } from '../../models/equipment-details';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { EquipmentService } from './equipment.service';
+import { EquipmentService } from '../../services/equipment.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { StatusCodes } from 'http-status-codes';
-import { ApiResult } from '../shared/models/api-result';
-import { Exercise } from '../exercises/models/exercise';
-import { showExerciseType } from '../shared/helpers/functions/showFunctions/showExerciseType';
-import { MainComponent } from '../shared/components/base/main.component';
-import { ExerciseService } from '../exercises/services/exercise.service';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { ApiResult } from '../../../shared/models/api-result';
+import { Exercise } from '../../../exercises/models/exercise';
+import { showExerciseType } from '../../../shared/helpers/functions/showFunctions/showExerciseType';
+import { MainComponent } from '../../../shared/components/base/main.component';
+import { ExerciseService } from '../../../exercises/services/exercise.service';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
-import { showValuesStr } from '../shared/helpers/functions/showFunctions/showValuesStr';
+import { showValuesStr } from '../../../shared/helpers/functions/showFunctions/showValuesStr';
 
 @Component({
   selector: 'app-equipment-details',

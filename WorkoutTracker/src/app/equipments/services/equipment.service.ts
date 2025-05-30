@@ -1,12 +1,12 @@
-import { ModelsService } from "../shared/services/models.service";
+import { ModelsService } from "../../shared/services/models.service";
 import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { Equipment } from "./equipment";
-import { ApiResult } from "../shared/models/api-result";
-import { EquipmentDetails } from "./equipment-details";
-import { Exercise } from "../exercises/models/exercise";
-import { UploadWithPhoto } from "../shared/models/upload-with-photo";
+import { ApiResult } from "../../shared/models/api-result";
+import { EquipmentDetails } from "../models/equipment-details";
+import { Exercise } from "../../exercises/models/exercise";
+import { UploadWithPhoto } from "../../shared/models/upload-with-photo";
+import { Equipment } from "../models/equipment";
 
 @Injectable({
     providedIn: 'root'

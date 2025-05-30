@@ -75,7 +75,7 @@
           <th mat-header-cell *matHeaderCellDef>Photo</th>
           <td mat-cell *matCellDef="let equipment">
             <ng-container *ngIf="!isEditingEquipment(equipment.id); else editEquipmentTemplate">
-              <img src="{{ envProduction.baseUrl + 'resources/' + equipment.image }}" aria-label="Photo" class="table-photo"
+              <img src="{{ envProduction.baseUrl + equipment.image }}" aria-label="Photo" class="table-photo"
                 height="50%" width="50%" *ngIf="equipment.image" />
             </ng-container>
             <ng-template #editEquipmentTemplate>

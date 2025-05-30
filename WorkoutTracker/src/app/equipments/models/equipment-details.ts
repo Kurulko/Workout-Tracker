@@ -1,5 +1,5 @@
-import { Exercise } from "../exercises/models/exercise";
-import { ChildMuscle } from "../muscles/child-muscle";
+import { ChildMuscle } from "src/app/muscles/models/child-muscle";
+import { Exercise } from "../../exercises/models/exercise";
 import { Equipment } from "./equipment";
 
 export interface EquipmentDetails {

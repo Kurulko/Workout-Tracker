@@ -2,17 +2,17 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar  } from '@angular/material/snack-bar';
 import { Observable } from 'rxjs';
 
-import { Equipment } from './equipment';
-import { EquipmentService } from './equipment.service';
-import { ApiResult } from '../shared/models/api-result';
-import { ModelsTableComponent } from '../shared/components/base/models-table.component';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
+import { EquipmentService } from '../../services/equipment.service';
+import { ApiResult } from '../../../shared/models/api-result';
+import { ModelsTableComponent } from '../../../shared/components/base/models-table.component';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
-import { UploadWithPhoto } from '../shared/models/upload-with-photo';
+import { UploadWithPhoto } from '../../../shared/models/upload-with-photo';
+import { Equipment } from '../../models/equipment';
 
 @Component({
   selector: 'app-equipments',
@@ -185,6 +185,6 @@ export class EquipmentsComponent extends ModelsTableComponent<Equipment> impleme
     if(!equipment.image)
       return null;
 
-    return this.envProduction.baseUrl + 'resources/' + equipment.image;
+    return this.envProduction.baseUrl + equipment.image;
   }
 }
