@@ -5,6 +5,8 @@ using WorkoutTracker.Persistence.Context;
 using WorkoutTracker.Application.Common.Models;
 using WorkoutTracker.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
+using WorkoutTracker.Application.Common.Validators;
+using WorkoutTracker.Infrastructure.Identity.Entities;
 
 namespace WorkoutTracker.Persistence.Repositories;
 
@@ -17,6 +19,8 @@ internal class BodyWeightRepository : DbModelRepository<BodyWeight>, IBodyWeight
 
     public IQueryable<BodyWeight> GetUserBodyWeights(string userId, DateTimeRange? range)
     {
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, nameof(User));
+
         var userBodyWeights = Find(wr => wr.UserId == userId);
 
         if (range is not null)

@@ -8,6 +8,8 @@ using WorkoutTracker.Domain.ValueObjects;
 using WorkoutTracker.Domain.Entities.Workouts;
 using System.Linq.Expressions;
 using WorkoutTracker.Domain.Entities.Exercises.ExerciseGroups;
+using WorkoutTracker.Application.Common.Validators;
+using WorkoutTracker.Infrastructure.Identity.Entities;
 
 namespace WorkoutTracker.Persistence.Repositories.Muscles;
 
@@ -23,6 +25,8 @@ internal class MuscleSizeRepository : DbModelRepository<MuscleSize>, IMuscleSize
 
     public override async Task<MuscleSize?> GetByIdAsync(long key, CancellationToken cancellationToken)
     {
+        ArgumentValidator.ThrowIfIdNonPositive(key, entityName);
+
         return await IncludeMuscleSize(dbSet.Where(w => w.Id == key))
             .SingleOrDefaultAsync(cancellationToken);
     }
@@ -34,6 +38,8 @@ internal class MuscleSizeRepository : DbModelRepository<MuscleSize>, IMuscleSize
 
     public IQueryable<MuscleSize> GetUserMuscleSizes(string userId, long? muscleId, DateTimeRange? range)
     {
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, nameof(User));
+
         var userMuscleSizes = Find(wr => wr.UserId == userId);
 
         if (range is not null)
