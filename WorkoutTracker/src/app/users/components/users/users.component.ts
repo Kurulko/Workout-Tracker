@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-import { ImpersonationService } from '../shared/services/impersonation.service';
 import { Router } from '@angular/router';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
-import { ModelsTableComponent } from '../shared/components/base/models-table.component';
-import { User } from './user';
-import { UserService } from './user.service';
-import { ApiResult } from '../shared/models/api-result';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
+
+import { ModelsTableComponent } from 'src/app/shared/components/base/models-table.component';
+import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
+import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
+import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
+import { ApiResult } from 'src/app/shared/models/api-result';
+import { ImpersonationService } from 'src/app/shared/services/impersonation.service';
+import { User } from '../../models/user';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-users',

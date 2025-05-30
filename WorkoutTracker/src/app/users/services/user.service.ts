@@ -1,17 +1,17 @@
-import { ModelsService } from "../shared/services/models.service";
+import { ModelsService } from "../../shared/services/models.service";
 import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { User } from "./user";
-import { ApiResult } from "../shared/models/api-result";
-import { PasswordModel } from "../account/models/password-model";
-import { Role } from "../roles/role";
-import { MuscleSize } from "../muscle-sizes/muscle-size";
-import { BodyWeight } from "../body-weights/body-weight";
-import { Equipment } from "../equipments/equipment";
-import { Workout } from "../workouts/workout";
-import { Exercise } from "../exercises/models/exercise";
-import { ExerciseRecord } from "../exercise-records/exercise-record";
+import { User } from "../models/user";
+import { ApiResult } from "../../shared/models/api-result";
+import { PasswordModel } from "../../account/models/password-model";
+import { Role } from "../../roles/models/role";
+import { BodyWeight } from "src/app/body-weights/models/body-weight";
+import { Equipment } from "src/app/equipments/models/equipment";
+import { Exercise } from "src/app/exercises/models/exercise";
+import { ExerciseRecord } from "src/app/exercises/models/exercise-record";
+import { MuscleSize } from "src/app/muscles/models/muscle-size";
+import { Workout } from "src/app/workouts/models/workout";
 
 @Injectable({
     providedIn: 'root'
