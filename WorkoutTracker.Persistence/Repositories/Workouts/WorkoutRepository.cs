@@ -4,6 +4,10 @@ using WorkoutTracker.Domain.Entities.Workouts;
 using WorkoutTracker.Application.Interfaces.Repositories.Workouts;
 using WorkoutTracker.Persistence.Context;
 using System.Linq.Expressions;
+using WorkoutTracker.Application.Common.Validators;
+using WorkoutTracker.Domain.Entities.Muscles;
+using WorkoutTracker.Infrastructure.Identity.Entities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace WorkoutTracker.Persistence.Repositories.Workouts;
 
@@ -19,24 +23,32 @@ internal class WorkoutRepository : BaseWorkoutRepository<Workout>, IWorkoutRepos
 
     public override async Task<Workout?> GetByIdAsync(long key, CancellationToken cancellationToken)
     {
+        ArgumentValidator.ThrowIfIdNonPositive(key, entityName);
+
         return await IncludeWorkout(dbSet.Where(w => w.Id == key))
             .SingleOrDefaultAsync(cancellationToken);
     }
 
     public override async Task<Workout?> GetByNameAsync(string name, CancellationToken cancellationToken)
     {
+        ArgumentValidator.ThrowIfArgumentNullOrEmpty(name, nameof(Workout.Name));
+
         return await IncludeWorkout(dbSet.Where(w => w.Name == name))
             .SingleOrDefaultAsync(cancellationToken);
     }
 
     public async Task<Workout?> GetWorkoutByIdWithDetailsAsync(long key, CancellationToken cancellationToken)
     {
+        ArgumentValidator.ThrowIfIdNonPositive(key, entityName);
+
         return await IncludeWorkoutDetails(dbSet.Where(w => w.Id == key))
             .SingleOrDefaultAsync(cancellationToken);
     }
 
     public async Task<Workout?> GetWorkoutByNameWithDetailsAsync(string name, CancellationToken cancellationToken)
     {
+        ArgumentValidator.ThrowIfArgumentNullOrEmpty(name, nameof(Workout.Name));
+
         return await IncludeWorkoutDetails(dbSet.Where(w => w.Name == name))
             .SingleOrDefaultAsync(cancellationToken);
     }
@@ -48,6 +60,8 @@ internal class WorkoutRepository : BaseWorkoutRepository<Workout>, IWorkoutRepos
 
     public IQueryable<Workout> GetUserWorkouts(string userId, long? exerciseId)
     {
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, nameof(User));
+
         var userWorkouts = Find(e => e.UserId == userId);
 
         if (exerciseId.HasValue)
