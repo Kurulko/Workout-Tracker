@@ -12,4 +12,8 @@ public interface IExerciseRepository : IBaseWorkoutRepository<Exercise>
     IQueryable<Exercise> GetInternalExercises(ExerciseType? exerciseType = null);
     IQueryable<Exercise> GetUserExercises(string userId, ExerciseType? exerciseType = null);
     IQueryable<Exercise> GetAllExercises(string userId, ExerciseType? exerciseType = null);
+
+    Task<string?> GetExercisePhotoAsync(long key, CancellationToken cancellationToken = default);
+    Task UpdateExercisePhotoAsync(long key, string image, CancellationToken cancellationToken = default);
+    Task DeleteExercisePhotoAsync(long key, CancellationToken cancellationToken = default);
 }
