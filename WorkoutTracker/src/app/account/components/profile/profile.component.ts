@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { User } from 'src/app/users/user';
-import { UserService } from 'src/app/users/user.service';
+import { User } from 'src/app/users/models/user';
+import { UserService } from 'src/app/users/services/user.service';
 import { EditModelComponent } from 'src/app/shared/components/base/edit-model.component';
 import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
 import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';

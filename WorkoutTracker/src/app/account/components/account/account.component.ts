@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { WeightType } from 'src/app/shared/models/weight-type';
-import { SizeType } from 'src/app/shared/models/size-type';
+import { Component } from '@angular/core';
+import { WeightType } from 'src/app/shared/models/enums/weight-type';
+import { SizeType } from 'src/app/shared/models/enums/size-type';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
 import { MainComponent } from 'src/app/shared/components/base/main.component';
 import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';

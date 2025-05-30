@@ -2,15 +2,15 @@ import { Component, OnInit, signal } from '@angular/core';
 import { MatSnackBar  } from '@angular/material/snack-bar';
 import { FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MainComponent } from 'src/app/shared/components/base/main.component';
-import { UserService } from 'src/app/users/user.service';
+import { UserService } from 'src/app/users/services/user.service';
 import { catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { throwError } from 'rxjs';
-import { PasswordModel } from '../models/password-model';
 import { Router } from '@angular/router';
 import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
 import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
+import { PasswordModel } from '../../models/password-model';
 
 @Component({
   selector: 'app-password',
