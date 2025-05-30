@@ -12,29 +12,23 @@ using WorkoutTracker.Domain.Enums;
 using WorkoutTracker.Application.Common.Extensions;
 using WorkoutTracker.Domain.Constants;
 using WorkoutTracker.API.Models.Requests;
+using WorkoutTracker.Application.Common.Models;
 
 namespace ExerciseTrackerAPI.Controllers.ExerciseControllers;
 
 public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDTO>
 {
     readonly IExerciseService exerciseService;
-    readonly IFileService fileService;
     readonly IHttpContextAccessor httpContextAccessor;
     public ExercisesController (
         IExerciseService exerciseService, 
-        IFileService fileService, 
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper
     ) : base(mapper)
     {
-        this.fileService = fileService;
         this.exerciseService = exerciseService;
         this.httpContextAccessor = httpContextAccessor;
     }
-
-    readonly string exercisePhotosDirectory = Path.Combine("photos", "exercises");
-    const int maxExerciseImageSizeInMB = 3;
-
 
     #region Internal Exercises
 
@@ -114,32 +108,25 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
     [HttpPost("internal-exercise")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddInternalExerciseAsync([FromForm] UploadWithPhoto<ExerciseCreationDTO> exerciseCreationDTOWithPhoto, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddInternalExerciseAsync([FromForm] ExerciseCreationDTO exerciseCreationDTO, CancellationToken cancellationToken)
     {
-        var (exerciseCreationDTO, imageFile) = (exerciseCreationDTOWithPhoto.Model, exerciseCreationDTOWithPhoto.Photo);
-
         if (exerciseCreationDTO is null)
             return ExerciseIsNull();
 
-        string? image = await fileService.GetImageAsync(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, false, cancellationToken);
         var exercise = mapper.Map<Exercise>(exerciseCreationDTO);
-        exercise.Image = image;
-
         exercise = await exerciseService.AddInternalExerciseAsync(exercise, cancellationToken);
-        var exerciseDTO = mapper.Map<ExerciseDTO>(exercise);
 
+        var exerciseDTO = mapper.Map<ExerciseDTO>(exercise);
         return CreatedAtAction(nameof(GetInternalExerciseByIdAsync), new { exerciseId = exercise.Id }, exerciseDTO);
     }
 
 
     [HttpPut("internal-exercise/{exerciseId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateInternalExerciseAsync(long exerciseId, [FromForm] UploadWithPhoto<ExerciseUpdateDTO> exerciseUpdateDTOWithPhoto, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateInternalExerciseAsync(long exerciseId, [FromForm] ExerciseUpdateDTO exerciseUpdateDTO, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
-
-        var (exerciseUpdateDTO, imageFile) = (exerciseUpdateDTOWithPhoto.Model, exerciseUpdateDTOWithPhoto.Photo);
 
         if (exerciseUpdateDTO is null)
             return ExerciseIsNull();
@@ -147,14 +134,8 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (!AreIdsEqual(exerciseId, exerciseUpdateDTO.Id))
             return ExerciseIDsNotMatch();
 
-        string? image = await fileService.GetImageAsync(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, false, cancellationToken);
         var exercise = mapper.Map<Exercise>(exerciseUpdateDTO);
-        exercise.Image = image ?? exerciseUpdateDTO.Image;
-
         await exerciseService.UpdateInternalExerciseAsync(exercise, cancellationToken);
-
-        if (imageFile != null && exerciseUpdateDTO.Image is string oldImage)
-            fileService.DeleteFile(oldImage);
 
         return Ok();
     }
@@ -195,6 +176,28 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
             return InvalidExerciseID();
 
         await exerciseService.DeleteInternalExerciseAsync(exerciseId, cancellationToken);
+        return Ok();
+    }
+
+    [HttpPut("internal-exercise-photo/{exerciseId}")]
+    [Authorize(Roles = Roles.AdminRole)]
+    public async Task<IActionResult> UpdateInternalExercisePhotoAsync(long exerciseId, [FromForm] FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    {
+        if (exerciseId < 1)
+            return InvalidExerciseID();
+
+        await exerciseService.UpdateInternalExercisePhotoAsync(exerciseId, fileUpload, cancellationToken);
+        return Ok();
+    }
+
+    [HttpDelete("internal-exercise-photo/{exerciseId}")]
+    [Authorize(Roles = Roles.AdminRole)]
+    public async Task<IActionResult> DeleteInternalExercisePhotoAsync(long exerciseId, CancellationToken cancellationToken)
+    {
+        if (!IsValidID(exerciseId))
+            return InvalidExerciseID();
+
+        await exerciseService.DeleteInternalExercisePhotoAsync(exerciseId, cancellationToken);
         return Ok();
     }
 
@@ -277,31 +280,24 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
     }
 
     [HttpPost("user-exercise")]
-    public async Task<IActionResult> AddCurrentUserExerciseAsync([FromForm] UploadWithPhoto<ExerciseCreationDTO> exerciseCreationDTOWithPhoto, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddCurrentUserExerciseAsync([FromForm] ExerciseCreationDTO exerciseCreationDTO, CancellationToken cancellationToken)
     {
-        var (exerciseCreationDTO, imageFile) = (exerciseCreationDTOWithPhoto.Model, exerciseCreationDTOWithPhoto.Photo);
-
         if (exerciseCreationDTO is null)
             return ExerciseIsNull();
 
-        string? image = await fileService.GetImageAsync(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, true, cancellationToken);
-        var exercise = mapper.Map<Exercise>(exerciseCreationDTO);
-        exercise.Image = image;
-
         string userId = httpContextAccessor.GetUserId()!;
+        var exercise = mapper.Map<Exercise>(exerciseCreationDTO);
         exercise = await exerciseService.AddUserExerciseAsync(userId, exercise, cancellationToken);
-        var exerciseDTO = mapper.Map<ExerciseDTO>(exercise);
 
+        var exerciseDTO = mapper.Map<ExerciseDTO>(exercise);
         return CreatedAtAction(nameof(GetCurrentUserExerciseByIdAsync), new { exerciseId = exercise.Id }, exerciseDTO);
     }
 
     [HttpPut("user-exercise/{exerciseId}")]
-    public async Task<IActionResult> UpdateCurrentUserExerciseAsync(long exerciseId, [FromForm] UploadWithPhoto<ExerciseUpdateDTO> exerciseUpdateDTOWithPhoto, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateCurrentUserExerciseAsync(long exerciseId, [FromForm] ExerciseUpdateDTO exerciseUpdateDTO, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
-
-        var (exerciseUpdateDTO, imageFile) = (exerciseUpdateDTOWithPhoto.Model, exerciseUpdateDTOWithPhoto.Photo);
 
         if (exerciseUpdateDTO is null)
             return ExerciseIsNull();
@@ -309,15 +305,9 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         if (!AreIdsEqual(exerciseId, exerciseUpdateDTO.Id))
             return ExerciseIDsNotMatch();
 
-        string? image = await fileService.GetImageAsync(imageFile, exercisePhotosDirectory, maxExerciseImageSizeInMB, true, cancellationToken);
-        var exercise = mapper.Map<Exercise>(exerciseUpdateDTO);
-        exercise.Image = image ?? exerciseUpdateDTO.Image;
-
         string userId = httpContextAccessor.GetUserId()!;
+        var exercise = mapper.Map<Exercise>(exerciseUpdateDTO);
         await exerciseService.UpdateUserExerciseAsync(userId, exercise, cancellationToken);
-
-        if (imageFile != null && exerciseUpdateDTO.Image is string oldImage)
-            fileService.DeleteFile(oldImage);
 
         return Ok();
     }
@@ -358,6 +348,30 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
         string userId = httpContextAccessor.GetUserId()!;
         await exerciseService.DeleteExerciseFromUserAsync(userId, exerciseId, cancellationToken);
+        return Ok();
+    }
+
+    [HttpPut("user-exercise-photo/{exerciseId}")]
+    [Authorize(Roles = Roles.AdminRole)]
+    public async Task<IActionResult> UpdateUserExercisePhotoAsync(long exerciseId, [FromForm] FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    {
+        if (exerciseId < 1)
+            return InvalidExerciseID();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        await exerciseService.UpdateUserExercisePhotoAsync(userId, exerciseId, fileUpload, cancellationToken);
+        return Ok();
+    }
+
+    [HttpDelete("user-exercise-photo/{exerciseId}")]
+    [Authorize(Roles = Roles.AdminRole)]
+    public async Task<IActionResult> DeleteUserExercisePhotoAsync(long exerciseId, CancellationToken cancellationToken)
+    {
+        if (!IsValidID(exerciseId))
+            return InvalidExerciseID();
+
+        string userId = httpContextAccessor.GetUserId()!;
+        await exerciseService.DeleteUserExercisePhotoAsync(userId, exerciseId, cancellationToken);
         return Ok();
     }
 

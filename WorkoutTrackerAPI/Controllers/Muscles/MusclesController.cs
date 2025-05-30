@@ -4,16 +4,13 @@ using AutoMapper;
 using WorkoutTracker.API.Controllers.Base;
 using WorkoutTracker.Application.DTOs.Muscles.Muscles;
 using WorkoutTracker.Application.Interfaces.Services.Muscles;
-using WorkoutTracker.Application.Interfaces.Services;
 using WorkoutTracker.Domain.Entities.Muscles;
 using WorkoutTracker.API.Results;
 using WorkoutTracker.API.Extensions;
 using WorkoutTracker.Domain.Constants;
-using WorkoutTracker.Application.Common.Extensions;
-using WorkoutTracker.API.Models.Requests;
 using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Application.DTOs.Exercises.Exercises;
-using System.Threading;
+using WorkoutTracker.Application.Common.Models;
 
 namespace WorkoutTracker.API.Controllers.WorkoutControllers;
 
@@ -21,22 +18,15 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
 {
     readonly IMuscleService muscleService;
     readonly IHttpContextAccessor httpContextAccessor;
-    readonly IFileService fileService;
     public MusclesController (
-        IFileService fileService, 
         IMuscleService muscleService, 
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper
     ) : base(mapper)
     {
         this.muscleService = muscleService;
-        this.fileService = fileService;
         this.httpContextAccessor = httpContextAccessor;
     }
-
-    readonly string musclePhotosDirectory = Path.Combine("photos", "muscles");
-    const int maxMuscleImageSizeInMB = 3;
-
 
     [HttpGet]
     public async Task<ActionResult<ApiResult<MuscleDTO>>> GetMusclesAsync(CancellationToken cancellationToken,
@@ -208,31 +198,24 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
 
     [HttpPost]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddMuscleAsync([FromForm] UploadWithPhoto<MuscleCreationDTO> muscleCreationDTOWithPhoto, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddMuscleAsync([FromForm] MuscleCreationDTO muscleCreationDTO, CancellationToken cancellationToken)
     {
-        var (muscleCreationDTO, imageFile) = (muscleCreationDTOWithPhoto.Model, muscleCreationDTOWithPhoto.Photo);
-
         if (muscleCreationDTO is null)
             return MuscleIsNull();
 
-        string? image = await fileService.GetImageAsync(imageFile, musclePhotosDirectory, maxMuscleImageSizeInMB, false, cancellationToken);
         var muscle = mapper.Map<Muscle>(muscleCreationDTO);
-        muscle.Image = image;
-
         muscle = await muscleService.AddMuscleAsync(muscle, cancellationToken);
-        var muscleDTO = mapper.Map<MuscleDTO>(muscle);
 
+        var muscleDTO = mapper.Map<MuscleDTO>(muscle);
         return CreatedAtAction(nameof(GetMuscleByIdAsync), new { muscleId = muscle.Id }, muscleDTO);
     }
 
     [HttpPut("{muscleId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateMuscleAsync(long muscleId, [FromForm] UploadWithPhoto<MuscleUpdateDTO> muscleUpdateDTOWithPhoto, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateMuscleAsync(long muscleId, [FromForm] MuscleUpdateDTO muscleUpdateDTO, CancellationToken cancellationToken)
     {
         if (!IsValidID(muscleId))
             return InvalidMuscleID();
-
-        var (muscleUpdateDTO, imageFile) = (muscleUpdateDTOWithPhoto.Model, muscleUpdateDTOWithPhoto.Photo);
 
         if (muscleUpdateDTO is null)
             return MuscleIsNull();
@@ -240,14 +223,8 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
         if (!AreIdsEqual(muscleId, muscleUpdateDTO.Id))
             return EntryIDsNotMatch(nameof(Muscle));
 
-        string? image = await fileService.GetImageAsync(imageFile, musclePhotosDirectory, maxMuscleImageSizeInMB, false);
         var muscle = mapper.Map<Muscle>(muscleUpdateDTO);
-        muscle.Image = image ?? muscleUpdateDTO.Image;
-
         await muscleService.UpdateMuscleAsync(muscle, cancellationToken);
-
-        if (imageFile != null && muscleUpdateDTO.Image is string oldImage)
-            fileService.DeleteFile(oldImage);
 
         return Ok();
     }
@@ -274,6 +251,28 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
             return InvalidMuscleID();
 
         await muscleService.DeleteMuscleAsync(muscleId, cancellationToken);
+        return Ok();
+    }
+
+    [HttpPut("muscle-photo/{muscleId}")]
+    [Authorize(Roles = Roles.AdminRole)]
+    public async Task<IActionResult> UpdateMusclePhotoAsync(long muscleId, [FromForm] FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    {
+        if (muscleId < 1)
+            return InvalidMuscleID();
+
+        await muscleService.UpdateMusclePhotoAsync(muscleId, fileUpload, cancellationToken);
+        return Ok();
+    }
+
+    [HttpDelete("muscle-photo/{muscleId}")]
+    [Authorize(Roles = Roles.AdminRole)]
+    public async Task<IActionResult> DeleteMusclePhotoAsync(long muscleId, CancellationToken cancellationToken)
+    {
+        if (!IsValidID(muscleId))
+            return InvalidMuscleID();
+
+        await muscleService.DeleteMusclePhotoAsync(muscleId, cancellationToken);
         return Ok();
     }
 
