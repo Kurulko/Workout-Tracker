@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { BodyWeight } from './body-weight';
-import { EditModelComponent } from '../shared/components/base/edit-model.component';
-import { BodyWeightService } from './body-weight.service';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
-import { ModelWeight } from '../shared/models/model-weight';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
+import { EditModelComponent } from '../../../shared/components/base/edit-model.component';
+import { BodyWeightService } from '../../services/body-weight.service';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
+import { ModelWeight } from '../../../shared/models/model-weight';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
+import { BodyWeight } from '../../models/body-weight';
 
 @Component({
   selector: 'app-body-weight-edit',

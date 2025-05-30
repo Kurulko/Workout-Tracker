@@ -2,15 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { MatSnackBar  } from '@angular/material/snack-bar';
 import { Observable } from 'rxjs';
 
-import { BodyWeight } from './body-weight';
-import { BodyWeightService } from './body-weight.service';
-import { ApiResult } from '../shared/models/api-result';
-import { ModelsTableComponent } from '../shared/components/base/models-table.component';
-import { PreferencesManager } from '../shared/helpers/managers/preferences-manager';
-import { WeightType } from '../shared/models/weight-type';
-import { ImpersonationManager } from '../shared/helpers/managers/impersonation-manager';
-import { TokenManager } from '../shared/helpers/managers/token-manager';
-import { DateTimeRange } from '../shared/models/date-time-range';
+import { BodyWeightService } from '../../services/body-weight.service';
+import { ApiResult } from '../../../shared/models/api-result';
+import { ModelsTableComponent } from '../../../shared/components/base/models-table.component';
+import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
+import { WeightType } from '../../../shared/models/enums/weight-type';
+import { ImpersonationManager } from '../../../shared/helpers/managers/impersonation-manager';
+import { TokenManager } from '../../../shared/helpers/managers/token-manager';
+import { DateTimeRange } from '../../../shared/models/date-time-range';
+import { BodyWeight } from '../../models/body-weight';
 
 @Component({
   selector: 'app-body-weights',
