@@ -93,26 +93,41 @@ export class MuscleEditComponent extends EditModelComponent<Muscle> implements O
     }
   }
 
-  onSubmit() {
-    var muscleWithPhoto = <UploadWithPhoto<Muscle>>{model: this.muscle, photo: this.photo};
-    
+  onSubmit() {   
     if (this.id) {
       // Edit mode
-      this.muscleService.updateMuscle(muscleWithPhoto)
+      this.muscleService.updateMuscle(this.muscle)
       .pipe(this.catchError())
       .subscribe(_ => {
         console.log("Muscle " + this.muscle!.id + " has been updated.");
+
+        if(this.isPhotoUploaded) {
+          this.muscleService.updateMusclePhoto(this.muscle!.id, this.photo)
+            .pipe(this.catchError())
+            .subscribe(_ => {
+              console.log("Muscle photo has been updated.");
+            });
+        }
+
         this.updateChildMuscles();
         this.router.navigate([this.musclesPath]);
       });
     }
     else {
       // Add mode
-      this.muscleService.createMuscle(muscleWithPhoto)
+      this.muscleService.createMuscle(this.muscle)
       .pipe(this.catchError())
       .subscribe(result => {
         this.muscle = result;
         console.log("Muscle " + result.id + " has been created.");
+
+        if(this.isPhotoUploaded && this.photo) {
+          this.muscleService.updateMusclePhoto(result.id, this.photo)
+            .pipe(this.catchError())
+            .subscribe(_ => {
+              console.log("Muscle photo has been added.");
+            });
+        }
 
         this.updateChildMuscles();
         this.router.navigate([this.musclesPath]);
@@ -121,10 +136,9 @@ export class MuscleEditComponent extends EditModelComponent<Muscle> implements O
   }
 
   photo: File | null = null;
+  isPhotoUploaded = false;
   onPhotoUpload() {
-    if(!this.photo){
-      this.muscle.image = null;
-    }
+    this.isPhotoUploaded = true;
   }
   
   updateChildMuscles() {

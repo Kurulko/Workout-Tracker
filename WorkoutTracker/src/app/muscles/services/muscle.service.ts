@@ -59,57 +59,33 @@ export class MuscleService extends ModelsService {
         return this.webClient.get<ApiResult<Exercise>>(`${muscleId}/exercises`, httpParams);
     }
 
-    updateMuscle(muscleWithPhoto: UploadWithPhoto<Muscle>): Observable<Object> {
-        const formData = this.toFormData(muscleWithPhoto);
-        return this.webClient.put(`/${muscleWithPhoto.model.id}`, formData);
+    updateMuscle(muscle: Muscle): Observable<Object> {
+        return this.webClient.put(`/${muscle.id}`, muscle);
     }
 
     updateMuscleChildren(muscleId: number, muscleChildIds: number[]): Observable<Object> {
         return this.webClient.put(`/${muscleId}/children`, muscleChildIds);
     }
 
-    createMuscle(muscleWithPhoto: UploadWithPhoto<Muscle>): Observable<Muscle>{
-        const formData = this.toFormData(muscleWithPhoto);
-        return this.webClient.post<Muscle>(this.emptyPath, formData);
+    createMuscle(muscle: Muscle): Observable<Muscle>{
+        return this.webClient.post<Muscle>(this.emptyPath, muscle);
     }
 
     deleteMuscle(id: number): Observable<Object> {
         return this.webClient.delete(id.toString());
     }
 
-    muscleExists(id: number): Observable<boolean> {
-        return this.webClient.get<boolean>(`muscle-exists/${id}`);
-    }
-
-    muscleExistsByName(name: string): Observable<boolean> {
-        return this.webClient.get<boolean>(`muscle-exists-by-name/${name}`);
-    }
-
-    private toFormData(muscleWithPhoto: UploadWithPhoto<Muscle>): FormData {
-        let formData = new FormData();
-        
-        const { model: muscle, photo } = muscleWithPhoto;
-
-        const prefix = 'model.';
-
-        if(muscle.id) {
-            formData.append(`${prefix}id`, muscle.id.toString());
-        }
-
-        formData.append(`${prefix}name`, muscle.name);
-      
-        if (muscle.parentMuscleId) {
-            formData.append(`${prefix}parentMuscleId`, muscle.parentMuscleId.toString());
-        }
-
-        if (muscle.image) {
-            formData.append(`${prefix}image`, muscle.image);
-        }
+    updateMusclePhoto(id: number, photo: File | null): Observable<Object> {
+        const formData = new FormData();
 
         if (photo) {
-            formData.append('photo', photo, photo.name);
+            formData.append('fileUpload', photo);
         }
-    
-        return formData;
+
+        return this.webClient.put(`muscle-photo/${id}`, formData);
+    }
+
+    deleteMusclePhoto(id: number): Observable<Object>{
+        return this.webClient.delete(`muscle-photo/${id}`);
     }
 }

@@ -36,26 +36,30 @@ export class EquipmentService extends ModelsService {
         return this.webClient.get<ApiResult<Equipment>>("internal-equipments", this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
-    updateInternalEquipment(equipmentWithPhoto: UploadWithPhoto<Equipment>): Observable<Object> {
-        const formData = this.toFormData(equipmentWithPhoto);
-        return this.webClient.put(`internal-equipment/${equipmentWithPhoto.model.id}`, formData);
+    updateInternalEquipment(equipment: Equipment): Observable<Object> {
+        return this.webClient.put(`internal-equipment/${equipment.id}`, equipment);
     }
 
-    createInternalEquipment(equipmentWithPhoto: UploadWithPhoto<Equipment>): Observable<Equipment> {
-        const formData = this.toFormData(equipmentWithPhoto);
-        return this.webClient.post<Equipment>("internal-equipment", formData);
+    createInternalEquipment(equipment: Equipment): Observable<Equipment> {
+        return this.webClient.post<Equipment>("internal-equipment", equipment);
     }
 
     deleteInternalEquipment(id: number): Observable<Object> {
         return this.webClient.delete(`internal-equipment/${id}`);
     }
 
-    internalEquipmentExists(id: number): Observable<boolean> {
-        return this.webClient.get<boolean>(`internal-equipment-exists/${id}`);
+    updateInternalEquipmentPhoto(id: number, photo: File | null): Observable<Object> {
+        const formData = new FormData();
+
+        if (photo) {
+            formData.append('fileUpload', photo);
+        }
+
+        return this.webClient.put(`internal-equipment-photo/${id}`, formData);
     }
 
-    internalEquipmentExistsByName(name: string): Observable<boolean> {
-        return this.webClient.get<boolean>(`internal-equipment-exists-by-name/${name}`);
+    deleteInternalEquipmentPhoto(id: number): Observable<Object>{
+        return this.webClient.delete(`internal-equipment-photo/${id}`);
     }
 
 
@@ -79,27 +83,32 @@ export class EquipmentService extends ModelsService {
         return this.webClient.get<ApiResult<Equipment>>("user-equipments", this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
-    updateUserEquipment(equipmentWithPhoto: UploadWithPhoto<Equipment>): Observable<Object> {
-        const formData = this.toFormData(equipmentWithPhoto);
-        return this.webClient.put(`user-equipment/${equipmentWithPhoto.model.id}`, formData);
+    updateUserEquipment(equipment: Equipment): Observable<Object> {
+        return this.webClient.put(`user-equipment/${equipment.id}`, equipment);
     }
 
-    createUserEquipment(equipmentWithPhoto: UploadWithPhoto<Equipment>): Observable<Equipment>{
-        const formData = this.toFormData(equipmentWithPhoto);
-        return this.webClient.post<Equipment>("user-equipment", formData);
+    createUserEquipment(equipment: Equipment): Observable<Equipment>{
+        return this.webClient.post<Equipment>("user-equipment", equipment);
     }
 
     deleteUserEquipment(id: number): Observable<Object> {
         return this.webClient.delete(`user-equipment/${id}`);
     }
 
-    userEquipmentExists(id: number): Observable<boolean> {
-        return this.webClient.get<boolean>(`user-equipment-exists/${id}`);
+    updateUserEquipmentPhoto(id: number, photo: File | null): Observable<Object> {
+        const formData = new FormData();
+
+        if (photo) {
+            formData.append('fileUpload', photo);
+        }
+
+        return this.webClient.put(`user-equipment-photo/${id}`, formData);
     }
 
-    userEquipmentExistsByName(name: string): Observable<boolean> {
-        return this.webClient.get<boolean>(`user-equipment-exists-by-name/${name}`);
+    deleteUserEquipmentPhoto(id: number): Observable<Object>{
+        return this.webClient.delete(`user-equipment-photo/${id}`);
     }
+
 
     getEquipmentById(id: number): Observable<Equipment> {
         return this.webClient.get<Equipment>(`equipment/${id}`);
@@ -119,29 +128,5 @@ export class EquipmentService extends ModelsService {
 
     getEquipmentExercises(equipmentId:number, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Exercise>> {
         return this.webClient.get<ApiResult<Exercise>>(`${equipmentId}/exercises`, this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
-    }
-
-    private toFormData(equipmentWithPhoto: UploadWithPhoto<Equipment>): FormData {
-        let formData = new FormData();
-    
-        const { model: equipment, photo } = equipmentWithPhoto;
-
-        const prefix = 'model.';
-
-        if(equipment.id) {
-            formData.append(`${prefix}id`, equipment.id.toString());
-        }
-
-        formData.append(`${prefix}name`, equipment.name);
-
-        if (equipment.image) {
-            formData.append(`${prefix}image`, equipment.image);
-        }
-
-        if (photo) {
-            formData.append('photo', photo, photo.name);
-        }
-    
-        return formData;
     }
 }

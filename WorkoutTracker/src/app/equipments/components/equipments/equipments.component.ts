@@ -11,7 +11,6 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
-import { UploadWithPhoto } from '../../../shared/models/upload-with-photo';
 import { Equipment } from '../../models/equipment';
 
 @Component({
@@ -104,6 +103,7 @@ export class EquipmentsComponent extends ModelsTableComponent<Equipment> impleme
   cancelEditingEquipment(): void {
     this.editingEquipmentId = null;
     this.editingEquipment = null;
+    this.isEditingPhotoUploaded = false;
   }
 
   isEditingNameValid: boolean = true;
@@ -112,24 +112,36 @@ export class EquipmentsComponent extends ModelsTableComponent<Equipment> impleme
   }
 
   isEditingPhotoValid: boolean = true;
+  isEditingPhotoUploaded = false;
   onPhotoChange(photoEditing: any): void {
     if(!this.editingEquipmentPhoto){
       this.editingEquipment!.image = null;
     }
 
     this.isEditingPhotoValid = photoEditing.valid; 
+    this.isEditingPhotoUploaded = true;
   }
 
   saveEquipment(): void {
-    var equipmentWithPhoto = <UploadWithPhoto<Equipment>>{model: this.editingEquipment, photo: this.editingEquipmentPhoto};
-    
     (this.equipmentPageType === 'yours' ? 
-      this.equipmentService.updateUserEquipment(equipmentWithPhoto) :
-      this.equipmentService.updateInternalEquipment(equipmentWithPhoto)
+      this.equipmentService.updateUserEquipment(this.editingEquipment!) :
+      this.equipmentService.updateInternalEquipment(this.editingEquipment!)
     )
     .pipe(this.catchError())
     .subscribe(_ => {
       console.log("Equipment " + this.editingEquipment!.id + " has been updated.");
+
+      if(this.isEditingPhotoUploaded) {
+        (this.equipmentPageType === 'yours' ? 
+          this.equipmentService.updateUserEquipmentPhoto(this.editingEquipment!.id, this.editingEquipmentPhoto) :
+          this.equipmentService.updateInternalEquipmentPhoto(this.editingEquipment!.id, this.editingEquipmentPhoto)
+        )          
+          .pipe(this.catchError())
+          .subscribe(_ => {
+            console.log("Equipment photo has been updated.");
+          });
+      }
+
       this.cancelEditingEquipment();
       this.loadData();
     });
@@ -152,15 +164,26 @@ export class EquipmentsComponent extends ModelsTableComponent<Equipment> impleme
 
   addEquipment(): void {
     var equipment = <Equipment>{ name: this.addingEquipmentName };
-    var equipmentWithPhoto = <UploadWithPhoto<Equipment>>{model: equipment, photo: this.addingEquipmentPhoto};
 
     (this.equipmentPageType === 'yours' ? 
-      this.equipmentService.createUserEquipment(equipmentWithPhoto) :
-      this.equipmentService.createInternalEquipment(equipmentWithPhoto)
+      this.equipmentService.createUserEquipment(equipment) :
+      this.equipmentService.createInternalEquipment(equipment)
     )
     .pipe(this.catchError())
     .subscribe(result => {
         console.log("Equipment " + result.id + " has been created.");
+
+        if(this.addingEquipmentPhoto) {
+          (this.equipmentPageType === 'yours' ? 
+            this.equipmentService.updateUserEquipmentPhoto(result.id, this.addingEquipmentPhoto) :
+            this.equipmentService.updateInternalEquipmentPhoto(result.id, this.addingEquipmentPhoto)
+          )          
+            .pipe(this.catchError())
+            .subscribe(_ => {
+              console.log("Equipment photo has been added.");
+            });
+        }
+
         this.cancelAddingEquipment();
         this.loadData();
     });

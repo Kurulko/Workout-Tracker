@@ -77,17 +77,26 @@ export class ExerciseEditComponent extends EditModelComponent<Exercise> implemen
   }
 
   onSubmit() {
-    var exerciseWithPhoto = <UploadWithPhoto<Exercise>>{model: this.exercise, photo: this.photo};
-
     if (this.id) {
       // Edit mode
       (this.exercisePageType === 'yours' ? 
-        this.exerciseService.updateUserExercise(exerciseWithPhoto) :
-        this.exerciseService.updateInternalExercise(exerciseWithPhoto)
+        this.exerciseService.updateUserExercise(this.exercise) :
+        this.exerciseService.updateInternalExercise(this.exercise)
       )
       .pipe(this.catchError())
       .subscribe(_ => {
         console.log("Exercise " + this.exercise!.id + " has been updated.");
+
+        if(this.isPhotoUploaded) {
+          (this.exercisePageType === 'yours' ? 
+            this.exerciseService.updateUserExercisePhoto(this.exercise!.id, this.photo) :
+            this.exerciseService.updateInternalExercisePhoto(this.exercise!.id, this.photo)
+          )          
+            .pipe(this.catchError())
+            .subscribe(_ => {
+              console.log("Exercise photo has been updated.");
+            });
+        }
 
         this.updateMuscles();
         this.updateEquipments();
@@ -98,13 +107,24 @@ export class ExerciseEditComponent extends EditModelComponent<Exercise> implemen
     else {
       // Add mode
       (this.exercisePageType === 'yours' ? 
-        this.exerciseService.createUserExercise(exerciseWithPhoto) :
-        this.exerciseService.createInternalExercise(exerciseWithPhoto)
+        this.exerciseService.createUserExercise(this.exercise) :
+        this.exerciseService.createInternalExercise(this.exercise)
       )
       .pipe(this.catchError())
       .subscribe(result => {
         this.exercise = result;
         console.log("Exercise " + result.id + " has been created.");
+
+        if(this.isPhotoUploaded && this.photo) {
+          (this.exercisePageType === 'yours' ? 
+            this.exerciseService.updateUserExercisePhoto(result.id, this.photo) :
+            this.exerciseService.updateInternalExercisePhoto(result.id, this.photo)
+          )          
+            .pipe(this.catchError())
+            .subscribe(_ => {
+              console.log("Exercise photo has been added.");
+            });
+        }
 
         this.updateMuscles();
         this.updateEquipments();
@@ -142,9 +162,8 @@ export class ExerciseEditComponent extends EditModelComponent<Exercise> implemen
   }
 
   photo: File | null = null;
+  isPhotoUploaded = false;
   onPhotoUpload() {
-    if(!this.photo){
-      this.exercise.image = null;
-    }
+    this.isPhotoUploaded = true;
   }
 }
