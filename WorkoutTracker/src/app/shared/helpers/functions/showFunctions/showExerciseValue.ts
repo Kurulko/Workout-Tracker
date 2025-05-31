@@ -29,6 +29,10 @@ export function showWeight(modelWeight: ModelWeight): string {
 
 export function showTime(time: TimeSpan): string {
   var timeValuesStr: string[] = [];
+
+  if(time.days)
+    timeValuesStr.push(showCountOfSomethingStr(time.days, 'day', 'days'));
+
   if(time.hours)
     timeValuesStr.push(showCountOfSomethingStr(time.hours, 'hour', 'hours'));
 
