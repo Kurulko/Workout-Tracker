@@ -5,7 +5,6 @@ import { differenceInDays } from 'date-fns';
 import { MainComponent } from 'src/app/shared/components/base/main.component';
 import { roundNumber } from 'src/app/shared/helpers/functions/roundNumber';
 import { showCountOfSomethingStr } from 'src/app/shared/helpers/functions/showFunctions/showCountOfSomethingStr';
-import { showTime } from 'src/app/shared/helpers/functions/showFunctions/showExerciseValue';
 import { showLastDateStr } from 'src/app/shared/helpers/functions/showFunctions/showLastDateStr';
 import { showWeightTypeShort } from 'src/app/shared/helpers/functions/showFunctions/showWeightTypeShort';
 import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
@@ -18,6 +17,7 @@ import { CurrentUserProgress } from '../models/current-user-progress';
 import { WorkoutProgress } from '../models/workout-progress';
 import { WorkoutStatus } from '../models/workout-status';
 import { WorkoutProgressService } from '../services/workout-progress.service';
+import { showTime } from 'src/app/shared/helpers/functions/showFunctions/showTime';
 
 
 @Component({
@@ -89,7 +89,6 @@ export class WorkoutProgressComponent extends MainComponent implements OnInit {
         this.workoutDays = baseInfoProgress.totalWorkouts;
         var countOfWorkoutDays = this.getCountOfDaysTillTodayByRange();
         this.restDays = countOfWorkoutDays - baseInfoProgress.totalWorkouts;
-        console.log(`countOfWorkoutDays ${countOfWorkoutDays}, workoutDays: ${this.workoutDays}, restDays: ${this.restDays}`)
       });
   }
 
