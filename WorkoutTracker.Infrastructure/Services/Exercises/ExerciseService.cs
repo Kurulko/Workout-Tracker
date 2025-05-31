@@ -164,8 +164,8 @@ internal class ExerciseService : BaseWorkoutService<ExerciseService, Exercise>, 
 
         string? image = await fileService.GetImageAsync(fileUpload, exercisePhotosDirectory, maxExerciseImageSizeInMB, false);
         var oldImage = await exerciseRepository.GetExercisePhotoAsync(exerciseId, cancellationToken);
-        
-        await (string.IsNullOrEmpty(image) ?
+
+        await (!string.IsNullOrEmpty(image) ?
             exerciseRepository.UpdateExercisePhotoAsync(exerciseId, image!, cancellationToken) :
             exerciseRepository.DeleteExercisePhotoAsync(exerciseId, cancellationToken)
         ).LogExceptionsAsync(_logger, FailedToActionStr($"{internalExerciseEntityName} photo", "update"));
@@ -308,10 +308,10 @@ internal class ExerciseService : BaseWorkoutService<ExerciseService, Exercise>, 
     {
         await exerciseServiceValidator.ValidateUpdateOwnedPhotoAsync(userId, exerciseId, fileUpload, cancellationToken);
 
-        string? image = await fileService.GetImageAsync(fileUpload, exercisePhotosDirectory, maxExerciseImageSizeInMB, false);
+        string? image = await fileService.GetImageAsync(fileUpload, exercisePhotosDirectory, maxExerciseImageSizeInMB, true);
         var oldImage = await exerciseRepository.GetExercisePhotoAsync(exerciseId, cancellationToken);
 
-        await (string.IsNullOrEmpty(image) ? 
+        await (!string.IsNullOrEmpty(image) ?
             exerciseRepository.UpdateExercisePhotoAsync(exerciseId, image!, cancellationToken) :
             exerciseRepository.DeleteExercisePhotoAsync(exerciseId, cancellationToken)
         ).LogExceptionsAsync(_logger, FailedToActionStr($"{userExerciseEntityName} photo", "update"));

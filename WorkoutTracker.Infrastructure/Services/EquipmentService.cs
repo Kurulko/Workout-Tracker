@@ -119,7 +119,7 @@ internal class EquipmentService : BaseWorkoutService<EquipmentService, Equipment
         string? image = await fileService.GetImageAsync(fileUpload, equipmentPhotosDirectory, maxEquipmentImageSizeInMB, false);
         var oldImage = await equipmentRepository.GetEquipmentPhotoAsync(equipmentId, cancellationToken);
 
-        await (string.IsNullOrEmpty(image) ?
+        await (!string.IsNullOrEmpty(image) ?
             equipmentRepository.UpdateEquipmentPhotoAsync(equipmentId, image!, cancellationToken) :
             equipmentRepository.DeleteEquipmentPhotoAsync(equipmentId, cancellationToken)
         ).LogExceptionsAsync(_logger, FailedToActionStr($"{internalEquipmentEntityName} photo", "update"));
@@ -227,10 +227,10 @@ internal class EquipmentService : BaseWorkoutService<EquipmentService, Equipment
     {
         await equipmentServiceValidator.ValidateUpdateOwnedPhotoAsync(userId, equipmentId, fileUpload, cancellationToken);
 
-        string? image = await fileService.GetImageAsync(fileUpload, equipmentPhotosDirectory, maxEquipmentImageSizeInMB, false);
+        string? image = await fileService.GetImageAsync(fileUpload, equipmentPhotosDirectory, maxEquipmentImageSizeInMB, true);
         var oldImage = await equipmentRepository.GetEquipmentPhotoAsync(equipmentId, cancellationToken);
 
-        await (string.IsNullOrEmpty(image) ?
+        await (!string.IsNullOrEmpty(image) ?
             equipmentRepository.UpdateEquipmentPhotoAsync(equipmentId, image!, cancellationToken) :
             equipmentRepository.DeleteEquipmentPhotoAsync(equipmentId, cancellationToken)
         ).LogExceptionsAsync(_logger, FailedToActionStr($"{userEquipmentEntityName} photo", "update"));

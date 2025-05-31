@@ -148,7 +148,7 @@ internal class MuscleService : BaseWorkoutService<MuscleService, Muscle>, IMuscl
         string? image = await fileService.GetImageAsync(fileUpload, musclePhotosDirectory, maxMuscleImageSizeInMB, false);
         var oldImage = await muscleRepository.GetMusclePhotoAsync(muscleId, cancellationToken);
 
-        await (string.IsNullOrEmpty(image) ?
+        await (!string.IsNullOrEmpty(image) ?
             muscleRepository.UpdateMusclePhotoAsync(muscleId, image!, cancellationToken) :
             muscleRepository.DeleteMusclePhotoAsync(muscleId, cancellationToken)
         ).LogExceptionsAsync(_logger, FailedToActionStr("muscle photo", "update"));
