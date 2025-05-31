@@ -61,14 +61,6 @@ export class UserService extends ModelsService {
         return this.webClient.delete(id);
     }
 
-    userExists(id: string): Observable<boolean> {
-        return this.webClient.get<boolean>(`user-exists/${id}`);
-    }
-
-    userExistsByName(name: string): Observable<boolean> {
-        return this.webClient.get<boolean>(`user-exists-by-username/${name}`);
-    }
-
 
     private getUserModels<T>(path:string, pageIndex: number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null) : Observable<ApiResult<T>>{
         return  this.webClient.get<ApiResult<T>>(path, this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));

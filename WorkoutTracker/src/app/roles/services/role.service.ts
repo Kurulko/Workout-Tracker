@@ -44,12 +44,4 @@ export class RoleService extends ModelsService {
     deleteRole(id: string): Observable<Object> {
         return this.webClient.delete(id);
     }
-
-    roleExists(id: string): Observable<boolean> {
-        return this.webClient.get<boolean>(`role-exists/${id}`);
-    }
-
-    roleExistsByName(name: string): Observable<boolean> {
-        return this.webClient.get<boolean>(`role-exists-by-name/${name}`);
-    }
 }
