@@ -362,5 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /WorkoutTracker/.angular/cache/
-/WorkoutTrackerAPI/Providers/WorkoutInitializerProvider.cs
+/WorkoutTrackerAPI/wwwroot/
 /WorkoutTracker.Infrastructure/Providers/WorkoutInitializerProvider.cs
