@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -19,7 +19,91 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Source\photos\equipments\" />
+    <None Include="wwwroot\images\exercises\ab_rollouts.png" />
+    <None Include="wwwroot\images\exercises\assisted_weighted_push_up.png" />
+    <None Include="wwwroot\images\exercises\band_bicycle_crunch.png" />
+    <None Include="wwwroot\images\exercises\barbell_back_squat.jpg" />
+    <None Include="wwwroot\images\exercises\barbell_deadlift.jpg" />
+    <None Include="wwwroot\images\exercises\barbell_preacher_curl.png" />
+    <None Include="wwwroot\images\exercises\bench_dips.png" />
+    <None Include="wwwroot\images\exercises\bench_press.jpg" />
+    <None Include="wwwroot\images\exercises\bent-over_reverse_fly.png" />
+    <None Include="wwwroot\images\exercises\bent_over_row.jpg" />
+    <None Include="wwwroot\images\exercises\biceps_curl.png" />
+    <None Include="wwwroot\images\exercises\burpee.png" />
+    <None Include="wwwroot\images\exercises\cable_crunches.png" />
+    <None Include="wwwroot\images\exercises\clap_push_ups.png" />
+    <None Include="wwwroot\images\exercises\crossbody_hammer_curl.png" />
+    <None Include="wwwroot\images\exercises\dead hang stretch.png" />
+    <None Include="wwwroot\images\exercises\dips.png" />
+    <None Include="wwwroot\images\exercises\do_abdominal_crunches.png" />
+    <None Include="wwwroot\images\exercises\dumbbell bench press.png" />
+    <None Include="wwwroot\images\exercises\dumbbell_chest_fly.jpg" />
+    <None Include="wwwroot\images\exercises\dumbbell_lateral_raises.png" />
+    <None Include="wwwroot\images\exercises\dumbbell_renegade_row_push_ups.png" />
+    <None Include="wwwroot\images\exercises\dumbbell_squeeze_bench_press.png" />
+    <None Include="wwwroot\images\exercises\elevated_push_ups.png" />
+    <None Include="wwwroot\images\exercises\face pulls.png" />
+    <None Include="wwwroot\images\exercises\front_lever.png" />
+    <None Include="wwwroot\images\exercises\front_squat.png" />
+    <None Include="wwwroot\images\exercises\hammers.png" />
+    <None Include="wwwroot\images\exercises\hanging_leg_raises.png" />
+    <None Include="wwwroot\images\exercises\high pulley overhead tricep extension.png" />
+    <None Include="wwwroot\images\exercises\hollow_body_hold.jpg" />
+    <None Include="wwwroot\images\exercises\incline biceps curl.png" />
+    <None Include="wwwroot\images\exercises\incline reverse fly.png" />
+    <None Include="wwwroot\images\exercises\incline_bench_press.png" />
+    <None Include="wwwroot\images\exercises\Jogging.png" />
+    <None Include="wwwroot\images\exercises\jogging_2.png" />
+    <None Include="wwwroot\images\exercises\leg raise hip lift.png" />
+    <None Include="wwwroot\images\exercises\leg_extension.png" />
+    <None Include="wwwroot\images\exercises\lunges.png" />
+    <None Include="wwwroot\images\exercises\lying_weighted_lateral_neck_flexion.png" />
+    <None Include="wwwroot\images\exercises\lying_weighted_neck_extension.png" />
+    <None Include="wwwroot\images\exercises\lying_weighted_neck_flexion.jpg" />
+    <None Include="wwwroot\images\exercises\neutral_grip_lat_pulldown.png" />
+    <None Include="wwwroot\images\exercises\plank.png" />
+    <None Include="wwwroot\images\exercises\plate_front_raise.png" />
+    <None Include="wwwroot\images\exercises\push_ups.jpg" />
+    <None Include="wwwroot\images\exercises\rear delt row.png" />
+    <None Include="wwwroot\images\exercises\reverse_dumbbell_wrist_curl.png" />
+    <None Include="wwwroot\images\exercises\seated dumbbell lateral raise.png" />
+    <None Include="wwwroot\images\exercises\seated_dumbbell_overhead_extensions.jpg" />
+    <None Include="wwwroot\images\exercises\seated_dumbbell_wrist_curl.png" />
+    <None Include="wwwroot\images\exercises\seated_in-and-out.png" />
+    <None Include="wwwroot\images\exercises\seated_overhead_press.png" />
+    <None Include="wwwroot\images\exercises\shurgs.jpg" />
+    <None Include="wwwroot\images\exercises\side_plank.png" />
+    <None Include="wwwroot\images\exercises\single_arm_dumbbell_rows.jpg" />
+    <None Include="wwwroot\images\exercises\skull crusher.png" />
+    <None Include="wwwroot\images\exercises\squats.png" />
+    <None Include="wwwroot\images\exercises\standing_calf_raises.jpg" />
+    <None Include="wwwroot\images\exercises\standing_side_bend.png" />
+    <None Include="wwwroot\images\exercises\stiff leg deadlift.png" />
+    <None Include="wwwroot\images\exercises\straight arm lat pull down.png" />
+    <None Include="wwwroot\images\exercises\sumo_deadlift.png" />
+    <None Include="wwwroot\images\exercises\sumo_squat.png" />
+    <None Include="wwwroot\images\exercises\table tennis.png" />
+    <None Include="wwwroot\images\exercises\toes_to_bar.jpg" />
+    <None Include="wwwroot\images\exercises\triceps_pushdown.png" />
+    <None Include="wwwroot\images\exercises\uneven_push_ups_on_a_ball.png" />
+    <None Include="wwwroot\images\exercises\upright_row.png" />
+    <None Include="wwwroot\images\exercises\weighted_cossack_squats.jpg" />
+    <None Include="wwwroot\images\exercises\weighted_hanging_knee_raises.png" />
+    <None Include="wwwroot\images\exercises\weighted_plank.jpg" />
+    <None Include="wwwroot\images\exercises\weighted_pull_ups.png" />
+    <None Include="wwwroot\images\exercises\weighted_push_ups.png" />
+    <None Include="wwwroot\images\exercises\weighted_russian_twists.png" />
+    <None Include="wwwroot\images\exercises\weighted_russian_twists_legs_up.png" />
+    <None Include="wwwroot\images\exercises\weighted_v_ups.png" />
+    <None Include="wwwroot\images\exercises\wide_grip_pull_ups.png" />
+    <None Include="wwwroot\images\muscles\biceps.jpg" />
+    <None Include="wwwroot\images\muscles\calves.jpg" />
+    <None Include="wwwroot\images\muscles\chest.jpg" />
+    <None Include="wwwroot\images\muscles\forearms.jpg" />
+    <None Include="wwwroot\images\muscles\legs.jpg" />
+    <None Include="wwwroot\images\muscles\neck.png" />
+    <None Include="wwwroot\images\muscles\shoulders.jpg" />
   </ItemGroup>
 
   <ItemGroup>

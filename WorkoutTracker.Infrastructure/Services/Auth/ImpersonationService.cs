@@ -19,7 +19,7 @@ internal class ImpersonationService : IImpersonationService
     readonly SignInManager<User> signInManager;
     readonly IHttpContextAccessor httpContextAccessor;
     readonly JwtHandler jwtHandler;
-    readonly SessionKeys sessionKeys;
+    readonly SessionKeysOptions sessionKeysOptions;
     readonly ImpersonationServiceValidator impersonationServiceValidator;
 
     public ImpersonationService(
@@ -27,7 +27,7 @@ internal class ImpersonationService : IImpersonationService
         SignInManager<User> signInManager,
         IHttpContextAccessor httpContextAccessor,
         JwtHandler jwtHandler,
-        SessionKeys sessionKeys,
+        SessionKeysOptions sessionKeysOptions,
         ImpersonationServiceValidator impersonationServiceValidator
     )
     {
@@ -35,7 +35,7 @@ internal class ImpersonationService : IImpersonationService
         this.signInManager = signInManager;
         this.httpContextAccessor = httpContextAccessor;
         this.jwtHandler = jwtHandler;
-        this.sessionKeys = sessionKeys;
+        this.sessionKeysOptions = sessionKeysOptions;
         this.impersonationServiceValidator = impersonationServiceValidator;
     }
 
@@ -48,7 +48,7 @@ internal class ImpersonationService : IImpersonationService
         User userToImpersonate = (await userRepository.GetUserByIdAsync(userId))!;
 
         string originalUserId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        HttpContext.Session.SetString(sessionKeys.OriginalUserId, originalUserId);
+        HttpContext.Session.SetString(sessionKeysOptions.OriginalUserId, originalUserId);
 
         await signInManager.SignOutAsync();
         await signInManager.SignInAsync(userToImpersonate, isPersistent: false);
@@ -61,12 +61,12 @@ internal class ImpersonationService : IImpersonationService
     {
         await impersonationServiceValidator.ValidateRevertAsync();
 
-        string originalUserId = HttpContext.Session.GetString(sessionKeys.OriginalUserId)!;
+        string originalUserId = HttpContext.Session.GetString(sessionKeysOptions.OriginalUserId)!;
         User originalUser = (await userRepository.GetUserByIdAsync(originalUserId))!;
 
         await signInManager.SignOutAsync();
         await signInManager.SignInAsync(originalUser, isPersistent: false);
-        HttpContext.Session.Remove(sessionKeys.OriginalUserId);
+        HttpContext.Session.Remove(sessionKeysOptions.OriginalUserId);
 
         var token = await jwtHandler.GenerateJwtTokenAsync(originalUser);
         return token;
@@ -74,7 +74,7 @@ internal class ImpersonationService : IImpersonationService
 
     public bool IsImpersonating()
     {
-        string? originalUserId = HttpContext.Session.GetString(sessionKeys.OriginalUserId);
+        string? originalUserId = HttpContext.Session.GetString(sessionKeysOptions.OriginalUserId);
         return !string.IsNullOrEmpty(originalUserId);
     }
 }

@@ -6,7 +6,7 @@
             --None--
         </mat-option>   
         <mat-option *ngFor="let muscle of result" [value]="muscle" [disabled]="isNoneOptionSelected">
-            <img src="{{ envProduction.baseUrl + 'resources/' + muscle.image }}" aria-label="Photo"
+            <img src="{{ envProduction.baseUrl + muscle.image }}" aria-label="Photo"
                 width="10%" height="10%" *ngIf="muscle.image" />
             {{ muscle.name }}
         </mat-option>

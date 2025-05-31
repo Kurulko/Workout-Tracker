@@ -2,9 +2,9 @@ import { Component, EventEmitter, Input, Output, forwardRef } from '@angular/cor
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { ExerciseType } from '../../../../exercises/models/exercise-type';
-import { ExerciseSet } from '../../../models/exercise-set';
+import { ExerciseSet } from '../../../models/exercises/exercise-set';
 import { BaseEditorComponent } from '../../base-editor.component';
-import { WeightType } from 'src/app/shared/models/weight-type';
+import { WeightType } from 'src/app/shared/models/enums/weight-type';
 import { TimeSpan } from 'src/app/shared/models/time-span';
 import { ModelWeight } from 'src/app/shared/models/model-weight';
 

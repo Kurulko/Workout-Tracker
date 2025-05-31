@@ -1,9 +1,10 @@
-﻿using System.Threading;
-using WorkoutTracker.Application.Common.Exceptions;
+﻿using WorkoutTracker.Application.Common.Exceptions;
+using WorkoutTracker.Application.Common.Models;
 using WorkoutTracker.Application.Common.Validators;
 using WorkoutTracker.Application.Interfaces.Repositories;
 using WorkoutTracker.Domain.Entities;
 using WorkoutTracker.Infrastructure.Validators.Models;
+using WorkoutTracker.Infrastructure.Validators.Models.Muscles;
 using WorkoutTracker.Infrastructure.Validators.Models.Users;
 
 namespace WorkoutTracker.Infrastructure.Validators.Services;
@@ -13,16 +14,18 @@ public class EquipmentServiceValidator
     readonly UserValidator userValidator;
     readonly IEquipmentRepository equipmentRepository;
     readonly EquipmentValidator equipmentValidator;
-
+    readonly FileUploadModelValidator fileUploadModelValidator;
     public EquipmentServiceValidator(
         UserValidator userValidator,
         IEquipmentRepository equipmentRepository,
-        EquipmentValidator equipmentValidator
+        EquipmentValidator equipmentValidator,
+        FileUploadModelValidator fileUploadModelValidator
     )
     {
         this.userValidator = userValidator;
         this.equipmentRepository = equipmentRepository;
         this.equipmentValidator = equipmentValidator;
+        this.fileUploadModelValidator = fileUploadModelValidator;
     }
 
     #region Internal Equipment
@@ -74,6 +77,19 @@ public class EquipmentServiceValidator
     public Task ValidateGetAllInternalAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
+    }
+
+    public async Task ValidateUpdateInternalPhotoAsync(long equipmentId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    {
+        await equipmentValidator.EnsureExistsAsync(equipmentId, cancellationToken);
+
+        if (fileUpload != null)
+            fileUploadModelValidator.Validate(fileUpload);
+    }
+
+    public async Task ValidateDeleteInternalPhotoAsync(long equipmentId, CancellationToken cancellationToken)
+    {
+        await equipmentValidator.EnsureExistsAsync(equipmentId, cancellationToken);
     }
 
     #endregion
@@ -133,6 +149,21 @@ public class EquipmentServiceValidator
     public async Task ValidateGetAllOwnedAsync(string userId, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
+    }
+
+    public async Task ValidateUpdateOwnedPhotoAsync(string userId, long equipmentId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    {
+        await userValidator.EnsureExistsAsync(userId);
+        await equipmentValidator.EnsureExistsAsync(equipmentId, cancellationToken);
+
+        if (fileUpload != null)
+            fileUploadModelValidator.Validate(fileUpload);
+    }
+
+    public async Task ValidateDeleteOwnedPhotoAsync(string userId, long equipmentId, CancellationToken cancellationToken)
+    {
+        await userValidator.EnsureExistsAsync(userId);
+        await equipmentValidator.EnsureExistsAsync(equipmentId, cancellationToken);
     }
 
     #endregion

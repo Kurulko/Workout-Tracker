@@ -2,6 +2,7 @@
 using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Application.Interfaces.Repositories.Exercises;
 using WorkoutTracker.Persistence.Context;
+using WorkoutTracker.Application.Common.Validators;
 
 namespace WorkoutTracker.Persistence.Repositories.Exercises;
 
@@ -13,5 +14,9 @@ internal class ExerciseAliasRepository : BaseWorkoutRepository<ExerciseAlias>, I
     }
 
     public IQueryable<ExerciseAlias> GetExerciseAliasesByExerciseId(long exerciseId)
-         => Find(er => er.ExerciseId == exerciseId);
+    {
+        ArgumentValidator.ThrowIfIdNonPositive(exerciseId, nameof(Exercise));
+
+        return Find(er => er.ExerciseId == exerciseId);
+    }
 }

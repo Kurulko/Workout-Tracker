@@ -11,6 +11,7 @@ using WorkoutTracker.Persistence.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using WorkoutTracker.Application.Common.Settings;
 using FluentValidation.AspNetCore;
+using WorkoutTracker.API.Bindings.Providers;
 
 namespace WorkoutTracker.API.Extensions;
 
@@ -28,7 +29,8 @@ public static class ServiceCollectionExtensions
         services.AddIdentityOptions();
 
         services.AddJWTAuthentication(configuration);
-        services.AddJSessionKeys(configuration);
+        services.AddSessionKeysOptions(configuration);
+        services.AddSeedDataOptions(configuration);
         services.AddDefaultCors();
 
         return services;
@@ -64,10 +66,16 @@ public static class ServiceCollectionExtensions
         );
     } 
     
-    static void AddJSessionKeys(this IServiceCollection services, IConfiguration configuration)
+    static void AddSessionKeysOptions(this IServiceCollection services, IConfiguration configuration)
     {
-        var sessionKeys = configuration.GetSection("SessionKeys").Get<SessionKeys>()!;
-        services.AddSingleton(sessionKeys);
+        var sessionKeysOptions = configuration.GetSection("SessionKeys").Get<SessionKeysOptions>()!;
+        services.AddSingleton(sessionKeysOptions);
+    }
+
+    static void AddSeedDataOptions(this IServiceCollection services, IConfiguration configuration)
+    {
+        var seedDataOptions = configuration.GetSection("SeedData").Get<SeedDataOptions>()!;
+        services.AddSingleton(seedDataOptions);
     }
 
     static void AddDefaultCors(this IServiceCollection services)
@@ -92,6 +100,7 @@ public static class ServiceCollectionExtensions
         {
             options.Filters.Add<ValidateModelStateFilter>();
             options.ModelBinderProviders.Insert(0, new DateTimeRangeBinderProvider());
+            options.ModelBinderProviders.Insert(1, new FileUploadModelBinderProvider());
         })
         .AddNewtonsoftJson(options =>
         {

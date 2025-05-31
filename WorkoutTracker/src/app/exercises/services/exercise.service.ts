@@ -6,8 +6,8 @@ import { ApiResult } from "../../shared/models/api-result";
 import { ExerciseType } from "../models/exercise-type";
 import { Exercise } from "../models/exercise";
 import { ExerciseDetails } from "../models/exercise-details";
-import { Workout } from "src/app/workouts/workout";
 import { UploadWithPhoto } from "src/app/shared/models/upload-with-photo";
+import { Workout } from "src/app/workouts/models/workout";
 
 @Injectable({
     providedIn: 'root'
@@ -37,9 +37,8 @@ export class ExerciseService extends ModelsService {
         return this.webClient.get<ApiResult<Exercise>>("internal-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
-    updateInternalExercise(exerciseWithPhoto: UploadWithPhoto<Exercise>): Observable<Object> {
-        const formData = this.toFormData(exerciseWithPhoto);
-        return this.webClient.put(`internal-exercise/${exerciseWithPhoto.model.id}`, formData);
+    updateInternalExercise(exercise: Exercise): Observable<Object> {
+        return this.webClient.put(`internal-exercise/${exercise.id}`, exercise);
     }
 
     updateInternalExerciseMuscles(exerciseId: number, muscleIds: number[]): Observable<Object> {
@@ -50,21 +49,26 @@ export class ExerciseService extends ModelsService {
         return this.webClient.put(`internal-exercise/${exerciseId}/equipments`, equipmentIds);
     }
 
-    createInternalExercise(exerciseWithPhoto: UploadWithPhoto<Exercise>): Observable<Exercise>{
-        const formData = this.toFormData(exerciseWithPhoto);
-        return this.webClient.post<Exercise>("internal-exercise", formData);
+    createInternalExercise(exercise: Exercise): Observable<Exercise>{
+        return this.webClient.post<Exercise>("internal-exercise", exercise);
     }
 
     deleteInternalExercise(id: number): Observable<Object> {
         return this.webClient.delete(`internal-exercise/${id}`);
     }
 
-    internalExerciseExists(id: number): Observable<boolean> {
-        return this.webClient.get<boolean>(`internal-exercise-exists/${id}`);
+    updateInternalExercisePhoto(id: number, photo: File | null): Observable<Object> {
+        const formData = new FormData();
+
+        if (photo) {
+            formData.append('fileUpload', photo);
+        }
+
+        return this.webClient.put(`internal-exercise-photo/${id}`, formData);
     }
 
-    internalExerciseExistsByName(name: string): Observable<boolean> {
-        return this.webClient.get<boolean>(`internal-exercise-exists-by-name/${name}`);
+    deleteInternalExercisePhoto(id: number): Observable<Object>{
+        return this.webClient.delete(`internal-exercise-photo/${id}`);
     }
 
 
@@ -88,9 +92,8 @@ export class ExerciseService extends ModelsService {
         return this.webClient.get<ApiResult<Exercise>>("user-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
-    updateUserExercise(exerciseWithPhoto: UploadWithPhoto<Exercise>): Observable<Object> {
-        const formData = this.toFormData(exerciseWithPhoto);
-        return this.webClient.put(`user-exercise/${exerciseWithPhoto.model.id}`, formData);
+    updateUserExercise(exercise: Exercise): Observable<Object> {
+        return this.webClient.put(`user-exercise/${exercise.id}`, exercise);
     }
 
     updateUserExerciseMuscles(exerciseId: number, muscleIds: number[]): Observable<Object> {
@@ -101,22 +104,28 @@ export class ExerciseService extends ModelsService {
         return this.webClient.put(`user-exercise/${exerciseId}/equipments`, equipmentIds);
     }
 
-    createUserExercise(exerciseWithPhoto: UploadWithPhoto<Exercise>): Observable<Exercise>{
-        const formData = this.toFormData(exerciseWithPhoto);
-        return this.webClient.post<Exercise>("user-exercise", formData);
+    createUserExercise(exercise: Exercise): Observable<Exercise>{
+        return this.webClient.post<Exercise>("user-exercise", exercise);
     }
 
     deleteUserExercise(id: number): Observable<Object> {
         return this.webClient.delete(`user-exercise/${id}`);
     }
 
-    userExerciseExists(id: number): Observable<boolean> {
-        return this.webClient.get<boolean>(`user-exercise-exists/${id}`);
+    updateUserExercisePhoto(id: number, photo: File | null): Observable<Object> {
+        const formData = new FormData();
+
+        if (photo) {
+            formData.append('fileUpload', photo);
+        }
+
+        return this.webClient.put(`user-exercise-photo/${id}`, formData);
     }
 
-    userExerciseExistsByName(name: string): Observable<boolean> {
-        return this.webClient.get<boolean>(`user-exercise-exists-by-name/${name}`);
+    deleteUserExercisePhoto(id: number): Observable<Object>{
+        return this.webClient.delete(`user-exercise-photo/${id}`);
     }
+
 
     getExerciseById(id: number): Observable<Exercise> {
         return this.webClient.get<Exercise>(`exercise/${id}`);
@@ -146,34 +155,5 @@ export class ExerciseService extends ModelsService {
         }
 
         return httpParams;
-    }
-
-    private toFormData(exerciseWithPhoto: UploadWithPhoto<Exercise>): FormData {
-        let formData = new FormData();
-    
-        const { model: exercise, photo } = exerciseWithPhoto;
-
-        const prefix = 'model.';
-
-        if(exercise.id) {
-            formData.append(`${prefix}id`, exercise.id.toString());
-        }
-
-        formData.append(`${prefix}name`, exercise.name);
-        formData.append(`${prefix}type`, exercise.type.toString());
-      
-        if (exercise.description) {
-            formData.append(`${prefix}description`, exercise.description);
-        }
-
-        if (exercise.image) {
-            formData.append(`${prefix}image`, exercise.image);
-        }
-
-        if (photo) {
-            formData.append('photo', photo, photo.name);
-        }
-    
-        return formData;
     }
 }

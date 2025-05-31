@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using WorkoutTracker.Infrastructure.Validators.Services;
 using WorkoutTracker.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
+using WorkoutTracker.Application.Common.Extensions;
+using WorkoutTracker.Application.Common.Models;
 
 namespace WorkoutTracker.Infrastructure.Services;
 
@@ -30,6 +32,9 @@ internal class EquipmentService : BaseWorkoutService<EquipmentService, Equipment
         this.fileService = fileService;
         this.equipmentServiceValidator = equipmentServiceValidator;
     }
+
+    readonly string equipmentPhotosDirectory = Path.Combine("images", "equipments");
+    const int maxEquipmentImageSizeInMB = 3;
 
     #region Internal Equipments
 
@@ -105,6 +110,37 @@ internal class EquipmentService : BaseWorkoutService<EquipmentService, Equipment
 
         return await equipments.ToListAsync(cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr("internal equipments", "get"));
+    }
+
+    public async Task UpdateInternalEquipmentPhotoAsync(long equipmentId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    {
+        await equipmentServiceValidator.ValidateUpdateInternalPhotoAsync(equipmentId, fileUpload, cancellationToken);
+
+        string? image = await fileService.GetImageAsync(fileUpload, equipmentPhotosDirectory, maxEquipmentImageSizeInMB, false);
+        var oldImage = await equipmentRepository.GetEquipmentPhotoAsync(equipmentId, cancellationToken);
+
+        await (!string.IsNullOrEmpty(image) ?
+            equipmentRepository.UpdateEquipmentPhotoAsync(equipmentId, image!, cancellationToken) :
+            equipmentRepository.DeleteEquipmentPhotoAsync(equipmentId, cancellationToken)
+        ).LogExceptionsAsync(_logger, FailedToActionStr($"{internalEquipmentEntityName} photo", "update"));
+
+        if (!string.IsNullOrEmpty(oldImage))
+            fileService.DeleteFile(oldImage);
+    }
+
+    public async Task DeleteInternalEquipmentPhotoAsync(long equipmentId, CancellationToken cancellationToken)
+    {
+        await equipmentServiceValidator.ValidateDeleteInternalPhotoAsync(equipmentId, cancellationToken);
+
+        var oldImage = await equipmentRepository.GetEquipmentPhotoAsync(equipmentId, cancellationToken);
+
+        if (!string.IsNullOrEmpty(oldImage))
+        {
+            await equipmentRepository.DeleteEquipmentPhotoAsync(equipmentId, cancellationToken)
+                .LogExceptionsAsync(_logger, FailedToActionStr($"{internalEquipmentEntityName} photo", "delete"));
+
+            fileService.DeleteFile(oldImage);
+        }
     }
 
     #endregion
@@ -187,6 +223,36 @@ internal class EquipmentService : BaseWorkoutService<EquipmentService, Equipment
             .LogExceptionsAsync(_logger, FailedToActionForUserStr("user equipments", "get", userId));
     }
 
+    public async Task UpdateUserEquipmentPhotoAsync(string userId, long equipmentId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    {
+        await equipmentServiceValidator.ValidateUpdateOwnedPhotoAsync(userId, equipmentId, fileUpload, cancellationToken);
+
+        string? image = await fileService.GetImageAsync(fileUpload, equipmentPhotosDirectory, maxEquipmentImageSizeInMB, true);
+        var oldImage = await equipmentRepository.GetEquipmentPhotoAsync(equipmentId, cancellationToken);
+
+        await (!string.IsNullOrEmpty(image) ?
+            equipmentRepository.UpdateEquipmentPhotoAsync(equipmentId, image!, cancellationToken) :
+            equipmentRepository.DeleteEquipmentPhotoAsync(equipmentId, cancellationToken)
+        ).LogExceptionsAsync(_logger, FailedToActionStr($"{userEquipmentEntityName} photo", "update"));
+
+        if (!string.IsNullOrEmpty(oldImage))
+            fileService.DeleteFile(oldImage);
+    }
+
+    public async Task DeleteUserEquipmentPhotoAsync(string userId, long equipmentId, CancellationToken cancellationToken)
+    {
+        await equipmentServiceValidator.ValidateDeleteOwnedPhotoAsync(userId, equipmentId, cancellationToken);
+
+        var oldImage = await equipmentRepository.GetEquipmentPhotoAsync(equipmentId, cancellationToken);
+
+        if (!string.IsNullOrEmpty(oldImage))
+        {
+            await equipmentRepository.DeleteEquipmentPhotoAsync(equipmentId, cancellationToken)
+                .LogExceptionsAsync(_logger, FailedToActionStr($"{userEquipmentEntityName} photo", "delete"));
+
+            fileService.DeleteFile(oldImage);
+        }
+    }
     #endregion
 
     #region All Equipments
@@ -255,7 +321,7 @@ internal class EquipmentService : BaseWorkoutService<EquipmentService, Equipment
         var updateAction = new Action<Equipment>(e =>
         {
             e.Name = equipment.Name;
-            e.Image = equipment.Image;
+            //e.Image = equipment.Image;
         });
 
         return updateAction;

@@ -6,9 +6,9 @@ using WorkoutTracker.Persistence.Context;
 using WorkoutTracker.Application.Common.Extensions.Exercises;
 using WorkoutTracker.Domain.Enums;
 using WorkoutTracker.Application.Common.Models;
-using WorkoutTracker.Application.Common.Extensions;
-using WorkoutTracker.Domain.Entities.Workouts;
 using System.Linq.Expressions;
+using WorkoutTracker.Application.Common.Validators;
+using WorkoutTracker.Infrastructure.Identity.Entities;
 
 namespace WorkoutTracker.Persistence.Repositories.Exercises.ExerciseRecords;
 
@@ -24,6 +24,8 @@ internal class ExerciseRecordRepository : DbModelRepository<ExerciseRecord>, IEx
 
     public override async Task<ExerciseRecord?> GetByIdAsync(long key, CancellationToken cancellationToken)
     {
+        ArgumentValidator.ThrowIfIdNonPositive(key, entityName);
+
         return await IncludeExerciseRecord(dbSet.Where(w => w.Id == key))
             .SingleOrDefaultAsync(cancellationToken);
     }
@@ -35,7 +37,7 @@ internal class ExerciseRecordRepository : DbModelRepository<ExerciseRecord>, IEx
 
     public IQueryable<ExerciseRecord> GetUserExerciseRecords(string userId, long? exerciseId, ExerciseType? exerciseType, DateTimeRange? range)
     {
-        ArgumentNullException.ThrowIfNull(userId, nameof(userId));
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, nameof(User));
 
         var exerciseRecords = Find(er => er.ExerciseRecordGroup.WorkoutRecord.UserId == userId);
 
@@ -52,6 +54,8 @@ internal class ExerciseRecordRepository : DbModelRepository<ExerciseRecord>, IEx
 
     public async Task<string?> GetUserIdByExerciseRecordIdAsync(long exerciseRecordId, CancellationToken cancellationToken = default)
     {
+        ArgumentValidator.ThrowIfIdNonPositive(exerciseRecordId, entityName);
+
         var exerciseRecord = await GetByIdAsync(exerciseRecordId, cancellationToken);
 
         if (exerciseRecord is null)

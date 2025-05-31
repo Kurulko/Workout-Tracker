@@ -1,4 +1,4 @@
-import { SizeType } from "src/app/shared/models/size-type";
+import { SizeType } from "src/app/shared/models/enums/size-type";
 
 export const oneInchInCentimeters = 2.54;
 export const oneCentimeterInInches = 0.393701;

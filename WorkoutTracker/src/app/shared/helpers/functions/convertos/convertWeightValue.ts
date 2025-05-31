@@ -1,4 +1,4 @@
-import { WeightType } from "src/app/shared/models/weight-type";
+import { WeightType } from "src/app/shared/models/enums/weight-type";
 
 export const oneKilogramInPounds = 0.453592;
 export const onePoundInKilograms = 2.20462;

@@ -5,6 +5,8 @@ using WorkoutTracker.Persistence.Repositories.Base;
 using WorkoutTracker.Persistence.Context;
 using WorkoutTracker.Application.Common.Models;
 using System.Linq.Expressions;
+using WorkoutTracker.Application.Common.Validators;
+using WorkoutTracker.Infrastructure.Identity.Entities;
 
 namespace WorkoutTracker.Persistence.Repositories.Workouts;
 
@@ -20,6 +22,8 @@ internal class WorkoutRecordRepository : DbModelRepository<WorkoutRecord>, IWork
 
     public override async Task<WorkoutRecord?> GetByIdAsync(long key, CancellationToken cancellationToken)
     {
+        ArgumentValidator.ThrowIfIdNonPositive(key, entityName);
+
         return await IncludeWorkoutRecord(dbSet.Where(w => w.Id == key))
             .SingleOrDefaultAsync(cancellationToken);
     }
@@ -32,6 +36,8 @@ internal class WorkoutRecordRepository : DbModelRepository<WorkoutRecord>, IWork
 
     public IQueryable<WorkoutRecord> GetUserWorkoutRecords(string userId, long? workoutId, DateTimeRange? range)
     {
+        ArgumentValidator.ThrowIfIdNullOrEmpty(userId, nameof(User));
+
         var userWorkoutRecords = Find(wr => wr.UserId == userId);
 
         if (range is not null)

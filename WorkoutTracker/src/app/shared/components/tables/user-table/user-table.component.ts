@@ -4,8 +4,8 @@ import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonat
 import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
 import { BaseTableComponent } from '../base-table.component';
 import { MatDialog } from '@angular/material/dialog';
-import { User } from 'src/app/users/user';
-import { UserService } from 'src/app/users/user.service';
+import { User } from 'src/app/users/models/user';
+import { UserService } from 'src/app/users/services/user.service';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
 
 @Component({

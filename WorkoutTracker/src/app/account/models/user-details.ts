@@ -1,4 +1,4 @@
-import { Gender } from "src/app/shared/models/gender";
+import { Gender } from "src/app/shared/models/enums/gender";
 import { ModelSize } from "../../shared/models/model-size";
 import { ModelWeight } from "../../shared/models/model-weight";
 

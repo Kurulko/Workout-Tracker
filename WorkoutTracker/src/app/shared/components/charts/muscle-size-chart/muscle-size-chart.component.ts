@@ -7,9 +7,9 @@ import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-
 import { BaseChartComponent } from '../base-chart.component';
 import { ChartData, ChartOptions } from 'chart.js';
 import { roundNumber } from 'src/app/shared/helpers/functions/roundNumber';
-import { MuscleSize } from 'src/app/muscle-sizes/muscle-size';
 import { showSizeTypeShort } from 'src/app/shared/helpers/functions/showFunctions/showSizeTypeShort';
-import { SizeType } from 'src/app/shared/models/size-type';
+import { SizeType } from 'src/app/shared/models/enums/size-type';
+import { MuscleSize } from 'src/app/muscles/models/muscle-size';
 
 @Component({
   selector: 'app-muscle-size-chart',

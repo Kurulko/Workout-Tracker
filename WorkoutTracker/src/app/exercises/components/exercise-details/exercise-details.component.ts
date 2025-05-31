@@ -16,14 +16,14 @@ import { roundNumber } from 'src/app/shared/helpers/functions/roundNumber';
 import { showExerciseValue, showReps, showWeight } from 'src/app/shared/helpers/functions/showFunctions/showExerciseValue';
 import { showTime } from 'src/app/shared/helpers/functions/showFunctions/showTime';
 import { ExerciseType } from '../../models/exercise-type';
-import { ExerciseRecordService } from '../../../exercise-records/exercise-record.service';
+import { ExerciseRecordService } from '../../services/exercise-record.service';
 import { ApiResult } from 'src/app/shared/models/api-result';
 import { MainComponent } from 'src/app/shared/components/base/main.component';
-import { ExerciseRecord } from 'src/app/exercise-records/exercise-record';
-import { Workout } from 'src/app/workouts/workout';
-import { WorkoutService } from 'src/app/workouts/workout.service';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
+import { Workout } from 'src/app/workouts/models/workout';
+import { WorkoutService } from 'src/app/workouts/services/workout.service';
+import { ExerciseRecord } from '../../models/exercise-record';
 
 @Component({
   selector: 'app-exercise-details',

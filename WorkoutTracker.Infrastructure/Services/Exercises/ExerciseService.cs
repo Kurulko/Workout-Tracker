@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using WorkoutTracker.Application.Common.Extensions;
+using WorkoutTracker.Application.Common.Models;
 using WorkoutTracker.Application.Interfaces.Repositories;
 using WorkoutTracker.Application.Interfaces.Repositories.Exercises;
 using WorkoutTracker.Application.Interfaces.Repositories.Exercises.ExerciseRecords;
@@ -11,6 +13,7 @@ using WorkoutTracker.Domain.Enums;
 using WorkoutTracker.Infrastructure.Extensions;
 using WorkoutTracker.Infrastructure.Services.Base;
 using WorkoutTracker.Infrastructure.Validators.Services.Exercises;
+using WorkoutTracker.Infrastructure.Validators.Services.Muscles;
 
 namespace WorkoutTracker.Infrastructure.Services.Exercises;
 
@@ -39,6 +42,9 @@ internal class ExerciseService : BaseWorkoutService<ExerciseService, Exercise>, 
         this.fileService = fileService;
         this.exerciseServiceValidator = exerciseServiceValidator;
     }
+
+    readonly string exercisePhotosDirectory = Path.Combine("images", "exercises");
+    const int maxExerciseImageSizeInMB = 3;
 
 
     #region Internal Exercises
@@ -151,6 +157,38 @@ internal class ExerciseService : BaseWorkoutService<ExerciseService, Exercise>, 
         await exerciseRepository.UpdatePartialAsync(exerciseId, updateEquipmentsAction, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr($"{internalExerciseEntityName}'s equipments", "update"));
     }
+
+    public async Task UpdateInternalExercisePhotoAsync(long exerciseId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    {
+        await exerciseServiceValidator.ValidateUpdateInternalPhotoAsync(exerciseId, fileUpload, cancellationToken);
+
+        string? image = await fileService.GetImageAsync(fileUpload, exercisePhotosDirectory, maxExerciseImageSizeInMB, false);
+        var oldImage = await exerciseRepository.GetExercisePhotoAsync(exerciseId, cancellationToken);
+
+        await (!string.IsNullOrEmpty(image) ?
+            exerciseRepository.UpdateExercisePhotoAsync(exerciseId, image!, cancellationToken) :
+            exerciseRepository.DeleteExercisePhotoAsync(exerciseId, cancellationToken)
+        ).LogExceptionsAsync(_logger, FailedToActionStr($"{internalExerciseEntityName} photo", "update"));
+
+        if (!string.IsNullOrEmpty(oldImage))
+            fileService.DeleteFile(oldImage);
+    }
+
+    public async Task DeleteInternalExercisePhotoAsync(long exerciseId, CancellationToken cancellationToken)
+    {
+        await exerciseServiceValidator.ValidateDeleteInternalPhotoAsync(exerciseId, cancellationToken);
+
+        var oldImage = await exerciseRepository.GetExercisePhotoAsync(exerciseId, cancellationToken);
+
+        if (!string.IsNullOrEmpty(oldImage))
+        {
+            await exerciseRepository.DeleteExercisePhotoAsync(exerciseId, cancellationToken)
+                .LogExceptionsAsync(_logger, FailedToActionStr($"{internalExerciseEntityName} photo", "delete"));
+
+            fileService.DeleteFile(oldImage);
+        }
+    }
+
 
     #endregion
 
@@ -266,6 +304,38 @@ internal class ExerciseService : BaseWorkoutService<ExerciseService, Exercise>, 
             .LogExceptionsAsync(_logger, FailedToActionStr($"{userExerciseEntityName}'s equipments", "update"));
     }
 
+    public async Task UpdateUserExercisePhotoAsync(string userId, long exerciseId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    {
+        await exerciseServiceValidator.ValidateUpdateOwnedPhotoAsync(userId, exerciseId, fileUpload, cancellationToken);
+
+        string? image = await fileService.GetImageAsync(fileUpload, exercisePhotosDirectory, maxExerciseImageSizeInMB, true);
+        var oldImage = await exerciseRepository.GetExercisePhotoAsync(exerciseId, cancellationToken);
+
+        await (!string.IsNullOrEmpty(image) ?
+            exerciseRepository.UpdateExercisePhotoAsync(exerciseId, image!, cancellationToken) :
+            exerciseRepository.DeleteExercisePhotoAsync(exerciseId, cancellationToken)
+        ).LogExceptionsAsync(_logger, FailedToActionStr($"{userExerciseEntityName} photo", "update"));
+
+        if (!string.IsNullOrEmpty(oldImage))
+            fileService.DeleteFile(oldImage);
+    }
+
+    public async Task DeleteUserExercisePhotoAsync(string userId, long exerciseId, CancellationToken cancellationToken)
+    {
+        await exerciseServiceValidator.ValidateDeleteOwnedPhotoAsync(userId, exerciseId, cancellationToken);
+
+        var oldImage = await exerciseRepository.GetExercisePhotoAsync(exerciseId, cancellationToken);
+
+        if (!string.IsNullOrEmpty(oldImage))
+        {
+            await exerciseRepository.DeleteExercisePhotoAsync(exerciseId, cancellationToken)
+                .LogExceptionsAsync(_logger, FailedToActionStr($"{userExerciseEntityName} photo", "delete"));
+
+            fileService.DeleteFile(oldImage);
+        }
+    }
+
+
     #endregion
 
     #region All Exercises
@@ -346,7 +416,7 @@ internal class ExerciseService : BaseWorkoutService<ExerciseService, Exercise>, 
         var updateAction = new Action<Exercise>(e =>
         {
             e.Name = exercise.Name;
-            e.Image = exercise.Image;
+            //e.Image = exercise.Image;
             e.Description = exercise.Description;
             e.Type = exercise.Type;
         });

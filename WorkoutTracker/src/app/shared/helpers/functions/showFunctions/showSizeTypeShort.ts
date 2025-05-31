@@ -1,4 +1,4 @@
-import { SizeType } from "../../../models/size-type";
+import { SizeType } from "../../../models/enums/size-type";
 
 export function showSizeTypeShort(type: SizeType): string {
     switch (type) {

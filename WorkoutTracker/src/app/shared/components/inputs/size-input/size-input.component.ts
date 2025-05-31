@@ -3,7 +3,7 @@ import { BaseEditorComponent } from '../../base-editor.component';
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { showSizeType } from 'src/app/shared/helpers/functions/showFunctions/showSizeType';
 import { showSizeTypeShort } from 'src/app/shared/helpers/functions/showFunctions/showSizeTypeShort';
-import { SizeType } from 'src/app/shared/models/size-type';
+import { SizeType } from 'src/app/shared/models/enums/size-type';
 import { BaseInputComponent } from '../base-input.component';
 
 @Component({

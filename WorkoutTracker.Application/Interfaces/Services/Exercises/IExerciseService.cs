@@ -1,4 +1,5 @@
-﻿using WorkoutTracker.Domain.Entities.Exercises;
+﻿using WorkoutTracker.Application.Common.Models;
+using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Domain.Enums;
 
 namespace WorkoutTracker.Application.Interfaces.Services.Exercises;
@@ -23,6 +24,9 @@ public interface IExerciseService : IBaseService
 
     Task DeleteInternalExerciseAsync(long exerciseId, CancellationToken cancellationToken = default);
 
+    Task UpdateInternalExercisePhotoAsync(long exerciseId, FileUploadModel? fileUpload, CancellationToken cancellationToken = default);
+    Task DeleteInternalExercisePhotoAsync(long exerciseId, CancellationToken cancellationToken = default);
+
     #endregion
 
     #region User Exercises
@@ -42,6 +46,9 @@ public interface IExerciseService : IBaseService
     Task UpdateUserExerciseEquipmentsAsync(string userId, long exerciseId, IEnumerable<long> equipmentIDs, CancellationToken cancellationToken = default);
 
     Task DeleteExerciseFromUserAsync(string userId, long exerciseId, CancellationToken cancellationToken = default);
+
+    Task UpdateUserExercisePhotoAsync(string userId, long exerciseId, FileUploadModel? fileUpload, CancellationToken cancellationToken = default);
+    Task DeleteUserExercisePhotoAsync(string userId, long exerciseId, CancellationToken cancellationToken = default);
 
     #endregion
 

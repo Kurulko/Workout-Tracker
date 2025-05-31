@@ -491,7 +491,7 @@ namespace WorkoutTracker.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("WorkoutTracker.Domain.Entities.Users.UserDetails", b =>
+            modelBuilder.Entity("WorkoutTracker.Domain.Entities.UserDetails", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -912,11 +912,11 @@ namespace WorkoutTracker.Persistence.Migrations
                     b.Navigation("Muscle");
                 });
 
-            modelBuilder.Entity("WorkoutTracker.Domain.Entities.Users.UserDetails", b =>
+            modelBuilder.Entity("WorkoutTracker.Domain.Entities.UserDetails", b =>
                 {
                     b.HasOne("WorkoutTracker.Infrastructure.Identity.Entities.User", null)
                         .WithOne("UserDetails")
-                        .HasForeignKey("WorkoutTracker.Domain.Entities.Users.UserDetails", "UserId")
+                        .HasForeignKey("WorkoutTracker.Domain.Entities.UserDetails", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

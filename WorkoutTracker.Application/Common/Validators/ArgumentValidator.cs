@@ -70,6 +70,15 @@ public static class ArgumentValidator
         return result!;
     }
 
+    public static async Task<T> EnsureExistsByNameAsync<T>(Func<string, CancellationToken, Task<T?>> fetchFunc, string name, string paramName, CancellationToken cancellationToken = default) where T : class
+    {
+        var result = await fetchFunc(name, cancellationToken);
+
+        ThrowIfNotFoundByName(result, paramName, name);
+
+        return result!;
+    }
+
     public static async Task<T> EnsureExistsByNameAsync<T>(Func<string, Task<T?>> fetchFunc, string name, string paramName) where T : class
     {
         var result = await fetchFunc(name);
@@ -199,6 +208,11 @@ public static class ArgumentValidator
             throw new ValidationException(FailedToAction(action, entity, result));
     }
 
+    public static void ThrowIfPasswordsMismatch(string password, string passwordConfirm)
+    {
+        if (password != passwordConfirm)
+            throw new ValidationException("Passwords mismatch.");
+    }
 
 
     #endregion

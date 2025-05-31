@@ -1,14 +1,14 @@
 import { Component, Input } from '@angular/core';
 import { MatSnackBar  } from '@angular/material/snack-bar';
-import { MuscleSize } from 'src/app/muscle-sizes/muscle-size';
 import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
 import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
 import { roundNumber } from 'src/app/shared/helpers/functions/roundNumber';
 import { showSizeTypeShort } from 'src/app/shared/helpers/functions/showFunctions/showSizeTypeShort';
-import { SizeType } from 'src/app/shared/models/size-type';
+import { SizeType } from 'src/app/shared/models/enums/size-type';
 import { BaseTableComponent } from '../base-table.component';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
+import { MuscleSize } from 'src/app/muscles/models/muscle-size';
 
 @Component({
   selector: 'app-muscle-size-table',

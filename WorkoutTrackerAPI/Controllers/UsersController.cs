@@ -523,10 +523,10 @@ public class UsersController : APIController
 
     #endregion
 
-    bool IsValidID(string id) => !string.IsNullOrEmpty(id);
-    bool IsNameValid(string name) => !string.IsNullOrEmpty(name);
-    bool IsPasswordValid(string password) => !string.IsNullOrEmpty(password);
-    bool AreIdsEqual(string id1, string id2) => id1 == id2;
+    static bool IsValidID(string id) => !string.IsNullOrEmpty(id);
+    static bool IsNameValid(string name) => !string.IsNullOrEmpty(name);
+    static bool IsPasswordValid(string password) => !string.IsNullOrEmpty(password);
+    static bool AreIdsEqual(string id1, string id2) => id1 == id2;
 
     ActionResult UserIDIsNullOrEmpty()
         => BadRequest("User ID is null or empty.");

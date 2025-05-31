@@ -1,4 +1,4 @@
-import { WeightType } from "./weight-type";
+import { WeightType } from "./enums/weight-type";
 
 export interface ModelWeight {
     weight: number;

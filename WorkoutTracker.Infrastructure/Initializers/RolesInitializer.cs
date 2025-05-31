@@ -10,6 +10,7 @@ internal class RolesInitializer
         foreach (string roleStr in rolesStr)
         {
             IdentityRole? role = await roleRepository.GetRoleByNameAsync(roleStr);
+
             if (role is null)
                 await roleRepository.AddRoleAsync(new IdentityRole(roleStr));
         }

@@ -15,4 +15,8 @@ public interface IEquipmentRepository : IBaseWorkoutRepository<Equipment>
 
     IQueryable<Equipment> FindByIds(IEnumerable<long> equipmentIds);
     IQueryable<Equipment> FindInternalByIds(IEnumerable<long> equipmentIds);
+
+    Task<string?> GetEquipmentPhotoAsync(long key, CancellationToken cancellationToken = default);
+    Task UpdateEquipmentPhotoAsync(long key, string image, CancellationToken cancellationToken = default);
+    Task DeleteEquipmentPhotoAsync(long key, CancellationToken cancellationToken = default);
 }

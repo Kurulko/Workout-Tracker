@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using WorkoutTracker.Application.DTOs.Account;
+﻿using WorkoutTracker.Application.DTOs.Account;
 using WorkoutTracker.Application.Extensions;
 
 namespace WorkoutTracker.Application.Validators.Account;

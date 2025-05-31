@@ -20,7 +20,7 @@ internal static class WorkoutInitializer
         workout = new Workout()
         {
             Name = workoutName,
-            Created = DateTime.Now,
+            Created = DateTime.UtcNow,
             UserId = userId
         };
 

@@ -1,0 +1,108 @@
+<main-app title="Muscle Details">
+  <button type="button" mat-flat-button color="secondary" [routerLink]="['/muscles']">
+      <mat-icon>reply</mat-icon> Back
+  </button>
+  <br/><br/>
+  <ng-container *ngIf="!muscleDetails; else muscleDetailsTemplate">
+    <mat-spinner diameter="60" />
+  </ng-container>
+  <ng-template #muscleDetailsTemplate>
+    <mat-card class="card">
+      <mat-card-header>
+        <mat-card-title-group>
+          <mat-card-title>{{ muscleDetails.muscle.name }}</mat-card-title>
+          <img mat-card-image src="{{ envProduction.baseUrl + muscleDetails.muscle.image }}" 
+            title="Muscle" class="image" *ngIf="muscleDetails.muscle.image"/>
+        </mat-card-title-group>
+      </mat-card-header>
+      <mat-card-content>
+        <br>
+        <div class="row">
+          <div class="col-md-4">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>Parent Muscle:</th>
+                        <td>
+                          <ng-container *ngIf="hasParentMuscle; else noParentMuscleTemplate">
+                            {{ muscleDetails.muscle.parentMuscleName }}
+                          </ng-container>
+                          <ng-template #noParentMuscleTemplate>
+                            <p class="none-option">No Parent Muscle</p>
+                          </ng-template>
+                        </td>
+                    </tr>          
+                    <tr>
+                        <th>Child Muscles:</th>
+                        <td>
+                          <ng-container *ngIf="hasChildMuscles; else noChildMusclesTemplate">
+                            <mat-accordion *ngIf="muscleDetails.muscle.childMuscles?.length !== 0">
+                              <mat-expansion-panel (opened)="muscleChildsPanelOpenState.set(true)" (closed)="muscleChildsPanelOpenState.set(false)">
+                                <mat-expansion-panel-header>
+                                  <mat-panel-title> {{ muscleChildsPanelOpenState() ? 'Child Muscles:' : getChildMuscleNamesStr() }}</mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <ul>
+                                  <li *ngFor="let muscle of muscleDetails.muscle.childMuscles">
+                                      {{ muscle.name }}
+                                  </li>
+                                </ul>
+                              </mat-expansion-panel>
+                          </mat-accordion>
+                          </ng-container>
+                          <ng-template #noChildMusclesTemplate>
+                            <p class="none-option">No Child Muscles</p>
+                          </ng-template>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-8">
+            <h2>Exercises:</h2>
+            <ng-container *ngIf="hasExercises; else noExercisesTemplate">
+              <app-exercise-table
+                [pageIndex]="exercisePageIndex"
+                [pageSize]="exercisePageSize"
+                [totalCount]="exerciseTotalCount"
+                [displayedColumns]="['index', 'name', 'photo','type', 'equipments', 'actions']"
+                [data]="exercises"
+                (sortChange)="onExerciseSortChange($event)"
+                (pageChange)="onExercisePageChange($event)"
+                (deleteItem)="onDeleteExercise($event)" />
+            </ng-container>
+            <ng-template #noExercisesTemplate>
+              <p class="none-option">No Exercises</p>
+            </ng-template>
+            <div *ngIf="muscleDetails.muscle.isMeasurable">
+              <hr>
+              <h2>Muscle Sizes:</h2>
+                <ng-container *ngIf="hasMuscleSizes; else noMuscleSizesTemplate">
+                  <app-muscle-size-table 
+                    [muscleId]="muscleId" 
+                    [displayedColumns]="['date', 'size', 'actions']"
+                    [pageIndex]="muscleSizePageIndex"
+                    [pageSize]="muscleSizePageSize"
+                    [totalCount]="muscleSizeTotalCount"
+                    [data]="muscleSizes"
+                    (sortChange)="onMuscleSizeSortChange($event)"
+                    (pageChange)="onMuscleSizePageChange($event)"
+                    (deleteItem)="onDeleteMuscleSize($event)" />
+                </ng-container>
+                <ng-template #noMuscleSizesTemplate>
+                  <p class="none-option">No Muscle Sizes</p>
+                </ng-template>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <button type="button" mat-button color="primary" [routerLink]="['/muscle', muscleDetails.muscle.id]">
+          <mat-icon>edit</mat-icon> Edit
+        </button>
+        <button type="button" mat-button color="warn" (click)="deleteMuscle()">
+          <mat-icon>delete</mat-icon> Delete
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </ng-template>
+</main-app>

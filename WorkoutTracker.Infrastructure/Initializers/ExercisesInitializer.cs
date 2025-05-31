@@ -1,4 +1,4 @@
-﻿using WorkoutTracker.Application.Common.Exceptions;
+﻿using WorkoutTracker.Application.Common.Validators;
 using WorkoutTracker.Application.Interfaces.Repositories;
 using WorkoutTracker.Application.Interfaces.Repositories.Exercises;
 using WorkoutTracker.Application.Interfaces.Repositories.Muscles;
@@ -18,32 +18,43 @@ internal class ExercisesInitializer
         if (exercise is not null)
             return exercise;
 
-        exercise = new()
+        exercise = new ()
         {
             Name = name,
             Image = image,
             Type = exerciseType
         };
 
-        var muscles = new List<Muscle>();
-        foreach (string muscleName in muscleNames)
-        {
-            var muscle = await muscleRepository.GetByNameAsync(muscleName) ?? throw NotFoundException.NotFoundExceptionByName(nameof(Muscle), muscleName);
-            muscles.Add(muscle);
-        }
-        exercise.WorkingMuscles = muscles;
-
-
-        var equipments = new List<Equipment>();
-        foreach (string equipmentName in equipmentNames)
-        {
-            var equipment = await equipmentRepository.GetByNameAsync(equipmentName) ?? throw NotFoundException.NotFoundExceptionByName(nameof(Equipment), equipmentName);
-            equipments.Add(equipment);
-        }
-        exercise.Equipments = equipments;
-
+        exercise.WorkingMuscles = await GetMuscles(muscleRepository, muscleNames);
+        exercise.Equipments = await GetEquipments(equipmentRepository, equipmentNames);
 
         await exerciseRepository.AddAsync(exercise);
         return exercise;
+    }
+
+    static async Task<ICollection<Muscle>> GetMuscles(IMuscleRepository muscleRepository, string[] muscleNames)
+    {
+        var muscles = new List<Muscle>();
+
+        foreach (string muscleName in muscleNames)
+        {
+            var muscle = await ArgumentValidator.EnsureExistsByNameAsync(muscleRepository.GetByNameAsync, muscleName, nameof(Muscle));
+            muscles.Add(muscle);
+        }
+
+        return muscles;
+    }
+
+    static async Task<ICollection<Equipment>> GetEquipments(IEquipmentRepository equipmentRepository, string[] equipmentNames)
+    {
+        var equipments = new List<Equipment>();
+
+        foreach (string equipmentName in equipmentNames)
+        {
+            var equipment = await ArgumentValidator.EnsureExistsByNameAsync(equipmentRepository.GetByNameAsync, equipmentName, nameof(Equipment));
+            equipments.Add(equipment);
+        }
+
+        return equipments;
     }
 }

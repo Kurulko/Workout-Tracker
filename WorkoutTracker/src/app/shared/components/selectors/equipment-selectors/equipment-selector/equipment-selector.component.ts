@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output, Input, forwardRef } from '@angular/core';
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { EquipmentService } from 'src/app/equipments/equipment.service';
+import { EquipmentService } from 'src/app/equipments/services/equipment.service';
 import { BaseEquipmentSelectorComponent } from '../base-equipment-selector.component';
 
 @Component({

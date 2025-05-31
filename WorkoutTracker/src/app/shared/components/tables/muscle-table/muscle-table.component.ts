@@ -3,9 +3,9 @@ import { MatSnackBar  } from '@angular/material/snack-bar';
 import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
 import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
 import { BaseTableComponent } from '../base-table.component';
-import { Muscle } from 'src/app/muscles/muscle';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
+import { Muscle } from 'src/app/muscles/models/muscle';
 
 @Component({
   selector: 'app-muscle-table',

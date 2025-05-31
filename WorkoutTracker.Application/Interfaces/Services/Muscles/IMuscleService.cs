@@ -1,4 +1,6 @@
-﻿using WorkoutTracker.Domain.Entities.Muscles;
+﻿using WorkoutTracker.Application.Common.Models;
+using WorkoutTracker.Application.Interfaces.Repositories.Muscles;
+using WorkoutTracker.Domain.Entities.Muscles;
 
 namespace WorkoutTracker.Application.Interfaces.Services.Muscles;
 
@@ -19,4 +21,7 @@ public interface IMuscleService : IBaseService
     Task UpdateMuscleChildrenAsync(long muscleId, IEnumerable<long>? muscleChildIDs, CancellationToken cancellationToken = default);
 
     Task DeleteMuscleAsync(long muscleId, CancellationToken cancellationToken = default);
+
+    Task UpdateMusclePhotoAsync(long muscleId, FileUploadModel? fileUpload, CancellationToken cancellationToken = default);
+    Task DeleteMusclePhotoAsync(long muscleId, CancellationToken cancellationToken = default);
 }

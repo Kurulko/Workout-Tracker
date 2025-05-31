@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy, OnInit } from '@angular/core';
-import { WeightType } from 'src/app/shared/models/weight-type';
-import { SizeType } from 'src/app/shared/models/size-type';
+import { WeightType } from 'src/app/shared/models/enums/weight-type';
+import { SizeType } from 'src/app/shared/models/enums/size-type';
 import { BaseManager } from './base-manager';
 import { Observable, Subject } from 'rxjs';
 

@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Output, Input, forwardRef } from '@angular/core';
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Equipment } from 'src/app/equipments/equipment';
-import { EquipmentService } from 'src/app/equipments/equipment.service';
+import { EquipmentService } from 'src/app/equipments/services/equipment.service';
 import { BaseEquipmentSelectorComponent } from '../base-equipment-selector.component';
+import { Equipment } from 'src/app/equipments/models/equipment';
 
 @Component({
   selector: 'app-multiple-equipment-selector',

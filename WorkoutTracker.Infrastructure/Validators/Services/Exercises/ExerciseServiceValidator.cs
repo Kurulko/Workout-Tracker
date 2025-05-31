@@ -7,6 +7,7 @@ using WorkoutTracker.Domain.Enums;
 using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Infrastructure.Validators.Models.Muscles;
 using WorkoutTracker.Infrastructure.Validators.Models;
+using WorkoutTracker.Application.Common.Models;
 
 namespace WorkoutTracker.Infrastructure.Validators.Services.Exercises;
 
@@ -17,12 +18,14 @@ public class ExerciseServiceValidator
     readonly ExerciseValidator exerciseValidator;
     readonly MuscleValidator muscleValidator;
     readonly EquipmentValidator equipmentValidator;
+    readonly FileUploadModelValidator fileUploadModelValidator;
 
     public ExerciseServiceValidator(
         UserValidator userValidator,
         IExerciseRepository exerciseRepository,
         ExerciseValidator exerciseValidator,
         MuscleValidator muscleValidator,
+        FileUploadModelValidator fileUploadModelValidator,
         EquipmentValidator equipmentValidator
     )
     {
@@ -30,6 +33,7 @@ public class ExerciseServiceValidator
         this.exerciseRepository = exerciseRepository;
         this.exerciseValidator = exerciseValidator;
         this.muscleValidator = muscleValidator;
+        this.fileUploadModelValidator = fileUploadModelValidator;
         this.equipmentValidator = equipmentValidator;
     }
 
@@ -118,6 +122,19 @@ public class ExerciseServiceValidator
             await equipmentValidator.EnsureExistsAsync(equipmentId, cancellationToken);
     }
 
+    public async Task ValidateUpdateInternalPhotoAsync(long muscleId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    {
+        await muscleValidator.EnsureExistsAsync(muscleId, cancellationToken);
+
+        if (fileUpload != null)
+            fileUploadModelValidator.Validate(fileUpload);
+    }
+
+    public async Task ValidateDeleteInternalPhotoAsync(long muscleId, CancellationToken cancellationToken)
+    {
+        await muscleValidator.EnsureExistsAsync(muscleId, cancellationToken);
+    }
+
     #endregion
 
     #region User Exercises
@@ -202,6 +219,21 @@ public class ExerciseServiceValidator
 
         foreach (var equipmentId in equipmentIds)
             await equipmentValidator.EnsureExistsAsync(equipmentId, cancellationToken);
+    }
+
+    public async Task ValidateUpdateOwnedPhotoAsync(string userId, long muscleId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    {
+        await userValidator.EnsureExistsAsync(userId);
+        await muscleValidator.EnsureExistsAsync(muscleId, cancellationToken);
+
+        if (fileUpload != null)
+            fileUploadModelValidator.Validate(fileUpload);
+    }
+
+    public async Task ValidateDeleteOwnedPhotoAsync(string userId, long muscleId, CancellationToken cancellationToken)
+    {
+        await userValidator.EnsureExistsAsync(userId);
+        await muscleValidator.EnsureExistsAsync(muscleId, cancellationToken);
     }
 
 

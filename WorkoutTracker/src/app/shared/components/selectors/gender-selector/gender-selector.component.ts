@@ -1,7 +1,7 @@
 import { Component, Input, EventEmitter, Output, OnInit, forwardRef } from '@angular/core';
 import { BaseSelectorComponent } from '../base-selector.component';
 import { getEnumElements } from 'src/app/shared/helpers/functions/getFunctions/getEnumElements';
-import { Gender } from 'src/app/shared/models/gender';
+import { Gender } from 'src/app/shared/models/enums/gender';
 import { showGender } from 'src/app/shared/helpers/functions/showFunctions/showGender';
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 

@@ -3,11 +3,11 @@ import { MatSnackBar  } from '@angular/material/snack-bar';
 import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
 import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
 import { BaseTableComponent } from '../base-table.component';
-import { Workout } from 'src/app/workouts/workout';
 import { roundNumber } from 'src/app/shared/helpers/functions/roundNumber';
 import { showWeightTypeShort } from 'src/app/shared/helpers/functions/showFunctions/showWeightTypeShort';
 import { showValuesStr } from 'src/app/shared/helpers/functions/showFunctions/showValuesStr';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
+import { Workout } from 'src/app/workouts/models/workout';
 
 @Component({
   selector: 'app-workout-table',

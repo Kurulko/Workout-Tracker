@@ -3,7 +3,7 @@ import { MatSnackBar  } from '@angular/material/snack-bar';
 import { ImpersonationManager } from 'src/app/shared/helpers/managers/impersonation-manager';
 import { TokenManager } from 'src/app/shared/helpers/managers/token-manager';
 import { BaseTableComponent } from '../base-table.component';
-import { Role } from 'src/app/roles/role';
+import { Role } from 'src/app/roles/models/role';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
 
 @Component({

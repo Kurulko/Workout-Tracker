@@ -1,4 +1,5 @@
-﻿using WorkoutTracker.Domain.Entities;
+﻿using WorkoutTracker.Application.Common.Models;
+using WorkoutTracker.Domain.Entities;
 
 namespace WorkoutTracker.Application.Interfaces.Services;
 
@@ -19,6 +20,9 @@ public interface IEquipmentService : IBaseService
 
     Task DeleteInternalEquipmentAsync(long equipmentId, CancellationToken cancellationToken = default);
 
+    Task UpdateInternalEquipmentPhotoAsync(long equipmentId, FileUploadModel? fileUpload, CancellationToken cancellationToken = default);
+    Task DeleteInternalEquipmentPhotoAsync(long equipmentId, CancellationToken cancellationToken = default);
+
     #endregion
 
     #region User Equipments
@@ -35,6 +39,9 @@ public interface IEquipmentService : IBaseService
     Task UpdateUserEquipmentAsync(string userId, Equipment model, CancellationToken cancellationToken = default);
 
     Task DeleteEquipmentFromUserAsync(string userId, long equipmentId, CancellationToken cancellationToken = default);
+
+    Task UpdateUserEquipmentPhotoAsync(string userId, long equipmentId, FileUploadModel? fileUpload, CancellationToken cancellationToken = default);
+    Task DeleteUserEquipmentPhotoAsync(string userId, long equipmentId, CancellationToken cancellationToken = default);
 
     #endregion
 

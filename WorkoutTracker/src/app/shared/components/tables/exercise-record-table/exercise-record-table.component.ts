@@ -8,9 +8,9 @@ import { roundNumber } from 'src/app/shared/helpers/functions/roundNumber';
 import { showExerciseType } from 'src/app/shared/helpers/functions/showFunctions/showExerciseType';
 import { showExerciseValue, showReps, showTime, showWeight } from 'src/app/shared/helpers/functions/showFunctions/showExerciseValue';
 import { ExerciseType } from 'src/app/exercises/models/exercise-type';
-import { ExerciseRecord } from 'src/app/exercise-records/exercise-record';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
+import { ExerciseRecord } from 'src/app/exercises/models/exercise-record';
 
 @Component({
   selector: 'app-exercise-record-table',

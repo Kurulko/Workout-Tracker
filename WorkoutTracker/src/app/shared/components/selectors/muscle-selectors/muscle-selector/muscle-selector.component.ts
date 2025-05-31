@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output, Input, OnInit, forwardRef } from '@angular/core';
 import { NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MuscleService } from 'src/app/muscles/muscle.service';
+import { MuscleService } from 'src/app/muscles/services/muscle.service';
 import { BaseMuscleSelectorComponent } from '../base-muscle-selector.component';
 
 @Component({
