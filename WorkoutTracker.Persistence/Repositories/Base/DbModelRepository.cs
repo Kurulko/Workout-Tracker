@@ -90,7 +90,6 @@ internal abstract  class DbModelRepository<T> : IDisposable, IBaseRepository<T>
         var entity = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, id, entityName, cancellationToken);
 
         updateAction(entity);
-        dbSet.Update(entity);
         await SaveChangesAsync(cancellationToken);
     }
 
