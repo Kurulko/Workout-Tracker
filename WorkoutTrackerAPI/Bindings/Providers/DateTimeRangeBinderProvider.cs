@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-using WorkoutTracker.API.Binders;
+using WorkoutTracker.API.Bindings.Binders;
 using WorkoutTracker.Application.Common.Models;
 
-namespace WorkoutTracker.API.Bindings;
+namespace WorkoutTracker.API.Bindings.Providers;
 
 public class DateTimeRangeBinderProvider : IModelBinderProvider
 {
