@@ -5,13 +5,10 @@ using WorkoutTracker.API.Controllers.Base;
 using WorkoutTracker.API.Extensions;
 using WorkoutTracker.API.Results;
 using WorkoutTracker.Application.DTOs.Exercises.Exercises;
-using WorkoutTracker.Application.Interfaces.Services;
 using WorkoutTracker.Application.Interfaces.Services.Exercises;
 using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Domain.Enums;
-using WorkoutTracker.Application.Common.Extensions;
 using WorkoutTracker.Domain.Constants;
-using WorkoutTracker.API.Models.Requests;
 using WorkoutTracker.Application.Common.Models;
 
 namespace ExerciseTrackerAPI.Controllers.ExerciseControllers;
@@ -108,7 +105,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
     [HttpPost("internal-exercise")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddInternalExerciseAsync([FromForm] ExerciseCreationDTO exerciseCreationDTO, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddInternalExerciseAsync([FromBody] ExerciseCreationDTO exerciseCreationDTO, CancellationToken cancellationToken)
     {
         if (exerciseCreationDTO is null)
             return ExerciseIsNull();
@@ -123,7 +120,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
 
     [HttpPut("internal-exercise/{exerciseId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateInternalExerciseAsync(long exerciseId, [FromForm] ExerciseUpdateDTO exerciseUpdateDTO, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateInternalExerciseAsync(long exerciseId, [FromBody] ExerciseUpdateDTO exerciseUpdateDTO, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();
@@ -280,7 +277,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
     }
 
     [HttpPost("user-exercise")]
-    public async Task<IActionResult> AddCurrentUserExerciseAsync([FromForm] ExerciseCreationDTO exerciseCreationDTO, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddCurrentUserExerciseAsync([FromBody] ExerciseCreationDTO exerciseCreationDTO, CancellationToken cancellationToken)
     {
         if (exerciseCreationDTO is null)
             return ExerciseIsNull();
@@ -294,7 +291,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
     }
 
     [HttpPut("user-exercise/{exerciseId}")]
-    public async Task<IActionResult> UpdateCurrentUserExerciseAsync(long exerciseId, [FromForm] ExerciseUpdateDTO exerciseUpdateDTO, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateCurrentUserExerciseAsync(long exerciseId, [FromBody] ExerciseUpdateDTO exerciseUpdateDTO, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
             return InvalidExerciseID();

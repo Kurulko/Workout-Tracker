@@ -12,7 +12,6 @@ using WorkoutTracker.Domain.Constants;
 using WorkoutTracker.Domain.Entities;
 using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Application.Common.Extensions;
-using WorkoutTracker.API.Models.Requests;
 using WorkoutTracker.Application.Common.Models;
 
 namespace WorkoutTracker.API.Controllers;
@@ -104,7 +103,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 
     [HttpPost("internal-equipment")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddInternalEquipmentAsync([FromForm] EquipmentCreationDTO equipmentCreationDTO, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddInternalEquipmentAsync([FromBody] EquipmentCreationDTO equipmentCreationDTO, CancellationToken cancellationToken)
     {
         if (equipmentCreationDTO is null)
             return EquipmentIsNull();
@@ -118,7 +117,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 
     [HttpPut("internal-equipment/{equipmentId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateInternalEquipmentAsync(long equipmentId, [FromForm] EquipmentUpdateDTO equipmentUpdateDTO, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateInternalEquipmentAsync(long equipmentId, [FromBody] EquipmentUpdateDTO equipmentUpdateDTO, CancellationToken cancellationToken)
     {
         if (equipmentId < 1)
             return InvalidEquipmentID();
@@ -249,7 +248,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 
 
     [HttpPost("user-equipment")]
-    public async Task<IActionResult> AddCurrentUserEquipmentAsync([FromForm] EquipmentCreationDTO equipmentCreationDTO, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddCurrentUserEquipmentAsync([FromBody] EquipmentCreationDTO equipmentCreationDTO, CancellationToken cancellationToken)
     {
         if (equipmentCreationDTO is null)
             return EquipmentIsNull();
@@ -263,7 +262,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
     }
 
     [HttpPut("user-equipment/{equipmentId}")]
-    public async Task<IActionResult> UpdateCurrentUserEquipmentAsync(long equipmentId, [FromForm] EquipmentUpdateDTO equipmentUpdateDTO, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateCurrentUserEquipmentAsync(long equipmentId, [FromBody] EquipmentUpdateDTO equipmentUpdateDTO, CancellationToken cancellationToken)
     {
         if (!IsValidID(equipmentId))
             return InvalidEquipmentID();
@@ -379,7 +378,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
 
     [HttpGet("{equipmentId}/exercises")]
     public async Task<ActionResult<ApiResult<ExerciseDTO>>> GetExercisesByEquipmentIdAsync(CancellationToken cancellationToken,
-        [FromQuery] int equipmentId,
+        int equipmentId,
         [FromQuery] int pageIndex = 0,
         [FromQuery] int pageSize = 10,
         [FromQuery] string? sortColumn = null,
@@ -397,7 +396,7 @@ public class EquipmentsController : BaseWorkoutController<EquipmentDTO, Equipmen
             return EntryNotFound("Equipment");
 
         if (equipment.Exercises is not IEnumerable<Exercise> exercises)
-            return EntryNotFound("Exercises");
+            return Ok();
 
         var exerciseDTOs = exercises.ToList().Select(mapper.Map<ExerciseDTO>);
         return await ApiResult<ExerciseDTO>.CreateAsync(

@@ -198,7 +198,7 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
 
     [HttpPost]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> AddMuscleAsync([FromForm] MuscleCreationDTO muscleCreationDTO, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddMuscleAsync([FromBody] MuscleCreationDTO muscleCreationDTO, CancellationToken cancellationToken)
     {
         if (muscleCreationDTO is null)
             return MuscleIsNull();
@@ -212,7 +212,7 @@ public class MusclesController : BaseWorkoutController<MuscleDTO, MuscleDTO>
 
     [HttpPut("{muscleId}")]
     [Authorize(Roles = Roles.AdminRole)]
-    public async Task<IActionResult> UpdateMuscleAsync(long muscleId, [FromForm] MuscleUpdateDTO muscleUpdateDTO, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateMuscleAsync(long muscleId, [FromBody] MuscleUpdateDTO muscleUpdateDTO, CancellationToken cancellationToken)
     {
         if (!IsValidID(muscleId))
             return InvalidMuscleID();
