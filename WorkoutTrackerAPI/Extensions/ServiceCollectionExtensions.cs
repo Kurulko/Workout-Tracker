@@ -11,6 +11,7 @@ using WorkoutTracker.Persistence.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using WorkoutTracker.Application.Common.Settings;
 using FluentValidation.AspNetCore;
+using WorkoutTracker.API.Bindings.Providers;
 
 namespace WorkoutTracker.API.Extensions;
 
@@ -99,6 +100,7 @@ public static class ServiceCollectionExtensions
         {
             options.Filters.Add<ValidateModelStateFilter>();
             options.ModelBinderProviders.Insert(0, new DateTimeRangeBinderProvider());
+            options.ModelBinderProviders.Insert(1, new FileUploadModelBinderProvider());
         })
         .AddNewtonsoftJson(options =>
         {
