@@ -9,6 +9,7 @@ export interface Exercise extends WorkoutModel {
     description: string|null;
     type: ExerciseType;
     isCreatedByUser: boolean;
+    aliases: string[];
 
     equipments: Equipment[];
     workouts: Workout[];
