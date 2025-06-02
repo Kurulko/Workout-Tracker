@@ -26,6 +26,15 @@
         <app-short-card title="Photo" width="80%">
           <app-photo-input [(ngModel)]="photo" (ngModelChange)="onPhotoUpload()" [previewUrl]="previewUrl" [required]="false" width="80%" #photoInput="ngModel" />
         </app-short-card>
+        <br />
+        <app-short-card title="Aliases" width="80%">
+        <app-multi-string-input 
+            [(ngModel)]="exerciseAliases" 
+            (ngModelChange)="onExerciseAliasesChanged()"
+            [required]="false"
+            (validityChange)="onExerciseAliasesValidityChange($event)"
+            width="100%" />
+        </app-short-card>
       </div>
     </div>
     <br><br>
@@ -33,18 +42,18 @@
       <div class="row">
         <div class="col">
           <h3>Muscles:</h3>
-          <app-multiple-muscle-selector [(ngModel)]="muscles" [required]="true" width="75%" #musclesInput="ngModel"/>
+          <app-multiple-muscle-selector [(ngModel)]="muscles" [required]="true" width="75%" (ngModelChange)="onMusclesChanged()" #musclesInput="ngModel"/>
         </div>
         <div class="col">
           <h3>Equipments:</h3>
-          <app-multiple-equipment-selector [(ngModel)]="equipments" [modelsType]="exercisePageType === 'internal' ? 'internal' : 'all'" [required]="false" width="75%"  #equipmentsInput="ngModel"/>
+          <app-multiple-equipment-selector [(ngModel)]="equipments" (ngModelChange)="onEquipmentsChanged()" [modelsType]="exercisePageType === 'internal' ? 'internal' : 'all'" [required]="false" width="75%"  #equipmentsInput="ngModel"/>
         </div>
       </div>
     </app-short-card>
     <br /><br />
     <div>
         <button type="button" color="primary" mat-flat-button (click)="onSubmit()" 
-            [disabled]="nameInput.invalid || exerciseTypeInput.invalid || equipmentsInput.invalid || musclesInput.invalid || photoInput.invalid || descriptionInput.invalid">
+            [disabled]="nameInput.invalid || exerciseTypeInput.invalid || equipmentsInput.invalid || musclesInput.invalid || photoInput.invalid || descriptionInput.invalid || !isExerciseAliasesValid">
           <mat-icon>{{ this.id ? "edit" : "add_box" }}</mat-icon> {{ this.id ? "Save" : "Create" }}
         </button>
         <button type="button" mat-flat-button color="secondary" [routerLink]="['/exercises']">

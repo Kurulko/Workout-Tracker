@@ -23,7 +23,7 @@ export class ExerciseTableComponent extends BaseTableComponent<Exercise> {
     snackBar: MatSnackBar) 
   {
     super(impersonationManager, tokenManager, preferencesManager, snackBar);
-    this.displayedColumns = ['index', 'name', 'photo', 'description', 'type', 'muscles', 'equipments', 'actions'];
+    this.displayedColumns = ['index', 'name', 'photo', 'description', 'type', 'muscles', 'equipments', 'aliases', 'actions'];
   }
 
   showExerciseType = showExerciseType;
@@ -50,6 +50,11 @@ export class ExerciseTableComponent extends BaseTableComponent<Exercise> {
     var equipmentNames = exercise.equipments.map(equipment => equipment.name);
     const maxLength = 50;
     return showValuesStr(equipmentNames, maxLength);
+  }
+
+  getAliasNamesStr(exercise: Exercise): string {
+    const maxLength = 50;
+    return showValuesStr(exercise.aliases, maxLength);
   }
 
   deleteExercise = async (id: number): Promise<void> => {

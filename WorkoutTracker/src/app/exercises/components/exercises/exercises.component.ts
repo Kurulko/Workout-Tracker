@@ -24,7 +24,6 @@ export class ExercisesComponent extends ModelsTableComponent<Exercise> {
     snackBar: MatSnackBar) 
   {
     super(impersonationManager, tokenManager, preferencesManager, snackBar);
-    this.filterColumn = "name";
     this.sortColumn = 'name';
   }
 
@@ -49,16 +48,16 @@ export class ExercisesComponent extends ModelsTableComponent<Exercise> {
   }
 
   exerciseType:ExerciseType|null = null;
-  getModels(pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Exercise>> {
+  getModels(pageIndex: number, pageSize: number, sortColumn: string, sortOrder: string, _: string|null, filterQuery: string|null): Observable<ApiResult<Exercise>> {
     switch (this.exercisePageType) {
       case 'all':
-        return this.exerciseService.getAllExercises(this.exerciseType, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+        return this.exerciseService.getAllExercises(this.exerciseType, pageIndex, pageSize, sortColumn, sortOrder, filterQuery);
       case 'yours':
-        return this.exerciseService.getUserExercises(this.exerciseType, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+        return this.exerciseService.getUserExercises(this.exerciseType, pageIndex, pageSize, sortColumn, sortOrder, filterQuery);
       case 'internal':
-        return this.exerciseService.getInternalExercises(this.exerciseType, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+        return this.exerciseService.getInternalExercises(this.exerciseType, pageIndex, pageSize, sortColumn, sortOrder, filterQuery);
       case 'used':
-        return this.exerciseService.getUsedExercises(this.exerciseType, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+        return this.exerciseService.getUsedExercises(this.exerciseType, pageIndex, pageSize, sortColumn, sortOrder, filterQuery);
       default:
         throw new Error(`Unexpected exercise type page value`);
       }

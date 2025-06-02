@@ -17,8 +17,8 @@ export abstract class ModelsService extends BaseService {
   
         if (filterColumn && filterQuery) {
             params = params
-            .set("filterColumn", filterColumn)
-            .set("filterQuery", filterQuery);
+                .set("filterColumn", filterColumn)
+                .set("filterQuery", filterQuery);
         }
 
         return params;
