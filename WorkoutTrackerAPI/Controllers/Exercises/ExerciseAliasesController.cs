@@ -56,7 +56,7 @@ public class ExerciseAliasesController : BaseWorkoutController<ExerciseAliasDTO,
         return ToExerciseAliasDTO(exerciseAliase);
     }
 
-    [HttpGet("{name}/by-name")]
+    [HttpGet("by-name/{name}")]
     [ActionName(nameof(GetExerciseAliasByNameAsync))]
     public async Task<ActionResult<ExerciseAliasDTO>> GetExerciseAliasByNameAsync(string name, CancellationToken cancellationToken)
     {
