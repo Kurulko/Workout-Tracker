@@ -8,7 +8,6 @@ import { ImpersonationManager } from '../../../shared/helpers/managers/impersona
 import { TokenManager } from '../../../shared/helpers/managers/token-manager';
 import { PreferencesManager } from '../../../shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
-import { UploadWithPhoto } from '../../../shared/models/upload-with-photo';
 import { ChildMuscle } from '../../models/child-muscle';
 import { Muscle } from '../../models/muscle';
 

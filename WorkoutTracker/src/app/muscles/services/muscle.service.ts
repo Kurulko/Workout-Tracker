@@ -5,7 +5,6 @@ import { Observable } from "rxjs";
 import { ApiResult } from "../../shared/models/api-result";
 import { MuscleDetails } from "../models/muscle-details";
 import { Exercise } from "../../exercises/models/exercise";
-import { UploadWithPhoto } from "../../shared/models/upload-with-photo";
 import { Muscle } from "../models/muscle";
 
 @Injectable({
