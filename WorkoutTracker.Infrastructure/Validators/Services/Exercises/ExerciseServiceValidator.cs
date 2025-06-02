@@ -122,6 +122,17 @@ public class ExerciseServiceValidator
             await equipmentValidator.EnsureExistsAsync(equipmentId, cancellationToken);
     }
 
+    public async Task ValidateUpdateInternalAliasesAsync(long exerciseId, string[] aliasesStr, CancellationToken cancellationToken)
+    {
+        var exercise = await exerciseValidator.EnsureExistsAsync(exerciseId, cancellationToken);
+
+        if (!string.IsNullOrEmpty(exercise.CreatedByUserId))
+            throw UnauthorizedException.HaveNoPermissionToAction("update", "internal exercise aliases");
+
+        foreach (var aliasStr in aliasesStr)
+            ArgumentValidator.ThrowIfArgumentNullOrEmpty(aliasStr, nameof(aliasStr));
+    }
+
     public async Task ValidateUpdateInternalPhotoAsync(long muscleId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
     {
         await muscleValidator.EnsureExistsAsync(muscleId, cancellationToken);
@@ -219,6 +230,19 @@ public class ExerciseServiceValidator
 
         foreach (var equipmentId in equipmentIds)
             await equipmentValidator.EnsureExistsAsync(equipmentId, cancellationToken);
+    }
+
+    public async Task ValidateUpdateOwnedAliasesAsync(string userId, long exerciseId, string[] aliasesStr, CancellationToken cancellationToken)
+    {
+        await userValidator.EnsureExistsAsync(userId);
+
+        var exercise = await exerciseValidator.EnsureExistsAsync(exerciseId, cancellationToken);
+
+        if (exercise.CreatedByUserId != userId)
+            throw UnauthorizedException.HaveNoPermissionToAction("update", "user exercise aliases");
+
+        foreach (var aliasStr in aliasesStr)
+            ArgumentValidator.ThrowIfArgumentNullOrEmpty(aliasStr, nameof(aliasStr));
     }
 
     public async Task ValidateUpdateOwnedPhotoAsync(string userId, long muscleId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
