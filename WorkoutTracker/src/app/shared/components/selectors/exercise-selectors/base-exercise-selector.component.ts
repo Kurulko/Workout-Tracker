@@ -29,11 +29,11 @@ export abstract class BaseExerciseSelectorComponent<T extends number|Exercise[]>
       (() => {
         switch (this.modelsType) {
           case "user":
-            return this.exerciseService.getUserExercises(this.exerciseType, this.pageIndex, this.pageSize, this.sortColumn, this.sortOrder, this.filterColumn, this.filterQuery);
+            return this.exerciseService.getUserExercises(this.exerciseType, this.pageIndex, this.pageSize, this.sortColumn, this.sortOrder, this.filterQuery);
           case "internal":
-            return this.exerciseService.getInternalExercises(this.exerciseType, this.pageIndex, this.pageSize, this.sortColumn, this.sortOrder, this.filterColumn, this.filterQuery);
+            return this.exerciseService.getInternalExercises(this.exerciseType, this.pageIndex, this.pageSize, this.sortColumn, this.sortOrder, this.filterQuery);
           default:
-            return this.exerciseService.getAllExercises(this.exerciseType, this.pageIndex, this.pageSize, this.sortColumn, this.sortOrder, this.filterColumn, this.filterQuery);
+            return this.exerciseService.getAllExercises(this.exerciseType, this.pageIndex, this.pageSize, this.sortColumn, this.sortOrder, this.filterQuery);
         }
       })().pipe(map(x => x.data));
   }

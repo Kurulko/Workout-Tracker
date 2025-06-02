@@ -6,7 +6,6 @@ import { ApiResult } from "../../shared/models/api-result";
 import { ExerciseType } from "../models/exercise-type";
 import { Exercise } from "../models/exercise";
 import { ExerciseDetails } from "../models/exercise-details";
-import { UploadWithPhoto } from "src/app/shared/models/upload-with-photo";
 import { Workout } from "src/app/workouts/models/workout";
 
 @Injectable({
@@ -33,8 +32,8 @@ export class ExerciseService extends ModelsService {
         return this.webClient.get<ExerciseDetails>(`internal-exercise/by-name/${name}/details`);
     }
 
-    getInternalExercises(type: ExerciseType|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Exercise>> {
-        return this.webClient.get<ApiResult<Exercise>>("internal-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
+    getInternalExercises(type: ExerciseType|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterQuery:string|null): Observable<ApiResult<Exercise>> {
+        return this.webClient.get<ApiResult<Exercise>>("internal-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterQuery));
     }
 
     updateInternalExercise(exercise: Exercise): Observable<Object> {
@@ -47,6 +46,10 @@ export class ExerciseService extends ModelsService {
 
     updateInternalExerciseEquipments(exerciseId: number, equipmentIds: number[]): Observable<Object> {
         return this.webClient.put(`internal-exercise/${exerciseId}/equipments`, equipmentIds);
+    }
+
+    updateInternalExerciseAliases(exerciseId: number, aliases: string[]): Observable<Object> {
+        return this.webClient.put(`internal-exercise/${exerciseId}/aliases`, aliases);
     }
 
     createInternalExercise(exercise: Exercise): Observable<Exercise>{
@@ -88,8 +91,8 @@ export class ExerciseService extends ModelsService {
         return this.webClient.get<ExerciseDetails>(`user-exercise/by-name/${name}/details`);
     }
 
-    getUserExercises(type: ExerciseType|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Exercise>> {
-        return this.webClient.get<ApiResult<Exercise>>("user-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
+    getUserExercises(type: ExerciseType|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterQuery:string|null): Observable<ApiResult<Exercise>> {
+        return this.webClient.get<ApiResult<Exercise>>("user-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterQuery));
     }
 
     updateUserExercise(exercise: Exercise): Observable<Object> {
@@ -102,6 +105,10 @@ export class ExerciseService extends ModelsService {
 
     updateUserExerciseEquipments(exerciseId: number, equipmentIds: number[]): Observable<Object> {
         return this.webClient.put(`user-exercise/${exerciseId}/equipments`, equipmentIds);
+    }
+
+    updateUserExerciseAliases(exerciseId: number, aliases: string[]): Observable<Object> {
+        return this.webClient.put(`user-exercise/${exerciseId}/aliases`, aliases);
     }
 
     createUserExercise(exercise: Exercise): Observable<Exercise>{
@@ -135,21 +142,25 @@ export class ExerciseService extends ModelsService {
         return this.webClient.get<Exercise>(`exercise/by-name/${name}`);
     }
 
-    getAllExercises(type: ExerciseType|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Exercise>> {
-        return this.webClient.get<ApiResult<Exercise>>("all-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
+    getAllExercises(type: ExerciseType|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterQuery:string|null): Observable<ApiResult<Exercise>> {
+        return this.webClient.get<ApiResult<Exercise>>("all-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterQuery));
     }
 
-    getUsedExercises(type: ExerciseType|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Exercise>> {
-        return this.webClient.get<ApiResult<Exercise>>("used-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
+    getUsedExercises(type: ExerciseType|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterQuery:string|null): Observable<ApiResult<Exercise>> {
+        return this.webClient.get<ApiResult<Exercise>>("used-exercises", this.getExercisesHttpParams(type, pageIndex, pageSize, sortColumn, sortOrder, filterQuery));
     }
 
     getExerciseWorkouts(exerciseId:number, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null): Observable<ApiResult<Workout>> {
         return this.webClient.get<ApiResult<Workout>>(`${exerciseId}/workouts`, this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery));
     }
 
-    private getExercisesHttpParams(type: ExerciseType|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterColumn:string|null, filterQuery:string|null) : HttpParams {
-        var httpParams = this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
+    private getExercisesHttpParams(type: ExerciseType|null, pageIndex:number, pageSize:number, sortColumn:string, sortOrder:string, filterQuery:string|null) : HttpParams {
+        var httpParams = this.getApiResultHttpParams(pageIndex, pageSize, sortColumn, sortOrder, null, null);
         
+        if(filterQuery !== null){
+            httpParams = httpParams.set('filterQuery', filterQuery)
+        }
+
         if(type !== null){
             httpParams = httpParams.set('type', type)
         }
