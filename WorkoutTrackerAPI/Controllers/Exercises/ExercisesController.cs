@@ -37,13 +37,12 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         [FromQuery] int pageSize = 10,
         [FromQuery] string? sortColumn = null,
         [FromQuery] string? sortOrder = null,
-        [FromQuery] string? filterColumn = null,
         [FromQuery] string? filterQuery = null)
     {
         if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
-        var internalExercises = await exerciseService.GetInternalExercisesAsync(type, cancellationToken);
+        var internalExercises = await exerciseService.GetInternalExercisesAsync(type, filterQuery, cancellationToken);
 
         var exerciseDTOs = internalExercises.Select(mapper.Map<ExerciseDTO>);
         return await ApiResult<ExerciseDTO>.CreateAsync(
@@ -51,9 +50,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
             pageIndex,
             pageSize,
             sortColumn,
-            sortOrder,
-            filterColumn,
-            filterQuery
+            sortOrder
         );
     }
 
@@ -165,6 +162,20 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         return Ok();
     }
 
+    [HttpPut("internal-exercise/{exerciseId}/aliases")]
+    [Authorize(Roles = Roles.AdminRole)]
+    public async Task<IActionResult> UpdateInternalExerciseAliasesAsync(long exerciseId, string[] aliasesStr, CancellationToken cancellationToken)
+    {
+        if (!IsValidID(exerciseId))
+            return InvalidExerciseID();
+
+        if (aliasesStr is null)
+            return EntryIsNull("aliases");
+
+        await exerciseService.UpdateInternalExerciseAliasesAsync(exerciseId, aliasesStr, cancellationToken);
+        return Ok();
+    }
+
     [HttpDelete("internal-exercise/{exerciseId}")]
     [Authorize(Roles = Roles.AdminRole)]
     public async Task<IActionResult> DeleteInternalExerciseAsync(long exerciseId, CancellationToken cancellationToken)
@@ -209,14 +220,13 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         [FromQuery] int pageSize = 10,
         [FromQuery] string? sortColumn = null,
         [FromQuery] string? sortOrder = null,
-        [FromQuery] string? filterColumn = null,
         [FromQuery] string? filterQuery = null)
     {
         if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var usedExercises = await exerciseService.GetUserExercisesAsync(userId, type, cancellationToken);
+        var usedExercises = await exerciseService.GetUserExercisesAsync(userId, type, filterQuery, cancellationToken);
 
         var exerciseDTOs = usedExercises.Select(mapper.Map<ExerciseDTO>);
         return await ApiResult<ExerciseDTO>.CreateAsync(
@@ -224,9 +234,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
             pageIndex,
             pageSize,
             sortColumn,
-            sortOrder,
-            filterColumn,
-            filterQuery
+            sortOrder
         );
     }
 
@@ -337,6 +345,20 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         return Ok();
     }
 
+    [HttpPut("user-exercise/{exerciseId}/aliases")]
+    public async Task<IActionResult> UpdateUserExerciseAliasesAsync(long exerciseId, string[] aliasesStr, CancellationToken cancellationToken)
+    {
+        if (!IsValidID(exerciseId))
+            return InvalidExerciseID();
+
+        if (aliasesStr is null)
+            return EntryIsNull("aliases");
+
+        string userId = httpContextAccessor.GetUserId()!;
+        await exerciseService.UpdateUserExerciseAliasesAsync(userId, exerciseId, aliasesStr, cancellationToken);
+        return Ok();
+    }
+
     [HttpDelete("user-exercise/{exerciseId}")]
     public async Task<IActionResult> DeleteExerciseFromCurrentUserAsync(long exerciseId, CancellationToken cancellationToken)
     {
@@ -349,7 +371,6 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
     }
 
     [HttpPut("user-exercise-photo/{exerciseId}")]
-    [Authorize(Roles = Roles.AdminRole)]
     public async Task<IActionResult> UpdateUserExercisePhotoAsync(long exerciseId, [FromForm] FileUploadModel? fileUpload, CancellationToken cancellationToken)
     {
         if (exerciseId < 1)
@@ -361,7 +382,6 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
     }
 
     [HttpDelete("user-exercise-photo/{exerciseId}")]
-    [Authorize(Roles = Roles.AdminRole)]
     public async Task<IActionResult> DeleteUserExercisePhotoAsync(long exerciseId, CancellationToken cancellationToken)
     {
         if (!IsValidID(exerciseId))
@@ -383,14 +403,13 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         [FromQuery] int pageSize = 10,
         [FromQuery] string? sortColumn = null,
         [FromQuery] string? sortOrder = null,
-        [FromQuery] string? filterColumn = null,
         [FromQuery] string? filterQuery = null)
     {
         if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var allExercises = await exerciseService.GetAllExercisesAsync(userId, type, cancellationToken);
+        var allExercises = await exerciseService.GetAllExercisesAsync(userId, type, filterQuery, cancellationToken);
 
         var exerciseDTOs = allExercises.Select(mapper.Map<ExerciseDTO>);
         return await ApiResult<ExerciseDTO>.CreateAsync(
@@ -398,9 +417,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
             pageIndex,
             pageSize,
             sortColumn,
-            sortOrder,
-            filterColumn,
-            filterQuery
+            sortOrder
         );
     }
 
@@ -411,14 +428,13 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
         [FromQuery] int pageSize = 10,
         [FromQuery] string? sortColumn = null,
         [FromQuery] string? sortOrder = null,
-        [FromQuery] string? filterColumn = null,
         [FromQuery] string? filterQuery = null)
     {
         if (!IsValidPageIndexAndPageSize(pageIndex, pageSize))
             return InvalidPageIndexOrPageSize();
 
         string userId = httpContextAccessor.GetUserId()!;
-        var usedExercises = await exerciseService.GetUsedExercisesAsync(userId, type, cancellationToken);
+        var usedExercises = await exerciseService.GetUsedExercisesAsync(userId, type, filterQuery, cancellationToken);
 
         var exerciseDTOs = usedExercises.Select(mapper.Map<ExerciseDTO>);
         return await ApiResult<ExerciseDTO>.CreateAsync(
@@ -426,9 +442,7 @@ public class ExercisesController : BaseWorkoutController<ExerciseDTO, ExerciseDT
             pageIndex,
             pageSize,
             sortColumn,
-            sortOrder,
-            filterColumn,
-            filterQuery
+            sortOrder
         );
     }
 
