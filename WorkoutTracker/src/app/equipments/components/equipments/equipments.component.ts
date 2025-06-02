@@ -63,7 +63,7 @@ export class EquipmentsComponent extends ModelsTableComponent<Equipment> impleme
       case 'used':
         return this.equipmentService.getUsedEquipments(pageIndex, pageSize, sortColumn, sortOrder, filterColumn, filterQuery);
       default:
-        throw new Error(`Unexpected equipment type page value`);
+        throw new Error(`Unexpected equipment page type value`);
     }
   }
 
