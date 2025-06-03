@@ -18,7 +18,9 @@ public interface IMuscleService : IBaseService
 
     Task<Muscle> AddMuscleAsync(Muscle muscle, CancellationToken cancellationToken = default);
     Task UpdateMuscleAsync(Muscle muscle, CancellationToken cancellationToken = default);
+    
     Task UpdateMuscleChildrenAsync(long muscleId, IEnumerable<long>? muscleChildIDs, CancellationToken cancellationToken = default);
+    Task UpdateMuscleAliasesAsync(long muscleId, string[] aliases, CancellationToken cancellationToken = default);
 
     Task DeleteMuscleAsync(long muscleId, CancellationToken cancellationToken = default);
 

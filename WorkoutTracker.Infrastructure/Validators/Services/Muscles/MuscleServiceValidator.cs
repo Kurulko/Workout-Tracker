@@ -1,8 +1,10 @@
-﻿using WorkoutTracker.Application.Common.Models;
+﻿using WorkoutTracker.Application.Common.Exceptions;
+using WorkoutTracker.Application.Common.Models;
 using WorkoutTracker.Application.Common.Validators;
 using WorkoutTracker.Domain.Entities.Muscles;
 using WorkoutTracker.Infrastructure.Identity.Entities;
 using WorkoutTracker.Infrastructure.Validators.Models;
+using WorkoutTracker.Infrastructure.Validators.Models.Exercises;
 using WorkoutTracker.Infrastructure.Validators.Models.Muscles;
 using WorkoutTracker.Infrastructure.Validators.Models.Users;
 
@@ -44,6 +46,16 @@ public class MuscleServiceValidator
                 await muscleValidator.EnsureExistsAsync(muscleChildID, cancellationToken);
         }
     }
+
+
+    public async Task ValidateUpdateAliasesAsync(long muscleId, string[] aliasesStr, CancellationToken cancellationToken)
+    {
+        await muscleValidator.EnsureExistsAsync(muscleId, cancellationToken);
+
+        foreach (var aliasStr in aliasesStr)
+            ArgumentValidator.ThrowIfArgumentNullOrEmpty(aliasStr, nameof(aliasStr));
+    }
+
 
     public async Task ValidateDeleteAsync(long muscleId, CancellationToken cancellationToken)
     {

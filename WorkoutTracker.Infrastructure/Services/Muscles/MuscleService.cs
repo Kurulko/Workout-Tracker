@@ -10,6 +10,7 @@ using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Domain.Entities.Muscles;
 using WorkoutTracker.Infrastructure.Extensions;
 using WorkoutTracker.Infrastructure.Services.Base;
+using WorkoutTracker.Infrastructure.Validators.Services.Exercises;
 using WorkoutTracker.Infrastructure.Validators.Services.Muscles;
 
 namespace WorkoutTracker.Infrastructure.Services.Muscles;
@@ -17,17 +18,20 @@ namespace WorkoutTracker.Infrastructure.Services.Muscles;
 internal class MuscleService : BaseWorkoutService<MuscleService, Muscle>, IMuscleService
 {
     readonly IMuscleRepository muscleRepository;
+    readonly IMuscleAliasRepository muscleAliasRepository;
     readonly IFileService fileService;
     readonly MuscleServiceValidator muscleServiceValidator;
 
     public MuscleService(
         IMuscleRepository muscleRepository,
+        IMuscleAliasRepository muscleAliasRepository,
         IFileService fileService,
         MuscleServiceValidator muscleServiceValidator,
         ILogger<MuscleService> logger
     ) : base(muscleRepository, logger)
     {
         this.muscleRepository = muscleRepository;
+        this.muscleAliasRepository = muscleAliasRepository;
         this.fileService = fileService;
         this.muscleServiceValidator = muscleServiceValidator;
     }
@@ -183,5 +187,23 @@ internal class MuscleService : BaseWorkoutService<MuscleService, Muscle>, IMuscl
 
         await muscleRepository.UpdatePartialAsync(muscleId, updateChildMusclesAction, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr("muscle children", "update"));
+    }
+
+    public async Task UpdateMuscleAliasesAsync(long muscleId, string[] aliasesStr, CancellationToken cancellationToken)
+    {
+        await muscleServiceValidator.ValidateUpdateAliasesAsync(muscleId, aliasesStr, cancellationToken);
+
+        await muscleAliasRepository.RemoveByMuscleIdAsync(muscleId, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr($"{muscleEntityName} aliases", "delete"));
+
+        var aliases = aliasesStr
+            .Select(alias => new MuscleAlias
+            {
+                Name = alias.Trim(),
+                MuscleId = muscleId,
+            });
+
+        await muscleAliasRepository.AddRangeAsync(aliases, cancellationToken)
+            .LogExceptionsAsync(_logger, FailedToActionStr($"{muscleEntityName} aliases", "add"));
     }
 }
