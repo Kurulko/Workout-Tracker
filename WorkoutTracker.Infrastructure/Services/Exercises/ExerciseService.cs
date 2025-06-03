@@ -172,14 +172,7 @@ internal class ExerciseService : BaseWorkoutService<ExerciseService, Exercise>, 
         await exerciseAliasRepository.RemoveByExerciseIdAsync(exerciseId, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr($"{internalExerciseEntityName} aliases", "delete"));
 
-        var aliases = aliasesStr
-            .Select(alias => new ExerciseAlias
-            {
-                Name = alias.Trim(),
-                ExerciseId = exerciseId,
-            });
-            
-        await exerciseAliasRepository.AddRangeAsync(aliases, cancellationToken)
+        await exerciseAliasRepository.AddExerciseAliasesAsync(exerciseId, aliasesStr, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr($"{internalExerciseEntityName} aliases", "add"));
     }
 
@@ -336,14 +329,7 @@ internal class ExerciseService : BaseWorkoutService<ExerciseService, Exercise>, 
         await exerciseAliasRepository.RemoveByExerciseIdAsync(exerciseId, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr($"{userExerciseEntityName} aliases", "delete"));
 
-        var aliases = aliasesStr
-            .Select(alias => new ExerciseAlias
-            {
-                Name = alias.Trim(),
-                ExerciseId = exerciseId
-            });
-
-        await exerciseAliasRepository.AddRangeAsync(aliases, cancellationToken)
+        await exerciseAliasRepository.AddExerciseAliasesAsync(exerciseId, aliasesStr, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr($"{userExerciseEntityName} aliases", "add"));
     }
 
