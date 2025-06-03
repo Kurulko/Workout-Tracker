@@ -80,39 +80,60 @@ internal class ExerciseRepository : BaseWorkoutRepository<Exercise>, IExerciseRe
         return IncludeExercise(dbSet.Where(expression));
     }
 
-    public IQueryable<Exercise> GetInternalExercises(ExerciseType? exerciseType)
+    public IQueryable<Exercise> GetInternalExercises(ExerciseType? exerciseType, string? filterQuery)
     {
         var exercises = Find(e => e.CreatedByUserId == null);
+
         exercises = FilterByExerciseType(exercises, exerciseType);
+        exercises = FilterByQuery(exercises, filterQuery);
 
         return exercises;
     }
 
-    public IQueryable<Exercise> GetUserExercises(string userId, ExerciseType? exerciseType)
+    public IQueryable<Exercise> GetUserExercises(string userId, ExerciseType? exerciseType, string? filterQuery)
     {
         ArgumentValidator.ThrowIfIdNullOrEmpty(userId, nameof(User));
 
         var exercises = Find(e => e.CreatedByUserId == userId);
+
         exercises = FilterByExerciseType(exercises, exerciseType);
+        exercises = FilterByQuery(exercises, filterQuery);
 
         return exercises;
     }
 
-    public IQueryable<Exercise> GetAllExercises(string userId, ExerciseType? exerciseType)
+    public IQueryable<Exercise> GetAllExercises(string userId, ExerciseType? exerciseType, string? filterQuery)
     {
         ArgumentValidator.ThrowIfIdNullOrEmpty(userId, nameof(User));
 
         var exercises = Find(e => e.CreatedByUserId == userId || e.CreatedByUserId == null);
+
         exercises = FilterByExerciseType(exercises, exerciseType);
+        exercises = FilterByQuery(exercises, filterQuery);
 
         return exercises;
     }
 
 
-    static IQueryable<Exercise> FilterByExerciseType(IQueryable<Exercise> exercises, ExerciseType? exerciseType)
+    public IQueryable<Exercise> FilterByExerciseType(IQueryable<Exercise> exercises, ExerciseType? exerciseType)
     {
         if (exerciseType.HasValue)
             exercises = exercises.Where(e => e.Type == exerciseType);
+
+        return exercises;
+    }
+
+    public IQueryable<Exercise> FilterByQuery(IQueryable<Exercise> exercises, string? filterQuery)
+    {
+        if (!string.IsNullOrWhiteSpace(filterQuery))
+        {
+            var normalizedFilter = filterQuery.ToLower();
+
+            exercises = exercises.Where(e =>
+                e.Name.ToLower().Contains(normalizedFilter) ||
+                e.ExerciseAliases!.Any(a => a.Name.ToLower().Contains(normalizedFilter))
+            );
+        }
 
         return exercises;
     }

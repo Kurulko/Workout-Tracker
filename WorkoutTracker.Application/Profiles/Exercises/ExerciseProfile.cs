@@ -16,6 +16,10 @@ public class ExerciseProfile : Profile
                 opt => opt.MapFrom(src => src.CreatedByUserId != null)
             )
             .ForMember(
+                dest => dest.Aliases,
+                opt => opt.MapFrom(src => src.ExerciseAliases == null ? Array.Empty<string>() : src.ExerciseAliases!.Select(ea => ea.Name).ToArray())
+            )
+            .ForMember(
                 dest => dest.WorkingMuscles,
                 opt => opt.MapFrom(src => src.WorkingMuscles.GetModelsOrEmpty().Select(cm => new ChildMuscleDTO() { Id = cm.Id, Name = cm.Name }))
             ) 

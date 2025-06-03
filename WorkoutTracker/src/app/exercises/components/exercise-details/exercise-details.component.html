@@ -66,6 +66,28 @@
                                     </td>
                                 </tr>
                                 <tr>
+                                    <th>Aliases:</th>
+                                    <td>
+                                        <ng-container *ngIf="!exerciseDetails.exercise.aliases || exerciseDetails.exercise.aliases.length == 0; else aliasesTemplate">
+                                            <p class="none-option">No aliases</p>
+                                        </ng-container>
+                                        <ng-template #aliasesTemplate>
+                                            <mat-accordion>
+                                                <mat-expansion-panel (opened)="aliasPanelOpenState.set(true)" (closed)="aliasPanelOpenState.set(false)">
+                                                <mat-expansion-panel-header>
+                                                    <mat-panel-title> {{ aliasPanelOpenState() ? 'Aliases:' : getAliasNamesStr() }}</mat-panel-title>
+                                                </mat-expansion-panel-header>
+                                                <ul>
+                                                    <li *ngFor="let alias of exerciseDetails.exercise.aliases">
+                                                        {{ alias }}
+                                                    </li>
+                                                </ul>
+                                                </mat-expansion-panel>
+                                            </mat-accordion>
+                                        </ng-template>
+                                    </td>
+                                </tr>
+                                <tr>
                                     <th>Count of Times:</th>
                                     <td>{{ showCountOfSomethingStr(exerciseDetails.countOfTimes, 'time', 'times') }}</td>
                                 </tr>  

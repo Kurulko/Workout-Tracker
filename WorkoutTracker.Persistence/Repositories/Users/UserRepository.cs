@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using WorkoutTracker.Application.Common.Exceptions;
 using WorkoutTracker.Domain.Entities;
 using WorkoutTracker.Domain.Entities.Exercises;
 using WorkoutTracker.Domain.Entities.Muscles;
@@ -30,6 +29,7 @@ public class UserRepository : IUserRepository
 
         if (existingUser is null)
         {
+            TrimUserName(user);
             await ArgumentValidator.EnsureNonExistsByNameAsync(GetByUsernameAsync, user.UserName!);
 
             var result = await userManager.CreateAsync(user);
@@ -47,7 +47,10 @@ public class UserRepository : IUserRepository
 
         if (existingUser is null)
         {
+            TrimUserName(user);
+
             ArgumentValidator.ThrowIfArgumentNullOrEmpty(password, nameof(password));
+            await ArgumentValidator.EnsureNonExistsByNameAsync(GetByUsernameAsync, user.UserName!);
 
             var result = await userManager.CreateAsync(user, password);
             ArgumentValidator.ThrowIfNotSucceeded("create", "user", result);
@@ -57,6 +60,7 @@ public class UserRepository : IUserRepository
     public async Task UpdateUserAsync(User user)
     {
         var existingUser = await ArgumentValidator.EnsureExistsByIdAsync(GetByIdAsync, user.Id, userEntityName);
+        TrimUserName(user);
 
         if (existingUser.UserName != user.UserName)
             await userManager.SetUserNameAsync(existingUser, user.UserName);
@@ -304,4 +308,7 @@ public class UserRepository : IUserRepository
         => await userManager.FindByNameAsync(userName);
     async Task<User?> GetByEmailAsync(string email)
         => await userManager.FindByEmailAsync(email);
+
+    void TrimUserName(User user)
+        => user.UserName = user.UserName!.Trim();
 }

@@ -6,9 +6,9 @@ namespace WorkoutTracker.Infrastructure.Initializers;
 
 internal class MusclesInitializer
 {
-    public static async Task<Muscle> InitializeAsync(IMuscleRepository muscleRepository, MuscleData muscleData, Muscle? parentMuscle)
+    public static async Task<Muscle> InitializeAsync(IMuscleRepository muscleRepository, MuscleData muscleData, Muscle? parentMuscle, CancellationToken cancellationToken = default)
     {
-        var muscle = await muscleRepository.GetByNameAsync(muscleData.Name);
+        var muscle = await muscleRepository.GetByNameAsync(muscleData.Name, cancellationToken);
 
         if (muscle is not null)
             return muscle;
@@ -21,13 +21,13 @@ internal class MusclesInitializer
             ParentMuscle = parentMuscle
         };
 
-        await muscleRepository.AddAsync(muscle);
+        await muscleRepository.AddAsync(muscle, cancellationToken);
 
         if (muscleData.Children is not null)
         {
             foreach (MuscleData child in muscleData.Children)
             {
-                await InitializeAsync(muscleRepository, child, muscle);
+                await InitializeAsync(muscleRepository, child, muscle, cancellationToken);
             }
         }
 

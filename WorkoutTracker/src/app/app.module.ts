@@ -101,6 +101,7 @@ import { EditExerciseRecordComponent } from './exercises/components/edit-exercis
 import { ExerciseRecordsComponent } from './exercises/components/exercise-records/exercise-records.component';
 import { UsersComponent } from './users/components/users/users.component';
 import { WorkoutProgressComponent } from './workout-progress/components/workout-progress.component';
+import { ExerciseAliasesEditorComponent } from './shared/components/inputs/multi-string-input/multi-string-input.component';
 
 @NgModule({
   declarations: [
@@ -192,7 +193,8 @@ import { WorkoutProgressComponent } from './workout-progress/components/workout-
     ReadonlyCalendarComponent,
     ShortModelWeightInputComponent,
     ShortTimeSpanInputComponent,
-    DateRangeInputComponent
+    DateRangeInputComponent,
+    ExerciseAliasesEditorComponent,
   ],
   imports: [
     BrowserModule,

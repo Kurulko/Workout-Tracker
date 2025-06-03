@@ -13,6 +13,7 @@ public class ExerciseDTO
     public string? Description { get; set; }
     public ExerciseType Type { get; set; }
     public bool IsCreatedByUser { get; set; }
+    public string[] Aliases { get; set; } = null!;
 
     public IEnumerable<EquipmentDTO> Equipments { get; set; } = null!;
 

@@ -8,7 +8,11 @@ public class ExerciseAliasProfile : Profile
 {
     public ExerciseAliasProfile()
     {
-        CreateMap<ExerciseAliasDTO, ExerciseAlias>()
+        CreateMap<ExerciseAlias, ExerciseAliasDTO>()
+            .ForMember(
+                dest => dest.ExerciseName,
+                opt => opt.MapFrom(src => src.Exercise!.Name)
+            )
             .ReverseMap();
     }
 }

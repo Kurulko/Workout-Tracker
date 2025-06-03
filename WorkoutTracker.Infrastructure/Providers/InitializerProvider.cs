@@ -20,34 +20,40 @@ namespace WorkoutTracker.Infrastructure.Providers;
 
 public static class InitializerProvider
 {
-    public static async Task InitializeDataAsync(this WebApplication app, IConfiguration config)
+    public static async Task InitializeDataAsync(this WebApplication app, IConfiguration config, CancellationToken cancellationToken = default)
     {
         using IServiceScope serviceScope = app.Services.CreateScope();
 
         IServiceProvider serviceProvider = serviceScope.ServiceProvider;
 
-        var fileService = serviceProvider.GetRequiredService<IFileService>();
         var seedDataOptions = serviceProvider.GetRequiredService<SeedDataOptions>();
 
         var roleRepository = serviceProvider.GetRequiredService<IRoleRepository>();
-        if (!await roleRepository.AnyAsync())
+        var anyRoles = await roleRepository.AnyAsync();
+        if (!anyRoles)
             await InitializeRolesAsync(roleRepository);
 
         var muscleRepository = serviceProvider.GetRequiredService<IMuscleRepository>();
-        if (!await muscleRepository.AnyAsync())
-            await InitializeMusclesAsync(muscleRepository, seedDataOptions);
+        var anyMuscles = await muscleRepository.AnyAsync(cancellationToken);
+        if (!anyMuscles)
+            await InitializeMusclesAsync(muscleRepository, seedDataOptions, cancellationToken);
 
         var equipmentRepository = serviceProvider.GetRequiredService<IEquipmentRepository>();
-        if (!await equipmentRepository.AnyAsync())
-            await InitializeEquipmentsAsync(equipmentRepository, seedDataOptions);
+        var anyEquipments = await equipmentRepository.AnyAsync(cancellationToken);
+        if (!anyEquipments)
+            await InitializeEquipmentsAsync(equipmentRepository, seedDataOptions, cancellationToken);
 
         var exerciseRepository = serviceProvider.GetRequiredService<IExerciseRepository>();
-        if (!await exerciseRepository.AnyAsync())
-            await InitializeExercisesAsync(exerciseRepository, muscleRepository, equipmentRepository);
+        var anyExercises = await exerciseRepository.AnyAsync(cancellationToken);
+        if (!anyExercises)
+        {
+            var exerciseAliasRepository = serviceProvider.GetRequiredService<IExerciseAliasRepository>();
+            await InitializeExercisesAsync(exerciseRepository, muscleRepository, equipmentRepository, exerciseAliasRepository, cancellationToken);
+        }
 
         var userRepository = serviceProvider.GetRequiredService<IUserRepository>();
-
-        if (!await userRepository.AnyUsersAsync())
+        var anyUsers = await userRepository.AnyUsersAsync();
+        if (!anyUsers)
         {
             var workoutRepository = serviceProvider.GetRequiredService<IWorkoutRepository>();
             var workoutRecordRepository = serviceProvider.GetRequiredService<IWorkoutRecordRepository>();
@@ -61,219 +67,223 @@ public static class InitializerProvider
     }
 
     static async Task InitializeRolesAsync(IRoleRepository roleRepository)
-        => await RolesInitializer.InitializeAsync(roleRepository, Roles.AdminRole, Roles.UserRole);
+    {
+        await RolesInitializer.InitializeAsync(roleRepository, Roles.AdminRole, Roles.UserRole);
+    }
 
     static async Task InitializeUsersAsync(
-        IUserRepository userRepository, 
-        IWorkoutRepository workoutRepository, 
-        IWorkoutRecordRepository workoutRecordRepository, 
-        IExerciseRecordGroupRepository exerciseRecordGroupRepository, 
-        IExerciseRecordRepository exerciseRecordRepository, 
-        IExerciseSetGroupRepository exerciseSetGroupRepository, 
+        IUserRepository userRepository,
+        IWorkoutRepository workoutRepository,
+        IWorkoutRecordRepository workoutRecordRepository,
+        IExerciseRecordGroupRepository exerciseRecordGroupRepository,
+        IExerciseRecordRepository exerciseRecordRepository,
+        IExerciseSetGroupRepository exerciseSetGroupRepository,
         IExerciseSetRepository exerciseSetRepository,
-        IExerciseRepository exerciseRepository, 
+        IExerciseRepository exerciseRepository,
         IConfiguration config)
     {
         string adminName = config.GetValue<string>("Admin:Name")!;
         string adminPassword = config.GetValue<string>("Admin:Password")!;
         string adminEmail = config.GetValue<string>("Admin:Email")!;
 
-        var user = await UsersInitializer.InitializeAsync(userRepository, adminName, adminEmail, adminPassword, [ Roles.AdminRole, Roles.UserRole ]);
+        var user = await UsersInitializer.InitializeAsync(userRepository, adminName, adminEmail, adminPassword, [Roles.AdminRole, Roles.UserRole]);
     }
 
-    static async Task InitializeMusclesAsync(IMuscleRepository muscleRepository, SeedDataOptions seedDataOptions)
+    static async Task InitializeMusclesAsync(
+        IMuscleRepository muscleRepository, 
+        SeedDataOptions seedDataOptions, 
+        CancellationToken cancellationToken)
     {
         string muscleNamesFilePath = Path.Combine(seedDataOptions.FolderPath, "muscle-names.json");
-        string json = await File.ReadAllTextAsync(muscleNamesFilePath);
+        string json = await File.ReadAllTextAsync(muscleNamesFilePath, cancellationToken);
 
         var jsonObject = JObject.Parse(json);
         var musclesArray = (JArray)jsonObject["Muscles"]!;
         var muscleData = musclesArray.ToObject<List<MuscleData>>()!;
 
         foreach (var muscle in muscleData)
-            await MusclesInitializer.InitializeAsync(muscleRepository, muscle, null);
+            await MusclesInitializer.InitializeAsync(muscleRepository, muscle, null, cancellationToken);
     }
 
-    static async Task InitializeEquipmentsAsync(IEquipmentRepository equipmentRepository, SeedDataOptions seedDataOptions)
+    static async Task InitializeEquipmentsAsync(
+        IEquipmentRepository equipmentRepository, 
+        SeedDataOptions seedDataOptions, 
+        CancellationToken cancellationToken)
     {
         string equipmentNamesFilePath = Path.Combine(seedDataOptions.FolderPath, "equipment-names.json");
-        string json = await File.ReadAllTextAsync(equipmentNamesFilePath);
+        string json = await File.ReadAllTextAsync(equipmentNamesFilePath, cancellationToken);
 
         var jsonObject = JObject.Parse(json);
         var equipmentArray = (JArray)jsonObject["Equipments"]!;
         var equipmentNames = equipmentArray.ToObject<List<string>>()!;
 
         foreach (var equipmentName in equipmentNames)
-            await EquipmentInitializer.InitializeAsync(equipmentRepository, equipmentName);
+            await EquipmentInitializer.InitializeAsync(equipmentRepository, equipmentName, cancellationToken);
     }
 
     static async Task InitializeExercisesAsync(
         IExerciseRepository exerciseRepository,
         IMuscleRepository muscleRepository,
-        IEquipmentRepository equipmentRepository)
+        IEquipmentRepository equipmentRepository,
+        IExerciseAliasRepository exerciseAliasRepository,
+        CancellationToken cancellationToken)
     {
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Pull-ups", GetExercisePhoto("wide_grip_pull_ups.png"), [ "Pull-Up Bar" ], ExerciseType.Reps, [ "Latissimus dorsi", "Biceps brachii short head", "Biceps brachii long head" ]);
+        async Task InitializeAsync(
+            string name,
+            string? image,
+            string[] equipmentNames,
+            ExerciseType exerciseType,
+            string[] muscleNames,
+            string[]? aliasesStr = null
+        )
+        {
+            await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, exerciseAliasRepository, name, image, equipmentNames, exerciseType, muscleNames, aliasesStr, cancellationToken);
+        }
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Cossack Squats", GetExercisePhoto("weighted_cossack_squats.jpg"), [ "Dumbbells", "Kettlebells", "Barbells" ],
-        ExerciseType.WeightAndReps, [ "Quadriceps", "Gluteus maximus", "Hamstrings", "Adductors", "Calves", "Core" ]);
+        await InitializeAsync("Pull-ups", GetExercisePhoto("wide_grip_pull_ups.png"), ["Pull-Up Bar"], ExerciseType.Reps, ["Latissimus dorsi", "Biceps brachii short head", "Biceps brachii long head"], ["Pull up", "Pull ups", "Pull-up"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Dumbbell Lateral Raises", GetExercisePhoto("dumbbell_lateral_raises.png"), [ "Dumbbells"], ExerciseType.WeightAndReps, [ "Deltoids"]);
+        await InitializeAsync("Weighted Cossack Squats", GetExercisePhoto("weighted_cossack_squats.jpg"), ["Dumbbells", "Kettlebells", "Barbells"], ExerciseType.WeightAndReps, ["Quadriceps", "Gluteus maximus", "Hamstrings", "Adductors", "Calves", "Core"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Push-ups", GetExercisePhoto("push_ups.jpg"), [ "No Equipment" ], ExerciseType.Reps, [ "Pectoralis major", "Triceps" ]);
+        await InitializeAsync("Dumbbell Lateral Raises", GetExercisePhoto("dumbbell_lateral_raises.png"), ["Dumbbells"], ExerciseType.WeightAndReps, ["Deltoids"], ["Lateral Raises"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Bench Press", GetExercisePhoto("bench_press.jpg"), [ "Barbells"], ExerciseType.WeightAndReps, [ "Pectoralis major", "Triceps", "Deltoid anterior" ]);
+        await InitializeAsync("Push-ups", GetExercisePhoto("push_ups.jpg"), ["No Equipment"], ExerciseType.Reps, ["Pectoralis major", "Triceps"], ["Push ups", "Push up", "Push-up"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Barbell deadlift", GetExercisePhoto("barbell_deadlift.jpg"), [ "Barbells"], ExerciseType.WeightAndReps, [ "Gluteus maximus", "Hamstrings", "Erector spinae" ]);
+        await InitializeAsync("Bench Press", GetExercisePhoto("bench_press.jpg"), ["Barbells"], ExerciseType.WeightAndReps, ["Pectoralis major", "Triceps", "Deltoid anterior"], ["Barbell Bench Press"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Crunches", GetExercisePhoto("do_abdominal_crunches.png"), [ "No Equipment" ], ExerciseType.Reps, [ "Rectus abdominis" ]);
+        await InitializeAsync("Barbell deadlift", GetExercisePhoto("barbell_deadlift.jpg"), ["Barbells"], ExerciseType.WeightAndReps, ["Gluteus maximus", "Hamstrings", "Erector spinae"], ["Deadlift"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Crunches", GetExercisePhoto("do_abdominal_crunches.png"), [ "Weight Plates"], ExerciseType.WeightAndReps, [ "Rectus abdominis" ]);
+        await InitializeAsync("Crunches", GetExercisePhoto("do_abdominal_crunches.png"), ["No Equipment"], ExerciseType.Reps, ["Rectus abdominis"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Shrugs", GetExercisePhoto("shurgs.jpg"), [ "Barbells"], ExerciseType.WeightAndReps, [ "Trapezius" ]);
+        await InitializeAsync("Weighted Crunches", GetExercisePhoto("do_abdominal_crunches.png"), ["Weight Plates"], ExerciseType.WeightAndReps, ["Rectus abdominis"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Biceps Curl", GetExercisePhoto("biceps_curl.png"), [ "Dumbbells"], ExerciseType.WeightAndReps, [ "Biceps brachii short head", "Biceps brachii long head"]);
+        await InitializeAsync("Shrugs", GetExercisePhoto("shurgs.jpg"), ["Barbells"], ExerciseType.WeightAndReps, ["Trapezius"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Standing Calf Raises", GetExercisePhoto("standing_calf_raises.jpg"), [ "Barbells" ], ExerciseType.WeightAndReps, [ "Gastrocnemius", "Soleus" ]);
+        await InitializeAsync("Biceps Curl", GetExercisePhoto("biceps_curl.png"), ["Dumbbells"], ExerciseType.WeightAndReps, ["Biceps brachii short head", "Biceps brachii long head"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Dumbbell Chest Fly", GetExercisePhoto("dumbbell_chest_fly.jpg"), [ "Dumbbells" ], ExerciseType.WeightAndReps, [ "Pectoralis major" ]);
+        await InitializeAsync("Standing Calf Raises", GetExercisePhoto("standing_calf_raises.jpg"), ["Barbells"], ExerciseType.WeightAndReps, ["Gastrocnemius", "Soleus"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Seated Overhead Extensions", GetExercisePhoto("seated_dumbbell_overhead_extensions.jpg"), [ "Dumbbells" ], ExerciseType.WeightAndReps, [ "Triceps"]);
+        await InitializeAsync("Dumbbell Chest Fly", GetExercisePhoto("dumbbell_chest_fly.jpg"), ["Dumbbells"], ExerciseType.WeightAndReps, ["Pectoralis major"], ["Chest Fly"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Leg Extension", GetExercisePhoto("leg_extension.png"), [ "Leg Extension Machine" ], ExerciseType.WeightAndReps, [ "Quadriceps" ]);
+        await InitializeAsync("Seated Overhead Extensions", GetExercisePhoto("seated_dumbbell_overhead_extensions.jpg"), ["Dumbbells"], ExerciseType.WeightAndReps, ["Triceps"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Single Arm Dumbbell Rows", GetExercisePhoto("single_arm_dumbbell_rows.jpg"), [ "Dumbbells" ], ExerciseType.WeightAndReps, [ "Latissimus dorsi", "Rhomboid major" ]);
+        await InitializeAsync("Leg Extension", GetExercisePhoto("leg_extension.png"), ["Leg Extension Machine"], ExerciseType.WeightAndReps, ["Quadriceps"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Dumbbell Squeeze Press", GetExercisePhoto("dumbbell_squeeze_bench_press.png"), [ "Dumbbells" ], ExerciseType.WeightAndReps, [ "Pectoralis major", "Triceps" ]);
+        await InitializeAsync("Single Arm Dumbbell Rows", GetExercisePhoto("single_arm_dumbbell_rows.jpg"), ["Dumbbells"], ExerciseType.WeightAndReps, ["Latissimus dorsi", "Rhomboid major"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Seated Dumbbell Wrist Curl", GetExercisePhoto("seated_dumbbell_wrist_curl.png"), [ "Dumbbells" ], ExerciseType.WeightAndReps, [ "Forearms" ]);
+        await InitializeAsync("Dumbbell Squeeze Press", GetExercisePhoto("dumbbell_squeeze_bench_press.png"), ["Dumbbells"], ExerciseType.WeightAndReps, ["Pectoralis major", "Triceps"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Narrow Grip Preacher Curl", GetExercisePhoto("barbell_preacher_curl.png"), [ "Preacher Curl Bench" ], ExerciseType.WeightAndReps, [ "Biceps brachii short head", "Biceps brachii long head"]);
+        await InitializeAsync("Seated Dumbbell Wrist Curl", GetExercisePhoto("seated_dumbbell_wrist_curl.png"), ["Dumbbells"], ExerciseType.WeightAndReps, ["Forearms"], ["Seated Wrist Curl"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Bent-over Row", GetExercisePhoto("bent_over_row.jpg"), [ "Barbells"], ExerciseType.WeightAndReps, [ "Latissimus dorsi", "Rhomboid major" ]);
+        await InitializeAsync("Narrow Grip Preacher Curl", GetExercisePhoto("barbell_preacher_curl.png"), ["Preacher Curl Bench"], ExerciseType.WeightAndReps, ["Biceps brachii short head", "Biceps brachii long head"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Barbell Back Squat", GetExercisePhoto("barbell_back_squat.jpg"), [ "Barbells" ], ExerciseType.WeightAndReps, [ "Quadriceps", "Gluteus maximus", "Hamstrings" ]);
+        await InitializeAsync("Bent-over Row", GetExercisePhoto("bent_over_row.jpg"), ["Barbells"], ExerciseType.WeightAndReps, ["Latissimus dorsi", "Rhomboid major"], ["Row", "Bent Over Row"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Plank", GetExercisePhoto("weighted_plank.jpg"), [ "Weighted Vest" ], ExerciseType.WeightAndTime, [ "Rectus abdominis", "External oblique" ]);
+        await InitializeAsync("Barbell Back Squat", GetExercisePhoto("barbell_back_squat.jpg"), ["Barbells"], ExerciseType.WeightAndReps, ["Quadriceps", "Gluteus maximus", "Hamstrings"], ["Squat", "Back Squat"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Plank", GetExercisePhoto("plank.png"), [ "Weighted Vest" ], ExerciseType.Time, [ "Rectus abdominis", "External oblique" ]);
+        await InitializeAsync("Weighted Plank", GetExercisePhoto("weighted_plank.jpg"), ["Weighted Vest"], ExerciseType.WeightAndTime, ["Rectus abdominis", "External oblique"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Russian Twists", GetExercisePhoto("weighted_russian_twists.png"), [ "Weighted Vest" ], ExerciseType.WeightAndReps, [ "External oblique" ]);
+        await InitializeAsync("Plank", GetExercisePhoto("plank.png"), ["Weighted Vest"], ExerciseType.Time, ["Rectus abdominis", "External oblique"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Russian Twists", GetExercisePhoto("weighted_russian_twists.png"), [ "No Equipment" ], ExerciseType.Reps, [ "External oblique" ]);
+        await InitializeAsync("Weighted Russian Twists", GetExercisePhoto("weighted_russian_twists.png"), ["Weighted Vest"], ExerciseType.WeightAndReps, ["External oblique"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted V-ups", GetExercisePhoto("weighted_v_ups.png"), [ "Weighted Vest" ], ExerciseType.WeightAndReps, [ "Rectus abdominis", "Hip flexors"]);
+        await InitializeAsync("Russian Twists", GetExercisePhoto("weighted_russian_twists.png"), ["No Equipment"], ExerciseType.Reps, ["External oblique"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Ab Rollouts", GetExercisePhoto("ab_rollouts.png"), [ "Core Wheels" ], ExerciseType.Reps, [ "Rectus abdominis", "Hip flexors" ]);
+        await InitializeAsync("Weighted V-ups", GetExercisePhoto("weighted_v_ups.png"), ["Weighted Vest"], ExerciseType.WeightAndReps, ["Rectus abdominis", "Hip flexors"], ["weighted V ups"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Barbell Sumo Squat", GetExercisePhoto("sumo_squat.png"), [ "Barbells" ], ExerciseType.WeightAndReps, [ "Quadriceps", "Gluteus maximus", "Adductors"]);
+        await InitializeAsync("Ab Rollouts", GetExercisePhoto("ab_rollouts.png"), ["Core Wheels"], ExerciseType.Reps, ["Rectus abdominis", "Hip flexors"], ["Ab Rollout"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Russian Twists (Legs Up)", GetExercisePhoto("weighted_russian_twists_legs_up.png"), [ "Weighted Vest" ], ExerciseType.Reps, [ "External oblique", "Rectus abdominis"]);
+        await InitializeAsync("Barbell Sumo Squat", GetExercisePhoto("sumo_squat.png"), ["Barbells"], ExerciseType.WeightAndReps, ["Quadriceps", "Gluteus maximus", "Adductors"], ["Sumo Squat"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Clap Push-ups", GetExercisePhoto("clap_push_ups.png"), [ "No Equipment" ], ExerciseType.Reps, [ "Pectoralis major", "Triceps", "Deltoids"]);
+        await InitializeAsync("Weighted Russian Twists (Legs Up)", GetExercisePhoto("weighted_russian_twists_legs_up.png"), ["Weighted Vest"], ExerciseType.Reps, ["External oblique", "Rectus abdominis"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Renegade Row Push-ups", GetExercisePhoto("dumbbell_renegade_row_push_ups.png"), [ "No Equipment" ], ExerciseType.Reps, [ "Latissimus dorsi", "Triceps", "Core" ]);
+        await InitializeAsync("Clap Push-ups", GetExercisePhoto("clap_push_ups.png"), ["No Equipment"], ExerciseType.Reps, ["Pectoralis major", "Triceps", "Deltoids"], ["Clap Push up"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Push-ups", GetExercisePhoto("weighted_push_ups.png"), [ "Weighted Vest" ], ExerciseType.WeightAndReps, [ "Pectoralis major", "Triceps" ]);
+        await InitializeAsync("Renegade Row Push-ups", GetExercisePhoto("dumbbell_renegade_row_push_ups.png"), ["No Equipment"], ExerciseType.Reps, ["Latissimus dorsi", "Triceps", "Core"], ["Renegade Row Push ups"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Elevated Push-ups", GetExercisePhoto("elevated_push_ups.png"), [ "No Equipment" ], ExerciseType.Reps, [ "Pectoralis major", "Triceps" ]);
+        await InitializeAsync("Weighted Push-ups", GetExercisePhoto("weighted_push_ups.png"), ["Weighted Vest"], ExerciseType.WeightAndReps, ["Pectoralis major", "Triceps"], ["Weighted Push ups"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Pull-ups", GetExercisePhoto("weighted_pull_ups.png"), [ "Pull-Up Bar", "Weighted Vest" ], ExerciseType.WeightAndReps, [ "Latissimus dorsi", "Biceps brachii short head", "Biceps brachii long head" ]);
+        await InitializeAsync("Elevated Push-ups", GetExercisePhoto("elevated_push_ups.png"), ["No Equipment"], ExerciseType.Reps, ["Pectoralis major", "Triceps"], ["Elevated Push ups"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Wide Grip Pull-ups", GetExercisePhoto("wide_grip_pull_ups.png"), [ "Pull-Up Bar" ], ExerciseType.Reps, [ "Latissimus dorsi", "Biceps brachii short head", "Biceps brachii long head" ]);
+        await InitializeAsync("Weighted Pull-ups", GetExercisePhoto("weighted_pull_ups.png"), ["Pull-Up Bar", "Weighted Vest"], ExerciseType.WeightAndReps, ["Latissimus dorsi", "Biceps brachii short head", "Biceps brachii long head"], ["Weighted Pull up"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Uneven Push-ups on a Ball", GetExercisePhoto("uneven_push_ups_on_a_ball.png"), [ "No Equipment" ], ExerciseType.Reps, [ "Pectoralis major", "Triceps" ]);
+        await InitializeAsync("Wide Grip Pull-ups", GetExercisePhoto("wide_grip_pull_ups.png"), ["Pull-Up Bar"], ExerciseType.Reps, ["Latissimus dorsi", "Biceps brachii short head", "Biceps brachii long head"], ["Wide Pull up", "Wide Pull-up"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Side Plank", GetExercisePhoto("side_plank.png"), [ "Weighted Vest" ], ExerciseType.WeightAndTime, [ "External oblique" ]);
+        await InitializeAsync("Uneven Push-ups on a Ball", GetExercisePhoto("uneven_push_ups_on_a_ball.png"), ["No Equipment"], ExerciseType.Reps, ["Pectoralis major", "Triceps"], ["Uneven Push ups on a ball"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Upright Row", GetExercisePhoto("upright_row.png"), [ "Barbells" ], ExerciseType.WeightAndReps, [ "Deltoids", "Trapezius" ]);
+        await InitializeAsync("Weighted Side Plank", GetExercisePhoto("side_plank.png"), ["Weighted Vest"], ExerciseType.WeightAndTime, ["External oblique"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Seated In-and-Out", GetExercisePhoto("seated_in-and-out.png"), [ "Dumbbells" ], ExerciseType.WeightAndReps, [ "Core" ]);
+        await InitializeAsync("Upright Row", GetExercisePhoto("upright_row.png"), ["Barbells"], ExerciseType.WeightAndReps, ["Deltoids", "Trapezius"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Toes to Bar", GetExercisePhoto("toes_to_bar.jpg"), [ "Pull-Up Bar" ], ExerciseType.Reps, [ "Rectus abdominis", "Hip flexors" ]);
+        await InitializeAsync("Seated In-and-Out", GetExercisePhoto("seated_in-and-out.png"), ["Dumbbells"], ExerciseType.WeightAndReps, ["Core"], ["Seated In and Out"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Weighted Hanging Knee Raises", GetExercisePhoto("weighted_hanging_knee_raises.png"), [ "Dumbbells" ], ExerciseType.WeightAndReps, [ "Rectus abdominis", "Hip flexors" ]);
+        await InitializeAsync("Toes to Bar", GetExercisePhoto("toes_to_bar.jpg"), ["Pull-Up Bar"], ExerciseType.Reps, ["Rectus abdominis", "Hip flexors"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Hanging Knee Raises", GetExercisePhoto("weighted_hanging_knee_raises.png"), [ "No Equipment" ], ExerciseType.Reps, [ "Rectus abdominis", "Hip flexors" ]);
+        await InitializeAsync("Weighted Hanging Knee Raises", GetExercisePhoto("weighted_hanging_knee_raises.png"), ["Dumbbells"], ExerciseType.WeightAndReps, ["Rectus abdominis", "Hip flexors"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Front Squat", GetExercisePhoto("front_squat.png"), [ "Barbells" ], ExerciseType.WeightAndReps, [ "Quadriceps", "Gluteus maximus" ]);
+        await InitializeAsync("Hanging Knee Raises", GetExercisePhoto("weighted_hanging_knee_raises.png"), ["No Equipment"], ExerciseType.Reps, ["Rectus abdominis", "Hip flexors"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Standing Side Bend", GetExercisePhoto("standing_side_bend.png"), [ "Dumbbells" ], ExerciseType.WeightAndReps, [ "External oblique" ]);
+        await InitializeAsync("Front Squat", GetExercisePhoto("front_squat.png"), ["Barbells"], ExerciseType.WeightAndReps, ["Quadriceps", "Gluteus maximus"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Crossbody Hammer Curl", GetExercisePhoto("crossbody_hammer_curl.png"), [ "Dumbbells" ], ExerciseType.WeightAndReps, [ "Biceps brachii short head", "Biceps brachii long head" ]);
+        await InitializeAsync("Standing Side Bend", GetExercisePhoto("standing_side_bend.png"), ["Dumbbells"], ExerciseType.WeightAndReps, ["External oblique"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Band Bicycle Crunch", GetExercisePhoto("band_bicycle_crunch.png"), [ "Resistance Bands" ], ExerciseType.Reps, [ "Rectus abdominis", "External oblique" ]);
+        await InitializeAsync("Crossbody Hammer Curl", GetExercisePhoto("crossbody_hammer_curl.png"), ["Dumbbells"], ExerciseType.WeightAndReps, ["Biceps brachii short head", "Biceps brachii long head"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Hollow Body Hold", GetExercisePhoto("hollow_body_hold.jpg"), [ "No Equipment" ], ExerciseType.Time, [ "Rectus abdominis" ]);
+        await InitializeAsync("Band Bicycle Crunch", GetExercisePhoto("band_bicycle_crunch.png"), ["Resistance Bands"], ExerciseType.Reps, ["Rectus abdominis", "External oblique"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Bent-Over Reverse Fly", GetExercisePhoto("bent-over_reverse_fly.png"), [ "Dumbbells" ], ExerciseType.WeightAndReps, [ "Deltoids", "Rhomboid major" ]);
+        await InitializeAsync("Hollow Body Hold", GetExercisePhoto("hollow_body_hold.jpg"), ["No Equipment"], ExerciseType.Time, ["Rectus abdominis"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Seated Overhead Press", GetExercisePhoto("seated_overhead_press.png"), [ "Barbells" ], ExerciseType.WeightAndReps, [ "Deltoids", "Triceps" ]);
+        await InitializeAsync("Bent-Over Reverse Fly", GetExercisePhoto("bent-over_reverse_fly.png"), ["Dumbbells"], ExerciseType.WeightAndReps, ["Deltoids", "Rhomboid major"], ["Bent Over Reverse Fly", "Reverse Fly"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Reverse Dumbbell Wrist Curl", GetExercisePhoto("reverse_dumbbell_wrist_curl.png"), [ "Dumbbells" ], ExerciseType.WeightAndReps, [ "Forearms" ]);
+        await InitializeAsync("Seated Overhead Press", GetExercisePhoto("seated_overhead_press.png"), ["Barbells"], ExerciseType.WeightAndReps, ["Deltoids", "Triceps"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Jogging", GetExercisePhoto("jogging_2.png"), [ "Treadmill" ], ExerciseType.Time, [ "Core", "Legs" ]);
+        await InitializeAsync("Reverse Dumbbell Wrist Curl", GetExercisePhoto("reverse_dumbbell_wrist_curl.png"), ["Dumbbells"], ExerciseType.WeightAndReps, ["Forearms"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Lying Weighted Neck Flexion", GetExercisePhoto("lying_weighted_neck_flexion.jpg"), [ "Weight Plates" ], ExerciseType.WeightAndReps, [ "Sternocleidomastoid" ]);
+        await InitializeAsync("Jogging", GetExercisePhoto("jogging_2.png"), ["Treadmill"], ExerciseType.Time, ["Core", "Legs"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Lying Weighted Neck Extension", GetExercisePhoto("lying_weighted_neck_extension.png"), [ "Weight Plates" ], ExerciseType.WeightAndReps, [ "Trapezius" ]);
+        await InitializeAsync("Lying Weighted Neck Flexion", GetExercisePhoto("lying_weighted_neck_flexion.jpg"), ["Weight Plates"], ExerciseType.WeightAndReps, ["Sternocleidomastoid"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository, "Plate Front Raise", GetExercisePhoto("plate_front_raise.png"), [ "Weight Plates" ], ExerciseType.WeightAndReps, [ "Deltoids" ]);
+        await InitializeAsync("Lying Weighted Neck Extension", GetExercisePhoto("lying_weighted_neck_extension.png"), ["Weight Plates"], ExerciseType.WeightAndReps, ["Trapezius"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
-            "Hanging Leg Raise", GetExercisePhoto("hanging_leg_raises.png"), [ "No Equipment" ],
-            ExerciseType.WeightAndReps, [ "Abs" ]);
+        await InitializeAsync("Plate Front Raise", GetExercisePhoto("plate_front_raise.png"), ["Weight Plates"], ExerciseType.WeightAndReps, ["Deltoids"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
-            "Sumo Deadlift", GetExercisePhoto("sumo_deadlift.png"), [ "Barbells" ],
-            ExerciseType.WeightAndReps, [ "Hamstrings", "Glutes" ]);
+        await InitializeAsync("Hanging Leg Raise", GetExercisePhoto("hanging_leg_raises.png"), ["No Equipment"],
+            ExerciseType.WeightAndReps, ["Abs"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
-            "Dips", GetExercisePhoto("dips.png"), [ "Dip Bars" ], ExerciseType.Reps, [ "Triceps", "Chest" ]);
+        await InitializeAsync("Sumo Deadlift", GetExercisePhoto("sumo_deadlift.png"), ["Barbells"],
+            ExerciseType.WeightAndReps, ["Hamstrings", "Glutes"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
-            "Weighted Dips", GetExercisePhoto("dips.png"), [ "Dip Bars", "Weight Plates" ], ExerciseType.WeightAndReps, [ "Triceps", "Chest" ]);
+        await InitializeAsync("Dips", GetExercisePhoto("dips.png"), ["Dip Bars"], ExerciseType.Reps, ["Triceps", "Chest"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
-            "Bench Dips", GetExercisePhoto("bench_dips.png"), [ "Bench" ],
-            ExerciseType.Reps, [ "Triceps", "Chest" ]);
+        await InitializeAsync("Weighted Dips", GetExercisePhoto("dips.png"), ["Dip Bars", "Weight Plates"], ExerciseType.WeightAndReps, ["Triceps", "Chest"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
-            "Weighted Bench Dips", GetExercisePhoto("bench_dips.png"), [ "Bench", "Weight Plates" ],
-            ExerciseType.WeightAndReps, [ "Triceps", "Chest" ]);
+        await InitializeAsync("Bench Dips", GetExercisePhoto("bench_dips.png"), ["Bench"],
+            ExerciseType.Reps, ["Triceps", "Chest"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
-            "Hammers", GetExercisePhoto("hammers.png"), [ "Dumbbells" ],
-            ExerciseType.WeightAndReps, [ "Forearms" ]);
+        await InitializeAsync("Weighted Bench Dips", GetExercisePhoto("bench_dips.png"), ["Bench", "Weight Plates"],
+            ExerciseType.WeightAndReps, ["Triceps", "Chest"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
-            "Incline Bench Press", GetExercisePhoto("incline_bench_press.png"), [ "Barbells", "Bench" ],
-            ExerciseType.WeightAndReps, [ "Chest", "Deltoids" ]);
+        await InitializeAsync("Hammers", GetExercisePhoto("hammers.png"), ["Dumbbells"],
+            ExerciseType.WeightAndReps, ["Forearms"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
-            "Triceps Pushdown", GetExercisePhoto("triceps_pushdown.png"), [ "Cable Machine" ],
-            ExerciseType.WeightAndReps, [ "Triceps" ]);
+        await InitializeAsync("Incline Bench Press", GetExercisePhoto("incline_bench_press.png"), ["Barbells", "Bench"],
+            ExerciseType.WeightAndReps, ["Chest", "Deltoids"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
-            "Neutral Grip Lat Pulldown", GetExercisePhoto("neutral_grip_lat_pulldown.png"), [ "Cable Machine" ],
-            ExerciseType.WeightAndReps, [ "Latissimus Dorsi" ]);
+        await InitializeAsync("Triceps Pushdown", GetExercisePhoto("triceps_pushdown.png"), ["Cable Machine"],
+            ExerciseType.WeightAndReps, ["Triceps"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
-            "Burpees", GetExercisePhoto("burpee.png"), [ "No Equipment" ],
-            ExerciseType.Reps, [ "Core", "Legs" ]);
+        await InitializeAsync("Neutral Grip Lat Pulldown", GetExercisePhoto("neutral_grip_lat_pulldown.png"), ["Cable Machine"],
+            ExerciseType.WeightAndReps, ["Latissimus Dorsi"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
-            "Cable Crunches", GetExercisePhoto("cable_crunches.png"), [ "Cable Machine" ],
-            ExerciseType.WeightAndReps, [ "Abs" ]);
+        await InitializeAsync("Burpees", GetExercisePhoto("burpee.png"), ["No Equipment"], ExerciseType.Reps, ["Core", "Legs"]);
 
-        await ExercisesInitializer.InitializeAsync(exerciseRepository, muscleRepository, equipmentRepository,
-            "Lunges", GetExercisePhoto("lunges.png"), [ "Dumbbells" ],
-            ExerciseType.WeightAndReps, [ "Quadriceps", "Glutes", "Hamstrings" ]);
+        await InitializeAsync("Cable Crunches", GetExercisePhoto("cable_crunches.png"), ["Cable Machine"], ExerciseType.WeightAndReps, ["Abs"]);
 
+        await InitializeAsync("Lunges", GetExercisePhoto("lunges.png"), ["Dumbbells"], ExerciseType.WeightAndReps, ["Quadriceps", "Glutes", "Hamstrings"]);
     }
 
     static string GetExercisePhoto(string fileName)
     {
-        string exercisePhotosPath = Path.Combine("photos", "exercises");
+        string exercisePhotosPath = Path.Combine("images", "exercises");
         return Path.Combine(exercisePhotosPath, fileName);
     }
 }

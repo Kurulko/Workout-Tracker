@@ -9,7 +9,6 @@ import { TokenManager } from '../../../shared/helpers/managers/token-manager';
 import { Exercise } from '../../models/exercise';
 import { PreferencesManager } from 'src/app/shared/helpers/managers/preferences-manager';
 import { environment } from 'src/environments/environment.prod';
-import { UploadWithPhoto } from 'src/app/shared/models/upload-with-photo';
 import { ChildMuscle } from 'src/app/muscles/models/child-muscle';
 import { Equipment } from 'src/app/equipments/models/equipment';
 
@@ -62,6 +61,7 @@ export class ExerciseEditComponent extends EditModelComponent<Exercise> implemen
         this.exercise = result;
         this.muscles = result.muscles;
         this.equipments = result.equipments;
+        this.exerciseAliases = result.aliases;
 
         if(this.exercise.image)
           this.previewUrl = this.envProduction.baseUrl + this.exercise.image;
@@ -73,6 +73,7 @@ export class ExerciseEditComponent extends EditModelComponent<Exercise> implemen
       // Add mode
       this.title = "Create new Exercise";
       this.exercise = <Exercise>{};
+      this.exerciseAliases = [];
     }
   }
 
@@ -98,8 +99,17 @@ export class ExerciseEditComponent extends EditModelComponent<Exercise> implemen
             });
         }
 
-        this.updateMuscles();
-        this.updateEquipments();
+        if(this.haveMusclesChanged) {
+          this.updateMuscles();
+        }
+
+        if(this.haveEquipmentsChanged) {
+          this.updateEquipments();
+        }
+
+        if(this.haveExerciseAliasesChanged) {
+          this.updateExerciseAliases();
+        }
 
         this.router.navigate([this.exercisesPath]);
       });
@@ -126,8 +136,17 @@ export class ExerciseEditComponent extends EditModelComponent<Exercise> implemen
             });
         }
 
-        this.updateMuscles();
-        this.updateEquipments();
+         if(this.haveMusclesChanged) {
+          this.updateMuscles();
+        }
+
+        if(this.haveEquipmentsChanged) {
+          this.updateEquipments();
+        }
+
+        if(this.haveExerciseAliasesChanged) {
+          this.updateExerciseAliases();
+        }
 
         this.router.navigate([this.exercisesPath]);
       });
@@ -161,9 +180,41 @@ export class ExerciseEditComponent extends EditModelComponent<Exercise> implemen
     });
   }
 
+  exerciseAliases!: string[];
+  updateExerciseAliases() {
+    (this.exercisePageType === 'yours' ? 
+      this.exerciseService.updateUserExerciseAliases(this.exercise.id, this.exerciseAliases) :
+      this.exerciseService.updateInternalExerciseAliases(this.exercise.id, this.exerciseAliases)
+    )
+    .pipe(this.catchError())
+    .subscribe(_ => {
+      console.log("Exercise aliases have been updated.");
+    });
+  }
+
   photo: File | null = null;
   isPhotoUploaded = false;
   onPhotoUpload() {
     this.isPhotoUploaded = true;
+  }
+
+  haveMusclesChanged = false;
+  onMusclesChanged() {
+    this.haveMusclesChanged = true;
+  }
+
+  haveEquipmentsChanged = false;
+  onEquipmentsChanged() {
+    this.haveEquipmentsChanged = true;
+  }
+
+  haveExerciseAliasesChanged = false;
+  onExerciseAliasesChanged(): void {
+    this.haveExerciseAliasesChanged = true;
+  }
+
+  isExerciseAliasesValid!: boolean;
+  onExerciseAliasesValidityChange(isValid: boolean): void {
+    this.isExerciseAliasesValid = isValid;
   }
 }

@@ -102,6 +102,7 @@ export class ExerciseDetailsComponent extends MainComponent implements OnInit {
 
   readonly musclePanelOpenState = signal(false);
   readonly equipmentPanelOpenState = signal(false);
+  readonly aliasPanelOpenState = signal(false);
 
   showExerciseType = showExerciseType;
   showCountOfSomethingStr = showCountOfSomethingStr;
@@ -159,6 +160,11 @@ export class ExerciseDetailsComponent extends MainComponent implements OnInit {
     var equipmentNames = this.exerciseDetails.exercise.equipments.map(equipment => equipment.name);
     const maxLength = 100;
     return showValuesStr(equipmentNames, maxLength);
+  }
+
+  getAliasNamesStr(): string {
+    const maxLength = 100;
+    return showValuesStr(this.exerciseDetails.exercise.aliases, maxLength);
   }
 
   deleteExercise() {
