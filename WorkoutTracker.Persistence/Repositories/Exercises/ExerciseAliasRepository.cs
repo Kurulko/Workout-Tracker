@@ -30,5 +30,4 @@ internal class ExerciseAliasRepository : BaseWorkoutRepository<ExerciseAlias>, I
         if (aliases.Any())
             await RemoveRangeAsync(aliases, cancellationToken);
     }
-
 }
