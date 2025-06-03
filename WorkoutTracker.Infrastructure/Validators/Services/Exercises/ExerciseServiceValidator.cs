@@ -133,17 +133,17 @@ public class ExerciseServiceValidator
             ArgumentValidator.ThrowIfArgumentNullOrEmpty(aliasStr, nameof(aliasStr));
     }
 
-    public async Task ValidateUpdateInternalPhotoAsync(long muscleId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    public async Task ValidateUpdateInternalPhotoAsync(long exerciseId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
     {
-        await muscleValidator.EnsureExistsAsync(muscleId, cancellationToken);
+        await exerciseValidator.EnsureExistsAsync(exerciseId, cancellationToken);
 
         if (fileUpload != null)
             fileUploadModelValidator.Validate(fileUpload);
     }
 
-    public async Task ValidateDeleteInternalPhotoAsync(long muscleId, CancellationToken cancellationToken)
+    public async Task ValidateDeleteInternalPhotoAsync(long exerciseId, CancellationToken cancellationToken)
     {
-        await muscleValidator.EnsureExistsAsync(muscleId, cancellationToken);
+        await exerciseValidator.EnsureExistsAsync(exerciseId, cancellationToken);
     }
 
     #endregion
@@ -245,19 +245,19 @@ public class ExerciseServiceValidator
             ArgumentValidator.ThrowIfArgumentNullOrEmpty(aliasStr, nameof(aliasStr));
     }
 
-    public async Task ValidateUpdateOwnedPhotoAsync(string userId, long muscleId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
+    public async Task ValidateUpdateOwnedPhotoAsync(string userId, long exerciseId, FileUploadModel? fileUpload, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
-        await muscleValidator.EnsureExistsAsync(muscleId, cancellationToken);
+        await exerciseValidator.EnsureExistsAsync(exerciseId, cancellationToken);
 
         if (fileUpload != null)
             fileUploadModelValidator.Validate(fileUpload);
     }
 
-    public async Task ValidateDeleteOwnedPhotoAsync(string userId, long muscleId, CancellationToken cancellationToken)
+    public async Task ValidateDeleteOwnedPhotoAsync(string userId, long exerciseId, CancellationToken cancellationToken)
     {
         await userValidator.EnsureExistsAsync(userId);
-        await muscleValidator.EnsureExistsAsync(muscleId, cancellationToken);
+        await exerciseValidator.EnsureExistsAsync(exerciseId, cancellationToken);
     }
 
 
