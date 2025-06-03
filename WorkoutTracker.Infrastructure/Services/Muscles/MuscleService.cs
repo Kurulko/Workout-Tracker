@@ -196,14 +196,7 @@ internal class MuscleService : BaseWorkoutService<MuscleService, Muscle>, IMuscl
         await muscleAliasRepository.RemoveByMuscleIdAsync(muscleId, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr($"{muscleEntityName} aliases", "delete"));
 
-        var aliases = aliasesStr
-            .Select(alias => new MuscleAlias
-            {
-                Name = alias.Trim(),
-                MuscleId = muscleId,
-            });
-
-        await muscleAliasRepository.AddRangeAsync(aliases, cancellationToken)
+        await muscleAliasRepository.AddMuscleAliasesAsync(muscleId, aliasesStr, cancellationToken)
             .LogExceptionsAsync(_logger, FailedToActionStr($"{muscleEntityName} aliases", "add"));
     }
 }
