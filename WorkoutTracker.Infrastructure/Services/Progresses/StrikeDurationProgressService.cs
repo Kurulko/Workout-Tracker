@@ -17,6 +17,10 @@ internal class StrikeDurationProgressService : IStrikeDurationProgressService
         StrikeDurationProgress strikeDurationProgress = new();
 
         var allStrikes = WorkoutStrikeModel.GetAllStrikes(workoutDates, range);
+
+        if (!allStrikes.Any())
+            return strikeDurationProgress;
+
         strikeDurationProgress.AverageWorkoutStrikeDays = GetAverageWorkoutStrikeInDays(allStrikes);
         strikeDurationProgress.MaxWorkoutStrikeDays = GetMaxWorkoutStrikeInDays(allStrikes);
         strikeDurationProgress.MaxRestStrikeDays = GetMaxRestStrikeInDays(allStrikes);
