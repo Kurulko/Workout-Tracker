@@ -12,6 +12,8 @@ public class Muscle : BaseWorkoutModel
     public Muscle? ParentMuscle { get; set; }
 
     public ICollection<Muscle>? ChildMuscles { get; set; }
+    public IEnumerable<MuscleAlias>? MuscleAliases { get; set; }
+
     public IEnumerable<Exercise>? Exercises { get; set; }
     public IEnumerable<MuscleSize>? MuscleSizes { get; set; }
 }

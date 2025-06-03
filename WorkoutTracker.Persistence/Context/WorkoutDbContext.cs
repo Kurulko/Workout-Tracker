@@ -20,6 +20,7 @@ public class WorkoutDbContext : IdentityDbContext<User>
     public DbSet<ExerciseSet> ExerciseSets => Set<ExerciseSet>();
     public DbSet<ExerciseSetGroup> ExerciseSetGroups => Set<ExerciseSetGroup>();
     public DbSet<Muscle> Muscles => Set<Muscle>();
+    public DbSet<MuscleAlias> MuscleAliases => Set<MuscleAlias>();
     public DbSet<MuscleSize> MuscleSizes => Set<MuscleSize>();
     public DbSet<BodyWeight> BodyWeights => Set<BodyWeight>();
     public DbSet<Equipment> Equipments => Set<Equipment>();
