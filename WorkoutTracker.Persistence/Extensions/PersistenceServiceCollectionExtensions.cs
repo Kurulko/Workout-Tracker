@@ -57,15 +57,38 @@ public static class PersistenceServiceCollectionExtensions
     {
         services.AddScoped<IUserDetailsRepository, UserDetailsRepository>();
         services.AddScoped<IBodyWeightRepository, BodyWeightRepository>();
+        services.AddScoped<IEquipmentRepository, EquipmentRepository>();
+
+        services.AddExerciseRepositories();
+        services.AddMuscleRepositories();
+        services.AddWorkoutRepositories();
+
+        return services;
+    }
+
+    static IServiceCollection AddExerciseRepositories(this IServiceCollection services)
+    {
         services.AddScoped<IExerciseRepository, ExerciseRepository>();
         services.AddScoped<IExerciseAliasRepository, ExerciseAliasRepository>();
-        services.AddScoped<IEquipmentRepository, EquipmentRepository>();
-        services.AddScoped<IMuscleRepository, MuscleRepository>();
-        services.AddScoped<IMuscleSizeRepository, MuscleSizeRepository>();
         services.AddScoped<IExerciseSetRepository, ExerciseSetRepository>();
         services.AddScoped<IExerciseSetGroupRepository, ExerciseSetGroupRepository>();
         services.AddScoped<IExerciseRecordRepository, ExerciseRecordRepository>();
         services.AddScoped<IExerciseRecordGroupRepository, ExerciseRecordGroupRepository>();
+
+        return services;
+    }
+
+    static IServiceCollection AddMuscleRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IMuscleRepository, MuscleRepository>();
+        services.AddScoped<IMuscleAliasRepository, MuscleAliasRepository>();
+        services.AddScoped<IMuscleSizeRepository, MuscleSizeRepository>();
+
+        return services;
+    }
+
+    static IServiceCollection AddWorkoutRepositories(this IServiceCollection services)
+    {
         services.AddScoped<IWorkoutRecordRepository, WorkoutRecordRepository>();
         services.AddScoped<IWorkoutRepository, WorkoutRepository>();
 
